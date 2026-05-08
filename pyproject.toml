@@ -1,0 +1,21 @@
+[project]
+name = "finpath-newsroom"
+version = "0.1.0"
+description = "Finpath Newsroom V3.6 — Claude Code CLI migration"
+requires-python = ">=3.13"
+dependencies = [
+    "requests>=2.32",
+    "pyyaml>=6.0",
+    "python-frontmatter>=1.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.12",
+    "responses>=0.25",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
