@@ -1,52 +1,82 @@
-import type { CrawlFunnelData, SourceMeta, WhyChosenItem } from '../types';
-import { Markdown } from './Markdown';
+import type { ArticleMeta } from '../types';
 import { CrawlFunnel } from './CrawlFunnel';
+import { QuestionOptions } from './QuestionOptions';
+import { DataTrail } from './DataTrail';
 import { formatPublishedDate } from '../lib/format';
 
-export function RightColumn({
-  source,
-  whyChosen,
-  crawlFunnel,
-  funnelBatchId,
-  rawBody,
-}: {
-  source: SourceMeta;
-  whyChosen: WhyChosenItem[];
-  crawlFunnel: CrawlFunnelData;
-  funnelBatchId: string;
-  rawBody: string;
-}) {
+export function RightColumn({ meta }: { meta: ArticleMeta }) {
+  const src = meta.right_source;
   return (
-    <section>
-      <h2>📰 Raw text gốc + meta</h2>
-      <p className="text-base font-semibold text-gray-800 mb-1 mt-0">{source.raw_title}</p>
-      <p className="text-sm text-gray-500 italic mb-4">
-        Nguồn:{' '}
-        <a href={source.url} target="_blank" rel="noopener noreferrer">
-          {source.name} — bấm để đọc bài gốc
-        </a>{' '}
-        · Published {formatPublishedDate(source.published)}
-      </p>
+    <section className="space-y-6">
+      {/* Section 1: Bài gốc */}
+      <section>
+        <h3>📰 Bài gốc</h3>
+        <p className="font-semibold">{src.raw_title}</p>
+        <p className="text-sm text-gray-500 italic">
+          Nguồn:{' '}
+          <a href={src.url} target="_blank" rel="noopener noreferrer">
+            {src.name}
+          </a>{' '}
+          · Published {formatPublishedDate(src.published)}
+        </p>
+      </section>
 
-      <div className="mb-5">
-        <p className="font-semibold mb-2">Cách viết & lý do chọn:</p>
-        <ul>
-          {whyChosen.map((item, i) => (
-            <li key={i}>
-              <strong>{item.label}</strong>: {item.content}
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Section 2: Vì sao chọn */}
+      {meta.why_chosen_narrative && (
+        <section>
+          <h3>🎯 Vì sao chọn bài này</h3>
+          <p className="leading-relaxed">{meta.why_chosen_narrative}</p>
+        </section>
+      )}
 
-      <CrawlFunnel data={crawlFunnel} funnelBatchId={funnelBatchId} />
+      {/* Section 3: Hướng tiếp cận */}
+      {meta.angle_label && (
+        <section>
+          <h3>🧭 Hướng tiếp cận</h3>
+          <p className="leading-relaxed">
+            <strong>{meta.angle_label}</strong>
+            {meta.angle_narrative && <> — {meta.angle_narrative}</>}
+          </p>
+        </section>
+      )}
 
-      <details className="mt-4">
-        <summary className="text-sm">📖 Click đọc full bài viết gốc</summary>
-        <div className="mt-3 text-sm">
-          <Markdown>{rawBody}</Markdown>
-        </div>
-      </details>
+      {/* Section 4: Question options + Master pick */}
+      <QuestionOptions
+        options={meta.deep_question_options}
+        chosenIdx={meta.chosen_question_idx}
+        pickReason={meta.chosen_pick_reason}
+        skipReasons={meta.skip_reasons || {}}
+      />
+
+      {/* Section 5: Crawl funnel */}
+      {meta.crawl_funnel && (
+        <CrawlFunnel data={meta.crawl_funnel} funnelBatchId={meta.funnel_batch_id} />
+      )}
+
+      {/* Section 6: Master data trail */}
+      <DataTrail
+        title="Phóng viên đã tra ở đâu"
+        emoji="📋"
+        trail={meta.master_data_trail}
+      />
+
+      {/* Section 7: Skeptic data trail */}
+      <DataTrail
+        title="Reviewer ngoài đã tra ở đâu"
+        emoji="🔍"
+        trail={meta.skeptic_data_trail}
+      />
+
+      {/* Section 8: Đọc bài gốc — link only, NO embed */}
+      <section>
+        <h3>📖 Đọc bài gốc</h3>
+        <p>
+          → <a href={meta.raw_article_url} target="_blank" rel="noopener noreferrer">
+            {src.name} — {src.raw_title}
+          </a>{' '}
+          ({formatPublishedDate(src.published)})
+        </p>
+      </section>
     </section>
   );
 }

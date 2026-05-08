@@ -4,7 +4,7 @@ import { RightColumn } from './RightColumn';
 import { formatCrawledAt } from '../lib/format';
 
 export function CompareFeedLayout({ article }: { article: Article }) {
-  const { meta, leftMarkdown, rightMarkdown } = article;
+  const { meta, leftMarkdown } = article;
   return (
     <article className="max-w-7xl mx-auto px-4 py-6">
       <header>
@@ -24,15 +24,8 @@ export function CompareFeedLayout({ article }: { article: Article }) {
           meta={meta.left_meta}
           insight={meta.insight}
           body={leftMarkdown}
-          pipelineLog={meta.pipeline_log}
         />
-        <RightColumn
-          source={meta.right_source}
-          whyChosen={meta.why_chosen}
-          crawlFunnel={meta.crawl_funnel}
-          funnelBatchId={meta.funnel_batch_id}
-          rawBody={rightMarkdown}
-        />
+        <RightColumn meta={meta} />
       </div>
     </article>
   );

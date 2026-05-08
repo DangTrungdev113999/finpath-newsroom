@@ -1,36 +1,22 @@
 import type { CrawlFunnelData, FunnelItem } from '../types';
 import { formatPublishedDate } from '../lib/format';
 
-function FunnelGroup({
-  emoji,
-  label,
-  items,
-  type,
-}: {
-  emoji: string;
-  label: string;
-  items: FunnelItem[];
-  type: 'picked' | 'rejected';
-}) {
-  if (items.length === 0) return null;
-  const labelColor = type === 'picked' ? 'text-green-700' : 'text-red-700';
+function FunnelEntry({ item }: { item: FunnelItem }) {
   return (
-    <div className="mb-3">
-      <p className={`font-semibold mb-1 ${labelColor}`}>
-        {emoji} <strong>{label}</strong> ({items.length})
-      </p>
-      <ul className="text-sm pl-4 space-y-1 mb-0">
-        {items.map((item, i) => (
-          <li key={i}>
-            <a href={item.url} target="_blank" rel="noopener noreferrer">
-              <strong>{item.source}</strong>
-            </a>{' '}
-            <span className="text-gray-500">({formatPublishedDate(item.published)})</span>{' '}
-            — {item.reason}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <li>
+      <a href={item.url} target="_blank" rel="noopener noreferrer">
+        <strong>{item.source}</strong>
+      </a>{' '}
+      <span className="text-gray-500">({formatPublishedDate(item.published)})</span>
+      {item.reject_label && (
+        <>
+          {' '}— <em className="text-red-700">{item.reject_label}</em>
+        </>
+      )}
+      <div className="text-sm text-gray-600 ml-4 mt-1">
+        {item.reject_label ? 'Vì sao bỏ' : 'Lý do chọn'}: {item.reason}
+      </div>
+    </li>
   );
 }
 
@@ -41,40 +27,35 @@ export function CrawlFunnel({
   data: CrawlFunnelData;
   funnelBatchId: string;
 }) {
-  const total =
-    data.picked.length +
-    data.rejected_editor_v1.length +
-    data.rejected_story_editor.length +
-    data.rejected_master.length;
-
   return (
     <details>
       <summary className="text-sm">
-        📊 Crawl funnel — đã search nhiều nguồn, {total} candidate, {data.picked.length} picked
+        📊 Crawl funnel — đã quét nhiều nguồn, gom {data.total_candidates} bài, chọn {data.picked.length}, loại {data.rejected.length}
       </summary>
-      <div className="mt-3 text-sm">
-        <p className="text-gray-500 text-xs mb-3">
-          <strong>Funnel batch</strong>: <code>{funnelBatchId}</code> · Sort: by Published_time desc
+      <div className="mt-3 text-sm space-y-4">
+        <p className="text-gray-500 text-xs">
+          <strong>Funnel batch</strong>: <code>{funnelBatchId}</code>
         </p>
-        <FunnelGroup emoji="✅" label="Picked" items={data.picked} type="picked" />
-        <FunnelGroup
-          emoji="❌"
-          label="Rejected by Editor V1"
-          items={data.rejected_editor_v1}
-          type="rejected"
-        />
-        <FunnelGroup
-          emoji="❌"
-          label="Rejected by Story Editor"
-          items={data.rejected_story_editor}
-          type="rejected"
-        />
-        <FunnelGroup
-          emoji="❌"
-          label="Rejected by Master"
-          items={data.rejected_master}
-          type="rejected"
-        />
+        {data.picked.length > 0 && (
+          <div>
+            <p className="font-semibold text-green-700 mb-1">✅ ĐÃ CHỌN ({data.picked.length})</p>
+            <ul className="space-y-2 pl-4">
+              {data.picked.map((item, i) => (
+                <FunnelEntry key={i} item={item} />
+              ))}
+            </ul>
+          </div>
+        )}
+        {data.rejected.length > 0 && (
+          <div>
+            <p className="font-semibold text-red-700 mb-1">❌ KHÔNG CHỌN ({data.rejected.length})</p>
+            <ul className="space-y-2 pl-4">
+              {data.rejected.map((item, i) => (
+                <FunnelEntry key={i} item={item} />
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </details>
   );

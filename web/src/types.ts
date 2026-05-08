@@ -1,7 +1,7 @@
 export interface SourceMeta {
   name: string;
   url: string;
-  published: string; // ISO date YYYY-MM-DD
+  published: string;
   raw_title: string;
 }
 
@@ -11,12 +11,12 @@ export interface LeftMeta {
   key_view: 'lạc quan' | 'thận trọng' | 'trung lập';
   skeptic_verdict: string;
   pipeline_version: string;
-  format_check: string;
 }
 
-export interface WhyChosenItem {
-  label: string;
-  content: string;
+export interface DeepQuestionOption {
+  question: string;
+  category: string;
+  pick_hint: string;
 }
 
 export interface FunnelItem {
@@ -24,13 +24,20 @@ export interface FunnelItem {
   url: string;
   published: string;
   reason: string;
+  reject_agent?: 'editor_v1' | 'story_editor' | 'master';
+  reject_label?: string;
 }
 
 export interface CrawlFunnelData {
   picked: FunnelItem[];
-  rejected_editor_v1: FunnelItem[];
-  rejected_story_editor: FunnelItem[];
-  rejected_master: FunnelItem[];
+  rejected: FunnelItem[];
+  total_candidates: number;
+}
+
+export interface DataTrailEntry {
+  source: string;
+  fetched: string;
+  used_for: string;
 }
 
 export interface ArticleMeta {
@@ -41,11 +48,20 @@ export interface ArticleMeta {
   crawled_at: string;
   funnel_batch_id: string;
   left_meta: LeftMeta;
-  right_source: SourceMeta;
   insight: string;
-  why_chosen: WhyChosenItem[];
+  // V4.0 right-column 8 sections
+  right_source: SourceMeta;
+  why_chosen_narrative: string;
+  angle_label: string;
+  angle_narrative: string;
+  deep_question_options: DeepQuestionOption[];
+  chosen_question_idx: number;
+  chosen_pick_reason: string;
+  skip_reasons: Record<string, string>;
   crawl_funnel: CrawlFunnelData;
-  pipeline_log: Record<string, unknown>;
+  master_data_trail: DataTrailEntry[];
+  skeptic_data_trail: DataTrailEntry[];
+  raw_article_url: string;
 }
 
 export interface Article {
