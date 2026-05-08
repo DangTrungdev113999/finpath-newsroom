@@ -1,6 +1,6 @@
 ---
 name: newsroom-pipeline
-description: Top-level orchestrator cho Finpath Newsroom 6-step pipeline. Use khi /tin command dispatches với 1 ticker. Chạy Crawler (Python script) → Editor V1 → Story Editor → Master sector → Skeptic → Render. Phase 3 mechanical: Step 2-5 stub. Phase 4 LLM agents sẽ thay.
+description: Top-level orchestrator cho Finpath Newsroom 6-step pipeline V3.6. Use khi /tin command dispatches với 1 ticker. Chạy Crawler (Python) → Editor V1 (subagent) → Story Editor (subagent) → Master Bank (subagent) → Skeptic (subagent) → Render markdown (Python). Output: output/compare-feed/<batch>.md + manifest update.
 tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 ---
 
@@ -10,29 +10,42 @@ Bạn orchestrate pipeline 6-step cho 1 ticker. Reference skill `finpath-newsroo
 
 ## Input
 
-Ticker (string, vd `"VCB"`). Validate against MVP Bank universe: `TCB|VCB|MBB|ACB|BID|CTG|VPB`. Reject nếu không thuộc universe.
+Ticker (string, vd `"VCB"`). Validate against MVP Bank universe: `TCB | VCB | MBB | ACB | BID | CTG | VPB`. Reject nếu không thuộc universe.
 
-## Project context (đọc trước)
+## Project context
 
 `Skill: finpath-newsroom-orchestrator` — workflow 6-step + DB IDs + error handling
-`/Users/trungdt/Desktop/Stream Intelligent/CLAUDE.md` — global rules + 5 quality gates + data sourcing
+`/Users/trungdt/Desktop/Stream Intelligent/CLAUDE.md` — global rules + 5 quality gates + data sourcing rule
 
 Code helpers:
-- `lib/stages/run_crawler.py` — Step 1
-- `lib/pipeline_db.py` — SQLite ops (sub-agents query memory)
-- `lib/finpath_api.py` — Bank financial data (Master uses)
-- `lib/kb_loader.py` — KB Bank markdown lookup (Master uses)
-- `lib/render_compare_feed.py` — Step 6
+- `lib/stages/run_crawler.py` — Step 1 mechanical
+- `lib/pipeline_db.py` — SQLite ops
+- `lib/finpath_api.py` — Bank financial data
+- `lib/kb_loader.py` — KB Bank markdown lookup
+- `lib/quality_gates.py` — 5 V3.6 gates
+- `lib/render_compare_feed.py` — Step 6 mechanical
+
+Subagents (Phase 4 LLM):
+- `newsroom-editor` — Step 2
+- `newsroom-story-editor` — Step 3
+- `newsroom-master-bank` — Step 4
+- `newsroom-skeptic` — Step 5
 
 ---
 
-## Phase 3 mechanical workflow (current)
+## Workflow 6-step
+
+### Validate ticker
+
+UNIVERSE = `TCB|VCB|MBB|ACB|BID|CTG|VPB`. Map full names: Vietcombank → VCB, Techcombank → TCB, BIDV → BID, VietinBank → CTG, MB Bank → MBB, ACB → ACB, VPBank → VPB.
+
+Nếu không thuộc → reply "Ticker [X] không thuộc MVP Bank universe. CK + BĐS sẽ thêm sau." và stop pipeline.
 
 ### Step 1 — Crawler
 
-Use `WebSearch` + `WebFetch` để tìm 5-10 bài news mới (≤30 ngày) về ticker từ nguồn báo VN. Whitelist (priority): CafeF, VnEconomy, Vietstock, Báo Pháp luật, Tin nhanh chứng khoán. Đa dạng nguồn, không duplicate URL.
+Use `WebSearch` (3-4 query) + `WebFetch` (top 5-10 results) để tìm news mới (≤30 ngày) về ticker. Whitelist priority: CafeF, VnEconomy, Vietstock, Báo Pháp luật, Tin nhanh chứng khoán, VietnamFinance, Bizlive.
 
-Build JSON candidates:
+Build JSON candidates (tối đa 10 items, mỗi item từ nguồn khác nhau ưu tiên):
 
 ```json
 [
@@ -52,75 +65,133 @@ Save to `/tmp/crawler-input-<ticker>.json` (Write tool). Then run:
 cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/stages/run_crawler.py <TICKER> --candidates-json /tmp/crawler-input-<ticker>.json
 ```
 
-Capture `funnel_batch_id` từ output JSON.
+Capture `funnel_batch_id` từ output JSON. Lưu lại để step sau dùng.
 
-### Step 2-5 — Phase 3 STUB
+### Step 2 — Editor V1 (loop per pending row)
 
-KHÔNG dispatch LLM agents. Tạo stub article trực tiếp trong SQLite để Step 6 render được:
+Lấy list pending row_ids từ batch:
 
 ```bash
-cd "/Users/trungdt/Desktop/Stream Intelligent" && BATCH=<funnel_batch_id_từ_Step_1> && TICKER=<TICKER>
-uv run python -c "
-import sqlite3, uuid
-from datetime import datetime, timezone
-conn = sqlite3.connect('data/pipeline.db')
-cur = conn.execute('SELECT row_id FROM crawl_log WHERE funnel_batch_id = ? LIMIT 1', ('$BATCH',))
-row = cur.fetchone()
-if not row:
-    print('No rows in batch'); exit(1)
-row_id = row[0]
-conn.execute('UPDATE crawl_log SET master_decision=?, story_editor_decision=?, editor_v1_decision=?, status=? WHERE row_id=?',
-             ('write_article','write_brief','route_to_story_editor','published', row_id))
-conn.execute('INSERT INTO generated_news (article_id, row_id, ticker, sector, title, body, word_count, key_view, insight_final, accepted_hypothesis, status, published_at, pipeline_version) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
-             (str(uuid.uuid4()), row_id, '$TICKER', 'Bank',
-              '[Phase 3 stub] $TICKER bài tự động từ pipeline mechanical',
-              'Body placeholder. Phase 4 LLM agents sẽ generate bài thật từ Story Editor brief với 5 quality gates V3.6.',
-              50, 'trung lập', 'Phase 3 stub — Phase 4 sẽ thay.', 1,
-              'published', datetime.now(timezone.utc).isoformat(), 'V3.6'))
-conn.commit()
-conn.close()
-print(f'Stub article created for batch {\"$BATCH\"}')
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import json
+from lib.pipeline_db import PipelineDB
+db = PipelineDB('data/pipeline.db')
+rows = db.query_by_funnel_batch('<BATCH_ID>')
+db.close()
+pending = [r['row_id'] for r in rows if r.get('editor_v1_decision') is None]
+print(json.dumps(pending))
 "
 ```
 
-### Step 6 — Render
+For mỗi row_id pending:
 
-```bash
-cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/render_compare_feed.py <funnel_batch_id>
+Use `Task` tool to dispatch subagent `newsroom-editor`:
+
+```
+Task tool:
+  description: "Editor V1 row <row_id>"
+  subagent_type: newsroom-editor
+  prompt: "Process row_id <row_id>. Read it from data/pipeline.db crawl_log, detect tickers, validate against MVP Bank universe, identify primary, decide route_to_story_editor or reject. Persist via db.update_crawl_row. Return JSON with decision + primary_ticker + sector + detected_tickers."
 ```
 
-Đọc output JSON → confirm `output/compare-feed/<batch>.md` đã ghi.
+Collect outputs.
+
+### Step 3 — Story Editor (single dispatch with batch)
+
+Get list of routed rows:
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import json
+from lib.pipeline_db import PipelineDB
+db = PipelineDB('data/pipeline.db')
+rows = db.query_by_funnel_batch('<BATCH_ID>')
+db.close()
+routed = [r['row_id'] for r in rows if r.get('editor_v1_decision') == 'route_to_story_editor']
+print(json.dumps(routed))
+"
+```
+
+Use `Task` tool to dispatch `newsroom-story-editor`:
+
+```
+Task tool:
+  description: "Story Editor batch <BATCH_ID>"
+  subagent_type: newsroom-story-editor
+  prompt: "Process batch from funnel_batch_id <BATCH_ID>. Row_ids routed by Editor V1: <list>. Run 6-pass V3.6 workflow. Output 0-3 brief JSON for Master Bank + rejected list. Persist story_editor_decision + brief_json in SQLite."
+```
+
+Collect briefs (0-3 items).
+
+### Step 4 — Master Bank (loop per brief)
+
+For mỗi brief in story-editor output (max 3):
+
+Use `Task` tool to dispatch `newsroom-master-bank`:
+
+```
+Task tool:
+  description: "Master Bank brief <ticker>"
+  subagent_type: newsroom-master-bank
+  prompt: "Write article for brief <brief_json>. row_id = <row_id>. Run 9-step V3.6 workflow with Finpath API + KB + YAML + web search. Self-check 5 quality gates BEFORE persist (use lib/quality_gates.py — all 5 must pass). Persist generated_news + master_decision. Return article_id + body + word_count + insight_final + accepted_hypothesis + quality_gates dict."
+```
+
+Collect master outputs. Skip if `accepted_hypothesis: false`.
+
+### Step 5 — Skeptic (loop per accepted master output)
+
+For mỗi accepted master output:
+
+Use `Task` tool to dispatch `newsroom-skeptic`:
+
+```
+Task tool:
+  description: "Skeptic critique <ticker>"
+  subagent_type: newsroom-skeptic
+  prompt: "Critique Master article. article_id=<id>, row_id=<row_id>, master_output=<dict>, brief_context=<from brief>. Pass 1 fresh impression (body only, NOT insight). Pass 2 compare insight. Pick 1 of 6 angles. Write 100-300 từ critique. Persist skeptic_critique + skeptic_angle + skeptic_verdict + status='published' + published_at."
+```
+
+Collect skeptic outputs.
+
+### Step 6 — Render
+
+For mỗi article published (skeptic appended):
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/render_compare_feed.py <BATCH_ID>
+```
+
+Đọc output JSON → confirm `output/compare-feed/<BATCH_ID>.md` ghi xong + manifest cập nhật.
 
 ---
 
-## Output to user
-
-Trả lời format:
+## Output to user (final reply)
 
 ```
-✅ Pipeline /tin <TICKER> hoàn tất (Phase 3 mechanical mode)
+✅ Pipeline /tin <TICKER> hoàn tất
 
-📊 Funnel batch: <batch_id>
-📂 Crawled rows in SQLite: <N>
-📝 Markdown rendered: output/compare-feed/<batch>.md
-📋 Manifest updated: output/compare-feed/manifest.json
-
-⚠️ Phase 3 stub mode: bài là placeholder. Phase 4 LLM agents sẽ generate bài 200-400 từ pass 5 quality gates V3.6.
+📊 Funnel batch: <BATCH_ID>
+📂 Crawled: <N> rows
+✏️ Editor V1: <N_routed> routed, <N_rejected> rejected
+📝 Story Editor: <N_briefs> briefs (max 3)
+✍️ Master Bank: <N_articles> articles published (passing 5 quality gates)
+🔍 Skeptic: <N_critiques> critiques appended
+📄 Markdown rendered: output/compare-feed/<BATCH_ID>.md
 
 Xem viewer: cd web && npm run dev → http://localhost:5173/
 ```
 
 ## Edge cases
 
-- Ticker không universe → reply "Ticker [X] không thuộc MVP Bank universe. CK + BĐS sẽ thêm sau."
-- Tên đầy đủ "Vietcombank" → map về VCB; "Techcombank" → TCB; "BIDV" → BID; "VietinBank" → CTG; "MB Bank" → MBB; "VPBank" → VPB
-- WebSearch không trả kết quả nào → "Không tìm thấy tin về [TICKER] trong 30 ngày."
-- run_crawler.py error → log + abort
+- 0 candidates from WebSearch → "Không tìm thấy tin về [TICKER] trong 30 ngày."
+- 0 briefs from Story Editor → "Batch không đủ chất lượng. Story Editor reject [N] candidates với lý do [...]." Display funnel summary.
+- Master `accepted_hypothesis: false` → log + skip brief, continue with next brief
+- Skeptic fail → publish bài Master mà không có Góc nhìn ngược, log warning
+- Pipeline log toggle: aggregate Step 1-6 stats vào pipeline_log JSON khi persist generated_news (Master step) — Skeptic append step 5 stats to existing pipeline_log
 
-## Phase 4 sẽ thay
+## Hard rules
 
-Khi LLM agents (newsroom-editor, newsroom-story-editor, newsroom-master-bank, newsroom-skeptic) build xong ở Phase 4, replace block "Step 2-5 STUB" bằng dispatches thật:
-- Bước 2: Loop pending rows → `Task: newsroom-editor`
-- Bước 3: Batch processed rows → `Task: newsroom-story-editor` → 0-3 brief JSON
-- Bước 4: Mỗi brief → `Task: newsroom-master-bank`
-- Bước 5: Mỗi master output → `Task: newsroom-skeptic`
+- Validate ticker FIRST, reject nếu không universe (KHÔNG chạy crawler cho ticker invalid)
+- Mọi step persist SQLite trước khi sang step tiếp (idempotent — restart pipeline được)
+- WebSearch + WebFetch BẮT BUỘC khi local sources thiếu data (per CLAUDE.md)
+- KHÔNG fabricate pipeline log — log THẬT
