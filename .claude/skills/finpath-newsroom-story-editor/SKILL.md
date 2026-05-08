@@ -1,6 +1,6 @@
 ---
 name: finpath-newsroom-story-editor
-description: Tổng biên tập 15 năm thị trường VN — judgment expert agent in Finpath Newsroom V3.6 pipeline. Use when orchestrator passes a batch of crawled articles after Editor V1 filtered universe. 6 pass workflow (pre-filter / 6 expert questions / lightweight access / ranking / variety guard) → outputs 0-3 brief JSON for Master sector. V3.6 separates 2 things: (1) `angle_label` = TÊN GỌI bài (free text VN, generate 2-3 option pick 1 default for Compare Feed); (2) `deep_question` + `deep_question_category` = ĐỀ BÀI cụ thể, MUST thuộc 1 trong 5 category đào sâu được (paradox / why_now / hidden_mechanism / comparison_deep / early_signal) — fail → reject low_writeability. Brief V3.6 KHÔNG có data_spec — Master toàn quyền giải bài. Story Editor chỉ giao đề bài, KHÔNG chỉ định DB/KB query. NEVER pads to fill quota. Lightweight access only (Memory + web snippet). Persists story_editor_decision + note to SQLite crawl_log via lib/pipeline_db.py.
+description: Tổng biên tập 15 năm thị trường VN — judgment expert agent in Finpath Newsroom V4.0 pipeline. Use when orchestrator passes a batch of crawled articles after Editor V1 filtered universe. 6 pass workflow (pre-filter / 6 expert questions / lightweight access / ranking / variety guard) → outputs 0-3 narrative-rich brief for Master sector. V4.0 outputs multi-option brief: (1) `angle_label` + `angle_narrative` = TÊN GỌI + hướng tiếp cận bài (free text VN); (2) `deep_question_options` array 2-3 câu hỏi đào sâu, mỗi câu thuộc 1 trong 5 category — Master tự chọn; (3) `why_chosen_narrative` + `source_rationale` = narrative USER-READABLE tiếng Việt thuần. KHÔNG có data_spec — Master toàn quyền giải bài. NEVER pads to fill quota. Lightweight access only (Memory + web snippet). Persists story_editor_decision + note to SQLite crawl_log via lib/pipeline_db.py.
 ---
 
 # Story Editor V2.4 — Tổng biên tập 15 năm
@@ -31,16 +31,13 @@ Mỗi candidate, hỏi 6 câu:
 2. **Data foundation** — DB Notion + KB + web search có data anchor để Master viết sâu không?
 3. **Timeliness** — Sự kiện vừa xảy ra hay đã cũ? Nếu cũ thì có angle mới không?
 4. **Hypothesis 1 câu** — Phát biểu insight 1 câu specific (drives `insight_hypothesis`)
-5. **Angle label — bài này theo HƯỚNG nào?** (V3.6 mới)
-   - Đặt tên hướng tiếp cận của bài (free text tiếng Việt thuần)
-   - Examples: "Đánh đổi chủ động — chuyển hướng chiến lược" / "Nghịch lý 'biggest = slowest'" / "Hứa thấp để dễ vượt" / "Phép tính âm thành dương"
-   - Generate **2-3 angle option** khả thi → pick 1 default + flag 2 alternatives (Compare Feed cột phải hiển thị tất cả để sếp review)
-   - KHÔNG dùng enum tag (`strategic-shift`) — đó là metadata riêng
-6. **Deep question — câu hỏi đào sâu cụ thể** (V3.6 mới — gate cứng)
-   - Câu hỏi cụ thể Master phải trả lời với 3-7 lý do mechanism
-   - Phải thuộc 1 trong **5 category**: `paradox` / `why_now` / `hidden_mechanism` / `comparison_deep` / `early_signal`
-   - ❌ Verify factual ("5.000 tỷ từ đâu ra?") / Yes-No ("có chuyển hướng không?") / Single fact / Generic — fail Câu 6
-   - Fail Câu 6 → reject `low_writeability`
+5. **Câu 5 — Angle**: TÊN GỌI bài (free-text VN, vd "Đánh đổi chủ động"). Plus narrative 2-3 câu giải thích hướng tiếp cận.
+
+6. **Câu 6 — Deep question OPTIONS** (V4.0 NEW):
+   - Generate **2-3 candidate questions**, mỗi câu thuộc 1 trong 5 category: `paradox`, `why_now`, `hidden_mechanism`, `comparison_deep`, `early_signal`
+   - Mỗi option có `pick_hint` 1 câu — gợi ý Master vì sao pick câu này (data foundation? freshness? complexity?)
+   - Master tự chọn 1 trong 3 dựa trên context của họ
+   - Nếu KHÔNG generate được ≥2 options thuộc 5 category → reject `low_writeability`
 
 ⚠️ **Câu 5 + Câu 6 phân biệt rõ**:
 - **Angle label** = TÊN GỌI bài (hướng tiếp cận, dùng cho variety guard + Compare Feed)
@@ -81,43 +78,54 @@ Check 3 brief picked có cùng `deep_question_category` với 3 bài cũ không:
 - `unverified_rumor` — nguồn không chính thống, claim không verify
 - `stale` — tin từ trước 30 ngày
 
-## Brief schema V3.6
+## Brief schema V4.0
 
-```json
-{
-  "row_id": "<crawl_log row>",
-  "ticker": "TCB",
-  "sector": "Bank",
+Story Editor outputs narrative-rich brief với 2-3 deep_question OPTIONS để Master tự chọn.
 
-  "angle_label": "<TÊN GỌI bài — hướng tiếp cận, free text tiếng Việt thuần — vd 'Đánh đổi chủ động — chuyển hướng chiến lược'>",
-  "angle_rationale": "<1-2 câu vì sao chọn hướng này, không phải hướng khác>",
-  "angle_alternatives": [
-    {"label": "<angle option 2>", "rationale": "<1 câu>"},
-    {"label": "<angle option 3>", "rationale": "<1 câu>"}
-  ],
+```yaml
+brief_v4:
+  row_id: "<crawl_log row>"
+  ticker: "TCB"
+  sector: "Bank"
 
-  "deep_question_category": "paradox | why_now | hidden_mechanism | comparison_deep | early_signal",
-  "deep_question": "<câu hỏi cụ thể Master phải trả lời — vd 'Vì sao 2 quyết định ngược chiều xảy ra cùng lúc?'>",
+  # User-readable narratives (Story Editor viết trực tiếp tiếng Việt thuần — NO enum)
+  why_chosen_narrative: |
+    3-5 câu narrative — vì sao chọn bài này.
+    Vd: "Tin Q1/2026 mới 1 ngày, có 3 yếu tố hiếm cùng xuất hiện — paradox 
+    CEO công khai 'hy sinh 5.000 tỷ/năm' + quyết định BĐS lần đầu < 30% + 
+    timing perfect 12 ngày sau ĐHĐCĐ. Source này là duy nhất trong batch 
+    decode đủ 4 con số mechanism."
+  
+  angle_label: "Tag ngắn — vd 'Đánh đổi chủ động — chuyển hướng chiến lược'"
+  
+  angle_narrative: |
+    2-3 câu — bài đi theo hướng nào, tại sao chọn hướng đó.
+    Vd: "Bài đi theo hướng nghịch lý — TCB cùng lúc làm 2 hành động ngược 
+    chiều: chia cổ tức kỷ lục + rút BĐS dưới 30%. Đào sâu cơ chế đằng sau."
+  
+  source_rationale: "1-2 câu — vì sao chọn nguồn này trong batch"
 
-  "insight_hypothesis": "<1 CÂU specific TIẾNG VIỆT, không hedge — Master verify với data, drives Compare Feed 💡 Insight>",
-
-  "source_rationale": "<1-2 câu vì sao chọn nguồn này trong batch>",
-  "why_chosen": "<3+ câu giải thích — show cho sếp đọc Compare Feed cột phải>",
-
-  "memory_check": {
-    "passed": true,
-    "recent_angles": [...],
-    "recent_categories": [...]
-  }
-}
+  # Multi-option questions (V4.0 NEW)
+  deep_question_options:
+    - question: "Vì sao 2 quyết định ngược chiều xảy ra cùng lúc?"
+      category: paradox
+      pick_hint: "Có quote CEO mạnh + 2 hành động đối lập rõ"
+    - question: "Vì sao bây giờ là thời điểm rút BĐS, không phải 2023?"
+      category: why_now
+      pick_hint: "Timing với khủng hoảng BĐS 2022-23, dễ liên hệ Vạn Thịnh Phát"
+    - question: "TCB hy sinh 5.000 tỷ/năm — phép tính nào ra con số đó?"
+      category: hidden_mechanism
+      pick_hint: "Cần report nội bộ TCB, web search có thể fail"
+  
+  insight_hypothesis: "1 câu specific Master verify với data"
+  memory_check: { passed: bool, recent_angles: [...], recent_categories: [...] }
 ```
 
-⚠️ **Rule mới V2.5**: `angle` field là FREE STYLE TIẾNG VIỆT THUẦN — KHÔNG đính `insight_type` enum trong ngoặc. Master sẽ kế thừa angle text đó vào Compare Feed cột phải "Cách viết & lý do chọn", nếu angle có jargon Anh thì sẽ leak ra user-facing content.
+⚠️ **DROPPED từ V3.6**: `data_spec`, `data_anchor`, `angle_alternatives`, single `deep_question`, single `deep_question_category`. V4.0 dùng `deep_question_options` array.
 
-❌ Anti-pattern: `"angle": "Trade-off chủ động (strategic-shift) — chia cổ tức..."`
-✅ Đúng: `"angle": "Đánh đổi chủ động — chuyển hướng chiến lược: chia cổ tức kỷ lục cùng lúc rút BĐS..."`
+⚠️ **Narrative fields BẮT BUỘC**: `why_chosen_narrative` + `angle_narrative` + `source_rationale` — viết tiếng Việt thuần, USER-READABLE, KHÔNG enum keywords (paradox/why_now/etc).
 
-Schema full V2.2 với examples: see `references/brief-schema-full.md`.
+⚠️ **Master flexibility**: Master quyền free reformulate chosen question để clickable hơn. Master persist `chosen_question_idx` + `chosen_pick_reason` + `skip_reasons[idx]: narrative` cho 2 câu skip.
 
 ## Output wrapper
 
