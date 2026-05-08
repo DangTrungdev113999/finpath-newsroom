@@ -11,7 +11,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "gray-matter": "^4.0.3",
+    "js-yaml": "^4.1.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-markdown": "^9.1.0",
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
