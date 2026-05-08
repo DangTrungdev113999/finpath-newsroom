@@ -28,17 +28,46 @@ output/compare-feed/             → Markdown bài + manifest.json (1 file/bài)
 web/                             → Vite + React + Tailwind viewer
 ```
 
-## 5 Quality Gates V3.6 (HARD CAP cho bài Master)
+## 5 Quality Gates V4.0 (HARD CAP cho bài Master)
 
 Bài fail 1/5 gate → tự reject + rewrite, KHÔNG persist:
 
 1. **0% từ tiếng Anh** trong content (kể cả viết tắt NPL/NIM/CASA/CAR/Basel/IRB/RWA/ESOP, kể cả từ thông dụng trade-off/anchor/momentum/defensive/symbolic/catalyst/breaking/portfolio/buffer/stress test/metric/event/story/scenario/target). Exception: tên riêng (Vietcombank, Techcombank, Q1/Q2, NHNN, ĐHĐCĐ) + Pipeline log internal toggle.
 2. **Word count 200-400 từ HARD CAP** body chính. 401+ → reject + rewrite.
-3. **Body 3-7 lý do mechanism**, mỗi lý do pass 3 test: (a) trả lời "vì sao", (b) có mechanism (quy định/phép tính/chu kỳ/cạnh tranh/lịch sử/customer behavior), (c) reader học cách thị trường vận hành. KHÔNG pad.
-4. **"Cần để ý"** narrative ưu tiên 1 đoạn 50-100 từ (symbolic + lookforward + caveat ngược + data anchor + hàm ý NĐT). Exception: 2-3 bullet OK nếu caveat độc lập.
-5. **No metadata leak** — KHÔNG có "strategic-shift" / "risk_highlight" / "insight_type" / "Critique angle" trong bài đọc.
+3. **Body pattern**: 1 opening paragraph (≥30 từ, không bullet) + 3-7 substantive bullets (each ≥20 từ + ≥1 bold highlight `**...**`) + 1 closing sentence (không bullet, không heading). KHÔNG `## Cần để ý` section.
+4. **Title-as-hook**: Title chứa `?` HOẶC `—` + ≥1 tension word: `hy sinh`, `đánh đổi`, `nghịch lý`, `vì sao`, `đổi lấy`, `không phải`, `bù lại`, `thay vì`, `chấp nhận`.
+5. **No metadata leak** — KHÔNG có `strategic-shift` / `risk_highlight` / `insight_type` / `Critique angle` / 5-category enum (paradox/why_now/hidden_mechanism/comparison_deep/early_signal) trong bài đọc.
 
-Heading hợp lệ DUY NHẤT: `## Cần để ý` (optional) + `## Góc nhìn ngược` (Skeptic). KHÔNG dùng "Key takeaway" / "Tóm lại" / "Tin chính" / "Điểm cốt lõi".
+Heading hợp lệ DUY NHẤT trong body Master: KHÔNG có heading. Skeptic append `## Góc nhìn ngược` riêng (không tính vào gates Master). KHÔNG dùng "Cần để ý" / "Key takeaway" / "Tóm lại" / "Tin chính" / "Điểm cốt lõi".
+
+## Body pattern V4.0
+
+```
+[Title hook — question hoặc declarative paradox]
+
+[Opening paragraph 30-60 từ — sự kiện + tension/setup, có thể end với câu hỏi]
+
+- **Bold highlight 1**: bullet ≥20 từ với connector + mechanism reasoning
+- **Bold highlight 2**: bullet ≥20 từ
+- **Bold highlight 3**: bullet ≥20 từ
+- ... up to 7 bullets
+
+[Closing — 1 câu phân loại NĐT phù hợp]
+```
+
+KHÔNG `## Cần để ý` section. Caveats compress vào closing hoặc inline trong bullets.
+
+## Multi-article output V4.0
+
+Story Editor pick 1-3 brief → Master generate 1 article per brief → 1 markdown file per article.
+
+- File naming: `<TICKER>-<YYYYMMDD>-<HHMM>-<hook-slug>.md`
+- `hook-slug` = title hook slugified (lowercase + ASCII + hyphen + max 60 chars). Implementation: `lib/slugify.py:slugify_hook()`.
+- DB: `generated_news.public_slug` UNIQUE column.
+- Manifest entry uses `id = public_slug`.
+- URL: `/article/<public_slug>`.
+
+3 briefs = 3 separate articles, each = 1 card on IndexPage.
 
 ## Universe (MVP Bank only)
 
