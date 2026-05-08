@@ -27,3 +27,7 @@ data/pipeline.db-journal
 # Editor
 .vscode/
 .idea/
+
+# Playwright verification artifacts (ad-hoc screenshots)
+.playwright-mcp/
+phase1-*.png
