@@ -34,7 +34,7 @@ METADATA_TAGS = [
 
 
 def _strip_skeptic_section(body: str) -> str:
-    parts = re.split(r"^##\s+G[óo]c\s+nh[iì]n\s+ng[ưu]?[ợo]?c\s*$", body, flags=re.MULTILINE)
+    parts = re.split(r"^#{2,3}\s+G[óo]c\s+nh[iì]n\s+ng[ưu]?[ợo]?c\s*$", body, flags=re.MULTILINE)
     return parts[0]
 
 
@@ -80,7 +80,7 @@ def check_mechanism_count(body: str) -> dict[str, Any]:
 def check_can_de_y_narrative(body: str) -> dict[str, Any]:
     cleaned = _strip_skeptic_section(_strip_pipeline_log(body))
     m = re.search(
-        r"^##\s+C[ầa]n\s+đ[ểe]?\s+ý\s*$([\s\S]*?)(?=^##\s|\Z)",
+        r"^#{2,3}\s+C[ầa]n\s+đ[ểe]?\s+ý\s*$([\s\S]*?)(?=^#{2,3}\s|\Z)",
         cleaned,
         flags=re.MULTILINE,
     )
