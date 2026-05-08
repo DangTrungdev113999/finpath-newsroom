@@ -1,0 +1,26 @@
+# NHNN circulars affecting Bank sector
+# MOCK stubs cho Phase 2 testing
+
+- title: "Thông tư 02/2025/TT-NHNN"
+  effective_date: 2025-04-01
+  affected_topics: ["NPL classification", "Coverage ratio"]
+  summary: "Siết tiêu chí phân loại nợ xấu nhóm 3-5, yêu cầu coverage ratio tối thiểu 100%."
+  url: "https://example.com/nhnn-tt02-2025"
+
+- title: "Thông tư 06/2025/TT-NHNN"
+  effective_date: 2025-09-01
+  affected_topics: ["Credit room", "Capital buffer"]
+  summary: "Cấp room tín dụng theo CAR + NPL benchmark Q2 mỗi năm."
+  url: "https://example.com/nhnn-tt06-2025"
+
+- title: "Thông tư 11/2025/TT-NHNN"
+  effective_date: 2026-01-01
+  affected_topics: ["Basel III implementation"]
+  summary: "Lộ trình áp dụng tiêu chuẩn vốn quốc tế mới (Basel III) cho Big4 từ 1/1/2026."
+  url: "https://example.com/nhnn-tt11-2025"
+
+- title: "Thông tư 14/2026/TT-NHNN"
+  effective_date: 2026-03-01
+  affected_topics: ["Foreign ownership cap", "Strategic partner"]
+  summary: "Mở rộng trần sở hữu ngoại lên 35% với điều kiện đối tác chiến lược cam kết dài hạn."
+  url: "https://example.com/nhnn-tt14-2026"

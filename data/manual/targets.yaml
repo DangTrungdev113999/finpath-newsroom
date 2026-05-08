@@ -1,0 +1,39 @@
+# Targets vs Actual — kế hoạch ĐHĐCĐ vs thực tế per quý
+# Source: nghị quyết ĐHĐCĐ năm + quarterly BCTC
+# MOCK stubs cho Phase 2 testing — replace với data thật khi cần
+
+- ticker: VCB
+  year: 2026
+  target_lntt_ty: 44000             # tỷ đồng — kế hoạch năm
+  target_credit_growth_pct: 16.5
+  actual_lntt_q1_ty: 11803
+  actual_credit_growth_q1_pct: 4.2
+  source: "Nghị quyết ĐHĐCĐ 25/4/2026"
+  source_url: "https://example.com/vcb-dhcd-2026"
+
+- ticker: TCB
+  year: 2026
+  target_lntt_ty: 31500
+  target_credit_growth_pct: 19.0
+  actual_lntt_q1_ty: 8870
+  actual_credit_growth_q1_pct: 5.1
+  source: "Nghị quyết ĐHĐCĐ 22/4/2026"
+  source_url: "https://example.com/tcb-dhcd-2026"
+
+- ticker: MBB
+  year: 2026
+  target_lntt_ty: 28000
+  target_credit_growth_pct: 18.0
+  actual_lntt_q1_ty: 6500
+  actual_credit_growth_q1_pct: 4.5
+  source: "Nghị quyết ĐHĐCĐ 20/4/2026"
+  source_url: "https://example.com/mbb-dhcd-2026"
+
+- ticker: ACB
+  year: 2026
+  target_lntt_ty: 22000
+  target_credit_growth_pct: 17.0
+  actual_lntt_q1_ty: 5100
+  actual_credit_growth_q1_pct: 3.8
+  source: "Nghị quyết ĐHĐCĐ 23/4/2026"
+  source_url: "https://example.com/acb-dhcd-2026"

@@ -1,0 +1,38 @@
+# Credit Room — NHNN allocation per bank per năm
+# Source: thông báo NHNN + công bố ngân hàng
+# MOCK stubs cho Phase 2 testing
+
+- ticker: VCB
+  year: 2026
+  credit_room_pct: 16.0
+  notes: "Big4 chuẩn vốn quốc tế cao hơn → room ưu đãi"
+
+- ticker: TCB
+  year: 2026
+  credit_room_pct: 19.0
+  notes: "Tư nhân vốn lớn, room cao do CASA + NIM tốt"
+
+- ticker: MBB
+  year: 2026
+  credit_room_pct: 18.0
+  notes: "Tech bank positioning"
+
+- ticker: BID
+  year: 2026
+  credit_room_pct: 14.5
+  notes: "Big4 conservative"
+
+- ticker: CTG
+  year: 2026
+  credit_room_pct: 14.0
+  notes: "Big4 conservative, foreign strategic partner cycle"
+
+- ticker: ACB
+  year: 2026
+  credit_room_pct: 17.0
+  notes: "Tư nhân chất lượng tài sản tốt"
+
+- ticker: VPB
+  year: 2026
+  credit_room_pct: 18.5
+  notes: "FE Credit cycle, room cao do consumer finance recover"
