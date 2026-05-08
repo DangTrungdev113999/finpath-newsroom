@@ -70,15 +70,21 @@ Example:
 
 Memory query last 3 critique cùng ticker:
 ```python
-recent = query_data_sources(
-    data_source_id="74a01cc3-c3c4-4dbe-a43f-c7572fa68d20",
-    sql="""
-        SELECT "Critique angle" FROM data_source 
-        WHERE "Ticker" = 'VCB' AND "Skeptic_review_full" IS NOT NULL
-        ORDER BY "date:Published at:start" DESC LIMIT 3
+from lib.pipeline_db import PipelineDB
+
+db = PipelineDB("data/pipeline.db")
+cur = db.conn.execute(
     """
+    SELECT skeptic_angle FROM generated_news
+    WHERE ticker = ? AND skeptic_critique IS NOT NULL
+    ORDER BY published_at DESC LIMIT 3
+    """,
+    ("VCB",)
 )
+recent = [row["skeptic_angle"] for row in cur.fetchall()]
 
 # Nếu 3 cùng angle (vd 3 lần data_skepticism) → MUST pick khác cho lần này
-forbidden_angles = [r["Critique angle"] for r in recent if recent.count(r) >= 3]
+from collections import Counter
+angle_counts = Counter(recent)
+forbidden_angles = [angle for angle, count in angle_counts.items() if count >= 3]
 ```

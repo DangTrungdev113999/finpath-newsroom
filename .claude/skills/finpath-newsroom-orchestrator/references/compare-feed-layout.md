@@ -1,6 +1,6 @@
 # Compare Feed Prepend — Layout V2.4
 
-Compare Feed page: `https://www.notion.so/359273c7a9a181bd88f6ebf0d954551d`
+Compare Feed output: `output/compare-feed/<batch>.md` — Phase 6 DEFER (currently rendered to local file, NOT Notion page)
 
 ## Position
 **Newest-first**: section bài mới prepend vào TOP page, trên section bài cũ.
@@ -103,7 +103,7 @@ Icon sector: 🏦 Bank | 📈 CK | 🏠 BĐS
 
 ## Render order (orchestrator Step 6)
 
-1. Query DB Crawl Log filter by Funnel_batch_id của primary
+1. Query `crawl_log` filter by `funnel_batch_id` của primary: `db.query_by_funnel_batch(batch_id)`
 2. Group rows: published / Editor V1 reject / Story Editor reject / Master reject
 3. Sort within group: by Published_time desc
 4. Render Crawl funnel section LIST format (KHÔNG table — mobile-friendly)

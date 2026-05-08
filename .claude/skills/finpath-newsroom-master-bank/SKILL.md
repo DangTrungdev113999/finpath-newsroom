@@ -13,33 +13,58 @@ Orchestrator routes a Bank brief (sector=Bank, ticker ∈ {TCB,VCB,MBB,ACB,BID,C
 ## Workflow 9 bước (V3.6 — Master toàn quyền giải bài)
 
 1. **Validate brief** — ticker in universe, `brief.deep_question` present, `brief.deep_question_category` ∈ {paradox, why_now, hidden_mechanism, comparison_deep, early_signal}. Brief V3.6 KHÔNG có `data_spec` — Master tự quyết DB/KB nào query.
-2. **Pull memory** — query DB Generated News last 3 rows of ticker (variety guard)
-3. **Query 6 Bank DBs** — Master tự quyết DB nào query dựa trên `deep_question`. 6 DB Bank fixed default: BCTC Quarter + BCTC Annual + Targets + Credit Room + M&A + Foreign Ownership. Skip DB không liên quan câu hỏi.
-   - Code + IDs: see `references/db-query-patterns.md`
-   - **Early-check**: nếu DB query return 0 row cho ticker (data chưa backfill) → log `db_empty_for_ticker` vào field `Ghi chú pipeline` của row anchor → fallback web_search, set `Data_sources_used = [..., "Web_search"]`. **KHÔNG silent skip**, phải log để Skeptic + reviewer biết.
+2. **Pull memory** — `db.recent_generated_news(ticker, limit=3)` (variety guard)
+3. **Query 6 Bank data sources** — Master tự quyết nguồn nào query dựa trên `deep_question`. 6 nguồn fixed default: BCTC Quarter + BCTC Annual + Targets + Credit Room + M&A + Foreign Ownership. Skip nguồn không liên quan câu hỏi.
+   - Code + patterns: see `references/db-query-patterns.md`
+   - **Early-check**: nếu API return empty hoặc YAML chưa có data → log `db_empty_for_ticker` vào field `ghi_chu_pipeline` của row anchor → fallback web_search, set `data_sources_used = [..., "Web_search"]`. **KHÔNG silent skip**, phải log để Skeptic + reviewer biết.
 4. **Query KB ngành Ngân hàng** — Master tự quyết KB topic nào tra dựa trên `deep_question`. Topic catalog: see `references/kb-topics-bank.md`
 5. **Live API call** — real-time prices/volumes if needed. Endpoints: see `references/live-api-spec.md`
 6. **Web search fallback** — when DB+KB missing data
 7. **Verify hypothesis + write** — check brief.insight_hypothesis supported by data. Master TRẢ LỜI deep_question với 3-7 lý do mechanism (Rule 4.5).
 8. **Bước 7.5 — Finalize insight** (V2.2) — 3 cases (confirm/adjust/reject). Detail logic: see `references/insight-finalization.md`
-9. **Persist row + embed full raw** — DB Generated News + DB Crawl Log Master_decision + **fetch full raw content URL anchor và embed vào Crawl Log row**:
+9. **Persist row + embed full raw** — `generated_news` table + `crawl_log` Master_decision + **fetch full raw content URL anchor và embed vào crawl_log row**:
    ```python
-   # Bước 9a: Persist Generated News
-   create_pages(parent={"data_source_id": GENERATED_NEWS_DB}, pages=[{...article...}])
+   from lib.pipeline_db import PipelineDB
+   import uuid
+   db = PipelineDB("data/pipeline.db")
    
-   # Bước 9b: Update DB Crawl Log row anchor với Master_decision + Master_note
-   update_page(page_id=row_id, properties={
-       "Master_decision": "write_article",
-       "Master_note": "...",
-       "Trạng thái": "published"
+   # Bước 9a: Persist Generated News
+   article_id = str(uuid.uuid4())
+   db.insert_generated_news({
+       "article_id": article_id,
+       "row_id": row_id,              # FK → crawl_log.row_id
+       "ticker": ticker,
+       "sector": "Bank",
+       "title": title,
+       "body": body,
+       "word_count": word_count,
+       "key_view": key_view,          # lạc quan|thận trọng|trung lập
+       "insight_final": insight_final,
+       "insight_type": insight_type,
+       "variety_guard_angle": brief["angle_label"],
+       "accepted_hypothesis": 1 if accepted_hypothesis else 0,
+       "data_sources_used": json.dumps(data_sources_used),
+       "brief_json": json.dumps(brief),
+       "history_referenced": json.dumps(history_referenced),
+       "pipeline_version": "V2",
+       "status": "draft",
+       "published_at": now_iso(),
+       "pipeline_log": full_body_with_pipeline_log_toggle,
    })
    
-   # Bước 9c (V2.4 CRITICAL): fetch full raw content + embed vào Crawl Log row anchor
+   # Bước 9b: Update crawl_log row anchor với master_decision + master_note
+   db.update_crawl_row(row_id, {
+       "master_decision": "write_article",
+       "master_note": "OK — data confirm insight, accepted_hypothesis: true",
+       "status": "published"
+   })
+   
+   # Bước 9c (V2.4 CRITICAL): fetch full raw content + embed vào crawl_log row anchor
    # — để Compare Feed Raw expand render đủ bài, không phải tóm tắt 600 chars
    raw = web_fetch(brief.url)
    article_body = extract_article_body(raw)  # skip header/menu/footer/related links
-   update_page(page_id=row_id, properties={
-       "Nội dung thô": article_body  # full body, có thể 3000-5000 chars
+   db.update_crawl_row(row_id, {
+       "raw_content": article_body   # full body, có thể 3000-5000 chars
    })
    ```
    ⚠️ **2000 chars cap cũ ở Crawler đã LIFT cho row anchor**. Crawler vẫn cap 2000 cho ban đầu (snippet) nhưng Master phải overwrite full body sau khi pick. Lý do: Compare Feed Raw expand render full bài cho user verify, không phải tóm tắt.
@@ -141,20 +166,23 @@ Brief schema full V2.2 (1.2): see Story Editor SKILL.md.
 }
 ```
 
-## DB IDs Bank sector
+## Local data sources — Bank sector
 
-| Module | data_source_id |
+| Module | Local access |
 |---|---|
-| BCTC Quarter | `ee0e7746-f057-4350-bad7-42f461921aa8` |
-| BCTC Annual | `a76139a4-aab9-42e1-8837-99b202a13abe` |
-| Targets vs Actual | `766a24a8-1328-48b5-8c73-b0c5574c9be9` |
-| Credit Room | `6c0335b0-0577-4b29-902f-932ae8f9a203` |
-| M&A | `55d84524-c800-4416-bc40-e612c278173b` |
-| Foreign | `7963c23c-b7db-4c5f-bee4-b0f388596456` |
-| NHNN industry | `cfebb902-5615-49e9-ae5e-f017e71f80ff` |
-| KB ngành Ngân hàng | `358273c7-a9a1-8164-8981-f2ac7807a13b` |
-| DB Generated News (persist) | `74a01cc3-c3c4-4dbe-a43f-c7572fa68d20` |
-| DB Crawl Log (persist Master_decision) | `8aad4abe-496f-480f-ad13-8996d22fe447` |
+| BCTC Quarter | `api.get_bank_ratios(ticker)` → `{quarterlyProfits[], yearlyProfits[]}` |
+| BCTC Annual | `api.get_full_income(ticker)` + `api.get_full_balance_sheet(ticker)` + `api.get_cashflow(ticker)` |
+| Targets vs Actual | `data/manual/targets.yaml` (load with pyyaml) |
+| Credit Room | `data/manual/credit_room.yaml` |
+| M&A | `api.get_events(ticker)` (filter for M&A events) |
+| Foreign Ownership | `api.get_shareholders(ticker)` |
+| NHNN industry | `data/manual/nhnn_circulars.yaml` |
+| KB ngành Ngân hàng | `KBLoader('kb/bank/').search([keywords])` + `loader.load_topic(path)` |
+| generated_news (persist) | `data/pipeline.db` table `generated_news` via `db.insert_generated_news(...)` |
+| crawl_log (persist Master_decision) | `data/pipeline.db` table `crawl_log` via `db.update_crawl_row(row_id, {...})` |
+
+`from lib.finpath_api import FinpathAPI` → `api = FinpathAPI()`
+`from lib.kb_loader import KBLoader` → `loader = KBLoader('kb/bank/')`
 
 Query patterns + code: see `references/db-query-patterns.md`.
 

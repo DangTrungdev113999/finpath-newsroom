@@ -1,6 +1,6 @@
 ---
 name: finpath-newsroom-crawler
-description: Crawls 20 Vietnamese financial/general news sources for latest 3 articles per source (sort by publish time desc) about a stock ticker in Bank/CK/BĐS universe — sub-skill in Finpath Newsroom V2.4 pipeline. Use when orchestrator triggers Step 1, or user explicit "crawl tin về [TICKER]". Writes rows to DB Crawl Log with Published_time + Funnel_batch_id (format ticker-YYYYMMDD-HHMM) for downstream Editor V1 + Story Editor + Compare Feed Crawl Funnel section. NEVER use for non-universe tickers. NEVER pull more than 3 articles per source — must be 3 newest only.
+description: Crawls 20 Vietnamese financial/general news sources for latest 3 articles per source (sort by publish time desc) about a stock ticker in Bank/CK/BĐS universe — sub-skill in Finpath Newsroom V2.4 pipeline. Use when orchestrator triggers Step 1, or user explicit "crawl tin về [TICKER]". Writes rows to SQLite crawl_log (data/pipeline.db) via lib/pipeline_db.py with published_time + funnel_batch_id (format ticker-YYYYMMDD-HHMM) for downstream Editor V1 + Story Editor + Compare Feed Crawl Funnel section. NEVER use for non-universe tickers. NEVER pull more than 3 articles per source — must be 3 newest only.
 ---
 
 # Finpath Newsroom Crawler
@@ -28,7 +28,7 @@ Crawler agent V2.4 — input đầu pipeline Newsroom. Search + fetch tin từ *
   "sector": "Bank",
   "rows_created": [
     {
-      "row_id": "<notion_page_id>",
+      "row_id": "<uuid>",
       "tieu_de": "...",
       "nguon": "CafeF",
       "link_goc": "https://..."
@@ -112,13 +112,19 @@ for source_name, domain in SOURCES_WHITELIST.items():
 ### Bước 4 — Dedupe candidates
 
 ```python
-from scripts.dedupe import filter_existing_urls
+from lib.pipeline_db import PipelineDB
+import sqlite3
 
-# Query DB Crawl Log filter by Link gốc
-existing_urls = query_data_source(
-    data_source_id="8aad4abe-496f-480f-ad13-8996d22fe447",
-    filter={"Link gốc": [c["url"] for c in candidates]}
+db = PipelineDB("data/pipeline.db")
+
+# Query crawl_log for existing URLs (unique index on source_url)
+cur = db.conn.execute(
+    "SELECT source_url FROM crawl_log WHERE source_url IN ({})".format(
+        ",".join("?" for _ in candidates)
+    ),
+    [c["url"] for c in candidates]
 )
+existing_urls = {row["source_url"] for row in cur.fetchall()}
 
 candidates_new = [c for c in candidates if c["url"] not in existing_urls]
 rows_skipped_dedupe = len(candidates) - len(candidates_new)
@@ -139,40 +145,40 @@ for c in candidates_new:
         errors.append({"url": c["url"], "error": str(e)})
 ```
 
-### Bước 6 — Write rows vào DB (V2.4: thêm Published_time + Funnel_batch_id)
+### Bước 6 — Write rows vào crawl_log (V2.4: thêm published_time + funnel_batch_id)
 
 ```python
+import uuid
+from lib.pipeline_db import PipelineDB
+
+db = PipelineDB("data/pipeline.db")
 rows_created = []
 for c in candidates_new:
     if "full_content" not in c:
         continue  # fetch failed, skip
     
-    properties = {
-        "Tiêu đề": c["full_title"],
-        "Nguồn": c["source_name"],
-        "Link gốc": c["url"],
-        "Nội dung thô": c["full_content"][:2000],  # cap 2000 chars
-        "Trạng thái": "pending",
-        "Route tới": "pending",
-        "Pipeline_version": "V2",
-        "Funnel_batch_id": c["funnel_batch_id"],  # V2.4 thêm
-        "date:Crawl lúc:start": now_iso(),
-        "date:Crawl lúc:is_datetime": 1,
+    row_id = str(uuid.uuid4())
+    data = {
+        "row_id": row_id,
+        "funnel_batch_id": c["funnel_batch_id"],  # V2.4
+        "ticker": c.get("ticker", ""),
+        "source_name": c["source_name"],
+        "source_url": c["url"],
+        "title": c["full_title"],
+        "raw_content": c["full_content"][:2000],  # cap 2000 chars
+        "crawled_at": now_iso(),
+        "status": "pending",
+        "pipeline_version": "V2",
     }
     
-    # V2.4: log Published_time nếu có
+    # V2.4: log published_time nếu có
     if c.get("published_time"):
-        properties["date:Published_time:start"] = c["published_time"]
-        properties["date:Published_time:is_datetime"] = 1
+        data["published_time"] = c["published_time"]
     
-    # Use Notion MCP create_pages
-    row = create_pages(
-        parent={"data_source_id": "8aad4abe-496f-480f-ad13-8996d22fe447"},
-        pages=[{"properties": properties}]
-    )
+    db.insert_crawl_row(data)
     
     rows_created.append({
-        "row_id": row["id"],
+        "row_id": row_id,
         "tieu_de": c["full_title"],
         "nguon": c["source_name"],
         "link_goc": c["url"],
@@ -182,8 +188,8 @@ for c in candidates_new:
 ```
 
 ⚠️ **V2.4 fields mới được set**:
-- `Published_time` — thời gian publish bài gốc (date, có thể NULL nếu không parse được)
-- `Funnel_batch_id` — link tất cả tin trong batch để Compare Feed render Crawl Funnel section
+- `published_time` — thời gian publish bài gốc (có thể NULL nếu không parse được)
+- `funnel_batch_id` — link tất cả tin trong batch để Compare Feed render Crawl Funnel section
 
 ### 🚨 NEVER skip candidates — TẤT CẢ phải log vào DB Crawl Log
 
@@ -233,8 +239,7 @@ Nếu loop `for source in WHITELIST` quá tốn token (20 search calls), pattern
 
 - `web_search` (built-in) — search engine top 10 results
 - `web_fetch` (built-in) — fetch full content from URL → text
-- Notion MCP `query_data_sources` — dedupe check
-- Notion MCP `create_pages` (parent: data_source_id DB Crawl Log) — write rows mới
+- `lib/pipeline_db.py` `PipelineDB` — dedupe check + write rows mới vào `crawl_log` table (`data/pipeline.db`)
 
 ## Error handling
 
@@ -243,7 +248,7 @@ Nếu loop `for source in WHITELIST` quá tốn token (20 search calls), pattern
 | Search fail nguồn X | Skip nguồn đó, log error, vẫn process nguồn khác |
 | Fetch fail URL Y | Skip URL đó, log error, không fail toàn bộ |
 | Tổng candidates = 0 | Return empty rows_created + note "Không tìm thấy tin trong 30 ngày" |
-| Notion API fail | Retry max 3 lần, sau đó skip row đó, log error |
+| SQLite write fail | Retry max 3 lần, sau đó skip row đó, log error |
 
 ## Helper scripts
 
@@ -253,8 +258,8 @@ Nếu loop `for source in WHITELIST` quá tốn token (20 search calls), pattern
 
 ## Reference
 
-- Module Notion: 1.0 Crawler — https://www.notion.so/357273c7a9a1812fbd07de47b9b90749
-- DB Newsroom Crawl Log schema: https://www.notion.so/357273c7a9a181359021c964151bf571
+- `lib/pipeline_db.py` — PipelineDB helper (insert/update/query `crawl_log` and `generated_news`)
+- `data/pipeline.db` — SQLite database (crawl_log schema in `data/schema.sql`)
 
 ## Notes
 

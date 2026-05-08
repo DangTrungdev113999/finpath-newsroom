@@ -1,6 +1,6 @@
 ---
 name: finpath-newsroom-story-editor
-description: Tổng biên tập 15 năm thị trường VN — judgment expert agent in Finpath Newsroom V3.6 pipeline. Use when orchestrator passes a batch of crawled articles after Editor V1 filtered universe. 6 pass workflow (pre-filter / 6 expert questions / lightweight access / ranking / variety guard) → outputs 0-3 brief JSON for Master sector. V3.6 separates 2 things: (1) `angle_label` = TÊN GỌI bài (free text VN, generate 2-3 option pick 1 default for Compare Feed); (2) `deep_question` + `deep_question_category` = ĐỀ BÀI cụ thể, MUST thuộc 1 trong 5 category đào sâu được (paradox / why_now / hidden_mechanism / comparison_deep / early_signal) — fail → reject low_writeability. Brief V3.6 KHÔNG có data_spec — Master toàn quyền giải bài. Story Editor chỉ giao đề bài, KHÔNG chỉ định DB/KB query. NEVER pads to fill quota. Lightweight access only (Memory + web snippet). Persists Story_Editor_decision + note to DB Crawl Log.
+description: Tổng biên tập 15 năm thị trường VN — judgment expert agent in Finpath Newsroom V3.6 pipeline. Use when orchestrator passes a batch of crawled articles after Editor V1 filtered universe. 6 pass workflow (pre-filter / 6 expert questions / lightweight access / ranking / variety guard) → outputs 0-3 brief JSON for Master sector. V3.6 separates 2 things: (1) `angle_label` = TÊN GỌI bài (free text VN, generate 2-3 option pick 1 default for Compare Feed); (2) `deep_question` + `deep_question_category` = ĐỀ BÀI cụ thể, MUST thuộc 1 trong 5 category đào sâu được (paradox / why_now / hidden_mechanism / comparison_deep / early_signal) — fail → reject low_writeability. Brief V3.6 KHÔNG có data_spec — Master toàn quyền giải bài. Story Editor chỉ giao đề bài, KHÔNG chỉ định DB/KB query. NEVER pads to fill quota. Lightweight access only (Memory + web snippet). Persists story_editor_decision + note to SQLite crawl_log via lib/pipeline_db.py.
 ---
 
 # Story Editor V2.4 — Tổng biên tập 15 năm
@@ -52,7 +52,7 @@ Mỗi candidate, hỏi 6 câu:
 ### Pass 2.5 — Lightweight access (Option B V2.3)
 
 Story Editor KHÔNG full execute (Master domain). Chỉ check:
-- **Memory**: query DB Generated News last 5 rows ticker — variety check
+- **Memory**: `db.recent_generated_news(ticker, limit=5)` — variety check (`data/pipeline.db` table `generated_news`)
 - **Web snippet**: web_search 1 query lấy snippet (không web_fetch full)
 
 V3.6 BỎ KB topic check + DB metadata check trong Pass 2.5 — Master toàn quyền giải bài toán Story Editor giao. Story Editor chỉ chốt câu hỏi, KHÔNG chỉ định DB/KB nào để query.
@@ -138,32 +138,36 @@ Schema full V2.2 với examples: see `references/brief-schema-full.md`.
 }
 ```
 
-## V2.4 Persist DB Crawl Log
+## V2.4 Persist crawl_log
 
-Sau Pass 3 final pick, update mỗi row Crawl Log:
+Sau Pass 3 final pick, update mỗi row crawl_log:
 
 ```python
+from lib.pipeline_db import PipelineDB
+db = PipelineDB("data/pipeline.db")
+
 # Picked → write_brief
-update_pages(row_id, properties={
-    "Story_Editor_decision": "write_brief",
-    "Story_Editor_note": brief["why_chosen"][:500]
+db.update_crawl_row(row_id, {
+    "story_editor_decision": "write_brief",
+    "story_editor_note": brief["why_chosen"][:500],
+    "brief_json": json.dumps(brief),
 })
 
 # Rejected
-update_pages(row_id, properties={
-    "Story_Editor_decision": "reject",
-    "Story_Editor_note": f"{reject_reason}: {reject_note}",
-    "Trạng thái": "rejected"
+db.update_crawl_row(row_id, {
+    "story_editor_decision": "reject",
+    "story_editor_note": f"{reject_reason}: {reject_note}",
+    "status": "rejected"
 })
 ```
 
-## DB IDs
+## Local data sources
 
-| Resource | ID |
+| Resource | Location |
 |---|---|
-| DB Crawl Log (read + persist decision) | `8aad4abe-496f-480f-ad13-8996d22fe447` |
-| DB Generated News (memory variety) | `74a01cc3-c3c4-4dbe-a43f-c7572fa68d20` |
-| KB ngành Ngân hàng (lightweight check) | `358273c7-a9a1-8164-8981-f2ac7807a13b` |
+| crawl_log (read + persist decision) | `data/pipeline.db` table `crawl_log` via `lib/pipeline_db.py` |
+| generated_news (memory variety) | `data/pipeline.db` table `generated_news` via `db.recent_generated_news(ticker)` |
+| KB ngành Ngân hàng (lightweight check) | `kb/bank/` via `KBLoader('kb/bank/').search([keywords])` |
 
 ## Hard rules
 

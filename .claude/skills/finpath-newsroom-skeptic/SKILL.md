@@ -97,27 +97,28 @@ Patterns + examples per angle: see `references/critique-patterns.md`.
 - **pass_with_caveats** — bài có vấn đề (số lệch, logic yếu) nhưng vẫn publish, critique flag rõ
 - **fail** — bài lỗi nghiêm trọng (số sai, claim không có data) — orchestrator quyết retract/retry
 
-## DB IDs
+## Local data sources
 
-| Resource | ID |
+| Resource | Location |
 |---|---|
-| DB Generated News (read + persist) | `74a01cc3-c3c4-4dbe-a43f-c7572fa68d20` |
-| KB ngành Ngân hàng (Bank only) | `358273c7-a9a1-8164-8981-f2ac7807a13b` |
-| Bank DBs | xem master-bank/references/db-query-patterns.md |
-| Live API catalog | `358273c7-a9a1-810f-a38e-d3c5b8dd5ed2` |
+| generated_news (read + persist) | `data/pipeline.db` table `generated_news` via `lib/pipeline_db.py` |
+| KB ngành Ngân hàng (Bank only) | `kb/bank/` via `KBLoader('kb/bank/').search([keywords])` |
+| Bank data sources | see `master-bank/references/db-query-patterns.md` |
+| Live API | `lib/finpath_api.py` `FinpathAPI` — see `master-bank/references/live-api-spec.md` |
 
-## Persist row Generated News
+## Persist generated_news
 
 Update existing row (tạo bởi Master), SET:
 ```python
-update_pages(page_id=row_id, properties={
-    "Phản biện": critique_text,
-    "Skeptic_review_full": critique_text,
-    "Skeptic_verdict": verdict,
-    "Critique angle": critique_angle,  # 1 of 6
-    "Variety_guard_angle": critique_angle,
+from lib.pipeline_db import PipelineDB
+db = PipelineDB("data/pipeline.db")
+
+db.update_generated_news(article_id, {
+    "skeptic_critique": critique_text,
+    "skeptic_verdict": verdict,
+    "skeptic_angle": critique_angle,   # 1 of 6
 })
-# Append "## Góc nhìn ngược" section vào page body
+# Append "## Góc nhìn ngược" section vào article body (render to output file)
 ```
 
 ## Pipeline log section

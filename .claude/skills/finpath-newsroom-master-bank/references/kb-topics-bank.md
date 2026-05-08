@@ -1,6 +1,6 @@
 # KB ngành Ngân hàng — Topic Catalog
 
-KB ID: `358273c7-a9a1-8164-8981-f2ac7807a13b` (Bank-only, KHÔNG share cross-sector)
+KB location: `kb/bank/` — local markdown files, accessed via `lib/kb_loader.py` `KBLoader`. Bank-only, KHÔNG share cross-sector.
 
 ## Topic categories
 
@@ -39,16 +39,20 @@ KB ID: `358273c7-a9a1-8164-8981-f2ac7807a13b` (Bank-only, KHÔNG share cross-sec
 
 Story Editor lightweight access — chỉ check topic exists:
 ```python
-result = query_data_sources(
-    data_source_id="358273c7-a9a1-8164-8981-f2ac7807a13b",
-    sql="SELECT \"Title\" FROM data_source WHERE \"Title\" LIKE '%Lottner%' LIMIT 1"
-)
-exists = len(result) > 0
+from lib.kb_loader import KBLoader
+
+loader = KBLoader("kb/bank/")
+matches = loader.search(["Lottner"])
+exists = len(matches) > 0
 ```
 
 Master full content:
 ```python
-# Fetch full page
-page = fetch(page_url=kb_topic_url)
-# Use page.content for analysis
+from lib.kb_loader import KBLoader
+
+loader = KBLoader("kb/bank/")
+matches = loader.search(["Lottner"])
+if matches:
+    topic_body = loader.load_topic(matches[0]["path"])
+    # topic_body = full markdown text của KB topic
 ```

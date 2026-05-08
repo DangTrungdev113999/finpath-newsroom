@@ -15,7 +15,7 @@ Orchestrator gọi với 1 row_id từ DB Crawl Log (Trạng thái = pending).
 
 ```json
 {
-  "row_id": "<notion_page_id>",
+  "row_id": "<uuid from crawl_log>",
   "row_data": {
     "Tiêu đề": "...",
     "Nội dung thô": "...",
@@ -60,6 +60,9 @@ ALL_TICKERS = sum(UNIVERSE.values(), [])  # 16 mã
 ### Bước 1 — Detect ticker (regex + name fallback)
 
 ```python
+from lib.pipeline_db import PipelineDB
+db = PipelineDB("data/pipeline.db")
+
 from scripts.ticker_detection import detect_combined
 
 text = row_data["Tiêu đề"] + " " + row_data["Nội dung thô"]
@@ -75,12 +78,11 @@ from scripts.routing import filter_universe, ALL_TICKERS
 valid_tickers = filter_universe(tickers, ALL_TICKERS)
 
 if not valid_tickers:
-    update_row(row_id, {
-        "Trạng thái": "rejected",
-        "Route tới": "rejected",
-        "Editor_V1_decision": "reject",
-        "Editor_V1_note": "out_of_universe — không có ticker trong universe 16 mã (Bank/CK/BĐS)",
-        "Ghi chú pipeline": "Editor V1 reject"
+    db.update_crawl_row(row_id, {
+        "status": "rejected",
+        "editor_v1_decision": "reject",
+        "editor_v1_note": "out_of_universe — không có ticker trong universe 16 mã (Bank/CK/BĐS)",
+        "notes": "Editor V1 reject"
     })
     return {"decision": "rejected", "reason": "out_of_universe"}
 ```
@@ -100,14 +102,14 @@ from scripts.routing import get_sector
 
 sector = get_sector(primary_ticker)  # "Bank" / "CK" / "BĐS"
 
-update_row(row_id, {
-    "Mã phát hiện": valid_tickers,
-    "Mã chính": primary_ticker,
-    "Route tới": sector,
-    "Trạng thái": "processed",
-    "Editor_V1_decision": "route_to_story_editor",
-    "Editor_V1_note": f"Pass — primary={primary_ticker}, sector={sector}, route to Story Editor",
-    "Ghi chú pipeline": f"Route {sector} → Story Editor V2.4"
+db.update_crawl_row(row_id, {
+    "detected_tickers": ",".join(valid_tickers),
+    "primary_ticker": primary_ticker,
+    "sector": sector,
+    "status": "processed",
+    "editor_v1_decision": "route_to_story_editor",
+    "editor_v1_note": f"Pass — primary={primary_ticker}, sector={sector}, route to Story Editor",
+    "notes": f"Route {sector} → Story Editor V2.4"
 })
 
 package = {
@@ -127,8 +129,8 @@ return {"decision": "processed", "package_for_master": package, ...}
 
 ## Reference
 
-- Module Notion 1.1 Tổng biên tập: https://www.notion.so/357273c7a9a181c4bda2f748ce0d33af
-- Universe 2.2: https://www.notion.so/357273c7a9a18179acdccaddb5901c0b
+- `lib/pipeline_db.py` — PipelineDB helper (update_crawl_row)
+- `data/pipeline.db` — SQLite database, table `crawl_log`
 
 ## Notes
 
