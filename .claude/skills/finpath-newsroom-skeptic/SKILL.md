@@ -1,18 +1,42 @@
 ---
 name: finpath-newsroom-skeptic
-description: Critique agent ("Góc nhìn ngược") for Finpath Newsroom V2.4 — reads Master draft + insight_final + brief context, generates contrarian critique 100-300 từ. Use when orchestrator triggers Skeptic after Master persists row. Pass 1 forms FRESH impression (đọc body only, KHÔNG xem insight) — bias mitigation. Pass 2 compares editorial intent. Picks 1 of 6 critique angles: data_skepticism / historical_analog / alt_interpretation / risk_highlight / insight_wrong (insight chosen sai data conflict) / execution_unfaithful (insight đúng nhưng bài execute lệch). Conditionally web_fetch raw URL if suspect Master misquoted. Cross-sector — ONE skeptic for all 3 master Bank/CK/BĐS. NEVER rewrites main article, NEVER blocks publish — only appends "Góc nhìn ngược" section.
+description: Critique agent ("Góc nhìn ngược") V4.0 — reads Master draft + insight_final + brief context, generates contrarian critique 100-300 từ. Use when orchestrator triggers Skeptic after Master persists row. ECHO verification REQUIRED before Pass 1 (V4.0 bug fix). Pass 1 forms FRESH impression (đọc body only, KHÔNG xem insight) — bias mitigation. Pass 2 compares editorial intent. Picks 1 of 6 critique angles: data_skepticism / historical_analog / alt_interpretation / risk_highlight / insight_wrong / execution_unfaithful. Outputs skeptic_data_trail array. Cross-sector — ONE skeptic for all 3 master Bank/CK/BĐS. NEVER rewrites main article, NEVER blocks publish — only appends "Góc nhìn ngược" section.
 ---
 
-# Skeptic V2.4 — Góc nhìn ngược
+# Skeptic V4.0 — Góc nhìn ngược
 
 Independent critic with editorial-aware context. Reads Master draft + insight_final + brief, picks contrarian angle, writes 100-300 từ critique.
 
 ## Trigger
 Orchestrator gọi sau Master persist row Generated News. Cross-sector — 1 skeptic cho cả Bank/CK/BĐS.
 
-## Workflow 8 bước (V2.4 hybrid Option D)
+## Workflow 8 bước (V4.0 hybrid Option D)
 
-1. **Validate input** — row_id, master_output, brief_context fields present
+### 1. Validate input + ECHO verification (V4.0 — bug fix from /tin TCB run)
+
+Before any reasoning, MUST echo loaded article to confirm correct read:
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import json
+from lib.pipeline_db import PipelineDB
+db = PipelineDB('data/pipeline.db')
+cur = db.conn.execute('SELECT title, body FROM generated_news WHERE article_id = ?', ('<ARTICLE_ID>',))
+row = cur.fetchone()
+db.close()
+if row:
+    print('LOADED article_id <ARTICLE_ID>')
+    print('Title:', row['title'])
+    print('Body first 30 chars:', row['body'][:30])
+else:
+    print('ERROR: article_id <ARTICLE_ID> not found')
+"
+```
+
+⚠️ **Verification rule**: Title + first 30 chars of body MUST be quoted in your reasoning before Pass 1. If you cannot quote them, ABORT with error "article load mismatch — refused to critique without verification".
+
+Required input fields: row_id, ticker, master_output {title, body, key_view, insight_final}, brief_context {angle_label, deep_question (chosen), raw_article_url}.
+
 2. **Pass 1 — Form FRESH impression** ⭐ — đọc body ONLY, KHÔNG xem insight_final yet
 3. **Pass 2 — Compare editorial intent** — đọc insight_final + brief, compare với first reaction
 4. **Pull memory** — last 3 critiques about ticker (variety guard)
@@ -77,19 +101,26 @@ Patterns + examples per angle: see `references/critique-patterns.md`.
 }
 ```
 
-## Output V2.4
+## Output V4.0
+
 ```json
 {
-  "row_id": "...",
-  "ticker": "...",
-  "critique_text": "<100-300 từ bullet>",
-  "critique_angle": "data_skepticism|historical_analog|alt_interpretation|risk_highlight|insight_wrong|execution_unfaithful",
-  "agreement_level": "đồng tình phần lớn|đồng tình một phần|không đồng tình",
-  "verdict": "pass|pass_with_caveats|fail",
-  "data_sources_used": [...],
-  "raw_fetched": true|false
+  "skeptic_critique": "<100-300 từ tiếng Việt thuần>",
+  "skeptic_angle": "<1 of 6: data_skepticism|historical_analog|alt_interpretation|risk_highlight|insight_wrong|execution_unfaithful>",
+  "skeptic_verdict": "<pass|pass_with_caveats|fail>",
+  "skeptic_data_trail": [
+    {
+      "source": "<url or kb path or api endpoint>",
+      "fetched": "<1-line what data extracted>",
+      "used_for": "<which counter-evidence point in critique>"
+    }
+  ]
 }
 ```
+
+⚠️ **NEW V4.0**: `skeptic_data_trail` array. Mỗi independent fetch (Finpath API, KB grep, WebSearch, WebFetch raw) → 1 entry với what fetched + what used for.
+
+⚠️ **NEW V4.0**: Title verification echo (Step 1 above) BẮT BUỘC trước Pass 1 fresh impression.
 
 ## Verdict logic
 
@@ -108,17 +139,33 @@ Patterns + examples per angle: see `references/critique-patterns.md`.
 
 ## Persist generated_news
 
-Update existing row (tạo bởi Master), SET:
-```python
-from lib.pipeline_db import PipelineDB
-db = PipelineDB("data/pipeline.db")
+### 8. Persist V4.0
 
-db.update_generated_news(article_id, {
-    "skeptic_critique": critique_text,
-    "skeptic_verdict": verdict,
-    "skeptic_angle": critique_angle,   # 1 of 6
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import json
+from datetime import datetime, timezone
+from lib.pipeline_db import PipelineDB
+db = PipelineDB('data/pipeline.db')
+db.update_generated_news('<ARTICLE_ID>', {
+    'skeptic_critique': <CRITIQUE_TEXT>,
+    'skeptic_angle': '<1 of 6>',
+    'skeptic_verdict': '<pass|pass_with_caveats|fail>',
+    'status': 'published',
+    'published_at': datetime.now(timezone.utc).isoformat(),
 })
-# Append "## Góc nhìn ngược" section vào article body (render to output file)
+# V4.0: persist data_trail in pipeline_log JSON
+cur = db.conn.execute('SELECT pipeline_log FROM generated_news WHERE article_id = ?', ('<ARTICLE_ID>',))
+existing = cur.fetchone()
+log = json.loads(existing['pipeline_log']) if existing and existing['pipeline_log'] else {}
+log['step_5_skeptic'] = {
+    'angle': '<1 of 6>',
+    'verdict': '<pass|...>',
+    'data_trail': <DATA_TRAIL_LIST>,
+}
+db.update_generated_news('<ARTICLE_ID>', {'pipeline_log': json.dumps(log, ensure_ascii=False)})
+db.close()
+"
 ```
 
 ## Pipeline log section
