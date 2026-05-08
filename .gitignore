@@ -1,0 +1,29 @@
+# OS
+.DS_Store
+
+# Node
+node_modules/
+*.log
+npm-debug.log*
+
+# Vite build
+dist/
+web/dist/
+
+# Python (Phase 2+)
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Local data (track schema only)
+data/pipeline.db
+data/pipeline.db-journal
+
+# Env
+.env
+.env.local
+
+# Editor
+.vscode/
+.idea/
