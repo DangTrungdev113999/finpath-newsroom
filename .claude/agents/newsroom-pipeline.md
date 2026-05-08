@@ -1,6 +1,6 @@
 ---
 name: newsroom-pipeline
-description: Top-level orchestrator cho Finpath Newsroom 6-step pipeline V3.6. Use khi /tin command dispatches với 1 ticker. Chạy Crawler (Python) → Editor V1 (subagent) → Story Editor (subagent) → Master Bank (subagent) → Skeptic (subagent) → Render markdown (Python). Output: output/compare-feed/<batch>.md + manifest update.
+description: Top-level orchestrator cho Finpath Newsroom 6-step pipeline V4.0. Use khi /tin command dispatches với 1 ticker. Chạy Crawler (Python) → Editor V1 (subagent) → Story Editor (subagent) → Master Bank (subagent) → Skeptic (subagent) → Render markdown (Python). Output: N markdown files output/compare-feed/<TICKER>-<DATE>-<HHMM>-<slug>.md + manifest update.
 tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 ---
 
@@ -118,7 +118,7 @@ Use `Task` tool to dispatch `newsroom-story-editor`:
 Task tool:
   description: "Story Editor batch <BATCH_ID>"
   subagent_type: newsroom-story-editor
-  prompt: "Process batch from funnel_batch_id <BATCH_ID>. Row_ids routed by Editor V1: <list>. Run 6-pass V3.6 workflow. Output 0-3 brief JSON for Master Bank + rejected list. Persist story_editor_decision + brief_json in SQLite."
+  prompt: "Process batch from funnel_batch_id <BATCH_ID>. Row_ids routed by Editor V1: <list>. Run 6-pass V4.0 workflow. Output 0-3 brief JSON V4.0 (with deep_question_options array 2-3, narrative fields: why_chosen_narrative + angle_narrative + source_rationale) for Master Bank + rejected list. Persist story_editor_decision + brief_json in SQLite."
 ```
 
 Collect briefs (0-3 items).
@@ -133,7 +133,7 @@ Use `Task` tool to dispatch `newsroom-master-bank`:
 Task tool:
   description: "Master Bank brief <ticker>"
   subagent_type: newsroom-master-bank
-  prompt: "Write article for brief <brief_json>. row_id = <row_id>. Run 9-step V3.6 workflow with Finpath API + KB + YAML + web search. Self-check 5 quality gates BEFORE persist (use lib/quality_gates.py — all 5 must pass). Persist generated_news + master_decision. Return article_id + body + word_count + insight_final + accepted_hypothesis + quality_gates dict."
+  prompt: "Write article for brief <brief_json>. row_id = <row_id>. Run 9-step V4.0 workflow with Finpath API + KB + YAML + web search. Step 6.5: pick 1 question from deep_question_options, log chosen_question_idx + chosen_pick_reason + skip_reasons. Self-check 5 quality gates V4.0 BEFORE persist (use lib/quality_gates.py — all 5 must pass). Persist generated_news with public_slug + pipeline_log with data_trail + master_decision. Return article_id + public_slug + body + word_count + insight_final + accepted_hypothesis + quality_gates dict."
 ```
 
 Collect master outputs. Skip if `accepted_hypothesis: false`.
@@ -148,20 +148,23 @@ Use `Task` tool to dispatch `newsroom-skeptic`:
 Task tool:
   description: "Skeptic critique <ticker>"
   subagent_type: newsroom-skeptic
-  prompt: "Critique Master article. article_id=<id>, row_id=<row_id>, master_output=<dict>, brief_context=<from brief>. Pass 1 fresh impression (body only, NOT insight). Pass 2 compare insight. Pick 1 of 6 angles. Write 100-300 từ critique. Persist skeptic_critique + skeptic_angle + skeptic_verdict + status='published' + published_at."
+  prompt: "Critique Master article V4.0. article_id=<id>, row_id=<row_id>, master_output=<dict>, brief_context=<from brief>. Step 0: ECHO verification — load article from DB, quote title + body[:30] before proceeding. Pass 1 fresh impression (body only, NOT insight). Pass 2 compare insight. Pick 1 of 6 angles. Write 100-300 từ critique. Persist skeptic_critique + skeptic_angle + skeptic_verdict + status='published' + published_at + skeptic_data_trail in pipeline_log."
 ```
 
 Collect skeptic outputs.
 
-### Step 6 — Render
-
-For mỗi article published (skeptic appended):
+### Step 6 — Render (V4.0 multi-article)
 
 ```bash
-cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/render_compare_feed.py <BATCH_ID>
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/render_compare_feed.py <funnel_batch_id>
 ```
 
-Đọc output JSON → confirm `output/compare-feed/<BATCH_ID>.md` ghi xong + manifest cập nhật.
+V4.0: Loop ALL anchor rows in batch (filter `master_decision='write_article'`). For each:
+- Generate `public_slug` from hook
+- Render markdown file `output/compare-feed/<TICKER>-<DATE>-<HHMM>-<slug>.md`
+- Append entry to `manifest.json`
+
+Output: N files written (N = number of accepted Master articles).
 
 ---
 

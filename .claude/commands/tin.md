@@ -4,13 +4,13 @@ argument-hint: <TICKER>
 allowed-tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 ---
 
-Trigger pipeline 6-step Newsroom V3.6 cho ticker **$1**.
+Trigger pipeline 6-step Newsroom V3.6 cho ticker **$ARGUMENTS**.
 
 Universe MVP Bank: **TCB · VCB · MBB · ACB · BID · CTG · VPB**.
 
-Nếu $1 không thuộc universe → reply "Ticker $1 không thuộc MVP Bank universe. CK + BĐS sẽ thêm sau." và dừng pipeline.
+Nếu $ARGUMENTS không thuộc universe → reply "Ticker $ARGUMENTS không thuộc MVP Bank universe. CK + BĐS sẽ thêm sau." và dừng pipeline.
 
-Nếu $1 hợp lệ → dispatch agent `newsroom-pipeline` với input ticker = $1, để chạy 6-step:
+Nếu $ARGUMENTS hợp lệ → dispatch agent `newsroom-pipeline` với input ticker = $ARGUMENTS, để chạy 6-step:
 
 1. **Crawler** — Python script `lib/stages/run_crawler.py` (mechanical, đã port)
 2. **Editor V1** — subagent `newsroom-editor` (Phase 4 implements; Phase 3 stub)
