@@ -1,5 +1,7 @@
-"""Render a published article from SQLite generated_news + crawl_log into
-markdown frontmatter format at output/compare-feed/<id>.md, plus update manifest.json.
+"""Render V4.0 — multi-article + 8-section right column for Compare Feed.
+
+Each /tin run with N picked briefs produces N markdown files (1 per article).
+Each markdown file has frontmatter with all 8 right-column sections data.
 """
 from __future__ import annotations
 import argparse
@@ -15,123 +17,166 @@ if __name__ == "__main__" and __package__ is None:
 import yaml
 
 
-def render_article_md(article: dict, anchor_row: dict, funnel_rows: list[dict]) -> str:
-    ticker = article["ticker"]
-    sector = article.get("sector", "Bank")
-    funnel_batch_id = anchor_row["funnel_batch_id"]
-    crawled_at = anchor_row["crawled_at"]
+REJECT_AGENT_LABELS = {
+    "editor_v1": "Gác cổng bỏ",
+    "story_editor": "Tổng biên tập bỏ",
+    "master": "Phóng viên bỏ",
+}
 
+
+def build_right_column(article: dict, anchor_row: dict, funnel_rows: list[dict]) -> dict:
+    """Build the 8-section right-column data structure as frontmatter dict."""
+    pipeline_log = _parse_json(article.get("pipeline_log", "{}"))
+    brief = _parse_json(anchor_row.get("brief_json", "{}"))
+    step_4 = pipeline_log.get("step_4_master", {})
+    step_5 = pipeline_log.get("step_5_skeptic", {})
+
+    # Section 1: original article info (raw_source)
+    right_source = {
+        "name": anchor_row["source_name"],
+        "url": anchor_row["source_url"],
+        "published": (anchor_row.get("published_time") or "")[:10],
+        "raw_title": anchor_row["title"],
+    }
+
+    # Section 2: why_chosen_narrative (Story Editor)
+    why_chosen_narrative = brief.get("why_chosen_narrative", "")
+
+    # Section 3: angle (Story Editor)
+    angle_label = brief.get("angle_label", "")
+    angle_narrative = brief.get("angle_narrative", "")
+
+    # Section 4: question options + Master pick
+    deep_question_options = brief.get("deep_question_options", [])
+    chosen_question_idx = step_4.get("chosen_question_idx", 0)
+    chosen_pick_reason = step_4.get("chosen_pick_reason", "")
+    skip_reasons = step_4.get("skip_reasons", {})
+
+    # Section 5: crawl funnel — picked + rejected (with agent labels)
+    crawl_funnel = _build_funnel(funnel_rows)
+
+    # Section 6: master data trail
+    master_data_trail = step_4.get("data_trail", [])
+
+    # Section 7: skeptic data trail
+    skeptic_data_trail = step_5.get("data_trail", [])
+
+    # Section 8: raw article URL (link only, NO embed)
+    raw_article_url = anchor_row["source_url"]
+
+    return {
+        "right_source": right_source,
+        "why_chosen_narrative": why_chosen_narrative,
+        "angle_label": angle_label,
+        "angle_narrative": angle_narrative,
+        "deep_question_options": deep_question_options,
+        "chosen_question_idx": chosen_question_idx,
+        "chosen_pick_reason": chosen_pick_reason,
+        "skip_reasons": skip_reasons,
+        "crawl_funnel": crawl_funnel,
+        "master_data_trail": master_data_trail,
+        "skeptic_data_trail": skeptic_data_trail,
+        "raw_article_url": raw_article_url,
+    }
+
+
+def _build_funnel(rows: list[dict]) -> dict:
+    """Group rows: picked + rejected_by_agent. Each rejected has agent label + narrative reason."""
     picked = []
-    rejected_v1 = []
-    rejected_story = []
-    rejected_master = []
-    for r in funnel_rows:
-        item = {
+    rejected = []
+    for r in rows:
+        item_base = {
             "source": r["source_name"],
             "url": r["source_url"],
             "published": (r.get("published_time") or "")[:10],
-            "reason": r.get("editor_v1_note") or r.get("story_editor_note") or r.get("master_note") or "",
         }
         if r.get("master_decision") == "write_article":
-            item["reason"] = r.get("master_note") or "Anchor — đầy đủ data decode mechanism"
-            picked.append(item)
+            picked.append({**item_base, "reason": r.get("master_note") or "Anchor"})
         elif r.get("master_decision") in ("reject_no_data", "reject_data_conflict"):
-            rejected_master.append(item)
+            rejected.append({
+                **item_base,
+                "reject_agent": "master",
+                "reject_label": REJECT_AGENT_LABELS["master"],
+                "reason": r.get("master_note", "Master reject"),
+            })
         elif r.get("story_editor_decision") == "reject":
-            rejected_story.append(item)
+            rejected.append({
+                **item_base,
+                "reject_agent": "story_editor",
+                "reject_label": REJECT_AGENT_LABELS["story_editor"],
+                "reason": r.get("story_editor_note", "Story Editor reject"),
+            })
         elif r.get("editor_v1_decision") == "reject":
-            rejected_v1.append(item)
+            rejected.append({
+                **item_base,
+                "reject_agent": "editor_v1",
+                "reject_label": REJECT_AGENT_LABELS["editor_v1"],
+                "reason": r.get("editor_v1_note", "Editor V1 reject"),
+            })
+    return {"picked": picked, "rejected": rejected, "total_candidates": len(rows)}
+
+
+def _parse_json(s: str) -> dict:
+    if not s:
+        return {}
+    try:
+        return json.loads(s)
+    except (json.JSONDecodeError, TypeError):
+        return {}
+
+
+def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict]) -> str:
+    """Build the V4.0 markdown file content (frontmatter + 2 sections).
+
+    Body = Master output as-is. Skeptic critique appended in left column section
+    via '## Góc nhìn ngược' heading.
+    """
+    sector = article.get("sector", "Bank")
+    sector_icon = {"Bank": "🏦", "CK": "📈", "BĐS": "🏠"}.get(sector, "📰")
 
     fm = {
         "title": article["title"],
-        "ticker": ticker,
+        "ticker": article["ticker"],
         "sector": sector,
-        "sector_icon": _sector_icon(sector),
-        "crawled_at": crawled_at,
-        "funnel_batch_id": funnel_batch_id,
+        "sector_icon": sector_icon,
+        "crawled_at": anchor_row["crawled_at"],
+        "funnel_batch_id": anchor_row["funnel_batch_id"],
         "left_meta": {
             "author": _author_for_sector(sector),
             "word_count": article.get("word_count", 0),
             "key_view": article.get("key_view", "trung lập"),
             "skeptic_verdict": article.get("skeptic_verdict", "pass"),
-            "pipeline_version": article.get("pipeline_version", "V3.6"),
-            "format_check": "0% Anh + 400 hard cap",
-        },
-        "right_source": {
-            "name": anchor_row["source_name"],
-            "url": anchor_row["source_url"],
-            "published": (anchor_row.get("published_time") or "")[:10],
-            "raw_title": anchor_row["title"],
+            "pipeline_version": article.get("pipeline_version", "V4.0"),
         },
         "insight": article.get("insight_final", ""),
-        "why_chosen": _parse_why_chosen(article.get("brief_json")),
-        "crawl_funnel": {
-            "picked": picked or [{"source": anchor_row["source_name"], "url": anchor_row["source_url"],
-                                  "published": (anchor_row.get("published_time") or "")[:10],
-                                  "reason": "Anchor"}],
-            "rejected_editor_v1": rejected_v1,
-            "rejected_story_editor": rejected_story,
-            "rejected_master": rejected_master,
-        },
-        "pipeline_log": _parse_pipeline_log(article.get("pipeline_log")),
+        # 8-section right column
+        **build_right_column(article, anchor_row, funnel_rows),
     }
 
     fm_yaml = yaml.safe_dump(fm, allow_unicode=True, sort_keys=False).strip()
-
     body = (article.get("body") or "").strip()
     skeptic = (article.get("skeptic_critique") or "").strip()
-    raw_content = (anchor_row.get("raw_content") or "").strip()
-
     left_section = body
     if skeptic:
         left_section += f"\n\n## Góc nhìn ngược\n\n{skeptic}"
 
+    # Right column markdown body — empty since frontmatter has all data
+    # React component renders sections from frontmatter directly.
+    right_section = ""
+
     return (
         f"---\n{fm_yaml}\n---\n\n"
         f"<!-- left -->\n\n{left_section}\n\n"
-        f"<!-- right -->\n\n{raw_content}\n"
+        f"<!-- right -->\n\n{right_section}\n"
     )
 
 
-def _sector_icon(sector: str) -> str:
-    return {"Bank": "🏦", "CK": "📈", "BĐS": "🏠"}.get(sector, "📰")
-
-
 def _author_for_sector(sector: str) -> str:
-    return {
-        "Bank": "Chuyên gia ngân hàng",
-        "CK": "Chuyên gia chứng khoán",
-        "BĐS": "Chuyên gia bất động sản",
-    }.get(sector, "Chuyên gia")
-
-
-def _parse_why_chosen(brief_json_str: str | None) -> list[dict]:
-    if not brief_json_str:
-        return []
-    try:
-        brief = json.loads(brief_json_str)
-    except json.JSONDecodeError:
-        return []
-    items = []
-    if "why_chosen" in brief:
-        items.append({"label": "Vì sao chọn bài này", "content": brief["why_chosen"]})
-    if "angle_label" in brief:
-        items.append({"label": "Angle chọn", "content": brief["angle_label"]})
-    if "data_anchor" in brief:
-        items.append({"label": "Data anchor", "content": brief["data_anchor"]})
-    return items
-
-
-def _parse_pipeline_log(log_str: str | None) -> dict:
-    if not log_str:
-        return {}
-    try:
-        return json.loads(log_str)
-    except json.JSONDecodeError:
-        return {}
+    return {"Bank": "Chuyên gia ngân hàng", "CK": "Chuyên gia chứng khoán", "BĐS": "Chuyên gia bất động sản"}.get(sector, "Chuyên gia")
 
 
 def update_manifest(manifest_path: Path, summary: dict) -> None:
+    """Append/update entry in manifest.json. id = public_slug."""
     if manifest_path.exists():
         data = json.loads(manifest_path.read_text(encoding="utf-8"))
     else:
@@ -143,51 +188,56 @@ def update_manifest(manifest_path: Path, summary: dict) -> None:
 
 
 def render_for_funnel_batch(db_path: Path, funnel_batch_id: str, output_dir: Path) -> dict:
+    """V4.0: Loop ALL anchor rows in batch, render 1 file per article."""
     from lib.pipeline_db import PipelineDB
 
     db = PipelineDB(db_path)
     rows = db.query_by_funnel_batch(funnel_batch_id)
     if not rows:
         db.close()
-        return {"error": f"No rows for funnel_batch {funnel_batch_id}"}
+        return {"error": f"No rows for batch {funnel_batch_id}"}
 
-    anchor = next((r for r in rows if r.get("master_decision") == "write_article"), None)
-    if not anchor:
+    anchors = [r for r in rows if r.get("master_decision") == "write_article"]
+    if not anchors:
         db.close()
-        return {"error": f"No anchor row (no master_decision=write_article) in batch {funnel_batch_id}"}
+        return {"error": f"No anchors in batch {funnel_batch_id}"}
 
-    cur = db.conn.execute(
-        "SELECT * FROM generated_news WHERE row_id = ? ORDER BY published_at DESC LIMIT 1",
-        (anchor["row_id"],),
-    )
-    art_row = cur.fetchone()
-    if not art_row:
-        db.close()
-        return {"error": f"No generated_news for row_id {anchor['row_id']}"}
-    article = dict(art_row)
-
-    md_content = render_article_md(article, anchor, rows)
     output_dir.mkdir(parents=True, exist_ok=True)
-    out_path = output_dir / f"{funnel_batch_id}.md"
-    out_path.write_text(md_content, encoding="utf-8")
+    manifest_path = output_dir / "manifest.json"
+    written = []
 
-    summary = {
-        "id": funnel_batch_id,
-        "ticker": article["ticker"],
-        "sector": article.get("sector", "Bank"),
-        "title": article["title"],
-        "crawled_at": anchor["crawled_at"],
-        "key_view": article.get("key_view", "trung lập"),
-        "word_count": article.get("word_count", 0),
-    }
-    update_manifest(output_dir / "manifest.json", summary)
+    for anchor in anchors:
+        cur = db.conn.execute(
+            "SELECT * FROM generated_news WHERE row_id = ? ORDER BY published_at DESC LIMIT 1",
+            (anchor["row_id"],),
+        )
+        art_row = cur.fetchone()
+        if not art_row:
+            continue
+        article = dict(art_row)
+        public_slug = article.get("public_slug") or f"{anchor['ticker']}-{anchor['row_id']}"
+        md_content = render_article_md_v4(article, anchor, rows)
+        out_path = output_dir / f"{public_slug}.md"
+        out_path.write_text(md_content, encoding="utf-8")
+        summary = {
+            "id": public_slug,
+            "ticker": article["ticker"],
+            "sector": article.get("sector", "Bank"),
+            "title": article["title"],
+            "crawled_at": anchor["crawled_at"],
+            "key_view": article.get("key_view", "trung lập"),
+            "word_count": article.get("word_count", 0),
+        }
+        update_manifest(manifest_path, summary)
+        written.append(str(out_path))
+
     db.close()
-    return {"written": str(out_path), "summary": summary}
+    return {"count": len(written), "files": written}
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("funnel_batch_id", help="e.g. VCB-20260508-1530")
+    parser.add_argument("funnel_batch_id")
     parser.add_argument("--db", type=Path, default=Path("data/pipeline.db"))
     parser.add_argument("--output-dir", type=Path, default=Path("output/compare-feed/"))
     args = parser.parse_args()
