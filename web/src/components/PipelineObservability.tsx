@@ -23,12 +23,14 @@ export function PipelineObservability({ pipelineLog }: Props) {
   if (steps.length === 0) return null;
 
   const totalMs = steps.reduce((sum, s) => sum + (s.log.duration_ms ?? 0), 0);
+  const tokensPresent = steps.some(s => s.log.tokens != null);
   const totalTokens = steps.reduce((sum, s) => sum + (s.log.tokens ?? 0), 0);
+  const tokensLabel = tokensPresent ? `${totalTokens.toLocaleString()} tokens` : '— tokens';
 
   return (
     <details className="text-sm">
       <summary className="cursor-pointer font-semibold">
-        ⚙️ Pipeline run — {totalTokens.toLocaleString()} tokens · {(totalMs / 1000).toFixed(1)}s
+        ⚙️ Pipeline run — {tokensLabel} · {(totalMs / 1000).toFixed(1)}s
       </summary>
       <table className="mt-3 w-full text-xs border-collapse">
         <thead>
