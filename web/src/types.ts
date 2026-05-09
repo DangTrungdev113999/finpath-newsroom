@@ -35,9 +35,11 @@ export interface CrawlFunnelData {
 }
 
 export interface DataTrailEntry {
-  source: string;
-  fetched: string;
-  used_for: string;
+  source: string;             // Canonical: Full URL | WebSearch:"query" | Finpath_API/<endpoint> | KB/<path> | Manual_YAML/<file>:<row_key> | "Lập luận tự"
+  fetched: string;            // What was retrieved
+  purpose?: string;           // V4.0 Phase F: vì sao tra (e.g. "kiểm chéo claim ROE Q1")
+  supports_argument?: string; // V4.0 Phase F: bổ sung cho ("Bullet 2 (luận điểm chính)", "Opening (tension)")
+  used_for?: string;          // LEGACY (pre-Phase F): backward compat — old entries have this; render maps to supports_argument
 }
 
 export interface ArticleMeta {

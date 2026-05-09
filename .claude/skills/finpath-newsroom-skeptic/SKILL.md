@@ -110,17 +110,40 @@ Patterns + examples per angle: see `references/critique-patterns.md`.
   "skeptic_verdict": "<pass|pass_with_caveats|fail>",
   "skeptic_data_trail": [
     {
-      "source": "<url or kb path or api endpoint>",
+      "source": "<canonical: full URL | 'WebSearch: \"query\"' | Finpath_API/<endpoint> | KB/<path> | Manual_YAML/<file>:<row_key> | 'Lập luận tự'>",
       "fetched": "<1-line what data extracted>",
-      "used_for": "<which counter-evidence point in critique>"
+      "purpose": "<vì sao tra: e.g. 'kiểm chéo claim NIM Master', 'verify số dư nợ Q1'>",
+      "supports_argument": "<bổ sung cho luận điểm nào trong critique: e.g. 'Counter-evidence đoạn 2', 'Anchor số cho risk_highlight'>"
     }
   ]
 }
 ```
 
-⚠️ **NEW V4.0**: `skeptic_data_trail` array. Mỗi independent fetch (Finpath API, KB grep, WebSearch, WebFetch raw) → 1 entry với what fetched + what used for.
+⚠️ **NEW V4.0**: `skeptic_data_trail` array. Mỗi independent fetch (Finpath API, KB grep, WebSearch, WebFetch raw) → 1 entry.
 
 ⚠️ **NEW V4.0**: Title verification echo (Step 1 above) BẮT BUỘC trước Pass 1 fresh impression.
+
+### Canonical source format (Phase F — sync với Master)
+
+`source` MUST theo 1 trong 6 canonical:
+
+| Prefix | Format | Render |
+|---|---|---|
+| `http://` / `https://` | full URL | clickable link |
+| `WebSearch:` | `WebSearch: "<exact query>"` | italic |
+| `Finpath_API/` | `Finpath_API/<endpoint>` | `<code>` |
+| `KB/` | `KB/<path>` | `<code>` |
+| `Manual_YAML/` | `Manual_YAML/<file>:<row_key>` | `<code>` |
+| (fallback) | `Lập luận tự` | bold text |
+
+❌ KHÔNG abbreviated label (`cafef.vn`, `Finpath`, `KB Bank`) — phải full URL/path để Compare Feed render link clickable.
+
+### Schema split: purpose vs supports_argument (Phase F)
+
+- `purpose` — vì sao Skeptic đi tra nguồn này (verify, kiểm chéo Master, tìm counter-data). Tiếng Việt 1 câu.
+- `supports_argument` — nguồn này anchor luận điểm nào trong critique (counter-evidence point). Tiếng Việt 1 câu.
+
+Legacy entries chỉ có `used_for` — render layer auto-fallback. Skeptic mới persist dùng schema mới.
 
 ## Verdict logic
 

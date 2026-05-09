@@ -187,13 +187,24 @@ db.close()
   "skeptic_verdict": "<pass|pass_with_caveats|fail>",
   "skeptic_data_trail": [
     {
-      "source": "<url|kb_path|api>",
-      "fetched": "<what extracted>",
-      "used_for": "<counter-evidence point in critique>"
+      "source": "<canonical: full URL | 'WebSearch: \"query\"' | Finpath_API/<endpoint> | KB/<path> | Manual_YAML/<file>:<row_key> | 'Lập luận tự'>",
+      "fetched": "<what data extracted>",
+      "purpose": "<vì sao tra: e.g. 'kiểm chéo claim NIM Master', 'verify số dư nợ Q1'>",
+      "supports_argument": "<bổ sung cho luận điểm nào trong critique: e.g. 'Counter-evidence đoạn 2', 'Anchor số cho risk_highlight'>"
     }
   ]
 }
 ```
+
+**Canonical source format** (V4.0 Phase F):
+- WebFetch → full URL `https://cafef.vn/...` (clickable)
+- WebSearch → `WebSearch: "<exact query>"` (quoted query)
+- Finpath API → `Finpath_API/<endpoint>`
+- KB → `KB/<path>`
+- YAML → `Manual_YAML/<file>:<row_key>`
+- Self-reasoning → `Lập luận tự`
+
+**Schema split (Phase F)** — `purpose` (vì sao tra nguồn này — verify, kiểm chéo, tìm số) tách khỏi `supports_argument` (bổ sung cho counter-evidence point nào trong critique). Tiếng Việt thuần.
 
 ## Hard rules
 

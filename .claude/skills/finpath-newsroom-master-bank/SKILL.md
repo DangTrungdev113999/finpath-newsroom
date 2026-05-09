@@ -68,7 +68,7 @@ Orchestrator routes a Bank brief (sector=Bank, ticker ∈ {TCB,VCB,MBB,ACB,BID,C
        "chosen_question_idx": chosen_question_idx,        # int 0-2
        "chosen_pick_reason": chosen_pick_reason,          # narrative tiếng Việt — vì sao pick câu này
        "skip_reasons": json.dumps(skip_reasons),          # {idx: reason_narrative} cho 2 câu skip
-       "data_trail": json.dumps(data_trail),              # [{source, fetched, used_for}] per source
+       "data_trail": json.dumps(data_trail),              # [{source, fetched, purpose, supports_argument}] per source — Phase F canonical format
        "public_slug": lib.slugify.slugify_hook(title),    # call slugify_hook
        "pipeline_version": "V4",
        "status": "draft",
@@ -162,9 +162,45 @@ Brief schema V4.0: see Story Editor SKILL.md.
   "key_claims": "...",
   "history_referenced": [...],
   "insight_final": "<1 câu>",
-  "accepted_hypothesis": true|false
+  "accepted_hypothesis": true|false,
+  "data_trail": [
+    {
+      "source": "<canonical>",
+      "fetched": "<what extracted>",
+      "purpose": "<vì sao tra>",
+      "supports_argument": "<bổ sung cho luận điểm nào trong bài>"
+    }
+  ]
 }
 ```
+
+### Canonical source format (V4.0 Phase F)
+
+`data_trail.source` MUST follow 1 trong 6 canonical formats — Compare Feed Right Column render link/code/text dựa vào prefix:
+
+| Prefix | Format | Render |
+|---|---|---|
+| `http://` / `https://` | full URL (vd `https://cafef.vn/...`) | clickable `<a>` underline |
+| `WebSearch:` | `WebSearch: "<exact query>"` (quoted) | italic span |
+| `Finpath_API/` | `Finpath_API/<endpoint>` (vd `Finpath_API/bankfinancialratios`) | `<code>` mono |
+| `KB/` | `KB/<path>` (vd `KB/bank/frameworks/bank-nim-cycle.md`) | `<code>` mono |
+| `Manual_YAML/` | `Manual_YAML/<file>:<row_key>` (vd `Manual_YAML/targets.yaml:MBB-2026`) | `<code>` mono |
+| (none — fallback) | `Lập luận tự` (self-reasoning, no external fetch) | plain bold span |
+
+❌ Bad: `cafef.vn` (abbreviated label, không clickable)
+❌ Bad: `Finpath` (thiếu endpoint cụ thể)
+❌ Bad: `KB Bank` (thiếu path)
+✅ Good: `https://cafef.vn/mbb-q1-2026-...html` (full URL có path)
+✅ Good: `WebSearch: "MBB ROE Q1 2026 cafef"` (query reproduce được)
+
+### Schema split: purpose vs supports_argument (V4.0 Phase F)
+
+- `purpose` — VÌ SAO Master đi tra nguồn này (motivation, narrative ngắn 1 câu tiếng Việt). Vd: `"kiểm chéo claim ROE Q1 từ Master draft"`, `"tìm số target 2026 chính thức"`, `"verify NIM trend 4 quý"`.
+- `supports_argument` — nguồn này BỔ SUNG cho luận điểm nào TRONG BÀI. Vd: `"Bullet 2 (luận điểm chính về biên lãi vay)"`, `"Opening paragraph (tension setup)"`, `"Closing — phân loại NĐT"`.
+
+Cả 2 fields tiếng Việt thuần (Rule 1 áp dụng — KHÔNG jargon Anh trong narrative pipeline metadata).
+
+Legacy entries (pre-Phase F) chỉ có `used_for` — render layer auto-fallback `entry.supports_argument || entry.used_for` để backward compat. Master mới persist phải dùng schema mới (`purpose` + `supports_argument`).
 
 ## Local data sources — Bank sector
 

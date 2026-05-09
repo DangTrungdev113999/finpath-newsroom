@@ -204,7 +204,7 @@ db.insert_generated_news({
             'chosen_question_idx': <idx>,
             'chosen_pick_reason': '<narrative>',
             'skip_reasons': {<idx>: '<narrative>', ...},
-            'data_trail': [{'source':..., 'fetched':..., 'used_for':...}, ...],
+            'data_trail': [{'source':..., 'fetched':..., 'purpose':..., 'supports_argument':...}, ...],
             'gates_passed': True,
         }
     }, ensure_ascii=False),
@@ -235,9 +235,27 @@ Output: article_id + public_slug.
   "insight_final": "<1 câu>",
   "accepted_hypothesis": true,
   "data_sources_used": ["Finpath_API/bankfinancialratios", "KB/Big4-vs-Tunhan", "WebSearch/cafef.vn-vcb-q1"],
-  "quality_gates": {<5 gates pass/fail dict>}
+  "quality_gates": {<5 gates pass/fail dict>},
+  "data_trail": [
+    {
+      "source": "<canonical: full URL | 'WebSearch: \"query\"' | Finpath_API/<endpoint> | KB/<path> | Manual_YAML/<file>:<row_key> | 'Lập luận tự'>",
+      "fetched": "<what data extracted>",
+      "purpose": "<vì sao tra: e.g. 'kiểm chéo claim ROE Q1', 'tìm số target 2026'>",
+      "supports_argument": "<bổ sung cho: e.g. 'Bullet 2 (luận điểm chính)', 'Opening (tension)'>"
+    }
+  ]
 }
 ```
+
+**Canonical source format** (V4.0 Phase F):
+- WebFetch → full URL `https://cafef.vn/...` (clickable, Compare Feed render anchor)
+- WebSearch → `WebSearch: "<exact query>"` (quoted query — reproducible)
+- Finpath API → `Finpath_API/<endpoint>` (e.g. `Finpath_API/bankfinancialratios`)
+- KB → `KB/<path>` (e.g. `KB/bank/frameworks/bank-nim-cycle.md`)
+- YAML → `Manual_YAML/<file>:<row_key>` (e.g. `Manual_YAML/targets.yaml:MBB-2026`)
+- Self-reasoning (no external fetch) → `Lập luận tự`
+
+**Schema split (Phase F)** — `purpose` (vì sao đi tra nguồn này) tách khỏi `supports_argument` (bổ sung cho luận điểm nào trong bài). Cả 2 đều tiếng Việt thuần, narrative ngắn 1 câu.
 
 ## Reject power
 
