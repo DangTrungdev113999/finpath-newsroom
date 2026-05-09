@@ -3,6 +3,7 @@ import { CrawlFunnel } from './CrawlFunnel';
 import { QuestionOptions } from './QuestionOptions';
 import { DataTrail } from './DataTrail';
 import { InsightCallout } from './InsightCallout';
+import { PipelineObservability } from './PipelineObservability';
 import { formatPublishedDate } from '../lib/format';
 
 export function RightColumn({ meta }: { meta: ArticleMeta }) {
@@ -86,6 +87,9 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
           ({formatPublishedDate(src.published)})
         </p>
       </section>
+
+      {/* Appendix: Pipeline observability — Phase F T11 */}
+      <PipelineObservability pipelineLog={meta.pipeline_log} />
     </section>
   );
 }

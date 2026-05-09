@@ -42,6 +42,33 @@ export interface DataTrailEntry {
   used_for?: string;          // LEGACY (pre-Phase F): backward compat — old entries have this; render maps to supports_argument
 }
 
+export interface StepLog {
+  model: string;
+  started_at?: string;
+  duration_ms: number;
+  tokens: number | null;
+  // step-specific extras (optional, varies by step)
+  candidates_count?: number;
+  rows_processed?: number;
+  briefs_count?: number;
+  files_written?: number;
+  // step_4_master / step_5_skeptic extras
+  data_trail?: DataTrailEntry[];
+  gates_passed?: boolean;
+  angle?: string;
+  // allow other step-specific keys without typing each one
+  [extra: string]: unknown;
+}
+
+export interface PipelineLog {
+  step_1_crawler?: StepLog;
+  step_2_editor?: StepLog;
+  step_3_story_editor?: StepLog;
+  step_4_master?: StepLog;
+  step_5_skeptic?: StepLog;
+  step_6_render?: StepLog;
+}
+
 export interface ArticleMeta {
   title: string;
   ticker: string;
@@ -64,6 +91,8 @@ export interface ArticleMeta {
   master_data_trail: DataTrailEntry[];
   skeptic_data_trail: DataTrailEntry[];
   raw_article_url: string;
+  // Phase F T11 — observability per pipeline step
+  pipeline_log?: PipelineLog;
 }
 
 export interface Article {
