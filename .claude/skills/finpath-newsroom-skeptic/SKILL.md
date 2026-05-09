@@ -139,6 +139,29 @@ Patterns + examples per angle: see `references/critique-patterns.md`.
 
 ## Persist generated_news
 
+### Critique body — NO embedded heading (Bug B6 fix V4.0)
+
+Skeptic critique persisted vào DB (`skeptic_critique` field) MUST NOT bắt đầu với `## Góc nhìn ngược` heading. Heading sẽ được render layer auto-prepend khi build markdown file. Nếu bạn embed heading trong critique → render append heading thứ 2 → duplicate.
+
+Format đúng:
+```
+Bài Master nêu ba kênh tăng vốn... [first paragraph]
+
+[middle paragraphs]
+
+Verdict: **pass với cảnh báo**. ...
+```
+
+Format SAI (current bug):
+```
+## Góc nhìn ngược
+
+Bài Master nêu ba kênh tăng vốn... [first paragraph]
+...
+```
+
+Persist STARTS với `Bài Master ...` (paragraph), KHÔNG với `## Góc nhìn ngược`.
+
 ### 8. Persist V4.0
 
 ```bash

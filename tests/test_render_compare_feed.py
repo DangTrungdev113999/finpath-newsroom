@@ -201,3 +201,96 @@ def test_funnel_groups_rejects_with_agent_labels(populated_db_v4, tmp_path):
     # story_editor reject narrative + agent label
     assert "Cùng story 25/4" in content
     assert "story_editor" in content or "Tổng biên tập" in content
+
+
+# Bug B6 fix — defensive strip of embedded "## Góc nhìn ngược" heading in skeptic_critique
+# ----------------------------------------------------------------------
+
+def _make_minimal_article(skeptic_critique: str | None) -> tuple[dict, dict, list]:
+    """Minimal article + anchor + funnel for render_article_md_v4."""
+    article = {
+        "article_id": "art-test",
+        "row_id": "anchor-test",
+        "ticker": "MBB",
+        "sector": "Bank",
+        "title": "Test title — vì sao?",
+        "body": "Opening paragraph đầy đủ tối thiểu ba mươi từ để pass setup test bug B6 fix render layer defensive strip skeptic heading.\n\n- **Bold 1**: bullet đủ hai mươi từ để có substance test test test thực sự rồi đó hôm nay nhé.\n\nClosing.",
+        "word_count": 50,
+        "key_view": "trung lập",
+        "insight_final": "Insight test.",
+        "skeptic_critique": skeptic_critique,
+        "skeptic_angle": "alt_interpretation",
+        "skeptic_verdict": "pass_with_caveats",
+        "pipeline_log": json.dumps({
+            "step_4_master": {"chosen_question_idx": 0, "chosen_pick_reason": "", "skip_reasons": {}, "data_trail": []},
+            "step_5_skeptic": {"angle": "alt_interpretation", "verdict": "pass_with_caveats", "data_trail": []},
+        }, ensure_ascii=False),
+        "public_slug": "MBB-test-slug",
+    }
+    anchor = {
+        "row_id": "anchor-test",
+        "funnel_batch_id": "MBB-20260508-1542",
+        "ticker": "MBB",
+        "source_name": "Source",
+        "source_url": "https://src/a",
+        "title": "Raw title",
+        "crawled_at": "2026-05-08T15:42:00+07:00",
+        "published_time": "2026-05-08T10:00:00+07:00",
+        "master_decision": "write_article",
+        "master_note": "Anchor",
+        "brief_json": json.dumps({
+            "why_chosen_narrative": "n",
+            "angle_label": "a",
+            "angle_narrative": "an",
+            "deep_question_options": [],
+        }, ensure_ascii=False),
+    }
+    funnel_rows = [anchor]
+    return article, anchor, funnel_rows
+
+
+def test_render_strips_embedded_skeptic_heading():
+    """Skeptic critique starts with `## Góc nhìn ngược` → render strips it, output has exactly 1 heading."""
+    skeptic_with_heading = "## Góc nhìn ngược\n\nBài Master nêu ba kênh tăng vốn nhưng thiếu data anchor cho kênh thứ ba — đáng nghi ngờ về timing."
+    article, anchor, funnel = _make_minimal_article(skeptic_with_heading)
+    output = render_article_md_v4(article, anchor, funnel)
+    assert output.count("## Góc nhìn ngược") == 1
+    # Body content preserved
+    assert "Bài Master nêu ba kênh" in output
+
+
+def test_render_clean_skeptic_no_strip_needed():
+    """Skeptic critique without embedded heading — render appends 1 heading."""
+    skeptic_clean = "Bài Master nêu ba kênh tăng vốn nhưng thiếu data anchor cho kênh thứ ba."
+    article, anchor, funnel = _make_minimal_article(skeptic_clean)
+    output = render_article_md_v4(article, anchor, funnel)
+    assert output.count("## Góc nhìn ngược") == 1
+    assert "Bài Master nêu ba kênh" in output
+
+
+def test_render_strips_h3_heading_too():
+    """Skeptic critique with `### Góc nhìn ngược` (h3) → also stripped (regex matches h2 OR h3)."""
+    skeptic_h3 = "### Góc nhìn ngược\n\nBài Master nêu vấn đề về timing."
+    article, anchor, funnel = _make_minimal_article(skeptic_h3)
+    output = render_article_md_v4(article, anchor, funnel)
+    assert output.count("## Góc nhìn ngược") == 1
+    # h3 form should be gone (only h2 remains)
+    assert output.count("### Góc nhìn ngược") == 0
+    assert "Bài Master nêu vấn đề" in output
+
+
+def test_render_no_skeptic_no_heading():
+    """No skeptic critique → no heading appended."""
+    for empty in ("", None):
+        article, anchor, funnel = _make_minimal_article(empty)
+        output = render_article_md_v4(article, anchor, funnel)
+        assert output.count("## Góc nhìn ngược") == 0
+
+
+def test_render_skeptic_with_extra_blank_lines():
+    """Leading whitespace + blank lines before heading → still stripped."""
+    skeptic_padded = "\n\n\n## Góc nhìn ngược\n\n\n\nBài Master nêu vấn đề về timing."
+    article, anchor, funnel = _make_minimal_article(skeptic_padded)
+    output = render_article_md_v4(article, anchor, funnel)
+    assert output.count("## Góc nhìn ngược") == 1
+    assert "Bài Master nêu vấn đề" in output

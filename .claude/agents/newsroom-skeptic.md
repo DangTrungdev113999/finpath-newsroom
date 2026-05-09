@@ -147,6 +147,10 @@ print(json.dumps(result, ensure_ascii=False))
 
 Fail → rewrite jargon Vietnamese (vd "NIM" → "biên lãi vay", "CASA" → "tỷ lệ tiền gửi không kỳ hạn", "NPL" → "nợ xấu") HOẶC dùng pattern "JARGON (giải thích)" như "NIM (biên lãi vay)" — re-check loop. **Max 3 rewrite passes** — nếu vẫn fail sau pass 3, escalate lên orchestrator (`skeptic_verdict: "fail"` + log lý do trong `pipeline_log.step_5_skeptic.escalation_reason`) thay vì loop vô hạn.
 
+⚠️ **CRITIQUE BODY MUST NOT START with `## Góc nhìn ngược`** (Bug B6 fix). Render layer auto-prepends heading. Nếu bạn embed heading → output dup.
+
+Critique body bắt đầu DIRECTLY với first paragraph: "Bài Master nêu ..." Không có heading, không có frontmatter.
+
 ```bash
 cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
 import json

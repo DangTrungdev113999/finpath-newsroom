@@ -6,6 +6,7 @@ Each markdown file has frontmatter with all 8 right-column sections data.
 from __future__ import annotations
 import argparse
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -158,7 +159,17 @@ def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict
     skeptic = (article.get("skeptic_critique") or "").strip()
     left_section = body
     if skeptic:
-        left_section += f"\n\n## Góc nhìn ngược\n\n{skeptic}"
+        # Bug B6 fix — defensive strip leading "## Góc nhìn ngược" heading from
+        # skeptic_critique. Skeptic skill V4.0 persists critique without heading,
+        # but legacy data + agent regression handled here. Allows extra blank lines.
+        skeptic_clean = re.sub(
+            r'^\s*#{2,3}\s+G[óo]c\s+nh[iì]n\s+ng[ưu][ợo]?c\s*\n+',
+            '',
+            skeptic,
+            count=1,
+            flags=re.MULTILINE,
+        )
+        left_section += f"\n\n## Góc nhìn ngược\n\n{skeptic_clean}"
 
     # Right column markdown body — empty since frontmatter has all data
     # React component renders sections from frontmatter directly.

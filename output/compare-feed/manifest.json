@@ -1,6 +1,33 @@
 {
   "articles": [
     {
+      "id": "MBB-20260508-1542-tin-dung-mb-vuot-huy-dong-70-000-ty-bu-lai-bang-nguon-von",
+      "ticker": "MBB",
+      "sector": "Bank",
+      "title": "Tín dụng MB vượt huy động 70.000 tỷ — bù lại bằng nguồn vốn nào?",
+      "crawled_at": "2026-05-08T15:42:30.136231+00:00",
+      "key_view": "thận trọng",
+      "word_count": 373
+    },
+    {
+      "id": "MBB-20260508-1542-mb-lai-9-500-ty-vuot-ca-nhom-tu-tru-va-techcombank-chap-nhan",
+      "ticker": "MBB",
+      "sector": "Bank",
+      "title": "MB lãi 9.500 tỷ vượt cả nhóm tứ trụ và Techcombank — chấp nhận đánh đổi gì?",
+      "crawled_at": "2026-05-08T15:42:30.135413+00:00",
+      "key_view": "thận trọng",
+      "word_count": 383
+    },
+    {
+      "id": "MBB-20260508-1542-vi-sao-mb-vua-hut-22-000-ty-von-moi-van-chia-8-055-ty-tien",
+      "ticker": "MBB",
+      "sector": "Bank",
+      "title": "Vì sao MB vừa hút 22.000 tỷ vốn mới vẫn chia 8.055 tỷ tiền mặt?",
+      "crawled_at": "2026-05-08T15:42:30.132932+00:00",
+      "key_view": "lạc quan",
+      "word_count": 381
+    },
+    {
       "id": "VCB-20260508-1530",
       "ticker": "VCB",
       "sector": "Bank",
