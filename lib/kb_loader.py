@@ -7,8 +7,48 @@ Usage:
 """
 from __future__ import annotations
 import re
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+
+
+def freshness_warning(
+    row: dict,
+    max_days: int = 30,
+    now: datetime | None = None,
+) -> str | None:
+    """Return warning string if row's last_verified is stale, else None.
+
+    Used by Master/Skeptic agents (Bug E fix) to decide whether to web-search
+    for fresher data instead of trusting potentially-stale YAML rows.
+
+    Behaviour:
+      - row missing `last_verified` or value == "unknown" → warning
+      - row with unparseable date string → warning
+      - row with `last_verified` older than `max_days` → warning
+      - else → None (row considered fresh)
+
+    `now` is injectable for deterministic testing without mocking.
+    """
+    if now is None:
+        now = datetime.now(timezone.utc)
+    elif now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+
+    last = row.get("last_verified")
+    if not last or last == "unknown":
+        return "YAML row chưa verified — recommend web search để confirm latest data"
+    try:
+        verified_dt = datetime.fromisoformat(str(last))
+        if verified_dt.tzinfo is None:
+            verified_dt = verified_dt.replace(tzinfo=timezone.utc)
+    except (ValueError, TypeError):
+        return f"YAML row last_verified '{last}' không parse được — recommend web search"
+
+    age = now - verified_dt
+    if age > timedelta(days=max_days):
+        return f"YAML row stale ({age.days} ngày) — recommend web search để confirm"
+    return None
 
 
 class KBLoader:
