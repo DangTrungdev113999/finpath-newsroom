@@ -1,16 +1,13 @@
 import type { LeftMeta } from '../types';
 import { Markdown } from './Markdown';
-import { InsightCallout } from './InsightCallout';
 
 export function LeftColumn({
   title,
   meta,
-  insight,
   body,
 }: {
   title: string;
   meta: LeftMeta;
-  insight: string;
   body: string;
 }) {
   return (
@@ -26,7 +23,6 @@ export function LeftColumn({
         <code>{meta.skeptic_verdict}</code> · {meta.pipeline_version}
       </p>
 
-      <InsightCallout insight={insight} />
       <Markdown>{body}</Markdown>
     </section>
   );

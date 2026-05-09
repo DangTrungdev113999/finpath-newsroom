@@ -22,7 +22,6 @@ export function CompareFeedLayout({ article }: { article: Article }) {
         <LeftColumn
           title={meta.title}
           meta={meta.left_meta}
-          insight={meta.insight}
           body={leftMarkdown}
         />
         <RightColumn meta={meta} />

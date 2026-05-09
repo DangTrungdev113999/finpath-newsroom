@@ -2,6 +2,7 @@ import type { ArticleMeta } from '../types';
 import { CrawlFunnel } from './CrawlFunnel';
 import { QuestionOptions } from './QuestionOptions';
 import { DataTrail } from './DataTrail';
+import { InsightCallout } from './InsightCallout';
 import { formatPublishedDate } from '../lib/format';
 
 export function RightColumn({ meta }: { meta: ArticleMeta }) {
@@ -47,6 +48,14 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
         pickReason={meta.chosen_pick_reason}
         skipReasons={meta.skip_reasons || {}}
       />
+
+      {/* Section 4b: Insight cuối */}
+      {meta.insight && (
+        <section>
+          <h3>💡 Insight cuối</h3>
+          <InsightCallout insight={meta.insight} />
+        </section>
+      )}
 
       {/* Section 5: Crawl funnel */}
       {meta.crawl_funnel && (
