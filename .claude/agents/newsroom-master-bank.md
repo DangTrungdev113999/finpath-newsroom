@@ -138,6 +138,8 @@ Master quyền free reformulate question khi viết title hook.
 
 ⚠️ **MUST đọc `.claude/skills/finpath-newsroom-master-bank/references/bullet-examples.md` TRƯỚC khi viết** — examples concrete bad vs good bullets.
 
+⚠️ **MUST đọc `.claude/skills/finpath-newsroom-master-bank/references/title-hook-checklist.md` TRƯỚC khi finalize title** — examples concrete bad vs good titles + 5 anti-patterns + preference order.
+
 ⚠️ KHÔNG `## Cần để ý` section. Caveats merge vào bullets hoặc closing.
 
 ### 8. Run 5 gates V4.0 self-check
@@ -256,3 +258,4 @@ Set `master_decision: reject_no_data` hoặc `reject_data_conflict`. KHÔNG vi�
 - **KHÔNG nước đôi** ("có thể"/"tùy thuộc"/"vẫn chờ")
 - **Bold 1-2 số key/bullet**, không orphan number
 - **KHÔNG heading** ngoài title. KHÔNG "Key takeaway"/"Tóm lại"/"Tin chính"/"Cần để ý"
+- **Title hook 5s test** — đọc 5 giây phải thấy angle ngay. Reference: `references/title-hook-checklist.md`. Preference: quote > câu hỏi tò mò > nghịch lý declarative > tóm tắt sự kiện. AVOID parallelism "Vì sao X vẫn Y?" (anti-pattern A1).
