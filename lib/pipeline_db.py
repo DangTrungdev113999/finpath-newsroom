@@ -1,8 +1,28 @@
 """SQLite ops cho pipeline state — crawl_log + generated_news."""
 from __future__ import annotations
+import json
+import re
 import sqlite3
 from pathlib import Path
 from typing import Any
+
+
+def parse_task_usage(task_return: str | None) -> int | None:
+    """Defensive parse of '<usage>total_tokens: N ...</usage>' block.
+
+    Returns None if block absent or unparseable — never raises.
+    Used by orchestrator to capture per-step token counts from Task tool returns
+    when available; treat None as expected (orchestrator-self-runs steps cannot
+    introspect their own tokens, and Task return format is not contractually
+    guaranteed).
+    """
+    if not task_return:
+        return None
+    try:
+        m = re.search(r"<usage>[^<]*total_tokens:\s*(\d+)", task_return)
+        return int(m.group(1)) if m else None
+    except (ValueError, AttributeError, TypeError):
+        return None
 
 
 class PipelineDB:
@@ -73,6 +93,36 @@ class PipelineDB:
         set_clause = ", ".join(f"{k} = ?" for k in updates)
         sql = f"UPDATE generated_news SET {set_clause} WHERE article_id = ?"
         self.conn.execute(sql, [*updates.values(), article_id])
+        self.conn.commit()
+
+    def log_pipeline_step(self, article_id: str, step_key: str, payload: dict) -> None:
+        """Merge a step_N entry into pipeline_log JSON. Idempotent: re-writing
+        same step_key overwrites previous value (allows agent retry to update
+        timing).
+
+        Schema convention:
+        - step_1_crawler / step_6_render: orchestrator self-runs, tokens=None
+        - step_2_editor / step_3_story_editor / step_4_master / step_5_skeptic:
+          Task-dispatched, tokens parsed from <usage> if available else None
+
+        Batch-level steps (1, 2, 3, 6) duplicate across N articles in same
+        batch by design — each article's pipeline_log is self-contained.
+
+        No-op if article_id does not exist (graceful — agent retry safe).
+        """
+        cur = self.conn.execute(
+            "SELECT pipeline_log FROM generated_news WHERE article_id = ?",
+            (article_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            return
+        log = json.loads(row["pipeline_log"]) if row["pipeline_log"] else {}
+        log[step_key] = payload
+        self.conn.execute(
+            "UPDATE generated_news SET pipeline_log = ? WHERE article_id = ?",
+            (json.dumps(log, ensure_ascii=False), article_id),
+        )
         self.conn.commit()
 
     def recent_generated_news(self, ticker: str, limit: int = 3) -> list[dict[str, Any]]:

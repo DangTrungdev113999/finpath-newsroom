@@ -34,6 +34,67 @@ Subagents (Phase 4 LLM):
 
 ---
 
+## Observability (V4.0 Phase F — C2)
+
+Capture mỗi step + persist vào `pipeline_log` JSON via `db.log_pipeline_step(article_id, step_key, payload)` — cho cost analysis + observability dashboard.
+
+```python
+import time
+from datetime import datetime, timezone
+from lib.pipeline_db import PipelineDB, parse_task_usage
+
+db = PipelineDB('data/pipeline.db')
+
+# BEFORE step
+started_at = datetime.now(timezone.utc).isoformat()
+t0 = time.time()
+
+# ... run step (Task dispatch hoặc self-execute) ...
+task_return = "<text returned by Task tool — may contain <usage>...</usage>>"
+
+# AFTER step
+duration_ms = int((time.time() - t0) * 1000)
+tokens = parse_task_usage(task_return)  # None nếu <usage> block missing — defensive
+
+payload = {
+    "model": "<sonnet|opus|python>",     # match agent frontmatter / step type
+    "started_at": started_at,            # ISO 8601 UTC
+    "duration_ms": duration_ms,
+    "tokens": tokens,                    # None acceptable
+    # step-specific extras (optional):
+    # "candidates_count": 10,            # step_1
+    # "rows_processed": 10,              # step_2
+    # "briefs_count": 3,                 # step_3
+    # "accepted_hypothesis": True,       # step_4
+    # "skeptic_angle": "data_skepticism",# step_5
+    # "files_written": 3,                # step_6
+}
+
+# Per-article persist for steps 4, 5; batch-level steps 1, 2, 3, 6
+# duplicated across N articles in same batch (each article self-contained)
+for article_id in [a["article_id"] for a in batch_articles]:
+    db.log_pipeline_step(article_id, "step_1_crawler", payload)
+```
+
+**Step model convention:**
+- `step_1_crawler` — model="sonnet" (orchestrator self-runs Crawler) — `tokens: null` (orchestrator can't introspect own tokens)
+- `step_2_editor` — model="sonnet" (Task dispatch newsroom-editor) — tokens parsed defensively from Task return
+- `step_3_story_editor` — model="opus" (Task dispatch) — tokens parsed
+- `step_4_master` — model="opus" (Task dispatch per brief) — tokens parsed
+- `step_5_skeptic` — model="opus" (Task dispatch per article) — tokens parsed
+- `step_6_render` — model="python" (mechanical script) — `tokens: null` always
+
+**Batch-level vs per-article:**
+- Steps 1, 2, 3, 6 = batch-level → mỗi article trong batch ghi entry GIỐNG NHAU (same numbers across N articles, by design — accepted duplication for self-contained per-article logs)
+- Steps 4, 5 = per-article → entry KHÁC NHAU per article
+
+**Defensive notes:**
+- `parse_task_usage` never raises — returns None nếu `<usage>` block absent / malformed. Token capture là nice-to-have, KHÔNG phải blocker.
+- Duration + model + started_at là deterministic primary signals — ALWAYS log đúng.
+- Idempotent: gọi `log_pipeline_step` 2 lần với cùng `step_key` → overwrite (allows agent retry to update timing).
+
+---
+
 ## Workflow 6-step
 
 ### Validate ticker
@@ -43,6 +104,12 @@ UNIVERSE = `TCB|VCB|MBB|ACB|BID|CTG|VPB`. Map full names: Vietcombank → VCB, T
 Nếu không thuộc → reply "Ticker [X] không thuộc MVP Bank universe. CK + BĐS sẽ thêm sau." và stop pipeline.
 
 ### Step 1 — Crawler
+
+# OBSERVABILITY: capture started_at + t0 BEFORE WebSearch/WebFetch loop. After
+# run_crawler.py finishes, build payload {model: "sonnet", duration_ms,
+# tokens: None, candidates_count, funnel_batch_id} — defer log_pipeline_step
+# call to AFTER Step 4 (Master persists generated_news rows). Apply to ALL
+# article_ids in batch (batch-level duplication).
 
 Use `WebSearch` (3-4 query) + `WebFetch` (top 5-10 results) để tìm news mới (≤30 ngày) về ticker. Whitelist priority: CafeF, VnEconomy, Vietstock, Báo Pháp luật, Tin nhanh chứng khoán, VietnamFinance, Bizlive.
 
@@ -69,6 +136,11 @@ cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/stages/run_c
 Capture `funnel_batch_id` từ output JSON. Lưu lại để step sau dùng.
 
 ### Step 2 — Editor V1 (loop per pending row)
+
+# OBSERVABILITY: capture started_at + t0 BEFORE loop. After ALL rows processed,
+# aggregate total duration + sum tokens (parse_task_usage on each Task return).
+# payload {model: "sonnet", duration_ms, tokens, rows_processed, rows_routed,
+# rows_rejected}. Defer log_pipeline_step to after Step 4 (need article_ids).
 
 Lấy list pending row_ids từ batch:
 
@@ -99,6 +171,11 @@ Collect outputs.
 
 ### Step 3 — Story Editor (single dispatch with batch)
 
+# OBSERVABILITY: capture started_at + t0 BEFORE Task dispatch. After Task
+# returns, compute duration_ms + tokens (parse_task_usage). payload
+# {model: "opus", duration_ms, tokens, briefs_count, rows_routed_in}.
+# Defer log_pipeline_step to after Step 4 (need article_ids).
+
 Get list of routed rows:
 
 ```bash
@@ -126,6 +203,15 @@ Collect briefs (0-3 items).
 
 ### Step 4 — Master Bank (loop per brief)
 
+# OBSERVABILITY: capture started_at + t0 BEFORE EACH Task dispatch (per brief
+# = per article). After Task returns, compute duration_ms + tokens. payload
+# {model: "opus", started_at, duration_ms, tokens, accepted_hypothesis,
+# brief_idx, chosen_question_idx}. Per-article — call log_pipeline_step
+# IMMEDIATELY for the article_id Master just persisted (Master inserts row
+# first, then orchestrator can write step_4 entry). After Step 4 done for
+# ALL briefs, BACKFILL step_1, step_2, step_3 entries to ALL article_ids
+# (batch-level duplication — same payload across N articles).
+
 For mỗi brief in story-editor output (max 3):
 
 Use `Task` tool to dispatch `newsroom-master-bank`:
@@ -141,6 +227,12 @@ Collect master outputs. Skip if `accepted_hypothesis: false`.
 
 ### Step 5 — Skeptic (loop per accepted master output)
 
+# OBSERVABILITY: capture started_at + t0 BEFORE EACH Task dispatch (per
+# article). After Task returns, compute duration_ms + tokens. payload
+# {model: "opus", started_at, duration_ms, tokens, skeptic_angle,
+# skeptic_verdict}. Per-article — call log_pipeline_step for THIS article_id
+# only.
+
 For mỗi accepted master output:
 
 Use `Task` tool to dispatch `newsroom-skeptic`:
@@ -155,6 +247,11 @@ Task tool:
 Collect skeptic outputs.
 
 ### Step 6 — Render (V4.0 multi-article)
+
+# OBSERVABILITY: capture started_at + t0 BEFORE render script. After script
+# finishes, payload {model: "python", started_at, duration_ms, tokens: None,
+# files_written}. Apply to ALL article_ids in batch (batch-level duplication).
+# tokens=None always — mechanical Python script, no LLM calls.
 
 ```bash
 cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/render_compare_feed.py <funnel_batch_id>

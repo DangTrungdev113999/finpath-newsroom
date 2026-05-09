@@ -1,8 +1,9 @@
 """Tests for lib.pipeline_db — SQLite ops on crawl_log + generated_news."""
+import json
 import pytest
 from pathlib import Path
 
-from lib.pipeline_db import PipelineDB
+from lib.pipeline_db import PipelineDB, parse_task_usage
 
 
 @pytest.fixture
@@ -134,3 +135,124 @@ def test_insert_generated_news_links_to_crawl_row(db):
     arts = db.recent_generated_news("VCB", limit=3)
     assert len(arts) == 1
     assert arts[0]["title"] == "Article title"
+
+
+# ---------------------------------------------------------------------------
+# Phase F T10 — per-step observability (log_pipeline_step + parse_task_usage)
+# ---------------------------------------------------------------------------
+
+
+def _seed_article(db, article_id: str = "art-obs", pipeline_log: str | None = None):
+    """Helper: insert a minimal crawl_log + generated_news row for obs tests."""
+    db.insert_crawl_row({
+        "row_id": f"row-{article_id}",
+        "funnel_batch_id": "VCB-20260508-1530",
+        "ticker": "VCB",
+        "source_name": "X",
+        "source_url": f"https://example.com/{article_id}",
+        "title": "T",
+        "crawled_at": "2026-05-08T00:00:00+07:00",
+    })
+    payload = {
+        "article_id": article_id,
+        "row_id": f"row-{article_id}",
+        "ticker": "VCB",
+        "sector": "Bank",
+        "title": "Article",
+        "body": "Body...",
+        "word_count": 300,
+        "accepted_hypothesis": 1,
+        "status": "draft",
+    }
+    if pipeline_log is not None:
+        payload["pipeline_log"] = pipeline_log
+    db.insert_generated_news(payload)
+
+
+def test_log_pipeline_step_creates_entry(db):
+    """Empty pipeline_log → log_pipeline_step writes step_1 entry."""
+    _seed_article(db, "art-1")
+    db.log_pipeline_step("art-1", "step_1_crawler", {
+        "model": "sonnet",
+        "duration_ms": 1234,
+        "tokens": None,
+        "candidates_count": 10,
+    })
+    row = db.conn.execute(
+        "SELECT pipeline_log FROM generated_news WHERE article_id = 'art-1'"
+    ).fetchone()
+    log = json.loads(row["pipeline_log"])
+    assert "step_1_crawler" in log
+    assert log["step_1_crawler"]["model"] == "sonnet"
+    assert log["step_1_crawler"]["duration_ms"] == 1234
+    assert log["step_1_crawler"]["tokens"] is None
+    assert log["step_1_crawler"]["candidates_count"] == 10
+
+
+def test_log_pipeline_step_merges_existing(db):
+    """log_pipeline_step adds step_4 to existing pipeline_log with step_3 → both present."""
+    existing = json.dumps({"step_3_story_editor": {"model": "opus", "duration_ms": 5000, "tokens": 12000}})
+    _seed_article(db, "art-2", pipeline_log=existing)
+    db.log_pipeline_step("art-2", "step_4_master", {
+        "model": "opus",
+        "duration_ms": 8000,
+        "tokens": 25000,
+    })
+    row = db.conn.execute(
+        "SELECT pipeline_log FROM generated_news WHERE article_id = 'art-2'"
+    ).fetchone()
+    log = json.loads(row["pipeline_log"])
+    assert "step_3_story_editor" in log
+    assert "step_4_master" in log
+    assert log["step_3_story_editor"]["tokens"] == 12000
+    assert log["step_4_master"]["tokens"] == 25000
+
+
+def test_log_pipeline_step_overwrites_same_key(db):
+    """Calling log_pipeline_step twice with same step_key → only latest payload."""
+    _seed_article(db, "art-3")
+    db.log_pipeline_step("art-3", "step_4_master", {"duration_ms": 1000, "tokens": 5000})
+    db.log_pipeline_step("art-3", "step_4_master", {"duration_ms": 2000, "tokens": 10000})
+    row = db.conn.execute(
+        "SELECT pipeline_log FROM generated_news WHERE article_id = 'art-3'"
+    ).fetchone()
+    log = json.loads(row["pipeline_log"])
+    assert log["step_4_master"]["duration_ms"] == 2000
+    assert log["step_4_master"]["tokens"] == 10000
+    # Only one entry for step_4_master
+    assert list(log.keys()) == ["step_4_master"]
+
+
+def test_log_pipeline_step_missing_article_id_noop(db):
+    """Non-existent article_id → no error, no insert."""
+    # Should not raise
+    db.log_pipeline_step("does-not-exist", "step_1_crawler", {"model": "sonnet"})
+    # Verify no row was inserted
+    row = db.conn.execute(
+        "SELECT * FROM generated_news WHERE article_id = 'does-not-exist'"
+    ).fetchone()
+    assert row is None
+
+
+def test_parse_task_usage_present():
+    """Input with <usage>total_tokens: N ...</usage> → returns N."""
+    text = "Result text\n<usage>total_tokens: 5000 tool_uses: 10</usage>"
+    assert parse_task_usage(text) == 5000
+
+
+def test_parse_task_usage_absent():
+    """Input without <usage> block → None."""
+    assert parse_task_usage("No usage block here") is None
+
+
+def test_parse_task_usage_empty():
+    """Empty string or None → None."""
+    assert parse_task_usage("") is None
+    assert parse_task_usage(None) is None
+
+
+def test_parse_task_usage_malformed():
+    """Malformed <usage> block (no total_tokens) → None, no exception."""
+    assert parse_task_usage("<usage>broken format</usage>") is None
+    assert parse_task_usage("<usage>total_tokens: not_a_number</usage>") is None
+    assert parse_task_usage("<usage>") is None
