@@ -147,6 +147,7 @@ Skeptic Pass 1 form FRESH impression (đọc body ONLY, KHÔNG xem insight) → 
 - LNST → lợi nhuận sau thuế (giữ)
 - ROE → tỷ suất sinh lời vốn chủ
 - ROA → tỷ suất sinh lời tài sản
+- EPS → lợi nhuận trên mỗi cổ phiếu
 - COF → chi phí vốn
 - LDR → tỷ lệ cho vay trên huy động
 - CAR → hệ số an toàn vốn

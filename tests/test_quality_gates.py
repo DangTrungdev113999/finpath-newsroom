@@ -3,6 +3,7 @@ import pytest
 from lib.quality_gates import (
     check_no_english_jargon,
     check_no_english_jargon_narrative,
+    check_no_english_jargon_skeptic,
     check_word_count,
     check_body_pattern,
     check_title_as_hook,
@@ -74,6 +75,62 @@ def test_narrative_extra_jargon_each_term_blocks(term):
     result = check_no_english_jargon_narrative([f"Bài có nhắc tới {term} rất rõ"])
     assert result["pass"] is False
     assert term in result["reason"].lower()
+
+
+# === Gate 1c: Skeptic English jargon (Bug C fix) ===
+
+def test_skeptic_pure_vietnamese_passes():
+    body = "Bài Master sai về biên lãi vay khi không nhắc đến chi phí vốn quý này."
+    assert check_no_english_jargon_skeptic(body)["pass"] is True
+
+
+def test_skeptic_unexplained_jargon_fails():
+    # Use NIM (in ENGLISH_JARGON) — bare jargon without explanation must fail.
+    result = check_no_english_jargon_skeptic("Bài quên nhắc NIM quý này thấp hơn cùng kỳ.")
+    assert result["pass"] is False
+    assert "nim" in result["reason"].lower()
+
+
+def test_skeptic_unexplained_eps_fails():
+    result = check_no_english_jargon_skeptic("Bài quên nhắc EPS Q1 chỉ đạt 580 đồng.")
+    assert result["pass"] is False
+    assert "eps" in result["reason"].lower()
+
+
+def test_skeptic_explained_eps_passes():
+    result = check_no_english_jargon_skeptic("EPS (lợi nhuận trên mỗi cổ phiếu) MB Q1 chỉ 580 đồng.")
+    assert result["pass"] is True
+
+
+def test_skeptic_multi_jargon_explained_passes():
+    body = "NIM (biên lãi vay) và CASA (tỷ lệ tiền gửi không kỳ hạn) đều giảm trong quý."
+    assert check_no_english_jargon_skeptic(body)["pass"] is True
+
+
+def test_skeptic_one_explained_one_unexplained_fails():
+    body = "NIM (biên lãi vay) ổn nhưng CASA không nhắc — thiếu sót lớn."
+    result = check_no_english_jargon_skeptic(body)
+    assert result["pass"] is False
+    assert "casa" in result["reason"].lower()
+
+
+def test_skeptic_case_insensitive():
+    # Lowercase explained → pass
+    assert check_no_english_jargon_skeptic("Nim (biên lãi vay) thấp.")["pass"] is True
+    # Lowercase unexplained → fail
+    assert check_no_english_jargon_skeptic("nim không giải thích.")["pass"] is False
+
+
+def test_skeptic_jargon_at_sentence_start():
+    # Bare jargon at sentence start, no explanation → fail
+    result = check_no_english_jargon_skeptic("NIM thấp.")
+    assert result["pass"] is False
+    assert "nim" in result["reason"].lower()
+
+
+def test_skeptic_empty_passes():
+    assert check_no_english_jargon_skeptic("")["pass"] is True
+    assert check_no_english_jargon_skeptic("   ")["pass"] is True
 
 
 # === Gate 2: Word count 200-400 ===

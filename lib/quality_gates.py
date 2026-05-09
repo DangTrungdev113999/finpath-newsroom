@@ -14,7 +14,7 @@ from typing import Any
 ENGLISH_JARGON = {
     # Bank abbreviations
     "npl", "nim", "casa", "car", "irb", "rwa", "esop", "sme", "nii", "ldr",
-    "llr", "cof", "tpdn", "yoy", "qoq", "ytd", "roe", "roa",
+    "llr", "cof", "tpdn", "yoy", "qoq", "ytd", "roe", "roa", "eps",
     "basel",
     # Common English finance/news words
     "trade-off", "tradeoff", "anchor", "relevant", "confirm", "pattern",
@@ -70,6 +70,40 @@ def check_no_english_jargon(body: str) -> dict[str, Any]:
     found = [j for j in ENGLISH_JARGON if re.search(r"\b" + re.escape(j) + r"\b", cleaned)]
     if found:
         return {"pass": False, "reason": f"Banned jargon: {', '.join(found)}"}
+    return {"pass": True, "reason": ""}
+
+
+def _strip_explained_jargon(body: str) -> str:
+    """Strip 'JARGON (giải thích)' patterns to allow legitimate explained jargon.
+
+    Example: 'NIM (biên lãi vay)' → '' (allowed pass-through).
+    'NIM' alone → not stripped (will fail gate).
+
+    Iterates ENGLISH_JARGON dict — for each term, build pattern that matches
+    'TERM <whitespace> ( ... )' and remove. Then remaining text is checked.
+    Multi-jargon ('NIM (biên lãi) và CASA (tỷ lệ)') handled by sequential
+    iteration; nested parens NOT supported.
+    """
+    cleaned = body
+    for term in ENGLISH_JARGON:
+        pattern = rf"\b{re.escape(term)}\b\s*\([^)]+\)"
+        cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE)
+    return cleaned
+
+
+def check_no_english_jargon_skeptic(skeptic_body: str) -> dict[str, Any]:
+    """Bug C fix — Skeptic critique 0% từ tiếng Anh.
+
+    Allows pattern 'JARGON (tiếng Việt giải thích)' — strips before check.
+    Bare jargon fails. Input IS the skeptic body (do NOT strip skeptic
+    section — input is already isolated).
+    """
+    if not skeptic_body or not skeptic_body.strip():
+        return {"pass": True, "reason": ""}
+    cleaned = _strip_explained_jargon(skeptic_body).lower()
+    found = [j for j in ENGLISH_JARGON if re.search(r"\b" + re.escape(j) + r"\b", cleaned)]
+    if found:
+        return {"pass": False, "reason": f"Banned jargon trong Skeptic: {', '.join(found)}"}
     return {"pass": True, "reason": ""}
 
 

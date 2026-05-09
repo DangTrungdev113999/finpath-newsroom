@@ -129,6 +129,24 @@ Format:
 - Chốt: implication cho NĐT (KHÔNG khuyến nghị BUY/SELL)
 - Verdict: `pass` | `pass_with_caveats` | `fail`
 
+### 8.5. Self-check English gate (V4.0 — Bug C fix) — REQUIRED before persist
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && cat > /tmp/skeptic-check.txt <<'CRITEOF'
+<paste skeptic critique body here — exactly what will be persisted to skeptic_critique>
+CRITEOF
+
+uv run python -c "
+import json
+from lib.quality_gates import check_no_english_jargon_skeptic
+body = open('/tmp/skeptic-check.txt', encoding='utf-8').read()
+result = check_no_english_jargon_skeptic(body)
+print(json.dumps(result, ensure_ascii=False))
+"
+```
+
+Fail → rewrite jargon Vietnamese (vd "NIM" → "biên lãi vay", "CASA" → "tỷ lệ tiền gửi không kỳ hạn", "NPL" → "nợ xấu") HOẶC dùng pattern "JARGON (giải thích)" như "NIM (biên lãi vay)" — re-check loop. **Max 3 rewrite passes** — nếu vẫn fail sau pass 3, escalate lên orchestrator (`skeptic_verdict: "fail"` + log lý do trong `pipeline_log.step_5_skeptic.escalation_reason`) thay vì loop vô hạn.
+
 ```bash
 cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
 import json
@@ -179,6 +197,6 @@ db.close()
 - Có data anchor cho critique (số cụ thể từ Finpath/KB/web)
 - KHÔNG rewrite main article
 - KHÔNG block publish (pass_with_caveats vẫn published)
-- 0% từ tiếng Anh (Rule 1) — jargon Anh giải thích tiếng Việt
+- **0% từ tiếng Anh (Rule 1)** — gated bằng `lib.quality_gates.check_no_english_jargon_skeptic` ở Step 8.5 (Bug C fix). Bare jargon (NIM, CASA, NPL, ...) bị reject. Whitelist DUY NHẤT: pattern "JARGON (giải thích tiếng Việt)" — vd "NIM (biên lãi vay)". Self-check trước persist; fail → rewrite loop.
 - KHÔNG enum metadata leak
 - 100-300 từ critique (không vượt)
