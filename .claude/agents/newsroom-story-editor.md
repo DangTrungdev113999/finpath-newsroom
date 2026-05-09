@@ -92,6 +92,33 @@ Per rejected row:
 }
 ```
 
+## Pre-persist self-check — Narrative tiếng Việt thuần (Bug B fix)
+
+⚠️ BẮT BUỘC chạy TRƯỚC khi persist `brief_json`. Gate fail → rewrite narrative tiếng Việt thuần → re-check → loop until pass.
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && cat > /tmp/brief-check.json <<'BRIEFEOF'
+{<brief_json content here, no quoting needed inside heredoc>}
+BRIEFEOF
+
+uv run python -c "
+import json
+from lib.quality_gates import check_no_english_jargon_narrative
+brief = json.load(open('/tmp/brief-check.json', encoding='utf-8'))
+narratives = [
+    brief.get('why_chosen_narrative', ''),
+    brief.get('angle_narrative', ''),
+    brief.get('source_rationale', ''),
+] + [opt.get('pick_hint', '') for opt in brief.get('deep_question_options', [])]
+result = check_no_english_jargon_narrative(narratives)
+print(json.dumps(result, ensure_ascii=False))
+"
+```
+
+Heredoc tránh shell quoting hell khi brief chứa single quote / newline. Story Editor write brief JSON ra `/tmp/brief-check.json` → Python load lại → check narrative.
+
+Fail → fix các từ tiếng Anh trong 4 narrative fields (`why_chosen_narrative`, `angle_narrative`, `source_rationale`, mỗi `deep_question_options[*].pick_hint`) → re-run gate. Chỉ persist khi `pass: true`.
+
 ## Persist to SQLite
 
 For each row in batch:
@@ -130,3 +157,4 @@ db.close()
 - `deep_question` MUST thuộc 1 trong 5 category — gate cứng
 - `angle_label` free-text VN, KHÔNG enum tag (`strategic-shift` etc.)
 - KHÔNG tự viết bài — Master làm
+- **Narrative tiếng Việt thuần (Bug B fix)**: 4 fields `why_chosen_narrative`, `angle_narrative`, `source_rationale`, mỗi `deep_question_options[*].pick_hint` MUST 0% từ tiếng Anh. KHÔNG: trade-off, funding, metric, Big4, forward-looking, cross-check, momentum, defensive, paradox, why_now, hidden_mechanism, comparison_deep, early_signal, etc. Self-check bằng `check_no_english_jargon_narrative` trước persist.

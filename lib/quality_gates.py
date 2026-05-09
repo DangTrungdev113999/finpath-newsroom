@@ -23,6 +23,17 @@ ENGLISH_JARGON = {
     "stress test", "arithmetic", "coverage", "opportunity cost",
 }
 
+# Narrative-only extras — banned in Story Editor brief narratives but allowed
+# in Master body if context warrants (e.g., "Big4" = legit Vietnamese banking
+# shorthand for VCB/BID/CTG/AGR). Brief narratives must be 100% Vietnamese
+# thuần since they explain editorial intent to user.
+ENGLISH_JARGON_NARRATIVE_EXTRA = {
+    "funding",
+    "big4",
+    "forward-looking",
+    "cross-check",
+}
+
 METADATA_TAGS = [
     "strategic-shift", "risk_highlight", "insight_type", "critique angle",
     "data_skepticism", "historical_analog", "alt_interpretation",
@@ -57,6 +68,27 @@ def _clean(body: str) -> str:
 def check_no_english_jargon(body: str) -> dict[str, Any]:
     cleaned = _clean(body).lower()
     found = [j for j in ENGLISH_JARGON if re.search(r"\b" + re.escape(j) + r"\b", cleaned)]
+    if found:
+        return {"pass": False, "reason": f"Banned jargon: {', '.join(found)}"}
+    return {"pass": True, "reason": ""}
+
+
+def check_no_english_jargon_narrative(narratives: list[str]) -> dict[str, Any]:
+    """Bug B fix — 0% từ tiếng Anh trong narrative fields của Story Editor brief.
+
+    Checks ENGLISH_JARGON ∪ ENGLISH_JARGON_NARRATIVE_EXTRA. The extra set
+    contains terms (e.g. "big4") that are legit in Master body but must NOT
+    leak into editorial narrative explanations. Concat narratives →
+    case-insensitive word-boundary regex. Does NOT apply `_clean()` —
+    narratives là raw string, không có Skeptic section / pipeline-log block markup.
+    """
+    if not narratives:
+        return {"pass": True, "reason": ""}
+    concatenated = " ".join(n for n in narratives if n).lower()
+    if not concatenated.strip():
+        return {"pass": True, "reason": ""}
+    all_jargon = list(ENGLISH_JARGON) + list(ENGLISH_JARGON_NARRATIVE_EXTRA)
+    found = [j for j in all_jargon if re.search(r"\b" + re.escape(j) + r"\b", concatenated)]
     if found:
         return {"pass": False, "reason": f"Banned jargon: {', '.join(found)}"}
     return {"pass": True, "reason": ""}

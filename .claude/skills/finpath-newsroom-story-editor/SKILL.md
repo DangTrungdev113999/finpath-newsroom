@@ -185,6 +185,7 @@ db.update_crawl_row(row_id, {
 - KHÔNG bịa data trong brief — chỉ reference data sẵn có
 - Memory check BẮT BUỘC trước output
 - Output 0 brief nếu batch không đủ chất lượng — KHÔNG pad
+- **Narrative tiếng Việt thuần (Rule 7 — Bug B fix)**: 4 fields `why_chosen_narrative`, `angle_narrative`, `source_rationale`, mỗi `deep_question_options[*].pick_hint` MUST 0% từ tiếng Anh. Banned set narrative = Master body banned list (`ENGLISH_JARGON`) **PLUS** narrative-only extras (`ENGLISH_JARGON_NARRATIVE_EXTRA`): **funding, big4, forward-looking, cross-check**. 4 từ extra này được phép xuất hiện trong Master body khi context warrants (vd "Big4" = shorthand legit cho VCB/BID/CTG/AGR analog ĐHĐCĐ) nhưng KHÔNG được leak vào narrative explanation cho user. Ngoài ra KHÔNG: trade-off, metric, momentum, defensive, paradox, why_now, hidden_mechanism, comparison_deep, early_signal, etc. Mapping cứng ở CLAUDE.md. Self-check trước persist: gọi `check_no_english_jargon_narrative` từ `lib/quality_gates.py` (function tự gộp 2 dict).
 
 ## Edge cases
 - Batch toàn low quality → output 0 brief, log "batch_no_quality" trong rejected[]

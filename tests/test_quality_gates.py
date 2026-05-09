@@ -2,6 +2,7 @@
 import pytest
 from lib.quality_gates import (
     check_no_english_jargon,
+    check_no_english_jargon_narrative,
     check_word_count,
     check_body_pattern,
     check_title_as_hook,
@@ -28,6 +29,51 @@ def test_no_english_jargon_fails_on_momentum():
 def test_no_english_jargon_allows_proper_nouns():
     body = "Vietcombank và Techcombank công bố KQKD Q1/2026. ĐHĐCĐ ngày 25/4."
     assert check_no_english_jargon(body)["pass"] is True
+
+
+# === Gate 1b: 0% English jargon trong narrative brief (Bug B fix) ===
+
+def test_narrative_pure_vietnamese_passes():
+    assert check_no_english_jargon_narrative(["Bài chọn vì độ mới và sức nặng"])["pass"] is True
+
+
+def test_narrative_with_english_fails():
+    result = check_no_english_jargon_narrative(["Bài này tốt vì có tradeoff hay"])
+    assert result["pass"] is False
+    assert "tradeoff" in result["reason"].lower()
+
+
+def test_narrative_multi_field_concat():
+    result = check_no_english_jargon_narrative(["OK", "Có Big4 reference", "Bình thường"])
+    assert result["pass"] is False
+
+
+def test_narrative_empty_list_passes():
+    assert check_no_english_jargon_narrative([])["pass"] is True
+
+
+def test_narrative_empty_strings_pass():
+    assert check_no_english_jargon_narrative(["", "", ""])["pass"] is True
+
+
+def test_big4_passes_body_but_fails_narrative():
+    """Bug B split fix — `big4` is legit Vietnamese banking shorthand in Master
+    body (analog to ĐHĐCĐ) but banned in Story Editor narratives. Body gate
+    must NOT silently broaden via narrative-extra dict."""
+    body_text = "Big4 đặt cược vào tín dụng doanh nghiệp vừa nhỏ."
+    assert check_no_english_jargon(body_text)["pass"] is True
+    narrative_result = check_no_english_jargon_narrative([body_text])
+    assert narrative_result["pass"] is False
+    assert "big4" in narrative_result["reason"].lower()
+
+
+@pytest.mark.parametrize("term", ["funding", "big4", "forward-looking", "cross-check"])
+def test_narrative_extra_jargon_each_term_blocks(term):
+    """Guard against silent dict shrinkage — every term in
+    ENGLISH_JARGON_NARRATIVE_EXTRA must individually trip the narrative gate."""
+    result = check_no_english_jargon_narrative([f"Bài có nhắc tới {term} rất rõ"])
+    assert result["pass"] is False
+    assert term in result["reason"].lower()
 
 
 # === Gate 2: Word count 200-400 ===
