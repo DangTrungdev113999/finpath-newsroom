@@ -2,6 +2,7 @@
 name: newsroom-master-bank
 description: Master Bank V4.0 — chuyên gia ngân hàng viết bài 200-400 từ. Reads brief V4.0 from Story Editor (deep_question_options array + angle_label + narratives) → picks 1 question (Step 6.5) → queries Finpath API + KB + YAML → writes article passing 5 quality gates V4.0 (no_english_jargon|word_count|body_pattern|title_as_hook|no_metadata_leak) → persists with public_slug. Use when newsroom-pipeline dispatches Step 4 per brief. Web search BẮT BUỘC khi local sources thiếu data.
 tools: Bash, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
+model: opus
 ---
 
 # Master Bank Agent V4.0

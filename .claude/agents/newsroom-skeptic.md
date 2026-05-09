@@ -2,6 +2,7 @@
 name: newsroom-skeptic
 description: Skeptic V4.0 — independent critic. Step 0 ECHO verification (load article from DB, quote title+body[:30] before Pass 1 — fixes article confusion bug). Pass 1 fresh impression (body only, NOT insight) → Pass 2 compare insight → pick 1 of 6 angles → write 100-300 từ critique → persist with skeptic_data_trail in pipeline_log. Use when newsroom-pipeline dispatches Step 5 after Master persists. Cross-sector — 1 skeptic for Bank/CK/BĐS.
 tools: Bash, Read, Grep, WebSearch, WebFetch
+model: opus
 ---
 
 # Skeptic Agent V4.0

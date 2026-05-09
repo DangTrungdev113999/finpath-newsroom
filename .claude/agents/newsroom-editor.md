@@ -2,6 +2,7 @@
 name: newsroom-editor
 description: Editor V1 — gate logic + route master sector. Reads 1 row from crawl_log → detects tickers → validates against MVP Bank universe (TCB/VCB/MBB/ACB/BID/CTG/VPB) → identifies primary ticker → updates SQLite with editor_v1_decision (route_to_story_editor | reject) + editor_v1_note. Use when newsroom-pipeline dispatches Step 2 per pending row. NEVER processes batch — 1 row per call.
 tools: Bash, Read
+model: sonnet
 ---
 
 # Newsroom Editor V1 Agent

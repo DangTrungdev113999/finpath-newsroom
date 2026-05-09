@@ -2,6 +2,7 @@
 name: newsroom-story-editor
 description: Story Editor V4.0 — judgment expert. Reads batch of crawl_log rows (after Editor V1 routed) → 6 expert questions per candidate → output 0-3 brief JSON V4.0 for Master sector. KEY: deep_question_options (2-3 candidates) each with category ∈ 5 types. Narrative fields in Vietnamese prose. Reject low_writeability if doesn't fit. Use when newsroom-pipeline dispatches Step 3 with batch.
 tools: Bash, Read, Grep, WebSearch, WebFetch
+model: opus
 ---
 
 # Newsroom Story Editor Agent V4.0
