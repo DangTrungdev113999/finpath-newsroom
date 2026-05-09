@@ -1,6 +1,33 @@
 {
   "articles": [
     {
+      "id": "ACB-20260509-1029-acb-cat-co-tuc-xuong-20-trong-khi-techcombank-chia-67-vi-sao",
+      "ticker": "ACB",
+      "sector": "Bank",
+      "title": "ACB cắt cổ tức xuống 20% trong khi Techcombank chia 67% — vì sao chọn ngược chiều?",
+      "crawled_at": "2026-05-09T10:29:52.827963+00:00",
+      "key_view": "thận trọng",
+      "word_count": 398
+    },
+    {
+      "id": "ACB-20260509-1029-thu-chung-khoan-acb-nhan-7-6-lan-mot-quy-chuyen-dich-mo-hinh",
+      "ticker": "ACB",
+      "sector": "Bank",
+      "title": "Thu chứng khoán ACB nhân 7,6 lần một quý — chuyển dịch mô hình hay cú đột biến?",
+      "crawled_at": "2026-05-09T10:29:52.827715+00:00",
+      "key_view": "trung lập",
+      "word_count": 396
+    },
+    {
+      "id": "ACB-20260509-1029-acb-lai-quy-1-tang-17-5-nhung-no-nhom-2-gap-doi-3-thang-con",
+      "ticker": "ACB",
+      "sector": "Bank",
+      "title": "ACB lãi quý 1 tăng 17,5% nhưng nợ nhóm 2 gấp đôi 3 tháng — con số nào nói thật?",
+      "crawled_at": "2026-05-09T10:29:52.827447+00:00",
+      "key_view": "thận trọng",
+      "word_count": 395
+    },
+    {
       "id": "MBB-20260508-1542-tin-dung-mb-vuot-huy-dong-70-000-ty-bu-lai-bang-nguon-von",
       "ticker": "MBB",
       "sector": "Bank",
