@@ -63,13 +63,17 @@ def count_ticker_mentions(text: str, ticker: str) -> int:
     return len(pattern.findall(text))
 
 
-# Common name → ticker mapping (cho LLM fallback context)
+# Common name → ticker mapping (cho LLM fallback context).
+# CHỈ thêm alias an toàn (không gây false positive khi lowercase substring match).
+# KHÔNG thêm "mb" lowercase — sẽ match "miễn bàn", "mb chi"... → false positive.
+# Short-form ticker uppercase ("MB", "VCB"...) bắt qua TICKER_UPPER_REGEX bên dưới.
 COMPANY_NAME_TO_TICKER = {
     # Bank
     "techcombank": "TCB",
     "vietcombank": "VCB",
     "mbbank": "MBB",
     "mb bank": "MBB",
+    "quân đội": "MBB",   # Bug A fix: "Ngân hàng Quân đội" → MBB
     "acb": "ACB",
     "bidv": "BID",
     "vietinbank": "CTG",
@@ -86,6 +90,27 @@ COMPANY_NAME_TO_TICKER = {
 }
 
 
+# Bug A fix — Pass 2 detection: uppercase-only short-form ticker tokens.
+# Chạy trên RAW text (trước lowercase) để bắt "MB" (2 chữ, regex 3-char miss)
+# nhưng tránh false positive với "mb" lowercase trong "miễn bàn", "mb chi".
+SHORT_FORM_TO_TICKER = {
+    "MB": "MBB",
+    "MBB": "MBB",
+    "VCB": "VCB",
+    "TCB": "TCB",
+    "ACB": "ACB",
+    "BID": "BID",
+    "CTG": "CTG",
+    "VPB": "VPB",
+}
+
+# Single source of truth: regex derived from dict keys.
+# Sort longest-first để match "MBB" trước "MB" khi cả 2 eligible.
+TICKER_UPPER_REGEX = re.compile(
+    r'\b(' + '|'.join(sorted(SHORT_FORM_TO_TICKER, key=len, reverse=True)) + r')\b'
+)
+
+
 def detect_via_company_name(text: str) -> list[str]:
     """
     Fallback: detect ticker qua tên công ty (lowercase match).
@@ -93,35 +118,61 @@ def detect_via_company_name(text: str) -> list[str]:
     """
     if not text:
         return []
-    
+
     text_lower = text.lower()
     found = []
     seen = set()
-    
+
     for name, ticker in COMPANY_NAME_TO_TICKER.items():
         if name in text_lower and ticker not in seen:
             seen.add(ticker)
             found.append(ticker)
-    
+
     return found
+
+
+def detect_short_form_uppercase(text: str) -> list[str]:
+    """
+    Bug A fix — Pass 2: detect short-form ticker uppercase trên RAW text.
+
+    Bắt "MB" alone (2 chữ — TICKER_PATTERN 3-char miss) cùng các ticker 3-char
+    khác. Case-sensitive: "mb" lowercase KHÔNG match (tránh false positive
+    với "miễn bàn", "mb chi"...).
+
+    Returns:
+        List ticker (đã dedupe, giữ thứ tự xuất hiện). MB → MBB.
+    """
+    if not text:
+        return []
+
+    seen = set()
+    result = []
+    for match in TICKER_UPPER_REGEX.finditer(text):
+        ticker = SHORT_FORM_TO_TICKER[match.group(1)]
+        if ticker not in seen:
+            seen.add(ticker)
+            result.append(ticker)
+    return result
 
 
 def detect_combined(text: str) -> list[str]:
     """
-    Combined detection: regex + company name fallback.
-    Dedupe + giữ priority regex first.
+    Combined detection: regex 3-char + uppercase short-form (Pass 2) + company name.
+    Dedupe + giữ priority: 3-char regex → uppercase short-form → company name.
     """
     by_regex = detect_tickers(text)
+    by_short_upper = detect_short_form_uppercase(text)  # Bug A fix
     by_name = detect_via_company_name(text)
-    
-    seen = set(by_regex)
-    result = list(by_regex)
-    
-    for t in by_name:
-        if t not in seen:
-            seen.add(t)
-            result.append(t)
-    
+
+    seen = set()
+    result = []
+
+    for source in (by_regex, by_short_upper, by_name):
+        for t in source:
+            if t not in seen:
+                seen.add(t)
+                result.append(t)
+
     return result
 
 

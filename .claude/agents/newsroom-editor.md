@@ -37,16 +37,22 @@ Replace `<ROW_ID>` literally.
 
 UNIVERSE = TCB | VCB | MBB | ACB | BID | CTG | VPB.
 
-Aliases (search `title + raw_content` case-insensitive):
-- Vietcombank → VCB
-- Techcombank → TCB
-- BIDV → BID
-- VietinBank → CTG
-- MB Bank | MBBank | Quân đội → MBB
-- ACB → ACB
-- VPBank | VPB → VPB
+Aliases (search `title + raw_content`):
 
-Use regex 3-letter uppercase tokens + name lookup. Collect all detected tickers in universe.
+Pass 1 — Lowercase company-name match (case-insensitive substring):
+- vietcombank → VCB
+- techcombank → TCB
+- bidv → BID
+- vietinbank → CTG
+- mb bank | mbbank | quân đội → MBB
+- acb → ACB
+- vpbank → VPB
+
+Pass 2 — Uppercase short-form ticker tokens (case-sensitive, raw text trước lowercase — regex derived from `SHORT_FORM_TO_TICKER` keys in `scripts/ticker_detection.py`):
+- MB → MBB (bắt "MB" alone — 2 chữ, lowercase "mb" KHÔNG match để tránh false positive với "miễn bàn", "mb chi"...)
+- VCB → VCB · TCB → TCB · ACB → ACB · BID → BID · CTG → CTG · VPB → VPB · MBB → MBB
+
+Implementation: `scripts/ticker_detection.detect_combined(text)` — gộp Pass 1 + Pass 2 + regex 3-char. Collect all detected tickers in universe.
 
 ### Step 3 — Identify primary
 
