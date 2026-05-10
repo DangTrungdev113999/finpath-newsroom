@@ -202,6 +202,37 @@ Cả 2 fields tiếng Việt thuần (Rule 1 áp dụng — KHÔNG jargon Anh tr
 
 Legacy entries (pre-Phase F) chỉ có `used_for` — render layer auto-fallback `entry.supports_argument || entry.used_for` để backward compat. Master mới persist phải dùng schema mới (`purpose` + `supports_argument`).
 
+## V4.0 schema explicit (Phase G T3 — anti-regression)
+
+⚠️ **Live VPB run regression**: Master agent emit `data_sources_used` (V3.6 legacy string array) thay vì `data_trail` (V4.0 schema array of objects) → render `master_data_trail: []` empty trên web. Phase G tightens:
+
+### REQUIRED — `pipeline_log.step_4_master.data_trail`
+
+```json
+[
+  {
+    "source": "<canonical: full URL | WebSearch:\"query\" | Finpath_API/<endpoint> | KB/<path> | Manual_YAML/<file>:<row_key> | Lập luận tự>",
+    "fetched": "<what data extracted from source>",
+    "purpose": "<vì sao tra source này — e.g. 'kiểm chéo claim ROE Q1 2026', 'tìm số target 2026 từ ĐHĐCĐ'>",
+    "supports_argument": "<bổ sung cho ý nào — e.g. 'Bullet 2 (luận điểm chính)', 'Opening (tension setup)', 'Closing (NĐT classification)'>"
+  }
+]
+```
+
+### DEPRECATED — `data_sources_used` (V3.6)
+
+❌ DO NOT emit `data_sources_used` array of strings — render layer ignores. Use `data_trail` per spec above.
+
+### Pre-persist self-check
+
+Trước khi gọi `db.insert_generated_news(...)`, verify `data_trail`:
+- [ ] Array length > 0 (every article queried at least 1 source)
+- [ ] Every entry có 4 fields: source, fetched, purpose, supports_argument
+- [ ] `source` field follows 1 trong 6 canonical formats (URL/WebSearch:/Finpath_API//KB//Manual_YAML//Lập luận tự)
+- [ ] `purpose` + `supports_argument` tiếng Việt thuần (apply Rule 1 anti-English)
+
+Fail check → rebuild data_trail trước persist. KHÔNG persist incomplete schema.
+
 ## Local data sources — Bank sector
 
 | Module | Local access |

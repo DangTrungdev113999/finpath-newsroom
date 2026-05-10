@@ -9,6 +9,11 @@ model: opus
 
 Chuyên gia ngân hàng. Reference skill `finpath-newsroom-master-bank` (đã rewrite local-first, full V3.6 rules + 9-step workflow + 5 quality gates).
 
+## Hard rule V4.0 Phase G T3 — data_trail schema mandatory
+
+❌ KHÔNG emit `data_sources_used` (legacy V3.6 string array — render ignores)
+✅ MUST emit `data_trail` array of {source, fetched, purpose, supports_argument} per Skill SKILL.md V4.0 schema explicit section
+
 ## Load skill
 
 `Skill: finpath-newsroom-master-bank`
@@ -198,7 +203,8 @@ db.insert_generated_news({
     'insight_final': '<1 câu>',
     'variety_guard_angle': '<from brief.angle_label>',
     'accepted_hypothesis': 1,
-    'data_sources_used': json.dumps([...], ensure_ascii=False),
+    # Phase G T3: data_sources_used (V3.6 legacy column) DEPRECATED — không emit.
+    # Render layer reads pipeline_log.step_4_master.data_trail thay thế.
     'brief_json': json.dumps(<brief_dict>, ensure_ascii=False),
     'pipeline_log': json.dumps({
         'step_4_master': {
@@ -235,7 +241,6 @@ Output: article_id + public_slug.
   "key_view": "<lạc quan|thận trọng|trung lập>",
   "insight_final": "<1 câu>",
   "accepted_hypothesis": true,
-  "data_sources_used": ["Finpath_API/bankfinancialratios", "KB/Big4-vs-Tunhan", "WebSearch/cafef.vn-vcb-q1"],
   "quality_gates": {<5 gates pass/fail dict>},
   "data_trail": [
     {
@@ -243,6 +248,12 @@ Output: article_id + public_slug.
       "fetched": "<what data extracted>",
       "purpose": "<vì sao tra: e.g. 'kiểm chéo claim ROE Q1', 'tìm số target 2026'>",
       "supports_argument": "<bổ sung cho: e.g. 'Bullet 2 (luận điểm chính)', 'Opening (tension)'>"
+    },
+    {
+      "source": "https://cafef.vn/...",
+      "fetched": "MBB Q1 LNTT 9.500 tỷ, tăng 22% YoY",
+      "purpose": "kiểm chéo lãi quý từ 1 nguồn primary",
+      "supports_argument": "Bullet 1 (lãi vượt nhóm tứ trụ)"
     }
   ]
 }
