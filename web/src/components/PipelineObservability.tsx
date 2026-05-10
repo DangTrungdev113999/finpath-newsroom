@@ -11,13 +11,19 @@ const STEP_LABELS: Array<{ key: keyof PipelineLog; label: string }> = [
   { key: 'step_4_master', label: '4. Master' },
   { key: 'step_5_skeptic', label: '5. Skeptic' },
   { key: 'step_6_render', label: '6. Render' },
+  { key: 'step_7_git_publish', label: '7. Git publish' },
+  { key: 'step_8_pages_wait', label: '8. Pages deploy' },
 ];
 
 export function PipelineObservability({ pipelineLog }: Props) {
   if (!pipelineLog) return null;
 
   const steps = STEP_LABELS
-    .map(({ key, label }) => ({ key, label, log: pipelineLog[key] as StepLog | undefined }))
+    // Phase H1: step_7_git_publish + step_8_pages_wait have schemas that
+    // differ from StepLog (no model/tokens; step_8 has elapsed_s not duration_ms).
+    // Renderer below uses ?? '—' fallbacks so missing keys display gracefully.
+    // Cast through unknown to satisfy strict TS for the structurally-incompatible new entries.
+    .map(({ key, label }) => ({ key, label, log: pipelineLog[key] as unknown as StepLog | undefined }))
     .filter((s): s is { key: keyof PipelineLog; label: string; log: StepLog } => Boolean(s.log));
 
   if (steps.length === 0) return null;

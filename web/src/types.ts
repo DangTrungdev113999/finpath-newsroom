@@ -67,6 +67,23 @@ export interface PipelineLog {
   step_4_master?: StepLog;
   step_5_skeptic?: StepLog;
   step_6_render?: StepLog;
+  // Phase H1 — race fix
+  step_7_git_publish?: {
+    ok: boolean;
+    commit_sha?: string;
+    duration_ms: number;
+    self_heal_actions?: string[];
+    error?: string;
+    stage?: string;
+  };
+  step_8_pages_wait?: {
+    ok: boolean;
+    elapsed_s: number;
+    workflow_run_url?: string;
+    error?: string;
+    run_url?: string;
+    fallback?: string;
+  };
 }
 
 export interface ArticleMeta {
