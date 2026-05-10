@@ -28,6 +28,9 @@ data/pipeline.db-shm
 .env
 .env.local
 
+# Phase G T13 — secrets file MUST NEVER commit
+data/secrets.yaml
+
 # Editor
 .vscode/
 .idea/
