@@ -6,6 +6,11 @@ import react from '@vitejs/plugin-react';
 // giữa vite vs vitest's bundled vite gây type errors trong production build).
 export default defineConfig({
   plugins: [react()],
+  // plugin-react v6 defaults to JSX runtime detected from tsconfig — but
+  // tsconfig.app.json excludes tests, so force automatic runtime here.
+  esbuild: {
+    jsx: 'automatic',
+  },
   test: {
     environment: 'jsdom',
     globals: true,

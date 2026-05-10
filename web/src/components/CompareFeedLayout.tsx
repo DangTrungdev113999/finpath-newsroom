@@ -1,6 +1,7 @@
 import type { Article } from '../types';
 import { LeftColumn } from './LeftColumn';
 import { RightColumn } from './RightColumn';
+import { CommentSection } from './CommentSection';
 import { formatCrawledAt } from '../lib/format';
 
 export function CompareFeedLayout({
@@ -34,6 +35,15 @@ export function CompareFeedLayout({
           <LeftColumn meta={meta.left_meta} body={leftMarkdown} />
         </div>
       )}
+
+      {/* Phase H2 — comment feedback (article.id == public_slug per CLAUDE.md) */}
+      <div className={showRight ? '' : 'max-w-3xl mx-auto'}>
+        <CommentSection
+          articleId={article.id}
+          articleTitle={meta.title}
+          ticker={meta.ticker ?? ''}
+        />
+      </div>
     </article>
   );
 }

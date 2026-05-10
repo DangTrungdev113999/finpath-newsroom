@@ -45,6 +45,7 @@ jobs:
         working-directory: web
         env:
           VITE_DEPLOY: '1'
+          VITE_FEEDBACK_WORKER_URL: ${{ secrets.VITE_FEEDBACK_WORKER_URL }}
         run: npm run build
 
       - name: SPA 404 fallback for deep-link routes
