@@ -300,3 +300,49 @@ def test_wal_mode_concurrent_writes_succeed(tmp_path):
     rows = db.query_by_funnel_batch(batch_id)
     db.close()
     assert len(rows) == 3, f"Expected 3 rows, got {len(rows)}"
+
+
+# ---------------------------------------------------------------------------
+# Phase G T11 — Telegram publish idempotency tracking
+# ---------------------------------------------------------------------------
+
+
+def test_generated_news_has_telegram_pushed_at_column(db):
+    """Phase G T11 — schema includes telegram_pushed_at column."""
+    cur = db.conn.execute("PRAGMA table_info(generated_news)")
+    cols = {row["name"] for row in cur.fetchall()}
+    assert "telegram_pushed_at" in cols, f"Missing column. Found: {sorted(cols)}"
+
+
+def test_telegram_pushed_at_default_null(db):
+    """Phase G T11 — telegram_pushed_at defaults to NULL on new article."""
+    db.insert_crawl_row({
+        "row_id": "r1",
+        "funnel_batch_id": "b1",
+        "source_name": "test",
+        "source_url": "https://t/1",
+        "title": "t",
+        "ticker": "TST",
+        "raw_content": "c",
+        "crawled_at": "2026-05-10T00:00:00Z",
+    })
+    db.insert_generated_news({
+        "article_id": "a1",
+        "row_id": "r1",
+        "ticker": "TST",
+        "sector": "Bank",
+        "title": "Test",
+        "body": "body",
+        "word_count": 100,
+        "key_view": "trung lập",
+        "insight_final": "i",
+        "accepted_hypothesis": 1,
+        "status": "draft",
+        "pipeline_version": "V4.0",
+    })
+    cur = db.conn.execute(
+        "SELECT telegram_pushed_at FROM generated_news WHERE article_id = ?",
+        ("a1",),
+    )
+    row = cur.fetchone()
+    assert row["telegram_pushed_at"] is None

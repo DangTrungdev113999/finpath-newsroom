@@ -58,8 +58,11 @@ CREATE TABLE IF NOT EXISTS generated_news (
   pipeline_version    TEXT NOT NULL DEFAULT 'V3.6',
   pipeline_log        TEXT,
   public_slug         TEXT,
+  telegram_pushed_at  TIMESTAMP NULL,
   FOREIGN KEY (row_id) REFERENCES crawl_log(row_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_generated_ticker_published ON generated_news(ticker, published_at DESC);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_generated_public_slug ON generated_news(public_slug);
+-- Phase G T11 — Telegram publish idempotency tracking
+CREATE INDEX IF NOT EXISTS idx_generated_telegram_pushed ON generated_news(telegram_pushed_at);
