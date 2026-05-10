@@ -1,0 +1,12 @@
+name = "feedback-finpath"
+main = "feedback.ts"
+compatibility_date = "2025-01-01"
+
+# KV namespace for rate-limit buckets — `id` populated after `wrangler kv:namespace create FEEDBACK_RL`
+[[kv_namespaces]]
+binding = "FEEDBACK_RL"
+id = "REPLACE_WITH_KV_ID_FROM_WRANGLER_OUTPUT"
+
+# Secrets (set via `wrangler secret put`):
+#   TELEGRAM_BOT_TOKEN
+#   TELEGRAM_FEEDBACK_GROUP_ID

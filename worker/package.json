@@ -1,0 +1,9 @@
+{
+  "name": "feedback-worker",
+  "private": true,
+  "version": "1.0.0",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250101.0",
+    "wrangler": "^3.0.0"
+  }
+}
