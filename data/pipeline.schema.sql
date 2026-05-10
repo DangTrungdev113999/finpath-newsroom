@@ -1,3 +1,5 @@
+-- Pipeline DB schema (Phase G+ requires WAL mode — see lib/pipeline_db.py:__init__)
+-- Backup process MUST include all 3 files: pipeline.db + pipeline.db-wal + pipeline.db-shm
 -- Finpath Newsroom Pipeline State Schema
 -- Version: V3.6
 -- Tables: crawl_log + generated_news

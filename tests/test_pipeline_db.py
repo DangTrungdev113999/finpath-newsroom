@@ -256,3 +256,47 @@ def test_parse_task_usage_malformed():
     assert parse_task_usage("<usage>broken format</usage>") is None
     assert parse_task_usage("<usage>total_tokens: not_a_number</usage>") is None
     assert parse_task_usage("<usage>") is None
+
+
+# ---------------------------------------------------------------------------
+# Phase G T1 — WAL mode + concurrent multi-pipeline writes
+# ---------------------------------------------------------------------------
+
+
+def test_wal_mode_concurrent_writes_succeed(tmp_path):
+    """3 subprocess writers concurrent writes via WAL mode → all succeed.
+
+    Phase G T1 — verifies WAL mode permits concurrent multi-pipeline writes
+    without 'database is locked' errors. Subprocess based (not threading)
+    because real /tin-batch spawns separate Claude Code workers.
+    """
+    import subprocess
+    from pathlib import Path
+
+    # Setup: real disk DB initialized with schema (WAL doesn't work :memory:)
+    db_path = tmp_path / "concurrent.db"
+    schema_path = Path(__file__).parent.parent / "data" / "pipeline.schema.sql"
+    db = PipelineDB(str(db_path))
+    db.init_schema(schema_path)
+    db.close()
+
+    helper = Path(__file__).parent / "helpers" / "concurrent_writer.py"
+    batch_id = "CONCURRENT-TEST-001"
+
+    # Spawn 3 concurrent writers, each inserts 1 row with unique source_url
+    procs = [
+        subprocess.Popen(
+            ["uv", "run", "python", str(helper), str(db_path), batch_id, f"https://test.example/{i}"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+        for i in range(3)
+    ]
+    results = [p.wait(timeout=60) for p in procs]
+    assert all(rc == 0 for rc in results), \
+        f"Subprocess failed: {[(p.returncode, p.stderr.read().decode()) for p in procs]}"
+
+    # Verify all 3 rows persisted
+    db = PipelineDB(str(db_path))
+    rows = db.query_by_funnel_batch(batch_id)
+    db.close()
+    assert len(rows) == 3, f"Expected 3 rows, got {len(rows)}"

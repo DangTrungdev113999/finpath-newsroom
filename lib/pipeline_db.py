@@ -30,9 +30,15 @@ class PipelineDB:
 
     def __init__(self, path: str | Path) -> None:
         self.path = str(path)
-        self.conn = sqlite3.connect(self.path)
+        self.conn = sqlite3.connect(self.path, timeout=30.0)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON")
+        # Phase G T1 — WAL mode for concurrent multi-pipeline writes.
+        # synchronous=NORMAL is safe with WAL (durability preserved per checkpoint).
+        # Skip pragmas for in-memory DBs (WAL not applicable, raises error).
+        if self.path != ":memory:":
+            self.conn.execute("PRAGMA journal_mode=WAL")
+            self.conn.execute("PRAGMA synchronous=NORMAL")
 
     def init_schema(self, schema_path: str | Path) -> None:
         sql = Path(schema_path).read_text(encoding="utf-8")

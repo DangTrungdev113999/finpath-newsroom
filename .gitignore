@@ -20,6 +20,10 @@ __pycache__/
 data/pipeline.db
 data/pipeline.db-journal
 
+# SQLite WAL mode files (Phase G T1)
+data/pipeline.db-wal
+data/pipeline.db-shm
+
 # Env
 .env
 .env.local
