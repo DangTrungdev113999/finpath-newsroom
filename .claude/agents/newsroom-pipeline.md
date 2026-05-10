@@ -201,7 +201,7 @@ Task tool:
 
 Collect briefs (0-N items — uncapped).
 
-### Step 4 + Step 5 + Step 7 — Per-article cycle (V4.0 Phase G T5)
+### Step 4 + Step 5 — Per-article cycle (V4.0 Phase G T5; Phase H1 moves Telegram to batch tail)
 
 **OUTER LOOP per brief** (replaces batch flow). For each brief in story_editor output:
 
@@ -274,35 +274,13 @@ Collect briefs (0-N items — uncapped).
    db.log_pipeline_step(article_id, "step_5_skeptic", payload_skeptic)
    ```
 
-3. **Step 7 — Telegram publish** (NEW V4.0 Phase G T15-T16): Task dispatch `newsroom-telegram-publisher` với {article_id, title, public_slug}. Wait for return:
-   - status: "pushed" | "already_pushed" | "skipped_no_secrets" | "failed"
-   - telegram_message_id (or null)
-   - error (or null)
-
-   Telegram agent auto-persist `generated_news.telegram_pushed_at` on success. Pipeline KHÔNG block nếu fail (graceful degrade).
-
-   Observability:
-
-   ```python
-   payload_telegram = {
-       "model": "sonnet",
-       "started_at": started_at_telegram,
-       "duration_ms": int((time.time() - t0_telegram) * 1000),
-       "tokens": parse_task_usage(task_return_telegram),
-       "status": telegram_status,
-       "telegram_message_id": telegram_message_id,
-       "error": telegram_error,
-   }
-   db.log_pipeline_step(article_id, "step_7_telegram", payload_telegram)
-   ```
-
-4. **Continue to next brief** in outer loop.
+3. **Continue to next brief** in outer loop. (Phase H1: Telegram push KHÔNG còn ở per-article — moved to batch tail Step 9 sau khi git push + Pages deploy xong, để link tới `/article/<slug>` guaranteed work.)
 
 **Trade-off note**: Master 2 đọc `recent_generated_news` sẽ thấy Master 1's article vừa persist (cùng batch). Variety guard có thể overcorrect — picks suboptimal angle để avoid Master 1's. Acceptable vì rule chỉ "3 cùng angle gần nhất" không cấm 1, và Skeptic side benefits (fresh DB state cho ECHO verification + accurate variety guard memory) lớn hơn.
 
 **Failure isolation**: nếu brief N fail (Master reject_no_data hoặc Skeptic fail), continue to brief N+1 — KHÔNG crash whole batch.
 
-After ALL briefs done, proceed to Step 6 (Render).
+After ALL briefs done, proceed to Step 6 (Render) → Step 7 (Git publish) → Step 8 (Pages wait) → Step 9 (Telegram batch).
 
 ### Step 6 — Render (V4.0 multi-article)
 
@@ -321,6 +299,107 @@ V4.0: Loop ALL anchor rows in batch (filter `master_decision='write_article'`). 
 - Append entry to `manifest.json`
 
 Output: N files written (N = number of accepted Master articles).
+
+### Step 7 — Batch git publish (NEW Phase H1)
+
+After all articles in the batch have been rendered to `output/compare-feed/`, auto commit + push so GitHub Pages picks up the new `/article/<slug>` URLs BEFORE Telegram links go out:
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import json
+from lib.stages.run_git_publish import auto_git_publish
+result = auto_git_publish(batch_id='<BATCH_ID>', article_count=<N>)
+print(json.dumps(result))
+"
+```
+
+Behaviors:
+- `result.ok == True` → record `commit_sha`, log self_heal_actions if any, proceed to Step 8.
+- `result.ok == False` → FAIL pipeline at this stage, log `result.stage` + `result.stderr`, do NOT push Telegram. Articles remain on disk + DB (idempotent — user can re-run after fixing root cause, e.g. `git_auth` → re-add token, `git_conflict` → manual resolve).
+
+Observability (apply to ALL article_ids in batch — batch-level duplication, same as render):
+
+```python
+payload_git = {
+    "ok": result["ok"],
+    "commit_sha": result.get("commit_sha"),
+    "duration_ms": result.get("duration_ms", 0),
+    "self_heal_actions": result.get("self_heal_actions", []),
+    "error": result.get("error"),
+    "stage": result.get("stage"),
+}
+for aid in article_ids:
+    db.log_pipeline_step(aid, "step_7_git_publish", payload_git)
+```
+
+### Step 8 — Wait Pages deploy (NEW Phase H1)
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import json, yaml
+from lib.stages.run_pages_wait import wait_pages_deployed
+secrets = yaml.safe_load(open('data/secrets.yaml'))
+gh = secrets['github']
+result = wait_pages_deployed(
+    commit_sha='<COMMIT_SHA>',
+    token=gh['token'],
+    owner=gh['owner'],
+    repo=gh['repo'],
+    timeout_s=90,
+)
+print(json.dumps(result))
+"
+```
+
+Behaviors:
+- `result.ok == True` → proceed Step 9 (Telegram push) normally.
+- `result.ok == False` AND `error == 'timeout'` → proceed Step 9 BUT pass fallback footer warning `⚠️ Đang deploy, link có thể chưa work trong 30s` to publisher (graceful degrade — link probably works within 30s).
+- `result.ok == False` AND `error startswith 'deploy failed'` → FAIL pipeline (broken deploy = bad link, do not push Telegram).
+
+Observability (batch-level, same pattern as Step 7):
+
+```python
+payload_pages = {
+    "ok": result["ok"],
+    "elapsed_s": result.get("elapsed_s", 0),
+    "workflow_run_url": result.get("workflow_run_url"),
+    "error": result.get("error"),
+    "run_url": result.get("run_url"),
+    "fallback": result.get("fallback"),
+}
+for aid in article_ids:
+    db.log_pipeline_step(aid, "step_8_pages_wait", payload_pages)
+```
+
+### Step 9 — Per-article Telegram push (was Step 7 in pre-H1 flow)
+
+For each article in the batch (loop), dispatch `newsroom-telegram-publisher` agent. T14b idempotency unchanged. If Step 8 returned `fallback == 'push_telegram_anyway'`, pass extra `channel_footer_warning="⚠️ Đang deploy, link có thể chưa work trong 30s"` parameter to the publisher.
+
+Task dispatch (per article):
+
+```
+Task tool:
+  description: "Telegram publish <ticker>"
+  subagent_type: newsroom-telegram-publisher
+  prompt: "Publish article_id=<id>, title=<title>, public_slug=<slug>. T14b idempotency check. channel_footer_warning=<warning_or_null>."
+```
+
+Observability (per-article):
+
+```python
+payload_telegram = {
+    "model": "sonnet",
+    "started_at": started_at_telegram,
+    "duration_ms": int((time.time() - t0_telegram) * 1000),
+    "tokens": parse_task_usage(task_return_telegram),
+    "status": telegram_status,
+    "telegram_message_id": telegram_message_id,
+    "error": telegram_error,
+}
+db.log_pipeline_step(article_id, "step_9_telegram", payload_telegram)
+```
+
+NOTE: log key renamed `step_7_telegram` → `step_9_telegram` (Phase H1) to avoid collision with new `step_7_git_publish`. Telegram agent auto-persist `generated_news.telegram_pushed_at` on success. Pipeline KHÔNG block nếu fail (graceful degrade).
 
 ---
 
