@@ -52,7 +52,32 @@ Stream 1 ưu tiên vì refactor `newsroom-pipeline.md` workflow ảnh hưởng t
 - 0 briefs (toàn candidates fail) → orchestrator Step 4 skip + reply "Batch không đủ chất lượng. Reject reasons: ..."
 - N briefs (where N ≥ 1) → Step 4 loop N iterations
 
-### 3.2. Per-article cycle (Master 1 → Skeptic 1 → Telegram 1 → Master 2 → ...)
+### 3.2. Master + Skeptic skill V4.0 data_trail schema tightening (Path B inclusion)
+
+**Why** (advisor flag): live VPB run found `master_data_trail: []` + `skeptic_data_trail: []`. Master agent emit legacy `data_sources_used` (V3.6 string array) thay vì V4.0 `data_trail` array of `{source, fetched, purpose, supports_argument}`. T8 đã update render side + agent doc, nhưng Master skill instructions chưa explicit reject legacy emission.
+
+**Files**:
+- `.claude/skills/finpath-newsroom-master-bank/SKILL.md` — explicit V4.0 schema:
+  ```markdown
+  ## Output schema V4.0 — data_trail (Phase G T1.5)
+  
+  MUST emit `pipeline_log.step_4_master.data_trail` array of objects:
+  ```json
+  [
+    {"source": "<canonical>", "fetched": "<what>", "purpose": "<why>", "supports_argument": "<which bullet>"},
+    ...
+  ]
+  ```
+  
+  ❌ **DEPRECATED**: `data_sources_used` array of strings (V3.6 legacy). DO NOT emit.
+  ✅ **REQUIRED**: `data_trail` per spec above. Each entry MUST have all 4 fields.
+  ```
+- `.claude/agents/newsroom-master-bank.md` — sync instructions
+- `.claude/skills/finpath-newsroom-skeptic/SKILL.md` + agent — same tightening cho `pipeline_log.step_5_skeptic.data_trail`
+
+**Verification**: post-Phase G test run → query `pipeline_log.step_4_master.data_trail` → array length > 0 với 4 fields complete.
+
+### 3.3. Per-article cycle (Master 1 → Skeptic 1 → Telegram 1 → Master 2 → ...)
 
 **Current** (Phase F): Step 4 loop ALL briefs → Step 5 loop ALL articles. Batch processing.
 
@@ -63,6 +88,8 @@ Stream 1 ưu tiên vì refactor `newsroom-pipeline.md` workflow ảnh hưởng t
 - Variety guard memory accurate — Skeptic 2 thấy critique 1 đã persist
 - Telegram push từng bài thay vì batch (better UX cho readers)
 - Failure isolation — bài 1 fail không crash bài 2
+
+**Trade-off cần aware**: Master 2 đọc `recent_generated_news` sẽ thấy Master 1's article vừa persist (cùng batch). Có thể overcorrect — Master 2 picks suboptimal angle để avoid Master 1's variety_guard_angle, dù angle đó actually fits news Master 2 đang viết. Pre-Phase G batch flow tránh được bằng cách Master 1+2 cùng đọc pre-batch state. Decision: chấp nhận trade-off vì variety guard rule chỉ "3 cùng angle gần nhất KHÔNG dùng" (không cấm 1) — overcorrection rare và Skeptic side benefit lớn hơn.
 
 **Files**:
 - `.claude/agents/newsroom-pipeline.md` — refactor Step 4-5 thành single outer loop:
@@ -91,7 +118,7 @@ Stream 1 ưu tiên vì refactor `newsroom-pipeline.md` workflow ảnh hưởng t
   self.conn.execute("PRAGMA synchronous=NORMAL")  # safe with WAL
   ```
 - `.gitignore` — append `data/pipeline.db-wal` + `data/pipeline.db-shm` (WAL files)
-- `tests/test_pipeline_db.py` — add test simulating 3 concurrent writes (threading.Thread × 3) → all succeed
+- `tests/test_pipeline_db.py` — add test simulating 3 concurrent writes via subprocess (3 actual Python invocations writing in parallel via `subprocess.Popen` × 3 + wait) → all succeed. **Decision (advisor)**: subprocess closer production reality (multi-pipeline-from-Claude) than Python `threading` cùng process which shares connection state.
 - `data/pipeline.schema.sql` — add comment about WAL mode requirement
 
 **Verification**: simulated parallel test passes. Run /tin-batch (Stream 2) → no lock errors.
@@ -116,9 +143,14 @@ Trigger N pipeline 6-step Newsroom V4.0 PARALLEL cho list tickers comma-separate
 
 Universe MVP Bank: TCB · VCB · MBB · ACB · BID · CTG · VPB.
 
-Parse $ARGUMENTS comma-separated → list tickers. Validate mỗi ticker:
+Parse $ARGUMENTS:
+- Comma-separated multi-ticker (`ACB,TPB,VPB`) → list of N tickers
+- Single ticker no comma (`/tin-batch VCB`) → fall back to /tin behavior (1 pipeline)
+- Empty → reject with usage hint
+
+Validate mỗi ticker:
 - Thuộc universe → spawn pipeline
-- Không thuộc universe → log warn + skip ticker đó
+- Không thuộc universe → log warn + skip ticker đó (KHÔNG crash whole batch)
 
 Spawn N newsroom-pipeline agents PARALLEL via single message multiple Task calls.
 
@@ -184,14 +216,17 @@ Mỗi pipeline log riêng vào pipeline_log của articles trong batch của nó
 - Visual separator: `border-t-4 border-fg/20 pt-12 mt-12` giữa articles
 - Newest article auto-scroll-to-top khi mount (optional smooth UX)
 
-### 6.3. Performance — virtualization
+### 6.3. Performance — IntersectionObserver infinite scroll (MVP)
 
-**Library**: `react-window` (variable size list)
-- Add to `web/package.json`: `"react-window": "^1.8.10"` + `@types/react-window`
-- Wrap article list in `<VariableSizeList>` — only render articles visible in viewport + buffer
-- Lazy load markdown content per article khi enter viewport
+**Decision (advisor): YAGNI cho react-window** — hiện chỉ ~10 articles total. 1/day pace = 50 articles sau 50 ngày. Defer virtualization library until actual perf issue.
 
-**Risk**: variable row height tricky cho dynamic markdown. Fallback: simple infinite scroll (load 5 đầu, IntersectionObserver trigger fetch thêm 5 khi scroll near bottom).
+**MVP approach**: simple IntersectionObserver
+- Initial render 5 articles top
+- IntersectionObserver trên cuối list → trigger load thêm 5 khi scroll gần bottom
+- Lazy load markdown content per article khi enter viewport (reduce initial bundle parse)
+- Khi list > 100 articles → revisit với `react-window` (variable row height — known tricky cho dynamic markdown)
+
+Saves ~1 task + tránh complex variable-row-height integration.
 
 ### 6.4. Mobile responsive
 
@@ -408,9 +443,13 @@ After Phase G ship, user phải:
 - `tests/test_telegram_publisher.py` (NEW)
 - `tests/test_render_compare_feed.py` (atomic manifest write)
 
-**Skills + agents (~5 files)**:
+**Skills + agents (~7 files)**:
 - `.claude/skills/finpath-newsroom-story-editor/SKILL.md` (uncap rule)
 - `.claude/agents/newsroom-story-editor.md` (sync uncap)
+- `.claude/skills/finpath-newsroom-master-bank/SKILL.md` (V4.0 data_trail tightening — T1.5)
+- `.claude/agents/newsroom-master-bank.md` (sync data_trail schema)
+- `.claude/skills/finpath-newsroom-skeptic/SKILL.md` (V4.0 skeptic_data_trail tightening — T1.5)
+- `.claude/agents/newsroom-skeptic.md` (sync skeptic_data_trail schema)
 - `.claude/agents/newsroom-pipeline.md` (per-article cycle + Step 7 Telegram + uncap N briefs)
 - `.claude/agents/newsroom-telegram-publisher.md` (NEW)
 - `.claude/commands/tin-batch.md` (NEW)
@@ -485,8 +524,9 @@ After Phase G ship, user phải:
 ## 12. Success criteria
 
 Phase G ship khi:
-- [ ] Story Editor uncap verified — 1 run output 1-2 briefs (not forced 3)
+- [ ] Story Editor uncap verified — concrete sample: run on ticker với intentionally weak news (vd ticker có 1-2 candidates duy nhất, tất cả PR boilerplate hoặc dup events) → expect ≤1 brief (chứng minh agent KHÔNG ép pick 3)
 - [ ] /tin-batch ACB,TPB ran parallel without SQLite lock errors
+- [ ] /tin-batch single-ticker (`/tin-batch VCB` no comma) → fall back to /tin behavior
 - [ ] Per-article cycle: Master 1 → Skeptic 1 → Telegram 1 sequential per brief
 - [ ] Feed UI: Cards|Feed toggle works, stacked articles scrollable, mobile 1-col
 - [ ] Telegram messages land in group (1 per article)
@@ -510,3 +550,5 @@ Phase G ship khi:
 ## 14. Changelog
 
 - 2026-05-10: Initial spec — 9 user clarifications confirmed via brainstorming skill, Stream 4 Telegram tách thành agent riêng per user feedback
+- 2026-05-10 (advisor revision): YAGNI react-window → IntersectionObserver MVP; per-article cycle trade-off doc; /tin-batch single-ticker fallback; subprocess-based concurrent test; concrete Story Editor uncap verification sample
+- 2026-05-10 (Path B inclusion): Stream 1 thêm task 3.2 — Master + Skeptic skill V4.0 data_trail schema tightening (cuốn Phase F regression vào Phase G batch — user choice "update 1 lượt rồi test sau")
