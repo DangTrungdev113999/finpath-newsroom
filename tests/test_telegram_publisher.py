@@ -4,12 +4,15 @@ from unittest.mock import patch, MagicMock
 from pathlib import Path
 import pytest
 
+from datetime import datetime, timezone, timedelta
+
 from lib.telegram_publisher import (
     TelegramPublisher,
     load_telegram_config,
     _md_to_telegram_html,
     _format_duration,
     _format_tokens,
+    _build_channel_text,
 )
 
 
@@ -280,10 +283,11 @@ def test_format_duration_minutes_and_seconds():
     assert _format_duration(3661000) == "61m 1s"
 
 
-def test_format_duration_none_or_zero_returns_dash():
-    assert _format_duration(None) == "—"
-    assert _format_duration(0) == "—"
-    assert _format_duration(-5) == "—"
+def test_format_duration_none_or_zero_returns_none():
+    """Phase G T16: None/0 → None (caller skips field, không hiện '—')."""
+    assert _format_duration(None) is None
+    assert _format_duration(0) is None
+    assert _format_duration(-5) is None
 
 
 def test_format_tokens_with_separator():
@@ -292,6 +296,65 @@ def test_format_tokens_with_separator():
     assert _format_tokens(100) == "100"
 
 
-def test_format_tokens_none_returns_dash():
-    assert _format_tokens(None) == "—"
-    assert _format_tokens(0) == "—"
+def test_format_tokens_none_returns_none():
+    """Phase G T16: None/0 → None (caller skips, không hiện '—')."""
+    assert _format_tokens(None) is None
+    assert _format_tokens(0) is None
+
+
+# ===== T16 — _build_channel_text 4 cases (both / duration only / tokens only / neither) =====
+
+VN_TZ_TEST = timezone(timedelta(hours=7))
+FIXED_TIME = datetime(2026, 5, 10, 22, 30, 45, tzinfo=VN_TZ_TEST)
+ESCAPE_NOOP = lambda s: s  # tests use plain titles, no escape needed
+
+
+def test_build_channel_text_both_duration_and_tokens():
+    text = _build_channel_text("Title", FIXED_TIME, 204000, 12500, ESCAPE_NOOP)
+    assert text == (
+        "<b>Title</b>\n"
+        "\n"  # blank line cho thoáng
+        "🕐 10/05/2026 22:30:45\n"
+        "⏱️ Thời gian viết bài: 3m 24s · 🪙 12.500"
+    )
+
+
+def test_build_channel_text_duration_only_tokens_none():
+    text = _build_channel_text("Title", FIXED_TIME, 97000, None, ESCAPE_NOOP)
+    assert text == (
+        "<b>Title</b>\n"
+        "\n"
+        "🕐 10/05/2026 22:30:45\n"
+        "⏱️ Thời gian viết bài: 1m 37s"
+    )
+
+
+def test_build_channel_text_tokens_only_duration_none():
+    text = _build_channel_text("Title", FIXED_TIME, None, 8500, ESCAPE_NOOP)
+    assert text == (
+        "<b>Title</b>\n"
+        "\n"
+        "🕐 10/05/2026 22:30:45\n"
+        "🪙 8.500"
+    )
+
+
+def test_build_channel_text_both_none_skips_line3():
+    """Phase G T16: cả duration + tokens None → chỉ 2 dòng (title + timestamp), KHÔNG '—'."""
+    text = _build_channel_text("Title", FIXED_TIME, None, 0, ESCAPE_NOOP)
+    assert text == (
+        "<b>Title</b>\n"
+        "\n"
+        "🕐 10/05/2026 22:30:45"
+    )
+    # No "⏱️" hoặc "🪙" hoặc "—" trong output
+    assert "⏱️" not in text
+    assert "🪙" not in text
+    assert "—" not in text
+
+
+def test_build_channel_text_escapes_title():
+    """HTML escape title containing < > &."""
+    text = _build_channel_text("A & B <bad>", FIXED_TIME, None, None,
+                               lambda s: s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
+    assert "<b>A &amp; B &lt;bad&gt;</b>" in text

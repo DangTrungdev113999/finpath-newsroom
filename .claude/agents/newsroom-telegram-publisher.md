@@ -137,17 +137,22 @@ Return `result` JSON tới caller (orchestrator).
 }
 ```
 
-## Channel post format (T14b 3 lines)
+## Channel post format (T16 conditional 2-3 lines)
 
 ```
 <b>{title}</b>
+[blank line cho thoáng]
 🕐 {posted_at:%d/%m/%Y %H:%M:%S}
-⏱️ {duration} · 🪙 {tokens}
+⏱️ Thời gian viết bài: {duration} · 🪙 {tokens}    ← line 3 conditional
 ```
 
-- Line 2: timestamp at post time (Vietnam timezone +7)
-- Line 3 duration: `"3m 24s"` or `"45s"` or `"—"` if write_duration_ms None
-- Line 3 tokens: `"12.500"` (Vietnamese separator) or `"—"` if tokens None
+**Conditional line 3** (T16):
+- Cả duration + tokens None → bỏ line 3 entirely (chỉ 2 lines)
+- Chỉ duration → `⏱️ Thời gian viết bài: 1m 37s`
+- Chỉ tokens → `🪙 12.500`
+- Cả 2 → `⏱️ Thời gian viết bài: 1m 37s · 🪙 12.500`
+
+KHÔNG hiển thị `"—"` placeholder — empty values bỏ field.
 
 ## Thread message format (2 replies)
 

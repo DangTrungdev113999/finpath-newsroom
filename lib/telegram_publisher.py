@@ -29,10 +29,10 @@ import yaml
 VN_TZ = timezone(timedelta(hours=7))
 
 
-def _format_duration(ms: int | None) -> str:
-    """Format duration_ms → human-readable. None/0 → '—' placeholder."""
+def _format_duration(ms: int | None) -> str | None:
+    """Format duration_ms → human-readable. None/0 → None (caller skips field)."""
     if ms is None or ms <= 0:
-        return "—"
+        return None
     seconds = ms // 1000
     if seconds < 60:
         return f"{seconds}s"
@@ -40,11 +40,45 @@ def _format_duration(ms: int | None) -> str:
     return f"{minutes}m {sec}s"
 
 
-def _format_tokens(n: int | None) -> str:
-    """Format token count với separator. None → '—' placeholder."""
+def _format_tokens(n: int | None) -> str | None:
+    """Format token count với Vietnamese separator. None/0 → None."""
     if n is None or n <= 0:
-        return "—"
-    return f"{n:,}".replace(",", ".")  # Vietnamese number separator
+        return None
+    return f"{n:,}".replace(",", ".")
+
+
+def _build_channel_text(title: str, posted_at: datetime, duration_ms: int | None,
+                       tokens: int | None, escape_fn) -> str:
+    """Build channel post 2-3 lines (skip line 3 nếu cả duration + tokens None).
+
+    Format:
+        <b>{title}</b>
+        [blank line]
+        🕐 {posted_at}
+        ⏱️ Thời gian viết bài: {duration} · 🪙 {tokens}    ← line 3 conditional
+
+    - Cả duration + tokens None → bỏ line 3
+    - Chỉ duration → "⏱️ Thời gian viết bài: 1m 37s"
+    - Chỉ tokens → "🪙 12.500"
+    - Cả 2 → "⏱️ Thời gian viết bài: 1m 37s · 🪙 12.500"
+    """
+    duration_str = _format_duration(duration_ms)
+    tokens_str = _format_tokens(tokens)
+
+    parts = []
+    if duration_str:
+        parts.append(f"⏱️ Thời gian viết bài: {duration_str}")
+    if tokens_str:
+        parts.append(f"🪙 {tokens_str}")
+
+    lines = [
+        f"<b>{escape_fn(title)}</b>",
+        "",  # blank line cho thoáng giữa title và metadata
+        f"🕐 {posted_at.strftime('%d/%m/%Y %H:%M:%S')}",
+    ]
+    if parts:
+        lines.append(" · ".join(parts))
+    return "\n".join(lines)
 
 
 def _md_to_telegram_html(body: str) -> str:
@@ -155,11 +189,13 @@ class TelegramPublisher:
         # Step 0: drain stale getUpdates
         offset = self._drain_offset()
 
-        # Step 1: post 3-line channel message
-        channel_text = (
-            f"<b>{self._escape_html(title)}</b>\n"
-            f"🕐 {posted_at.strftime('%d/%m/%Y %H:%M:%S')}\n"
-            f"⏱️ {_format_duration(write_duration_ms)} · 🪙 {_format_tokens(tokens)}"
+        # Step 1: post channel message với conditional line 3 (skip nếu cả 2 None)
+        channel_text = _build_channel_text(
+            title=title,
+            posted_at=posted_at,
+            duration_ms=write_duration_ms,
+            tokens=tokens,
+            escape_fn=self._escape_html,
         )
         ch_result = self._api("sendMessage", {
             "chat_id": self.chat_id,
