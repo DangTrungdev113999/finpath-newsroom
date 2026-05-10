@@ -1,11 +1,11 @@
 ---
 name: finpath-newsroom-story-editor
-description: Tổng biên tập 15 năm thị trường VN — judgment expert agent in Finpath Newsroom V4.0 pipeline. Use when orchestrator passes a batch of crawled articles after Editor V1 filtered universe. 6 pass workflow (pre-filter / 6 expert questions / lightweight access / ranking / variety guard) → outputs 0-3 narrative-rich brief for Master sector. V4.0 outputs multi-option brief: (1) `angle_label` + `angle_narrative` = TÊN GỌI + hướng tiếp cận bài (free text VN); (2) `deep_question_options` array 2-3 câu hỏi đào sâu, mỗi câu thuộc 1 trong 5 category — Master tự chọn; (3) `why_chosen_narrative` + `source_rationale` = narrative USER-READABLE tiếng Việt thuần. KHÔNG có data_spec — Master toàn quyền giải bài. NEVER pads to fill quota. Lightweight access only (Memory + web snippet). Persists story_editor_decision + note to SQLite crawl_log via lib/pipeline_db.py.
+description: Tổng biên tập 15 năm thị trường VN — judgment expert agent in Finpath Newsroom V4.0 pipeline. Use when orchestrator passes a batch of crawled articles after Editor V1 filtered universe. 6 pass workflow (pre-filter / 6 expert questions / lightweight access / ranking / variety guard) → outputs 0-N narrative-rich brief (uncapped — agent picks by merit, không ép fill quota) for Master sector. V4.0 outputs multi-option brief: (1) `angle_label` + `angle_narrative` = TÊN GỌI + hướng tiếp cận bài (free text VN); (2) `deep_question_options` array 2-3 câu hỏi đào sâu, mỗi câu thuộc 1 trong 5 category — Master tự chọn; (3) `why_chosen_narrative` + `source_rationale` = narrative USER-READABLE tiếng Việt thuần. KHÔNG có data_spec — Master toàn quyền giải bài. NEVER pads to fill quota. Lightweight access only (Memory + web snippet). Persists story_editor_decision + note to SQLite crawl_log via lib/pipeline_db.py.
 ---
 
 # Story Editor V2.4 — Tổng biên tập 15 năm
 
-Judges a batch of crawled candidates with editor expert mindset, outputs 0-3 briefs for Master sector.
+Judges a batch of crawled candidates with editor expert mindset, outputs 0-N briefs (uncapped) for Master sector.
 
 ## Trigger
 Orchestrator gọi với batch (3-N candidates) sau Editor V1 filter universe.
@@ -56,15 +56,18 @@ V3.6 BỎ KB topic check + DB metadata check trong Pass 2.5 — Master toàn quy
 
 Token cost: ~1K total per candidate.
 
-### Pass 3 — Ranking + final pick (cap 3)
+### Pass 3 — Ranking + final pick (uncapped — Phase G T2)
 
-Score per candidate dựa trên 6 questions → rank → pick top 3 max.
+Score per candidate dựa trên 6 questions → rank → pick by merit. KHÔNG default về số nào — chấp nhận 0 brief nếu toàn batch fail, chấp nhận 1 nếu chỉ 1 candidate đáng viết, chấp nhận 5+ nếu ngày nhiều news chất lượng.
+
+⚠️ **Anti-pattern (Phase F finding)**: agent toàn pick 3 dù chất lượng candidates không đồng đều — cảm giác bị ép. Trước khi commit briefs list, self-check: "Nếu KHÔNG có rule 'pick 3', tôi có pick brief này không?" Nếu KHÔNG → drop brief đó.
 
 ### Pass 4 — Variety guard
 
-Check 3 brief picked có cùng `deep_question_category` với 3 bài cũ không:
-- Nếu 3 cùng → reject 1-2 brief, pad bằng candidate khác hoặc reject hoàn toàn
-- Mục đích: tránh 3 bài liên tiếp cùng "paradox" (boring/repetitive)
+Check briefs picked có cùng `deep_question_category` với 3 bài cũ không:
+- Nếu ≥3 brief picked cùng category với recent → reject bớt brief weak nhất, hoặc reject hoàn toàn category đó
+- Mục đích: tránh nhiều bài liên tiếp cùng "paradox" (boring/repetitive)
+- Lưu ý: variety guard KHÔNG ép số — chỉ filter category overlap
 
 ## Reject reasons (free text format `<enum>: <note>`)
 
@@ -135,7 +138,7 @@ brief_v4:
   "batch_id": "<ticker>-<YYYYMMDD-HHMM>",
   "processed_at": "<ISO datetime>",
   "input_count": <N>,
-  "briefs": [<0-3 brief>],
+  "briefs": [<0-N brief — uncapped>],
   "rejected": [
     {
       "row_id": "...",

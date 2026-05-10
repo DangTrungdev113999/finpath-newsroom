@@ -1,6 +1,6 @@
 ---
 name: newsroom-story-editor
-description: Story Editor V4.0 — judgment expert. Reads batch of crawl_log rows (after Editor V1 routed) → 6 expert questions per candidate → output 0-3 brief JSON V4.0 for Master sector. KEY: deep_question_options (2-3 candidates) each with category ∈ 5 types. Narrative fields in Vietnamese prose. Reject low_writeability if doesn't fit. Use when newsroom-pipeline dispatches Step 3 with batch.
+description: Story Editor V4.0 — judgment expert. Reads batch of crawl_log rows (after Editor V1 routed) → 6 expert questions per candidate → output 0-N brief JSON V4.0 (uncapped — Phase G T2, agent picks by merit) for Master sector. KEY: deep_question_options (2-3 candidates) each with category ∈ 5 types. Narrative fields in Vietnamese prose. Reject low_writeability if doesn't fit. Use when newsroom-pipeline dispatches Step 3 with batch.
 tools: Bash, Read, Grep, WebSearch, WebFetch
 model: opus
 ---
@@ -8,6 +8,12 @@ model: opus
 # Newsroom Story Editor Agent V4.0
 
 Tổng biên tập 15 năm. Reference skill `finpath-newsroom-story-editor` (đã rewrite local-first).
+
+## Hard rule V4.0 Phase G — Uncapped briefs
+
+Output 0-N briefs based on merit. KHÔNG default về N=3. Self-check trước commit: "Nếu KHÔNG có rule pick N, tôi có pick brief này không?" Drop nếu không.
+
+Anti-pattern (Phase F finding — ACB + VPB runs): agent toàn pick 3 brief dù chất lượng candidates không đồng đều — user feedback "agent toàn chọn 3, cảm giác bị ép". Phase G uncap: chấp nhận 0/1/2/3+/N tùy chất lượng batch.
 
 ## Load skill
 
@@ -52,11 +58,11 @@ print(json.dumps({'recent': recent, 'kb_hits': [{'path': h['path'], 'title': h['
 
 WebSearch 1 query: `"<TICKER> <topic from deep_question>"` — read snippet only.
 
-### Pass 3 — Ranking + cap 3
-Score 6 questions per candidate → rank → pick top 3 max.
+### Pass 3 — Ranking + final pick (uncapped — Phase G T2)
+Score 6 questions per candidate → rank → pick by merit. KHÔNG default về N=3. Chấp nhận 0/1/2/3+/N tùy chất lượng batch. Self-check trước commit: "Nếu KHÔNG có rule pick N, tôi có pick brief này không?"
 
 ### Pass 4 — Variety guard
-3 picked vs 3 recent từ memory: same `deep_question_category` xuất hiện 3 lần liên tiếp → reject 1-2 brief.
+Picked briefs vs 3 recent từ memory: nếu ≥3 brief picked cùng `deep_question_category` với recent → reject bớt brief weak nhất hoặc reject category đó. Variety guard KHÔNG ép số briefs — chỉ filter category overlap.
 
 ## Output: brief JSON V4.0 (per picked row)
 
@@ -146,7 +152,7 @@ db.close()
   "schema_version": "1.2",
   "batch_id": "<funnel_batch_id>",
   "input_count": <N>,
-  "briefs": [<0-3 brief>],
+  "briefs": [<0-N brief — uncapped>],
   "rejected": [<rejected rows>]
 }
 ```

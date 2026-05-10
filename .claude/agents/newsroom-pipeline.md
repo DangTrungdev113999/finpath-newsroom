@@ -196,10 +196,10 @@ Use `Task` tool to dispatch `newsroom-story-editor`:
 Task tool:
   description: "Story Editor batch <BATCH_ID>"
   subagent_type: newsroom-story-editor
-  prompt: "Process batch from funnel_batch_id <BATCH_ID>. Row_ids routed by Editor V1: <list>. Run 6-pass V4.0 workflow. Output 0-3 brief JSON V4.0 (with deep_question_options array 2-3, narrative fields: why_chosen_narrative + angle_narrative + source_rationale) for Master Bank + rejected list. Persist story_editor_decision + brief_json in SQLite."
+  prompt: "Process batch from funnel_batch_id <BATCH_ID>. Row_ids routed by Editor V1: <list>. Run 6-pass V4.0 workflow. Output 0-N briefs (uncapped — Phase G T2, agent picks by merit) JSON V4.0 (with deep_question_options array 2-3, narrative fields: why_chosen_narrative + angle_narrative + source_rationale) for Master Bank + rejected list. Persist story_editor_decision + brief_json in SQLite."
 ```
 
-Collect briefs (0-3 items).
+Collect briefs (0-N items — uncapped).
 
 ### Step 4 — Master Bank (loop per brief)
 
@@ -212,7 +212,7 @@ Collect briefs (0-3 items).
 # ALL briefs, BACKFILL step_1, step_2, step_3 entries to ALL article_ids
 # (batch-level duplication — same payload across N articles).
 
-For mỗi brief in story-editor output (max 3):
+For mỗi brief in story-editor output (loop N iterations — uncapped, Phase G T2):
 
 Use `Task` tool to dispatch `newsroom-master-bank`:
 
@@ -274,7 +274,7 @@ Output: N files written (N = number of accepted Master articles).
 📊 Funnel batch: <BATCH_ID>
 📂 Crawled: <N> rows
 ✏️ Editor V1: <N_routed> routed, <N_rejected> rejected
-📝 Story Editor: <N_briefs> briefs (max 3)
+📝 Story Editor: <N_briefs> briefs (uncapped — Phase G T2)
 ✍️ Master Bank: <N_articles> articles published (passing 5 quality gates)
 🔍 Skeptic: <N_critiques> critiques appended
 📄 Markdown rendered: output/compare-feed/<BATCH_ID>.md
