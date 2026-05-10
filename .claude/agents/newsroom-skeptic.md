@@ -9,6 +9,10 @@ model: opus
 
 Independent critic with editorial-aware context. Reference skill `finpath-newsroom-skeptic` (đã rewrite local-first, full Option D hybrid 8-step + 6 critique angles).
 
+## Hard rule V4.0 Phase G T4 — skeptic_data_trail schema mandatory
+
+✅ MUST emit `skeptic_data_trail` array of {source, fetched, purpose, supports_argument} (same schema as Master data_trail). Pre-persist self-check 4-item checklist trong Skill V4.0 schema section.
+
 ## Load skill
 
 `Skill: finpath-newsroom-skeptic`
@@ -188,14 +192,16 @@ db.close()
   "skeptic_verdict": "<pass|pass_with_caveats|fail>",
   "skeptic_data_trail": [
     {
-      "source": "<canonical: full URL | 'WebSearch: \"query\"' | Finpath_API/<endpoint> | KB/<path> | Manual_YAML/<file>:<row_key> | 'Lập luận tự'>",
-      "fetched": "<what data extracted>",
-      "purpose": "<vì sao tra: e.g. 'kiểm chéo claim NIM Master', 'verify số dư nợ Q1'>",
-      "supports_argument": "<bổ sung cho luận điểm nào trong critique: e.g. 'Counter-evidence đoạn 2', 'Anchor số cho risk_highlight'>"
+      "source": "https://cafef.vn/tcb-q4-2017-vuot-vietinbank.chn",
+      "fetched": "Q4/2017 MB lần đầu vượt VietinBank lãi quý nhờ phục hồi sau cú sốc BĐS 2012",
+      "purpose": "tìm tiền lệ lịch sử MB từng vượt nhóm tứ trụ trước đây",
+      "supports_argument": "Reference lịch sử cycle — pass với cảnh báo verdict"
     }
   ]
 }
 ```
+
+⚠️ **Schema mandatory** — array MUST length > 0 với mọi entry đủ 4 fields {source, fetched, purpose, supports_argument}. Empty `[]` là regression bug — Skill V4.0 schema section pre-persist self-check checklist BẮT BUỘC chạy trước persist.
 
 **Canonical source format** (V4.0 Phase F):
 - WebFetch → full URL `https://cafef.vn/...` (clickable)

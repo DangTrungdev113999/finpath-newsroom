@@ -145,6 +145,33 @@ Patterns + examples per angle: see `references/critique-patterns.md`.
 
 Legacy entries chỉ có `used_for` — render layer auto-fallback. Skeptic mới persist dùng schema mới.
 
+## V4.0 skeptic_data_trail schema explicit (Phase G T4 — anti-regression)
+
+⚠️ **Live VPB run regression**: Skeptic agent emit empty `skeptic_data_trail: []` → web render skeptic data trail panel empty. Phase G tightens output requirement.
+
+### REQUIRED — `pipeline_log.step_5_skeptic.data_trail`
+
+```json
+[
+  {
+    "source": "<canonical format same as Master data_trail — full URL | WebSearch:\"query\" | Finpath_API/<endpoint> | KB/<path> | Manual_YAML/<file>:<row_key> | Lập luận tự>",
+    "fetched": "<what counter-evidence extracted>",
+    "purpose": "<vì sao tra source này — e.g. 'kiểm chéo Master claim ROE 21,2%', 'tìm tiền lệ MBB vượt VCB Q4/2017'>",
+    "supports_argument": "<bổ sung cho luận điểm critique nào — e.g. 'Phân tách nguyên nhân ROE giảm', 'Reference lịch sử cycle'>"
+  }
+]
+```
+
+### Pre-persist self-check
+
+Trước khi gọi `db.update_generated_news(skeptic_data_trail=...)` (or persist via pipeline_log.step_5_skeptic), verify:
+- [ ] Array length > 0 (Skeptic queried ít nhất 1 source độc lập từ Master)
+- [ ] Every entry có 4 fields complete
+- [ ] `source` follows 1 trong 6 canonical formats
+- [ ] `purpose` + `supports_argument` tiếng Việt thuần
+
+Fail → rebuild trước persist.
+
 ## Verdict logic
 
 - **pass** — bài chất lượng, critique chỉ thêm góc nhìn
