@@ -27,13 +27,13 @@ export function ArticlePage() {
       </nav>
       {error && (
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          <div className="rounded border border-rec/40 bg-rec/10 p-3 text-sm text-rec">
             Lỗi load bài: {error}
           </div>
         </div>
       )}
       {!article && !error && (
-        <p className="max-w-7xl mx-auto px-4 py-6 text-gray-500">Loading…</p>
+        <p className="max-w-7xl mx-auto px-4 py-6 text-fg-3">Loading…</p>
       )}
       {article && <CompareFeedLayout article={article} />}
     </div>

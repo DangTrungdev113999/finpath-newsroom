@@ -17,7 +17,7 @@ function renderSource(source: string) {
     source.startsWith('Manual_YAML/')
   ) {
     return (
-      <code className="font-mono text-xs bg-gray-100 rounded px-1.5 py-0.5">{source}</code>
+      <code className="font-mono text-xs bg-bg-2 rounded px-1.5 py-0.5 text-fg-1">{source}</code>
     );
   }
   // Fallback: plain text (e.g. "Lập luận tự" or legacy free-text label)
@@ -39,10 +39,10 @@ export function DataTrail({
   if (isEmpty) {
     return (
       <details>
-        <summary className="text-sm cursor-pointer font-semibold text-gray-500">
-          {emoji} {title} (0 nguồn)
+        <summary className="section-pill">
+          {title} (0 nguồn)
         </summary>
-        <p className="mt-3 text-sm text-red-600 italic pl-3 border-l-2 border-red-200">
+        <p className="mt-3 text-sm text-rec italic pl-3 border-l-2 border-rec/30">
           ⚠️ Lỗi log ở pipeline — agent không emit data_trail (legacy article hoặc bug).
         </p>
       </details>
@@ -50,8 +50,8 @@ export function DataTrail({
   }
   return (
     <details>
-      <summary className="text-sm cursor-pointer font-semibold">
-        {emoji} {title} ({trail.length} nguồn)
+      <summary className="section-pill">
+        {title} ({trail.length} nguồn)
       </summary>
       <ul className="mt-3 text-sm space-y-3">
         {trail.map((entry, i) => {
@@ -59,20 +59,20 @@ export function DataTrail({
           const supportsArg = entry.supports_argument || entry.used_for || '';
           const purpose = entry.purpose || '';
           return (
-            <li key={i} className="border-l-2 border-gray-200 pl-3">
+            <li key={i} className="border-l-2 border-fg-4/40 pl-3">
               <div>→ {renderSource(entry.source)}</div>
               {entry.fetched && (
-                <div className="text-gray-600 mt-1">
+                <div className="text-fg-2 mt-1">
                   <em>Tra được</em>: {entry.fetched}
                 </div>
               )}
               {purpose && (
-                <div className="text-gray-600 mt-1">
+                <div className="text-fg-2 mt-1">
                   <em>Vì sao tra</em>: {purpose}
                 </div>
               )}
               {supportsArg && (
-                <div className="text-gray-600 mt-1">
+                <div className="text-fg-2 mt-1">
                   <em>Bổ sung cho</em>: {supportsArg}
                 </div>
               )}

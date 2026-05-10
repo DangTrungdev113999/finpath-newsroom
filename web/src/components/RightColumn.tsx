@@ -20,15 +20,16 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
   }, []);
 
   return (
-    <details open={isDesktop} className="space-y-6 md:block">
+    <details open={isDesktop} className="md:block">
       <summary className="cursor-pointer font-semibold mb-4 md:hidden">
-        ⚙️ Mở metadata + nguồn (8 sections)
+        Mở metadata + nguồn (8 sections)
       </summary>
+      <div className="space-y-6">
       {/* Section 1: Bài gốc */}
       <section>
-        <h3>📰 Bài gốc</h3>
+        <h3 className="section-pill">Bài gốc</h3>
         <p className="font-semibold">{src.raw_title}</p>
-        <p className="text-sm text-gray-500 italic">
+        <p className="text-sm text-fg-3 italic">
           Nguồn:{' '}
           <a href={src.url} target="_blank" rel="noopener noreferrer">
             {src.name}
@@ -40,7 +41,7 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
       {/* Section 2: Vì sao chọn */}
       {meta.why_chosen_narrative && (
         <section>
-          <h3>🎯 Vì sao chọn bài này</h3>
+          <h3 className="section-pill">Vì sao chọn bài này</h3>
           <p className="leading-relaxed">{meta.why_chosen_narrative}</p>
         </section>
       )}
@@ -48,7 +49,7 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
       {/* Section 3: Hướng tiếp cận */}
       {meta.angle_label && (
         <section>
-          <h3>🧭 Hướng tiếp cận</h3>
+          <h3 className="section-pill">Hướng tiếp cận</h3>
           <p className="leading-relaxed">
             <strong>{meta.angle_label}</strong>
             {meta.angle_narrative && <> — {meta.angle_narrative}</>}
@@ -67,7 +68,7 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
       {/* Section 4b: Insight cuối */}
       {meta.insight && (
         <section>
-          <h3>💡 Insight cuối</h3>
+          <h3 className="section-pill">Insight cuối</h3>
           <InsightCallout insight={meta.insight} />
         </section>
       )}
@@ -93,7 +94,7 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
 
       {/* Section 8: Đọc bài gốc — link only, NO embed */}
       <section>
-        <h3>📖 Đọc bài gốc</h3>
+        <h3 className="section-pill">Đọc bài gốc</h3>
         <p>
           → <a href={meta.raw_article_url} target="_blank" rel="noopener noreferrer">
             {src.name} — {src.raw_title}
@@ -104,6 +105,7 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
 
       {/* Appendix: Pipeline observability — Phase F T11 */}
       <PipelineObservability pipelineLog={meta.pipeline_log} />
+      </div>
     </details>
   );
 }

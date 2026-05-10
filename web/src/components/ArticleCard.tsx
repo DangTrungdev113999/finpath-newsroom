@@ -6,19 +6,37 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
   return (
     <Link
       to={`/article/${article.id}`}
-      className="block rounded-lg border border-gray-200 p-4 hover:border-gray-400 hover:shadow-sm transition no-underline"
+      className="group relative flex flex-col rounded-xl border border-fg-4/40 bg-bg-1 p-5 no-underline transition-all duration-med ease-out-quart hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35"
     >
-      <div className="flex items-center justify-between mb-3 text-xs text-gray-500">
-        <span className="font-semibold rounded bg-blue-100 text-blue-800 px-2 py-0.5">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-5 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-brand via-brand/60 to-transparent transition-transform duration-med ease-out-quart group-hover:scale-x-100"
+      />
+
+      <div className="mb-5 flex items-center justify-between">
+        <span className="rounded-md bg-fg-0 px-2.5 py-1 font-sans text-[12px] font-bold tracking-[0.02em] text-bg-1">
           {article.ticker}
         </span>
-        <span>
-          {article.word_count} từ · 🕐 {formatCrawledAt(article.crawled_at)}
-        </span>
+        <time className="font-mono text-[10px] tabular-nums text-fg-3">
+          {formatCrawledAt(article.crawled_at)}
+        </time>
       </div>
-      <h3 className="text-base font-semibold text-gray-900 leading-snug mt-0">
+
+      <h3 className="mt-0 mb-5 flex-1 text-[15px] font-semibold leading-snug tracking-tight text-fg-0 transition-colors duration-med ease-out-quart group-hover:text-brand">
         {article.title}
       </h3>
+
+      <div className="flex items-center justify-between border-t border-fg-4/30 pt-3">
+        <span className="font-mono text-[10px] tabular-nums text-fg-3">
+          {article.word_count} từ
+        </span>
+        <span
+          aria-hidden
+          className="font-mono text-[11px] text-fg-3 transition-all duration-med ease-out-quart group-hover:translate-x-0.5 group-hover:text-brand"
+        >
+          →
+        </span>
+      </div>
     </Link>
   );
 }

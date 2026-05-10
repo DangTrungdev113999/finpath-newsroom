@@ -14,7 +14,7 @@ export function QuestionOptions({
   if (!options || options.length === 0) return null;
   return (
     <section>
-      <h3>🤔 Tổng biên tập đề xuất {options.length} câu hỏi đào sâu</h3>
+      <h3 className="section-pill">Tổng biên tập đề xuất {options.length} câu hỏi đào sâu</h3>
       <ol className="space-y-3">
         {options.map((opt, i) => {
           const isPicked = i === chosenIdx;
@@ -22,16 +22,16 @@ export function QuestionOptions({
             <li key={i} className="leading-relaxed">
               {isPicked ? (
                 <>
-                  <strong className="text-green-700">(✓ Đã chọn)</strong>{' '}
+                  <strong className="text-done">(✓ Đã chọn)</strong>{' '}
                   <strong>{opt.question}</strong>
-                  <div className="text-sm text-gray-600 mt-1">
+                  <div className="text-sm text-fg-2 mt-1">
                     <em>Phóng viên pick vì</em>: {pickReason || opt.pick_hint}
                   </div>
                 </>
               ) : (
                 <>
                   {opt.question}
-                  <div className="text-sm text-gray-500 mt-1">
+                  <div className="text-sm text-fg-3 mt-1">
                     <em>Skip vì</em>: {skipReasons[String(i)] || 'Không có lý do ghi'}
                   </div>
                 </>
