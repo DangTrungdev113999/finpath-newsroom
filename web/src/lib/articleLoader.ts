@@ -1,7 +1,9 @@
 import type { Article, ArticleSummary, Manifest } from '../types';
 import { parseArticle } from './parseArticle';
 
-const ARTICLES_BASE = '/articles';
+// Phase G GitHub Pages: prepend Vite BASE_URL.
+// Dev: BASE_URL='/' → '/articles'. Prod: BASE_URL='/finpath-newsroom/' → '/finpath-newsroom/articles'.
+const ARTICLES_BASE = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/articles`;
 
 export async function loadManifest(): Promise<ArticleSummary[]> {
   const res = await fetch(`${ARTICLES_BASE}/manifest.json`, { cache: 'no-store' });

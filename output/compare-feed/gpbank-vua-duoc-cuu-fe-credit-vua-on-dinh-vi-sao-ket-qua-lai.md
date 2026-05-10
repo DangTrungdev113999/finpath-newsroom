@@ -110,8 +110,42 @@ crawl_funnel:
     reason: ĐHĐCĐ mục tiêu 2026 — thông tin kế hoạch tương lai không đủ tension ngay
       bây giờ. Góc tăng vốn đã embedded trong Brief 3 (pha loãng 26%).
   total_candidates: 10
-master_data_trail: []
-skeptic_data_trail: []
+master_data_trail:
+- source: https://doanhnghiepkinhtexanh.vn/loi-nhuan-quy-12026-cua-fe-credit-giam-nhe-gpbank-lai-hon-400-ty-dong-a47129.html
+  fetched: FE Credit Q1/2026 lãi 77,5 tỷ đồng (giảm so 79 tỷ cùng kỳ); GPBank lãi
+    hơn 400 tỷ — gần bằng cả năm 2025; doanh thu FE Credit 5.079 tỷ (+4%); chi phí
+    vốn tăng 21%
+  purpose: neo số gốc Q1/2026 cho cả hai đơn vị FE Credit và GPBank — bài gốc anchor
+  supports_argument: Opening (77,5 tỷ vs 400 tỷ) + Bullet 2 (doanh thu +4% nhưng chi
+    phí vốn +21%)
+- source: KB/bank-industry-master-reference-FE-Credit-cycle
+  fetched: Tài chính tiêu dùng vận hành phân khúc vay tín chấp lãi suất cao — biên
+    lãi vay rộng nhưng nợ xấu cơ cấu cao hơn ngân hàng thương mại; chu kỳ phục hồi
+    phụ thuộc chi phí vốn
+  purpose: giải thích cơ cấu mô hình — vì sao nợ xấu FE Credit cao theo cơ cấu, không
+    phải lỗi quản trị
+  supports_argument: Bullet 3 (cơ cấu mô hình kinh doanh quyết định)
+- source: Finpath_API/VPB/bad_debt
+  fetched: FE Credit tỷ lệ nợ xấu Q1/2026 = 17,7% — tăng trở lại sau ba quý giảm liên
+    tiếp
+  purpose: đo nợ xấu FE Credit để giải thích áp lực dự phòng làm xói mòn lợi nhuận
+  supports_argument: Bullet 1 (nợ xấu 17,7% là chìa khóa)
+- source: Finpath_API/VPB/bank_ratios
+  fetched: Chi phí vốn FE Credit Q1/2026 +21%; VPBank giảm 50% tỷ lệ dự trữ bắt buộc
+    sau chuyển giao GPBank — giải phóng 9.000 tỷ vốn rẻ
+  purpose: đo chênh lệch chi phí vốn giữa hai đơn vị — FE Credit tăng vs GPBank hưởng
+    vốn rẻ
+  supports_argument: Bullet 2 (chi phí vốn 21%) + Bullet 4 (mục tiêu cả năm 1.179
+    tỷ phụ thuộc chi phí vốn hạ nhiệt)
+skeptic_data_trail:
+- source: Lập luận tự
+  fetched: Phân tích cơ chế hỗ trợ NHNN cho ngân hàng nhận chuyển giao bắt buộc —
+    trợ cấp lãi suất, giải phóng dự trữ bắt buộc, hạch toán đặc biệt giai đoạn chuyển
+    giao — không phải ngân hàng thương mại nào cũng có
+  purpose: nêu khả năng 400 tỷ Q1 đến từ đặc quyền chính sách tạm thời, không phản
+    ánh năng lực sinh lời bền vững
+  supports_argument: Toàn đoạn (alt_interpretation về nguồn gốc 400 tỷ — phân biệt
+    lợi nhuận bền vững vs lợi nhuận từ đặc quyền)
 raw_article_url: https://doanhnghiepkinhtexanh.vn/loi-nhuan-quy-12026-cua-fe-credit-giam-nhe-gpbank-lai-hon-400-ty-dong-a47129.html
 ---
 

@@ -1,6 +1,51 @@
 {
   "articles": [
     {
+      "id": "bidv-vua-co-no-xau-lon-nhat-he-thong-vua-de-xuat-ban-thap",
+      "ticker": "BID",
+      "sector": "Bank",
+      "title": "BIDV vừa có nợ xấu lớn nhất hệ thống, vừa đề xuất bán thấp hơn giá sổ sách — ai được lợi?",
+      "crawled_at": "2026-05-10T07:05:33.741042+00:00",
+      "key_view": "phân tích đa chiều",
+      "word_count": 363
+    },
+    {
+      "id": "bidv-tang-von-len-100-000-ty-dong-dung-luc-no-xau-leo-thang",
+      "ticker": "BID",
+      "sector": "Bank",
+      "title": "BIDV tăng vốn lên 100.000 tỷ đồng đúng lúc nợ xấu leo thang — không phải ngẫu nhiên",
+      "crawled_at": "2026-05-10T07:05:33.740899+00:00",
+      "key_view": "phòng thủ",
+      "word_count": 328
+    },
+    {
+      "id": "bidv-lai-q1-tang-15-6-nhung-no-xau-tang-21-9-noi-len-dieu-gi",
+      "ticker": "BID",
+      "sector": "Bank",
+      "title": "BIDV lãi Q1 tăng 15,6% — nhưng nợ xấu tăng 21,9% nói lên điều gì?",
+      "crawled_at": "2026-05-10T07:05:33.740788+00:00",
+      "key_view": "thận trọng",
+      "word_count": 378
+    },
+    {
+      "id": "CTG-20260510-0707-tin-dung-ctg-chi-tang-1-7-vi-sao-thu-nhap-lai-rong-lai-dan",
+      "ticker": "CTG",
+      "sector": "Bank",
+      "title": "Tín dụng CTG chỉ tăng 1,7% — vì sao thu nhập lãi ròng lại dẫn đầu hệ thống với +25%?",
+      "crawled_at": "2026-05-10T07:03:46.201013+00:00",
+      "key_view": "lạc quan",
+      "word_count": 394
+    },
+    {
+      "id": "CTG-20260510-0711-vcb-chon-than-trong-ctg-chon-but-toc-ai-dat-cuoc-dung-hon",
+      "ticker": "CTG",
+      "sector": "Bank",
+      "title": "VCB chọn thận trọng, CTG chọn bứt tốc — ai đặt cược đúng hơn trong quý 1/2026?",
+      "crawled_at": "2026-05-10T07:03:46.200787+00:00",
+      "key_view": "lạc quan",
+      "word_count": 376
+    },
+    {
       "id": "gpbank-vua-duoc-cuu-fe-credit-vua-on-dinh-vi-sao-ket-qua-lai",
       "ticker": "VPB",
       "sector": "Bank",

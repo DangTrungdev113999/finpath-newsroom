@@ -117,8 +117,48 @@ crawl_funnel:
     reason: ĐHĐCĐ mục tiêu 2026 — thông tin kế hoạch tương lai không đủ tension ngay
       bây giờ. Góc tăng vốn đã embedded trong Brief 3 (pha loãng 26%).
   total_candidates: 10
-master_data_trail: []
-skeptic_data_trail: []
+master_data_trail:
+- source: https://vietstock.vn/2026/04/vpbank-duy-tri-tang-truong-manh-me-trong-quy-12026-quy-mo-tin-dung-vuot-1-trieu-ty-dong-737-1429322.htm
+  fetched: Tín dụng VPBank Q1/2026 tăng 10,8% — gấp ba lần trung bình hệ thống; tín
+    dụng hợp nhất vượt 1,06 triệu tỷ — lần đầu tiên một ngân hàng tư nhân chạm mốc;
+    LNTT hợp nhất 7.900 tỷ (+58% cùng kỳ)
+  purpose: neo số tăng trưởng tín dụng Q1 và quy mô vượt 1 triệu tỷ — bài gốc anchor
+  supports_argument: Opening + Bullet 1 (1,06 triệu tỷ) + Bullet 2 (LNTT 7.900 tỷ
+    +58%)
+- source: 'WebSearch: "VPB chi phí vốn 2026 hạ nhiệt Q3"'
+  fetched: Chi phí vốn VPB hợp nhất Q1 chưa hạ nhiệt — kỳ vọng cải thiện từ Q3 khi
+    vốn rẻ giải phóng từ giảm dự trữ bắt buộc đi vào hệ thống và lãi suất huy động
+    ngành xuống
+  purpose: kiểm chéo timing chi phí vốn để cảnh báo rủi ro biên lãi vay bị nén Q2-Q3
+  supports_argument: Bullet 2 (biên lãi vay chưa cải thiện rõ Q1) + Bullet 4 (câu
+    hỏi thực sự là Q3-Q4)
+- source: KB/bank-industry-master-reference-room-tin-dung
+  fetched: NHNN cấp hạn mức tín dụng dựa trên xếp hạng và vai trò hệ thống — ngân
+    hàng nhận chuyển giao bắt buộc thường nhận room cao hơn nhóm tư nhân thông thường
+  purpose: giải thích cơ chế chính sách phía sau room 35% — không phải tự nhiên mà
+    là phần thưởng cho việc nhận GPBank
+  supports_argument: Bullet 1 (room 35% là phần thưởng chính sách)
+- source: Finpath_API/VPB/deposit_credit
+  fetched: VPBank giảm 50% tỷ lệ dự trữ bắt buộc — giải phóng 9.000 tỷ vốn rẻ; kế
+    hoạch LNTT 2026 = 41.323 tỷ; room 35% nghĩa cần giải ngân thêm ~300.000 tỷ trong
+    ba quý còn lại
+  purpose: đo lượng vốn rẻ và mục tiêu cả năm để tính áp lực giải ngân Q2-Q4
+  supports_argument: Bullet 2 (9.000 tỷ vốn rẻ) + Bullet 4 (300.000 tỷ giải ngân thêm)
+    + Closing (kế hoạch 41.323 tỷ)
+skeptic_data_trail:
+- source: Lập luận tự
+  fetched: Mô hình lịch sử — ngân hàng tăng trưởng tín dụng đột biến (gấp ba lần hệ
+    thống) thường phải trích lập dự phòng nặng hơn sau 2-4 quý, do nới lỏng tiêu chuẩn
+    cho vay nhóm khách hàng biên
+  purpose: cảnh báo rủi ro chất lượng tín dụng — bài Master chỉ raise quy mô, chưa
+    nêu chất lượng các khoản giải ngân mới trong Q1
+  supports_argument: Toàn đoạn (risk_highlight về chất lượng tín dụng độ trễ 2-4 quý)
+- source: Finpath_API/VPB/bad_debt
+  fetched: VPBank tỷ lệ nợ xấu hợp nhất Q1/2026 < 2,5% — chỉ phản ánh tài sản cuối
+    Q1, chưa bao gồm khoản giải ngân mới trong cùng quý
+  purpose: kiểm chứng số nợ xấu hiện tại để chứng minh độ trễ phản ánh chất lượng
+    khoản vay mới
+  supports_argument: Đoạn 1 (timing nợ xấu < 2,5% chưa lộ rõ chất lượng khoản mới)
 raw_article_url: https://vietstock.vn/2026/04/vpbank-duy-tri-tang-truong-manh-me-trong-quy-12026-quy-mo-tin-dung-vuot-1-trieu-ty-dong-737-1429322.htm
 ---
 

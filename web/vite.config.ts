@@ -1,11 +1,12 @@
-/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+// Phase G GitHub Pages deploy: base = '/finpath-newsroom/' khi build production.
+// Dev (vite) giữ base '/' để localhost:5174 work bình thường.
+// Tests config moved to vitest.config.ts (vite + vitest version drift).
+const isProd = process.env.NODE_ENV === 'production' || process.env.VITE_DEPLOY === '1';
+
 export default defineConfig({
   plugins: [react()],
-  test: {
-    environment: 'node',
-    globals: true,
-  },
+  base: isProd ? '/finpath-newsroom/' : '/',
 });

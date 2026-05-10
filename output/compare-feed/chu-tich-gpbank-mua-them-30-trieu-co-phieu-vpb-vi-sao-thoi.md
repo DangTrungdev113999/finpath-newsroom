@@ -112,8 +112,39 @@ crawl_funnel:
     reason: ĐHĐCĐ mục tiêu 2026 — thông tin kế hoạch tương lai không đủ tension ngay
       bây giờ. Góc tăng vốn đã embedded trong Brief 3 (pha loãng 26%).
   total_candidates: 10
-master_data_trail: []
-skeptic_data_trail: []
+master_data_trail:
+- source: https://vietstock.vn/2026/05/thanh-vien-hdqt-vpbank-dang-ky-mua-30-trieu-cp-vpb-739-1438008.htm
+  fetched: Bà Phạm Thị Nhung — TV HĐQT VPBank kiêm Chủ tịch GPBank — đăng ký mua 30
+    triệu cổ phiếu VPB từ 8/5 đến 5/6/2026; trước đó đã mua 30 triệu đầu 2025 và 10
+    triệu tháng 8/2025 — lần thứ ba trong 16 tháng
+  purpose: neo sự kiện gốc và xác định đây là lần thứ ba mua trong 16 tháng — bài
+    gốc anchor
+  supports_argument: Opening (30 triệu cổ phiếu, lần ba 16 tháng) + Bullet 2 (tín
+    hiệu từ người am hiểu nội bộ nhất)
+- source: https://baophapluat.vn/dhdcd-vpbank-vpb-2026-muc-tieu-tang-von-len-106-200-ty-dong-loi-nhuan-dat-41-323-ty.html
+  fetched: 'VPBank ĐHĐCĐ 2026: thưởng cổ phiếu 26% từ vốn chủ sở hữu (không pha loãng
+    tỷ lệ sở hữu); Phase 2 Q3-Q4/2026 phát hành riêng lẻ cho nước ngoài nâng vốn điều
+    lệ lên 106.243 tỷ — đây mới là đợt pha loãng thực sự'
+  purpose: phân biệt thưởng 26% (không pha loãng) với pha loãng thật từ Phase 2 —
+    tránh ngộ nhận
+  supports_argument: Bullet 1 (thưởng 26% không pha loãng) + Bullet 4 (pha loãng thật
+    từ Phase 2 nâng vốn 106.243 tỷ)
+- source: Finpath_API/VPB/shareholders
+  fetched: Bà Phạm Thị Nhung sở hữu 0,58% trước giao dịch — sau hoàn tất sẽ là 0,96%;
+    thị giá VPB ngày 5/5 = 28.000 đồng/cổ phiếu; tổng giá trị giao dịch ước 840 tỷ
+  purpose: đo cam kết tài chính cá nhân và sở hữu trước/sau giao dịch
+  supports_argument: Bullet 3 (nâng sở hữu 0,58% → 0,96%, cam kết 840 tỷ tại thị giá
+    28.000 đ)
+skeptic_data_trail:
+- source: Lập luận tự
+  fetched: 'Phép tính 840 tỷ = 30 triệu × 28.000 đ tại thị giá ngày 5/5 — nhưng giao
+    dịch trải dài 8/5-5/6, biến động giá làm con số thực tế có thể khác. Câu hỏi nguồn
+    vốn cá nhân: TV HĐQT thường có thể vay ký quỹ hoặc dùng cổ phiếu hiện hữu làm
+    tài sản bảo đảm'
+  purpose: kiểm chứng tính 840 tỷ + raise giả định nguồn vốn (có thể là đòn bẩy thay
+    vì tiền mặt thuần)
+  supports_argument: Toàn đoạn (data_skepticism về 840 tỷ + giả định nguồn vốn cá
+    nhân)
 raw_article_url: https://vietstock.vn/2026/05/thanh-vien-hdqt-vpbank-dang-ky-mua-30-trieu-cp-vpb-739-1438008.htm
 ---
 
