@@ -26,6 +26,33 @@ User feedback: channel feed phải clean (chỉ title), nhưng click "Leave a co
 
 ## Workflow
 
+### Step 0 — Compute metadata for channel post (T14b 3-line format)
+
+Pull duration + tokens from `pipeline_log` để channel post hiển thị "thời gian viết bài + token count":
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import json
+from lib.pipeline_db import PipelineDB
+db = PipelineDB('data/pipeline.db')
+cur = db.conn.execute('SELECT pipeline_log FROM generated_news WHERE article_id = ?', ('<ARTICLE_ID>',))
+row = cur.fetchone()
+db.close()
+log = json.loads(row['pipeline_log']) if row['pipeline_log'] else {}
+m = log.get('step_4_master', {})
+s = log.get('step_5_skeptic', {})
+m_dur = m.get('duration_ms', 0) or 0
+s_dur = s.get('duration_ms', 0) or 0
+total_dur = m_dur + s_dur
+m_tok = m.get('tokens')
+s_tok = s.get('tokens')
+total_tok = (m_tok or 0) + (s_tok or 0) if (m_tok is not None or s_tok is not None) else None
+print(json.dumps({'write_duration_ms': total_dur if total_dur > 0 else None, 'tokens': total_tok}))
+"
+```
+
+Capture stdout JSON → `metadata`. tokens=null OK (Phase G T10 known: `<usage>` parse from Task return chưa work — publisher hiển thị `🪙 —` placeholder).
+
 ### Step 1 — Idempotency check
 
 ```bash
@@ -67,6 +94,8 @@ else:
             title='<TITLE>',
             body=body,
             public_slug='<PUBLIC_SLUG>',
+            write_duration_ms=<METADATA.write_duration_ms or None>,
+            tokens=<METADATA.tokens or None>,
         )
     else:
         # Fallback legacy nếu không config linked_group
@@ -100,11 +129,38 @@ Return `result` JSON tới caller (orchestrator).
 ```json
 {
   "status": "pushed | pushed_no_thread | already_pushed | skipped_no_secrets | failed",
-  "telegram_message_id": <int | null>,        // channel post msg_id
-  "thread_message_id": <int | null>,          // forwarded msg_id in linked group (T14b)
-  "body_message_id": <int | null>,            // bot's body reply msg_id in thread (T14b)
+  "telegram_message_id": <int | null>,        // channel post msg_id (3-line format)
+  "thread_message_id": <int | null>,          // auto-forwarded msg_id in linked group
+  "body_message_id": <int | null>,            // bot reply 1 (full body) msg_id in thread
+  "link_message_id": <int | null>,            // bot reply 2 (link to web detail) msg_id in thread
   "error": <string | null>
 }
+```
+
+## Channel post format (T14b 3 lines)
+
+```
+<b>{title}</b>
+🕐 {posted_at:%d/%m/%Y %H:%M:%S}
+⏱️ {duration} · 🪙 {tokens}
+```
+
+- Line 2: timestamp at post time (Vietnam timezone +7)
+- Line 3 duration: `"3m 24s"` or `"45s"` or `"—"` if write_duration_ms None
+- Line 3 tokens: `"12.500"` (Vietnamese separator) or `"—"` if tokens None
+
+## Thread message format (2 replies)
+
+**Reply 1 — body**:
+- Master body Markdown auto-converted to Telegram HTML
+- `**bold**` → `<b>bold</b>`
+- `- item` → `• item`
+- `## Heading` → `<b>Heading</b>`
+
+**Reply 2 — link**:
+```
+📚 Đọc đầy đủ <b>phản biện</b>, <b>nguồn tra cứu</b>, <b>pipeline log</b>:
+{base_url}/article/{public_slug}
 ```
 
 Status semantics:

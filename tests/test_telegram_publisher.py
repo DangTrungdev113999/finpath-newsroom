@@ -4,7 +4,13 @@ from unittest.mock import patch, MagicMock
 from pathlib import Path
 import pytest
 
-from lib.telegram_publisher import TelegramPublisher, load_telegram_config, _md_to_telegram_html
+from lib.telegram_publisher import (
+    TelegramPublisher,
+    load_telegram_config,
+    _md_to_telegram_html,
+    _format_duration,
+    _format_tokens,
+)
 
 
 def test_publisher_init():
@@ -185,12 +191,12 @@ def test_thread_publish_no_linked_group_falls_back_to_legacy():
 
 
 def test_thread_publish_full_flow_success():
-    """T14b happy path: drain → channel post → 1 poll → reply in thread."""
+    """T14b happy path: drain → channel post (3 lines) → 1 poll → 2 thread replies (body + link)."""
     p = TelegramPublisher("t", "c", "http://x", linked_group_chat_id="g-1")
     responses = [
         # _drain_offset: getUpdates (no stale)
         {"ok": True, "result": []},
-        # Channel post sendMessage
+        # Channel post sendMessage (3 lines)
         {"ok": True, "result": {"message_id": 100}},
         # _wait_for_auto_forward: getUpdates returns auto-forward
         {"ok": True, "result": [{
@@ -202,17 +208,24 @@ def test_thread_publish_full_flow_success():
                 "forward_from_message_id": 100,
             },
         }]},
-        # Thread reply sendMessage
+        # Thread reply 1 — body
         {"ok": True, "result": {"message_id": 201}},
+        # Thread reply 2 — link
+        {"ok": True, "result": {"message_id": 202}},
     ]
-    with patch("lib.telegram_publisher.time.sleep"):  # speed up poll loop
+    with patch("lib.telegram_publisher.time.sleep"):
         with patch("lib.telegram_publisher.urllib.request.urlopen",
                    side_effect=_mock_urlopen_factory(responses)):
-            result = p.publish_article_with_thread_body("Title", "Body", "slug")
+            result = p.publish_article_with_thread_body(
+                "Title", "Body", "slug",
+                write_duration_ms=204000,
+                tokens=12500,
+            )
     assert result["status"] == "pushed"
     assert result["telegram_message_id"] == 100
     assert result["thread_message_id"] == 200
     assert result["body_message_id"] == 201
+    assert result["link_message_id"] == 202
     assert result["error"] is None
 
 
@@ -251,3 +264,34 @@ def test_thread_publish_channel_post_fails():
     assert result["status"] == "failed"
     assert result["telegram_message_id"] is None
     assert "Bot blocked" in result["error"]
+
+
+# ===== T14b — duration + tokens formatters =====
+
+
+def test_format_duration_seconds_only():
+    assert _format_duration(45000) == "45s"
+    assert _format_duration(1000) == "1s"
+
+
+def test_format_duration_minutes_and_seconds():
+    assert _format_duration(204000) == "3m 24s"
+    assert _format_duration(60000) == "1m 0s"
+    assert _format_duration(3661000) == "61m 1s"
+
+
+def test_format_duration_none_or_zero_returns_dash():
+    assert _format_duration(None) == "—"
+    assert _format_duration(0) == "—"
+    assert _format_duration(-5) == "—"
+
+
+def test_format_tokens_with_separator():
+    assert _format_tokens(12500) == "12.500"
+    assert _format_tokens(1234567) == "1.234.567"
+    assert _format_tokens(100) == "100"
+
+
+def test_format_tokens_none_returns_dash():
+    assert _format_tokens(None) == "—"
+    assert _format_tokens(0) == "—"

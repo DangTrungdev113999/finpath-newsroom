@@ -21,9 +21,30 @@ import re
 import time
 import urllib.request
 import urllib.parse
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import yaml
+
+VN_TZ = timezone(timedelta(hours=7))
+
+
+def _format_duration(ms: int | None) -> str:
+    """Format duration_ms → human-readable. None/0 → '—' placeholder."""
+    if ms is None or ms <= 0:
+        return "—"
+    seconds = ms // 1000
+    if seconds < 60:
+        return f"{seconds}s"
+    minutes, sec = divmod(seconds, 60)
+    return f"{minutes}m {sec}s"
+
+
+def _format_tokens(n: int | None) -> str:
+    """Format token count với separator. None → '—' placeholder."""
+    if n is None or n <= 0:
+        return "—"
+    return f"{n:,}".replace(",", ".")  # Vietnamese number separator
 
 
 def _md_to_telegram_html(body: str) -> str:
@@ -102,32 +123,47 @@ class TelegramPublisher:
         title: str,
         body: str,
         public_slug: str,
+        posted_at: datetime | None = None,
+        write_duration_ms: int | None = None,
+        tokens: int | None = None,
         max_poll_attempts: int = 8,
         poll_interval_sec: float = 2.0,
     ) -> dict:
-        """T14b — Two-stage publish:
-        1. Post title bold to channel
-        2. Poll getUpdates for auto-forward to linked group (max ~16s default)
-        3. Reply in thread with Master body converted to Telegram HTML
+        """T14b — Two-stage publish (channel 3 lines + 2 thread messages):
 
-        Returns {status, telegram_message_id, error, thread_message_id, body_message_id}.
+        Channel post (3 lines):
+            Line 1: <b>{title}</b>
+            Line 2: 🕐 {posted_at:%d/%m/%Y %H:%M:%S}
+            Line 3: ⏱️ {duration} · 🪙 {tokens}
 
-        status values:
-        - "pushed" — channel + thread reply both succeeded
-        - "pushed_no_thread" — channel posted but auto-forward not detected (thread reply skipped)
-        - "failed" — channel post itself failed
+        Thread message 1: full Master body (Markdown→HTML converted)
+        Thread message 2: link to web detail (📚 Xem đầy đủ phản biện + nguồn + pipeline log)
+
+        Args:
+            posted_at: timestamp for line 2 — defaults to datetime.now(VN_TZ)
+            write_duration_ms: total Master + Skeptic duration → line 3 ⏱️
+            tokens: total Master + Skeptic tokens → line 3 🪙 (use '—' if None)
+
+        Returns {status, telegram_message_id, thread_message_id, body_message_id, link_message_id, error}.
         """
         if self.linked_group_chat_id is None:
-            # Fallback to legacy single-message
             return self.publish_article(title, public_slug)
 
-        # Step 0: drain stale getUpdates so we only see NEW updates
+        if posted_at is None:
+            posted_at = datetime.now(VN_TZ)
+
+        # Step 0: drain stale getUpdates
         offset = self._drain_offset()
 
-        # Step 1: post title to channel
+        # Step 1: post 3-line channel message
+        channel_text = (
+            f"<b>{self._escape_html(title)}</b>\n"
+            f"🕐 {posted_at.strftime('%d/%m/%Y %H:%M:%S')}\n"
+            f"⏱️ {_format_duration(write_duration_ms)} · 🪙 {_format_tokens(tokens)}"
+        )
         ch_result = self._api("sendMessage", {
             "chat_id": self.chat_id,
-            "text": f"<b>{self._escape_html(title)}</b>",
+            "text": channel_text,
             "parse_mode": "HTML",
         })
         if not ch_result.get("ok"):
@@ -137,6 +173,7 @@ class TelegramPublisher:
                 "error": ch_result.get("description", "Channel post failed"),
                 "thread_message_id": None,
                 "body_message_id": None,
+                "link_message_id": None,
             }
         ch_msg_id = ch_result["result"]["message_id"]
 
@@ -149,38 +186,55 @@ class TelegramPublisher:
         )
 
         if thread_msg_id is None:
-            # Channel posted but couldn't find thread starter — return partial success
             return {
                 "status": "pushed_no_thread",
                 "telegram_message_id": ch_msg_id,
-                "error": "auto-forward not detected within poll window — body reply skipped",
+                "error": "auto-forward not detected within poll window — thread replies skipped",
                 "thread_message_id": None,
                 "body_message_id": None,
+                "link_message_id": None,
             }
 
-        # Step 3: reply in thread with body
+        # Step 3a: thread reply 1 — full Master body
         body_html = _md_to_telegram_html(body)
-        reply_result = self._api("sendMessage", {
+        body_result = self._api("sendMessage", {
             "chat_id": self.linked_group_chat_id,
             "text": body_html,
             "parse_mode": "HTML",
             "reply_to_message_id": thread_msg_id,
         })
-        if not reply_result.get("ok"):
+        if not body_result.get("ok"):
             return {
                 "status": "pushed_no_thread",
                 "telegram_message_id": ch_msg_id,
-                "error": f"thread reply failed: {reply_result.get('description')}",
+                "error": f"thread body reply failed: {body_result.get('description')}",
                 "thread_message_id": thread_msg_id,
                 "body_message_id": None,
+                "link_message_id": None,
             }
+        body_msg_id = body_result["result"]["message_id"]
+
+        # Step 3b: thread reply 2 — link to web detail
+        link_text = (
+            "📚 Đọc đầy đủ <b>phản biện</b>, <b>nguồn tra cứu</b>, <b>pipeline log</b>:\n"
+            f"{self.base_url}/article/{public_slug}"
+        )
+        link_result = self._api("sendMessage", {
+            "chat_id": self.linked_group_chat_id,
+            "text": link_text,
+            "parse_mode": "HTML",
+            "reply_to_message_id": thread_msg_id,
+            "disable_web_page_preview": "false",
+        })
+        link_msg_id = link_result["result"]["message_id"] if link_result.get("ok") else None
 
         return {
             "status": "pushed",
             "telegram_message_id": ch_msg_id,
-            "error": None,
+            "error": None if link_msg_id else f"link reply failed: {link_result.get('description')}",
             "thread_message_id": thread_msg_id,
-            "body_message_id": reply_result["result"]["message_id"],
+            "body_message_id": body_msg_id,
+            "link_message_id": link_msg_id,
         }
 
     def _drain_offset(self) -> int:
