@@ -179,6 +179,31 @@ Wrap `localStorage.getItem/setItem` in try/catch. On failure → fallback to in-
 
 **Endpoint:** `POST https://feedback-finpath.<sub>.workers.dev/api/feedback`
 
+**Frontend URL injection:**
+Worker URL is unknown until user runs `wrangler deploy`. Frontend reads from Vite build-time env:
+
+```typescript
+// web/src/lib/feedbackClient.ts
+const WORKER_URL = import.meta.env.VITE_FEEDBACK_WORKER_URL;
+export const isFeedbackEnabled = (): boolean => Boolean(WORKER_URL);
+```
+
+`CommentSection.tsx` MUST check `isFeedbackEnabled()` and render `null` (or hidden) if URL missing. This means:
+- Local dev without Worker → comment section hidden (no broken UI)
+- Production builds with `VITE_FEEDBACK_WORKER_URL` set in GitHub Actions → comment section visible
+
+GitHub Actions injection (in `.github/workflows/deploy.yml` build step env):
+```yaml
+- name: Build Vite production
+  working-directory: web
+  env:
+    VITE_DEPLOY: '1'
+    VITE_FEEDBACK_WORKER_URL: ${{ secrets.VITE_FEEDBACK_WORKER_URL }}
+  run: npm run build
+```
+
+User must add `VITE_FEEDBACK_WORKER_URL` to repo Settings → Secrets and variables → Actions, AFTER deploying Worker. Until then, production also hides comment UI. **No broken state at any point.**
+
 **Request:**
 ```jsonc
 {
@@ -201,10 +226,14 @@ Wrap `localStorage.getItem/setItem` in try/catch. On failure → fallback to in-
 | 502 | `{"ok": false, "error": "telegram_fail", "message": "<TG err>"}` | Telegram API rejected |
 
 **CORS:**
-- `Access-Control-Allow-Origin: https://dangtrungdev113999.github.io`
+- `Access-Control-Allow-Origin` allowlist (Worker checks request `Origin` header against):
+  - `https://dangtrungdev113999.github.io` (production)
+  - `http://localhost:5174` (dev `npm run dev`)
+  - `http://localhost:5175` (dev fallback if 5174 taken)
 - `Access-Control-Allow-Methods: POST, OPTIONS`
 - `Access-Control-Allow-Headers: Content-Type`
 - Preflight `OPTIONS` returns 204
+- Origin not in allowlist → 403 (don't echo back disallowed origin)
 
 **Rate-limit (KV):**
 - Key: `rl:<client_id>:<hour_bucket>` where `hour_bucket = floor(unix_ts / 3600)`
@@ -235,7 +264,7 @@ Q5A flat — each comment = new message in group:
 
 Sent with `parse_mode=HTML`, `disable_web_page_preview=false` (preview useful for context).
 
-**HTML escape:** Worker MUST escape `<`, `>`, `&` in `name`, `comment`, `article_title` before interpolating into HTML template.
+**HTML escape:** Worker MUST escape `<`, `>`, `&`, `"`, `'` in `name`, `comment`, `article_title` before interpolating into HTML template (paranoid coverage; `"` and `'` matter if HTML attributes ever introduced).
 
 ## 5. Feature 2 — Race Condition Fix
 
@@ -281,7 +310,7 @@ def auto_git_publish(batch_id: str, article_count: int) -> dict:
 ```
 
 **Algorithm:**
-1. `git add output/compare-feed/ data/pipeline.db` (only output files + state DB)
+1. `git add output/compare-feed/` (output files only; `data/pipeline.db` is gitignored per CLAUDE.md, do NOT include)
 2. `git commit -m "feat(content): auto-publish batch <batch_id> (<N> articles)"`
 3. Try `git push` up to 3 attempts with self-heal:
 
@@ -318,7 +347,7 @@ def wait_pages_deployed(commit_sha: str, timeout_s: int = 90) -> dict:
 1. Loop until `time.time() - start > timeout_s` (default 90s):
    - GET `https://api.github.com/repos/<owner>/finpath-newsroom/actions/runs?head_sha={commit_sha}&event=push`
    - Auth header: `Authorization: Bearer <secrets.github.token>`
-   - Find first `workflow_runs` matching deploy workflow (name="deploy")
+   - Find first `workflow_runs` where `name == "Deploy GitHub Pages"` (matches `name:` field in `.github/workflows/deploy.yml` line 1; verified via Read of file 2026-05-11)
    - If `status == "completed"`:
      - `conclusion == "success"` → return ok
      - `conclusion == "failure"` → return fail with run url
@@ -390,6 +419,7 @@ Per-article `step_9_telegram` keeps existing schema from T14b.
 | `.claude/agents/newsroom-pipeline.md` | Step 7 flow restructure (move render earlier, add 7-9 batch tail) |
 | `data/secrets.yaml.example` | Add `feedback_group_chat_id` + `github.token` placeholders |
 | `data/secrets.yaml` (gitignored) | User adds real values |
+| `.github/workflows/deploy.yml` | Inject `VITE_FEEDBACK_WORKER_URL` env var into Vite build step |
 
 ## 7. Secrets Management
 
@@ -445,6 +475,7 @@ Worker code reads `env.TELEGRAM_BOT_TOKEN`, `env.TELEGRAM_FEEDBACK_GROUP_ID`, `e
 | Pipeline git push fail (conflict) | Pipeline | FAIL batch, log stage=git_conflict |
 | Pipeline Pages deploy timeout (90s) | Pipeline | Proceed to Telegram with fallback note in channel post |
 | Pipeline Pages deploy failure | Pipeline | FAIL batch, do NOT push Telegram (avoid bad link) |
+| Pipeline crash mid-batch (after git_publish, before all Telegram pushes) | Pipeline | Re-run pipeline → `telegram_pushed_at` column (added Phase G T11) is checked per article → already-pushed skipped, unpushed retried. Idempotent by design. |
 
 ## 9. Testing Strategy
 
@@ -473,16 +504,39 @@ Worker code reads `env.TELEGRAM_BOT_TOKEN`, `env.TELEGRAM_FEEDBACK_GROUP_ID`, `e
 - T5: Extend `web/src/types.ts` PipelineLog + `PipelineObservability.tsx` rows
 - T6: E2E `/tin VCB` verify pipeline_log structure + Telegram link works
 
-**Phase H2 — Comment feature** (frontend + Worker)
-- T7: Create `worker/feedback.ts` + `wrangler.toml` + setup docs
-- T8: Deploy Worker (manual: `wrangler deploy`), set secrets, create KV namespace
-- T9: Create `web/src/lib/feedbackStorage.ts` + tests
-- T10: Create `web/src/lib/feedbackClient.ts`
-- T11: Create `web/src/components/CommentSection.tsx` + tests
-- T12: Wire into `CompareFeedLayout.tsx` (respect showRight constraint)
-- T13: E2E manual — submit feedback from production `/feed`, verify message in Telegram group, verify localStorage history persists
+**HARD GATE between H1 and H2:** H1 must be tagged `v4.0-phase-h1-deploy-race-fix` + verified working before H2 starts. H2 frontend code is implementable autonomously (feature flag hides UI without Worker URL), but Worker deploy is human-only.
 
-**Tag end:** `v4.0-phase-h-feedback-and-deploy-race-fix`
+**Phase H2 — Comment feature** (frontend autonomous + Worker manual)
+
+**H2a — Frontend code (subagent autonomous, no Worker needed):**
+- T7: Create `web/src/lib/feedbackStorage.ts` + tests
+- T8: Create `web/src/lib/feedbackClient.ts` (uses `VITE_FEEDBACK_WORKER_URL`, returns null if missing)
+- T9: Create `web/src/components/CommentSection.tsx` + tests (renders nothing if `isFeedbackEnabled() === false`)
+- T10: Wire into `CompareFeedLayout.tsx` (respect showRight constraint)
+- T11: Verify: build `web/` with NO env var → comment section invisible (no broken UI)
+- T12: Modify `.github/workflows/deploy.yml` — add `VITE_FEEDBACK_WORKER_URL: ${{ secrets.VITE_FEEDBACK_WORKER_URL }}` to build step env
+
+**H2b — Worker code (subagent writes, USER deploys):**
+- T13: Create `worker/feedback.ts` + `worker/wrangler.toml` + `worker/README.md`
+- T14: **🛑 STOP — USER ACTION REQUIRED 🛑**
+  - User must do these steps (subagent CANNOT):
+    1. Create private Telegram group for feedback, add bot as admin
+    2. Get `feedback_group_chat_id` (use bot getUpdates)
+    3. Add `feedback_group_chat_id` to `data/secrets.yaml` (pipeline use — not strictly needed for Worker)
+    4. `cd worker && wrangler login` (Cloudflare account auth)
+    5. `wrangler kv:namespace create FEEDBACK_RL` → copy `id` to `wrangler.toml`
+    6. `wrangler secret put TELEGRAM_BOT_TOKEN`
+    7. `wrangler secret put TELEGRAM_FEEDBACK_GROUP_ID` (= feedback_group_chat_id)
+    8. `wrangler deploy` → record Worker URL output
+    9. GitHub repo Settings → Secrets → Actions → add `VITE_FEEDBACK_WORKER_URL = <Worker URL>`
+    10. Trigger redeploy: `git commit --allow-empty -m "trigger pages rebuild" && git push`
+
+**H2c — E2E verification (after T14 manual setup):**
+- T15: Verify production `/feed` shows comment section
+- T16: Submit test feedback → verify message arrives in Telegram feedback group with correct format
+
+**Tag end H1:** `v4.0-phase-h1-deploy-race-fix` (after T6)
+**Tag end H2:** `v4.0-phase-h2-comment-feedback` (after T16, manual user verification)
 
 ## 11. Decisions Log
 
@@ -499,10 +553,26 @@ Worker code reads `env.TELEGRAM_BOT_TOKEN`, `env.TELEGRAM_FEEDBACK_GROUP_ID`, `e
 
 ## 12. Open Questions / Risks
 
-1. **GitHub Personal Access Token scope** — `repo:read` should suffice for Actions API GET. If GitHub adds finer-grained tokens for Actions, prefer that.
+1. **GitHub Personal Access Token scope** — Classic token: `repo` scope (full). Fine-grained PAT: `Actions: Read` permission on the specific repo. Verify via curl BEFORE handing T2 to subagent:
+   ```bash
+   curl -H "Authorization: Bearer $TOKEN" \
+     "https://api.github.com/repos/dangtrungdev113999/finpath-newsroom/actions/runs?per_page=1"
+   # Expect 200 + JSON workflow_runs array. 401/403 → token wrong scope.
+   ```
+   If 403 at T2 E2E, this risk materialized. User must regenerate token with correct scope.
 2. **Cloudflare Worker subdomain naming** — user must pick a Worker name when first running `wrangler deploy`. Default: `feedback-finpath`. URL becomes `feedback-finpath.<account-sub>.workers.dev`.
 3. **Worker custom domain** — defer (use default workers.dev URL for MVP). Custom domain requires Cloudflare-managed DNS.
 4. **Spam risk if Worker URL leaked** — KV rate-limit caps abuse to 10/hour per client_id. If client_id rotated maliciously → could grow. Add IP-based secondary limit if abuse seen.
 5. **GH Actions polling cost** — each `/tin` adds 6-18 GH API calls (poll every 5s for 30-90s). Free tier limit 5000/hour, fine.
 6. **Pre-commit hook auto-fix scope** — currently only handles `npm run lint --fix`. Other hooks (Python ruff, etc.) might need their own fixers; track in self_heal_actions and re-evaluate after first failures.
-7. **Pages workflow name lookup** — `wait_pages_deployed` filters runs by workflow name="deploy". If workflow name changes in `.github/workflows/deploy.yml`, hardcoded string breaks. Consider passing workflow file name as parameter.
+7. **Pages workflow name lookup** — `wait_pages_deployed` filters runs by `name == "Deploy GitHub Pages"` (verified from current `.github/workflows/deploy.yml` line 1, 2026-05-11). If workflow renamed, hardcoded string breaks. Mitigation: extract to module constant `WORKFLOW_NAME = "Deploy GitHub Pages"`, document in CLAUDE.md or stage docstring.
+
+8. **/tin-batch concurrent git push contention** — When 3 parallel pipelines (`/tin VCB`, `/tin TCB`, `/tin MBB`) all hit `auto_git_publish` simultaneously, all 3 will:
+   - First push: 1 succeeds, 2 hit "behind remote"
+   - Self-heal: 2 do `git pull --rebase` then retry push
+   - Second push: 1 of 2 succeeds, 1 still behind → another rebase round
+   - Eventually converges in 2-3 rounds (each rebase ~2-3s)
+
+   **Decision: accept (Option A from advisor)** — pipelines usually run serial or small batches (≤3 tickers). Self-heal converges in worst case ~10s extra. If user later runs 10+ parallel pipelines and sees thrash, migrate to Option B (orchestrator-level single push at /tin-batch end).
+
+9. **Worker deploy is HUMAN gate** — H2 T14 explicitly stops subagent execution. User wakes up to H1 shipped + H2 frontend code ready, must do Cloudflare/Telegram setup steps in T14, then `git commit --allow-empty` to trigger redeploy + run T15-T16 verification.
