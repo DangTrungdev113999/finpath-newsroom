@@ -215,9 +215,11 @@ class TelegramPublisher:
         body_msg_id = body_result["result"]["message_id"]
 
         # Step 3b: thread reply 2 — link to web detail
+        # Telegram parse_mode=HTML không auto-linkify plain URL → wrap explicit <a href>
+        article_url = f"{self.base_url}/article/{public_slug}"
         link_text = (
             "📚 Đọc đầy đủ <b>phản biện</b>, <b>nguồn tra cứu</b>, <b>pipeline log</b>:\n"
-            f"{self.base_url}/article/{public_slug}"
+            f'<a href="{article_url}">{article_url}</a>'
         )
         link_result = self._api("sendMessage", {
             "chat_id": self.linked_group_chat_id,
