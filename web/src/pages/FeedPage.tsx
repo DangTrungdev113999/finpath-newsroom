@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { CompareFeedLayout } from '../components/CompareFeedLayout';
 import { loadManifest, loadArticle } from '../lib/articleLoader';
 import type { Article, ArticleSummary } from '../types';
@@ -77,14 +76,6 @@ export function FeedPage() {
           key={article.id}
           className={idx > 0 ? 'mt-12 border-t-4 border-gray-200 pt-12' : ''}
         >
-          <div className="max-w-7xl mx-auto px-4">
-            <Link
-              to={`/article/${article.id}`}
-              className="text-sm text-gray-500 hover:underline"
-            >
-              🔗 Mở deep-link
-            </Link>
-          </div>
           <CompareFeedLayout article={article} />
         </article>
       ))}
