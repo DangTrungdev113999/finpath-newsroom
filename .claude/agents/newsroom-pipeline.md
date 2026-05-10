@@ -201,50 +201,108 @@ Task tool:
 
 Collect briefs (0-N items — uncapped).
 
-### Step 4 — Master Bank (loop per brief)
+### Step 4 + Step 5 + Step 7 — Per-article cycle (V4.0 Phase G T5)
 
-# OBSERVABILITY: capture started_at + t0 BEFORE EACH Task dispatch (per brief
-# = per article). After Task returns, compute duration_ms + tokens. payload
-# {model: "opus", started_at, duration_ms, tokens, accepted_hypothesis,
-# brief_idx, chosen_question_idx}. Per-article — call log_pipeline_step
-# IMMEDIATELY for the article_id Master just persisted (Master inserts row
-# first, then orchestrator can write step_4 entry). After Step 4 done for
-# ALL briefs, BACKFILL step_1, step_2, step_3 entries to ALL article_ids
-# (batch-level duplication — same payload across N articles).
+**OUTER LOOP per brief** (replaces batch flow). For each brief in story_editor output:
 
-For mỗi brief in story-editor output (loop N iterations — uncapped, Phase G T2):
+#### Iteration N (1..N briefs):
 
-Use `Task` tool to dispatch `newsroom-master-bank`:
+1. **Step 4 — Master Bank**: Task dispatch `newsroom-master-bank` với brief N. Wait for return:
+   - article_id (uuid)
+   - title, body, insight_final
+   - data_trail (V4.0 schema 4-field per entry — see SKILL.md V4.0 schema explicit)
+   - quality_gates dict (5 gates pass/fail)
+   - accepted_hypothesis (true/false)
 
-```
-Task tool:
-  description: "Master Bank brief <ticker>"
-  subagent_type: newsroom-master-bank
-  prompt: "Write article for brief <brief_json>. row_id = <row_id>. Run 9-step V4.0 workflow with Finpath API + KB + YAML + web search. Step 6.5: pick 1 question from deep_question_options, log chosen_question_idx + chosen_pick_reason + skip_reasons. Self-check 5 quality gates V4.0 BEFORE persist (use lib/quality_gates.py — all 5 must pass). Persist generated_news with public_slug + pipeline_log with data_trail + master_decision. Return article_id + public_slug + body + word_count + insight_final + accepted_hypothesis + quality_gates dict."
-```
+   Skip iteration nếu accepted_hypothesis=false (no article persisted).
 
-Collect master outputs. Skip if `accepted_hypothesis: false`.
+   Capture: `t0_master`, `task_return_master` (for tokens parse).
 
-### Step 5 — Skeptic (loop per accepted master output)
+   Task dispatch:
 
-# OBSERVABILITY: capture started_at + t0 BEFORE EACH Task dispatch (per
-# article). After Task returns, compute duration_ms + tokens. payload
-# {model: "opus", started_at, duration_ms, tokens, skeptic_angle,
-# skeptic_verdict}. Per-article — call log_pipeline_step for THIS article_id
-# only.
+   ```
+   Task tool:
+     description: "Master Bank brief <ticker>"
+     subagent_type: newsroom-master-bank
+     prompt: "Write article for brief <brief_json>. row_id = <row_id>. Run 9-step V4.0 workflow with Finpath API + KB + YAML + web search. Step 6.5: pick 1 question from deep_question_options, log chosen_question_idx + chosen_pick_reason + skip_reasons. Self-check 5 quality gates V4.0 BEFORE persist (use lib/quality_gates.py — all 5 must pass). Persist generated_news with public_slug + pipeline_log with data_trail + master_decision. Return article_id + public_slug + body + word_count + insight_final + accepted_hypothesis + quality_gates dict."
+   ```
 
-For mỗi accepted master output:
+   Observability:
 
-Use `Task` tool to dispatch `newsroom-skeptic`:
+   ```python
+   payload_master = {
+       "model": "opus",
+       "started_at": started_at_master,
+       "duration_ms": int((time.time() - t0_master) * 1000),
+       "tokens": parse_task_usage(task_return_master),
+       "brief_idx": N,
+       "accepted_hypothesis": True,
+       "data_trail_count": len(data_trail),  # Phase G T3 verification
+   }
+   db.log_pipeline_step(article_id, "step_4_master", payload_master)
+   ```
 
-```
-Task tool:
-  description: "Skeptic critique <ticker>"
-  subagent_type: newsroom-skeptic
-  prompt: "Critique Master article V4.0. article_id=<id>, row_id=<row_id>, master_output=<dict>, brief_context=<from brief>. Step 0: ECHO verification — load article from DB, quote title + body[:30] before proceeding. Pass 1 fresh impression (body only, NOT insight). Pass 2 compare insight. Pick 1 of 6 angles. Write 100-300 từ critique. Persist skeptic_critique + skeptic_angle + skeptic_verdict + status='published' + published_at + skeptic_data_trail in pipeline_log."
-```
+2. **Step 5 — Skeptic ECHO + critique**: Task dispatch `newsroom-skeptic` với article_id. Wait for return:
+   - skeptic_critique (NO embedded heading — Skeptic skill V4.0 fix)
+   - skeptic_angle (1 of 6)
+   - skeptic_verdict (pass/pass_with_caveats/fail)
+   - skeptic_data_trail (V4.0 schema — see SKILL.md V4.0 schema explicit T4)
 
-Collect skeptic outputs.
+   Skeptic auto-persist via skill workflow.
+
+   Task dispatch:
+
+   ```
+   Task tool:
+     description: "Skeptic critique <ticker>"
+     subagent_type: newsroom-skeptic
+     prompt: "Critique Master article V4.0. article_id=<id>, row_id=<row_id>, master_output=<dict>, brief_context=<from brief>. Step 0: ECHO verification — load article from DB, quote title + body[:30] before proceeding. Pass 1 fresh impression (body only, NOT insight). Pass 2 compare insight. Pick 1 of 6 angles. Write 100-300 từ critique. Persist skeptic_critique + skeptic_angle + skeptic_verdict + status='published' + published_at + skeptic_data_trail in pipeline_log."
+   ```
+
+   Observability:
+
+   ```python
+   payload_skeptic = {
+       "model": "opus",
+       "started_at": started_at_skeptic,
+       "duration_ms": int((time.time() - t0_skeptic) * 1000),
+       "tokens": parse_task_usage(task_return_skeptic),
+       "angle": skeptic_angle,
+       "verdict": skeptic_verdict,
+       "data_trail_count": len(skeptic_data_trail),
+   }
+   db.log_pipeline_step(article_id, "step_5_skeptic", payload_skeptic)
+   ```
+
+3. **Step 7 — Telegram publish** (NEW V4.0 Phase G T15-T16): Task dispatch `newsroom-telegram-publisher` với {article_id, title, public_slug}. Wait for return:
+   - status: "pushed" | "already_pushed" | "skipped_no_secrets" | "failed"
+   - telegram_message_id (or null)
+   - error (or null)
+
+   Telegram agent auto-persist `generated_news.telegram_pushed_at` on success. Pipeline KHÔNG block nếu fail (graceful degrade).
+
+   Observability:
+
+   ```python
+   payload_telegram = {
+       "model": "sonnet",
+       "started_at": started_at_telegram,
+       "duration_ms": int((time.time() - t0_telegram) * 1000),
+       "tokens": parse_task_usage(task_return_telegram),
+       "status": telegram_status,
+       "telegram_message_id": telegram_message_id,
+       "error": telegram_error,
+   }
+   db.log_pipeline_step(article_id, "step_7_telegram", payload_telegram)
+   ```
+
+4. **Continue to next brief** in outer loop.
+
+**Trade-off note**: Master 2 đọc `recent_generated_news` sẽ thấy Master 1's article vừa persist (cùng batch). Variety guard có thể overcorrect — picks suboptimal angle để avoid Master 1's. Acceptable vì rule chỉ "3 cùng angle gần nhất" không cấm 1, và Skeptic side benefits (fresh DB state cho ECHO verification + accurate variety guard memory) lớn hơn.
+
+**Failure isolation**: nếu brief N fail (Master reject_no_data hoặc Skeptic fail), continue to brief N+1 — KHÔNG crash whole batch.
+
+After ALL briefs done, proceed to Step 6 (Render).
 
 ### Step 6 — Render (V4.0 multi-article)
 
