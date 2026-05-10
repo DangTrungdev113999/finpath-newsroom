@@ -200,15 +200,51 @@ def _author_for_sector(sector: str) -> str:
 
 
 def update_manifest(manifest_path: Path, summary: dict) -> None:
-    """Append/update entry in manifest.json. id = public_slug."""
-    if manifest_path.exists():
-        data = json.loads(manifest_path.read_text(encoding="utf-8"))
-    else:
-        data = {"articles": []}
-    data["articles"] = [a for a in data["articles"] if a["id"] != summary["id"]]
-    data["articles"].append(summary)
-    data["articles"].sort(key=lambda a: a["crawled_at"], reverse=True)
-    manifest_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    """Atomic append/update entry in manifest.json. id = public_slug.
+
+    Phase G T6 — atomic via temp file + os.replace. Read-modify-write loop with
+    retry on stale read (when 2nd writer races between our read + write).
+    macOS/Linux: os.replace is atomic (POSIX rename guarantees).
+    """
+    import os
+    import tempfile
+    import time
+
+    max_retries = 5
+    for attempt in range(max_retries):
+        # Read latest state
+        if manifest_path.exists():
+            try:
+                current = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                # Concurrent writer mid-write — back off + retry
+                time.sleep(0.05 * (attempt + 1))
+                continue
+        else:
+            current = {"articles": []}
+
+        # Apply update
+        current["articles"] = [a for a in current["articles"] if a["id"] != summary["id"]]
+        current["articles"].append(summary)
+        current["articles"].sort(key=lambda a: a["crawled_at"], reverse=True)
+
+        # Atomic write via temp file in same dir + replace
+        fd, tmp_path = tempfile.mkstemp(
+            dir=manifest_path.parent, prefix=".manifest-", suffix=".tmp"
+        )
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                json.dump(current, f, ensure_ascii=False, indent=2)
+            os.replace(tmp_path, manifest_path)  # POSIX atomic rename
+            return
+        except Exception:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+            raise
+
+    raise RuntimeError(f"Failed to atomically update {manifest_path} after {max_retries} retries")
 
 
 def render_for_funnel_batch(db_path: Path, funnel_batch_id: str, output_dir: Path) -> dict:

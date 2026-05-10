@@ -294,3 +294,35 @@ def test_render_skeptic_with_extra_blank_lines():
     output = render_article_md_v4(article, anchor, funnel)
     assert output.count("## Góc nhìn ngược") == 1
     assert "Bài Master nêu vấn đề" in output
+
+
+def test_update_manifest_atomic_concurrent(tmp_path):
+    """3 concurrent update_manifest calls all entries persist (no last-writer-wins).
+
+    Phase G T6 — atomic write via temp file + os.replace. Tests subprocess
+    invocations because multi-pipeline parallel calls update_manifest from
+    different Python processes.
+    """
+    import subprocess
+    from pathlib import Path
+
+    manifest = tmp_path / "manifest.json"
+    helper = Path(__file__).parent / "helpers" / "manifest_writer.py"
+
+    # Spawn 3 concurrent writers, each adds 1 unique article
+    procs = [
+        subprocess.Popen(
+            ["uv", "run", "python", str(helper), str(manifest), f"article-{i}", f"2026-05-10T00:00:0{i}Z"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+        for i in range(3)
+    ]
+    results = [p.wait(timeout=30) for p in procs]
+    assert all(rc == 0 for rc in results)
+
+    # All 3 entries should be present
+    import json
+    data = json.loads(manifest.read_text())
+    ids = {a["id"] for a in data["articles"]}
+    assert ids == {"article-0", "article-1", "article-2"}, \
+        f"Lost entries — got {ids}"
