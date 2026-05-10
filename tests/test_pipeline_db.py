@@ -208,8 +208,8 @@ def test_log_pipeline_step_merges_existing(db):
     assert log["step_4_master"]["tokens"] == 25000
 
 
-def test_log_pipeline_step_overwrites_same_key(db):
-    """Calling log_pipeline_step twice with same step_key → only latest payload."""
+def test_log_pipeline_step_same_key_merges_with_collision_override(db):
+    """Twice with same step_key: keys conflict → latest payload wins; non-conflicting keys preserved."""
     _seed_article(db, "art-3")
     db.log_pipeline_step("art-3", "step_4_master", {"duration_ms": 1000, "tokens": 5000})
     db.log_pipeline_step("art-3", "step_4_master", {"duration_ms": 2000, "tokens": 10000})
@@ -221,6 +221,45 @@ def test_log_pipeline_step_overwrites_same_key(db):
     assert log["step_4_master"]["tokens"] == 10000
     # Only one entry for step_4_master
     assert list(log.keys()) == ["step_4_master"]
+
+
+def test_log_pipeline_step_merges_preserve_existing_subkeys(db):
+    """Phase G hotfix — Master agent persists data_trail first, orchestrator
+    later logs observability payload. MERGE semantic preserves data_trail
+    even though orchestrator payload doesn't include it.
+    """
+    _seed_article(db, "art-merge")
+    # Step 1: Master agent persists step_4_master with data_trail (real flow)
+    db.log_pipeline_step("art-merge", "step_4_master", {
+        "data_trail": [
+            {"source": "https://x", "fetched": "Q1 ROE 21,2%", "purpose": "verify", "supports_argument": "Bullet 1"}
+        ],
+        "gates_passed": True,
+        "chosen_question_idx": 0,
+    })
+    # Step 2: Orchestrator logs observability — does NOT include data_trail
+    db.log_pipeline_step("art-merge", "step_4_master", {
+        "model": "opus",
+        "duration_ms": 60000,
+        "tokens": None,
+        "data_trail_count": 1,
+    })
+    row = db.conn.execute(
+        "SELECT pipeline_log FROM generated_news WHERE article_id = 'art-merge'"
+    ).fetchone()
+    log = json.loads(row["pipeline_log"])
+    s4 = log["step_4_master"]
+    # data_trail array PRESERVED (was wiped by old overwrite logic)
+    assert "data_trail" in s4
+    assert len(s4["data_trail"]) == 1
+    assert s4["data_trail"][0]["purpose"] == "verify"
+    # Master fields preserved
+    assert s4["gates_passed"] is True
+    assert s4["chosen_question_idx"] == 0
+    # Orchestrator fields added
+    assert s4["model"] == "opus"
+    assert s4["duration_ms"] == 60000
+    assert s4["data_trail_count"] == 1
 
 
 def test_log_pipeline_step_missing_article_id_noop(db):

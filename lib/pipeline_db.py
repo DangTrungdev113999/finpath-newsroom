@@ -102,9 +102,16 @@ class PipelineDB:
         self.conn.commit()
 
     def log_pipeline_step(self, article_id: str, step_key: str, payload: dict) -> None:
-        """Merge a step_N entry into pipeline_log JSON. Idempotent: re-writing
-        same step_key overwrites previous value (allows agent retry to update
-        timing).
+        """Shallow-MERGE payload into pipeline_log[step_key]. Existing keys
+        preserved; payload keys override on conflict.
+
+        Phase G hotfix (2026-05-10): previous overwrite semantics caused agent-
+        persisted fields (Master `data_trail`, Skeptic `skeptic_data_trail`)
+        to be wiped when orchestrator subsequently logged observability
+        payload (model + duration + tokens + count). Merge preserves both:
+        - Master persists step_4_master = {data_trail, gates_passed, ...}
+        - Orchestrator merges step_4_master += {model, duration_ms, tokens, count}
+        - Result: step_4_master has data_trail + observability together.
 
         Schema convention:
         - step_1_crawler / step_6_render: orchestrator self-runs, tokens=None
@@ -124,7 +131,8 @@ class PipelineDB:
         if not row:
             return
         log = json.loads(row["pipeline_log"]) if row["pipeline_log"] else {}
-        log[step_key] = payload
+        # Phase G hotfix: shallow merge preserves agent-persisted fields
+        log[step_key] = {**log.get(step_key, {}), **payload}
         self.conn.execute(
             "UPDATE generated_news SET pipeline_log = ? WHERE article_id = ?",
             (json.dumps(log, ensure_ascii=False), article_id),
