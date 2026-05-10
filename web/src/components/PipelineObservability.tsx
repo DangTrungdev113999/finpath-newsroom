@@ -47,11 +47,11 @@ export function PipelineObservability({ pipelineLog }: Props) {
               <td className="py-1.5 pr-2">{label}</td>
               <td className="py-1.5 pr-2">
                 <code className="font-mono text-[10px] bg-gray-100 rounded px-1 py-0.5">
-                  {log.model}
+                  {log.model ?? '—'}
                 </code>
               </td>
               <td className="py-1.5 pr-2 text-right text-gray-600">
-                {log.duration_ms.toLocaleString()}ms
+                {log.duration_ms != null ? `${log.duration_ms.toLocaleString()}ms` : '—'}
               </td>
               <td className="py-1.5 text-right text-gray-600">
                 {log.tokens != null ? log.tokens.toLocaleString() : '—'}
