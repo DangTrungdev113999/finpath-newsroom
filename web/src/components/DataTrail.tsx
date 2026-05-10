@@ -31,9 +31,23 @@ export function DataTrail({
 }: {
   title: string;
   emoji: string;
-  trail: DataTrailEntry[];
+  trail: DataTrailEntry[] | undefined;
 }) {
-  if (!trail || trail.length === 0) return null;
+  // Phase G — luôn render section (kể cả empty) để legacy articles vẫn hiển thị
+  // structure đầy đủ. Empty trail → expand thấy "Lỗi log ở pipeline".
+  const isEmpty = !trail || trail.length === 0;
+  if (isEmpty) {
+    return (
+      <details>
+        <summary className="text-sm cursor-pointer font-semibold text-gray-500">
+          {emoji} {title} (0 nguồn)
+        </summary>
+        <p className="mt-3 text-sm text-red-600 italic pl-3 border-l-2 border-red-200">
+          ⚠️ Lỗi log ở pipeline — agent không emit data_trail (legacy article hoặc bug).
+        </p>
+      </details>
+    );
+  }
   return (
     <details>
       <summary className="text-sm cursor-pointer font-semibold">
