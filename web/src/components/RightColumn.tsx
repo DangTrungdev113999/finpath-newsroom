@@ -81,14 +81,12 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
       {/* Section 6: Master data trail */}
       <DataTrail
         title="Phóng viên đã tra ở đâu"
-        emoji="📋"
         trail={meta.master_data_trail}
       />
 
       {/* Section 7: Skeptic data trail */}
       <DataTrail
         title="Reviewer ngoài đã tra ở đâu"
-        emoji="🔍"
         trail={meta.skeptic_data_trail}
       />
 

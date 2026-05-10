@@ -26,11 +26,9 @@ function renderSource(source: string) {
 
 export function DataTrail({
   title,
-  emoji,
   trail,
 }: {
   title: string;
-  emoji: string;
   trail: DataTrailEntry[] | undefined;
 }) {
   // Phase G — luôn render section (kể cả empty) để legacy articles vẫn hiển thị

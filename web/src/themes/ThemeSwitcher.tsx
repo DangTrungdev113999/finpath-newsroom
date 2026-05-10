@@ -41,7 +41,7 @@ function SwatchTrio({
 }: {
   swatches: readonly [string, string, string];
   size?: "sm" | "md";
-}): JSX.Element {
+}) {
   const dot = size === "md" ? "h-3 w-3" : "h-2.5 w-2.5";
   return (
     <span className="flex items-center gap-0.5 shrink-0" aria-hidden>
@@ -75,7 +75,7 @@ function Keycap({
 }: {
   children: React.ReactNode;
   className?: string;
-}): JSX.Element {
+}) {
   return (
     <span
       className={cn(
@@ -92,7 +92,7 @@ function Keycap({
   );
 }
 
-export function ThemeSwitcher(): JSX.Element {
+export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const active = getTheme(theme);
 
