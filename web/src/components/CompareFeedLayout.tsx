@@ -18,7 +18,7 @@ export function CompareFeedLayout({ article }: { article: Article }) {
 
       <hr className="my-5 border-gray-200" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-10 gap-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
         <LeftColumn
           title={meta.title}
           meta={meta.left_meta}

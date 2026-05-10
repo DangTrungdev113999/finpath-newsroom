@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { ArticleMeta } from '../types';
 import { CrawlFunnel } from './CrawlFunnel';
 import { QuestionOptions } from './QuestionOptions';
@@ -8,8 +9,21 @@ import { formatPublishedDate } from '../lib/format';
 
 export function RightColumn({ meta }: { meta: ArticleMeta }) {
   const src = meta.right_source;
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    setIsDesktop(mq.matches);
+    const listener = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener('change', listener);
+    return () => mq.removeEventListener('change', listener);
+  }, []);
+
   return (
-    <section className="space-y-6">
+    <details open={isDesktop} className="space-y-6 md:block">
+      <summary className="cursor-pointer font-semibold mb-4 md:hidden">
+        ⚙️ Mở metadata + nguồn (8 sections)
+      </summary>
       {/* Section 1: Bài gốc */}
       <section>
         <h3>📰 Bài gốc</h3>
@@ -90,6 +104,6 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
 
       {/* Appendix: Pipeline observability — Phase F T11 */}
       <PipelineObservability pipelineLog={meta.pipeline_log} />
-    </section>
+    </details>
   );
 }
