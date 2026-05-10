@@ -1,6 +1,33 @@
 {
   "articles": [
     {
+      "id": "gpbank-vua-duoc-cuu-fe-credit-vua-on-dinh-vi-sao-ket-qua-lai",
+      "ticker": "VPB",
+      "sector": "Bank",
+      "title": "GPBank vừa được cứu, FE Credit vừa ổn định — vì sao kết quả lại đảo ngược?",
+      "crawled_at": "2026-05-10T03:31:35.442769+00:00",
+      "key_view": "Nghịch lý hệ sinh thái — GPBank vượt FE Credit",
+      "word_count": 333
+    },
+    {
+      "id": "chu-tich-gpbank-mua-them-30-trieu-co-phieu-vpb-vi-sao-thoi",
+      "ticker": "VPB",
+      "sector": "Bank",
+      "title": "Chủ tịch GPBank mua thêm 30 triệu cổ phiếu VPB — vì sao thời điểm này?",
+      "crawled_at": "2026-05-10T03:31:35.440860+00:00",
+      "key_view": "Người trong cuộc mua — vì sao thời điểm này?",
+      "word_count": 357
+    },
+    {
+      "id": "vpbank-nhan-gpbank-danh-doi-ganh-nang-de-lay-room-tin-dung",
+      "ticker": "VPB",
+      "sector": "Bank",
+      "title": "VPBank nhận GPBank — đánh đổi gánh nặng để lấy room tín dụng 35%?",
+      "crawled_at": "2026-05-10T03:31:35.438837+00:00",
+      "key_view": "Đánh đổi chính sách — room 35% đổi bằng gánh GPBank",
+      "word_count": 383
+    },
+    {
       "id": "ACB-20260509-1029-acb-cat-co-tuc-xuong-20-trong-khi-techcombank-chia-67-vi-sao",
       "ticker": "ACB",
       "sector": "Bank",

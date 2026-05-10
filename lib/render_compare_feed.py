@@ -157,6 +157,19 @@ def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict
     fm_yaml = yaml.safe_dump(fm, allow_unicode=True, sort_keys=False).strip()
     body = (article.get("body") or "").strip()
     skeptic = (article.get("skeptic_critique") or "").strip()
+
+    # Bug B6 hotfix v2 (Phase G prep) — defensive strip embedded skeptic block
+    # from BODY field too. VPB run found body field contaminated with full
+    # skeptic critique (Master/orchestrator merged Skeptic content into body
+    # before persist). Strip "## Góc nhìn ngược" + everything after — Skeptic
+    # content lives in skeptic_critique field, render appends it once below.
+    body = re.sub(
+        r'\n*\s*#{2,3}\s+G[óo]c\s+nh[iì]n\s+ng[ưu][ợo]?c\s*\n[\s\S]*$',
+        '',
+        body,
+        flags=re.MULTILINE,
+    ).strip()
+
     left_section = body
     if skeptic:
         # Bug B6 fix — defensive strip leading "## Góc nhìn ngược" heading from
