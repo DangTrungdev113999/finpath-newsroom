@@ -188,7 +188,7 @@ NHNN siết tín dụng bất động sản, GTGD sụt giảm. Bài học: chí
 
 ### Chu kỳ 2 — 2020–2021: Bùng nổ COVID
 
-VN-Index từ ~660 → ~1.500 điểm; GTGD bình quân HOSE từ ~6.000 tỷ lên ~36.000 tỷ/phiên; lợi nhuận trên mỗi cổ phiếu các công ty chứng khoán lớn tăng ~5 lần; dư nợ / vốn chủ toàn ngành đạt ~129% (Q4/2021). Bài học: khi cả bốn mảng cùng bùng nổ, hệ số khuếch đại đạt tối đa.
+VN-Index từ ~660 → ~1.500 điểm; GTGD bình quân HOSE năm 2021 đạt ~21.593 tỷ/phiên (đỉnh quý Q3–Q4/2021 ước 25.000–30.000 tỷ/phiên), tăng từ ~6.000 tỷ năm 2019 và ~10.231 tỷ năm 2020; lợi nhuận trên mỗi cổ phiếu các công ty chứng khoán lớn tăng ~5 lần; dư nợ / vốn chủ toàn ngành đạt ~129% (Q4/2021). Bài học: khi cả bốn mảng cùng bùng nổ, hệ số khuếch đại đạt tối đa.
 
 ### Chu kỳ 3 — 2022: Khủng hoảng trái phiếu doanh nghiệp
 
