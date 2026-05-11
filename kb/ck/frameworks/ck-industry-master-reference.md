@@ -94,7 +94,7 @@ Tài sản tài chính ghi nhận theo giá thị trường (FVTPL — ghi nhậ
 |---|---|---|
 | **Tích lũy** | GTGD thấp, thị trường sideways | GTGD bình quân HOSE dưới 15.000 tỷ/phiên |
 | **Bùng nổ** | GTGD tăng mạnh, thị phần xáo trộn | GTGD vượt 20.000 tỷ/phiên, dư nợ ký quỹ tăng nhanh |
-| **Quá nhiệt** | Dư nợ ký quỹ gần trần, giải chấp rủi ro cao | Margin utilization toàn ngành > 150% vốn chủ |
+| **Quá nhiệt** | Dư nợ ký quỹ gần trần, giải chấp rủi ro cao | Tỷ lệ sử dụng dư nợ ký quỹ toàn ngành > 150% vốn chủ |
 | **Điều chỉnh** | GTGD giảm, tự doanh FVTPL lỗ | GTGD dưới 15.000 tỷ, chỉ số điều chỉnh ≥15% |
 
 ### 3.2 Hệ số khuếch đại (~1,6 lần)
@@ -219,7 +219,7 @@ Khi phân tích bài viết mới, tra theo thứ tự:
 |---|---|
 | [`ck-liquidity-sensitivity.md`](ck-liquidity-sensitivity.md) | Hệ số khuếch đại, GTGD lịch sử, độ nhạy từng mảng và từng mã |
 | [`ck-margin-cycle.md`](ck-margin-cycle.md) | Chu kỳ cho vay ký quỹ, giới hạn quy định, lịch sử dư nợ |
-| [`ck-brokerage-marketshare.md`](ck-brokerage-marketshare.md) | Thị phần môi giới theo quý, fee compression timeline |
+| [`ck-brokerage-marketshare.md`](ck-brokerage-marketshare.md) | Thị phần môi giới theo quý, lịch sử bào mòn phí |
 | [`ck-proprietary-trading.md`](ck-proprietary-trading.md) | Ba phân loại tài sản tự doanh, rủi ro FVTPL cổ phiếu |
 | [`ck-ib-revenue-volatility.md`](ck-ib-revenue-volatility.md) | Chu kỳ IB, lịch sử phát hành trái phiếu doanh nghiệp, biên lợi nhuận |
 
