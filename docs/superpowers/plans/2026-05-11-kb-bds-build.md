@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build 18 static knowledge base markdown files at `kb/bds/frameworks/` covering 7 BĐS categories (residential + KCN + retail + office + resort + data center + cross-category frameworks), so Master agent can analyze any Vietnamese real-estate stock.
+**Goal:** Build 21 static knowledge base markdown files at `kb/bds/frameworks/` covering 7 BĐS categories (residential + KCN + retail + office + resort + data center + cross-category frameworks), so Master agent can analyze any Vietnamese real-estate stock.
 
 **Architecture:** Flat folder structure (`kb/bds/frameworks/`) matching `kb/ck/` pattern. Source = 20 Notion BDS pages (1-to-1 mapping minus 2 hub-like pages consolidated). Hybrid execution: subagent fetches Notion + drafts v1, user reviews per category, validator enforces 5 hard rules.
 
@@ -15,7 +15,7 @@
 ## File Structure
 
 **Will create:**
-- `kb/bds/frameworks/` — 18 markdown files (1 hub + 5 framework chung + 12 category-specific)
+- `kb/bds/frameworks/` — 21 markdown files (1 hub + 5 framework chung + 12 category-specific)
 - `lib/kb_bds_validator.py` — validates files against 5 principles
 - `tests/test_kb_bds_validator.py` — unit tests for validator
 - `tests/test_kb_loader_bds.py` — integration test that loader reads `kb/bds/`
@@ -316,17 +316,17 @@ git commit -m "feat(kb): add kb_bds_validator — enforces structural rules"
 
 ## Phase 2: Subagent draft v1
 
-### Task 4: Spawn subagent to fetch Notion + draft 18 files
+### Task 4: Spawn subagent to fetch Notion + draft 21 files
 
 **Files:**
-- Create: `kb/bds/frameworks/*.md` (18 files via subagent)
+- Create: `kb/bds/frameworks/*.md` (21 files via subagent)
 
 - [ ] **Step 1: Dispatch general-purpose subagent**
 
 Use Agent tool with `subagent_type: "general-purpose"`. Prompt:
 
 ```
-You are drafting 18 markdown files for kb/bds/frameworks/ — a static knowledge base
+You are drafting 21 markdown files for kb/bds/frameworks/ — a static knowledge base
 for Vietnamese real-estate stocks. Full spec at docs/superpowers/specs/2026-05-11-kb-bds-build-design.md.
 
 YOUR TASK — 2 stages:
@@ -375,7 +375,7 @@ Data Center (1):
 Extract plain_text from each block. Ignore Notion JSON noise. If a block has
 has_children=true, recursively fetch via mcp__notion__API-get-block-children.
 
-STAGE 2: Write 18 markdown files to /Users/trungdt/Desktop/Stream Intelligent/kb/bds/frameworks/:
+STAGE 2: Write 21 markdown files to /Users/trungdt/Desktop/Stream Intelligent/kb/bds/frameworks/:
 
 File names (each maps 1-to-1 with a Notion page, plus 1 hub merging 2 root pages):
 
@@ -504,7 +504,7 @@ CRITICAL CONTENT RULES (per spec Section 5):
 OUTPUT FORMAT — for each file written, print:
   ✓ kb/bds/frameworks/<filename>.md  (<line_count> lines)
 
-End with summary: "18 files drafted. Ready for user review."
+End with summary: "21 files drafted. Ready for user review."
 
 IMPORTANT — read the actual CK pattern first:
   Read /Users/trungdt/Desktop/Stream Intelligent/kb/ck/frameworks/ck-industry-master-reference.md
@@ -514,7 +514,7 @@ These show the expected voice + section depth + writing style.
 
 - [ ] **Step 2: Wait for subagent completion**
 
-Subagent reports `✓ kb/bds/frameworks/<file>.md` per file. Expect 18 success lines + summary "18 files drafted. Ready for user review."
+Subagent reports `✓ kb/bds/frameworks/<file>.md` per file. Expect 21 success lines + summary "21 files drafted. Ready for user review."
 
 - [ ] **Step 3: Verify file count**
 
@@ -522,7 +522,7 @@ Subagent reports `✓ kb/bds/frameworks/<file>.md` per file. Expect 18 success l
 ls kb/bds/frameworks/*.md | wc -l
 ```
 
-Expected: `18` (plus `.gitkeep` already there — total `ls` output line count: 19).
+Expected: `21` (plus `.gitkeep` already there — total `ls` output line count: 22).
 
 - [ ] **Step 4: Commit draft v1 as rollback point**
 
@@ -842,9 +842,9 @@ Expected: File `✓`.
 ### Task 13: Final all-files validator pass + commit review v2
 
 **Files:**
-- All 18 files in `kb/bds/frameworks/`
+- All 21 files in `kb/bds/frameworks/`
 
-- [ ] **Step 1: Run validator on ALL 18 files**
+- [ ] **Step 1: Run validator on ALL 21 files**
 
 ```bash
 uv run python -c "
@@ -865,7 +865,7 @@ print(f'\\n{\"ALL PASS\" if all_pass else \"VIOLATIONS REMAIN\"}: {len(files)} f
 "
 ```
 
-Expected: All 18 files `✓`. Output ends with `ALL PASS: 18 files`.
+Expected: All 21 files `✓`. Output ends with `ALL PASS: 21 files`.
 
 - [ ] **Step 2: Final English jargon sweep**
 
@@ -932,7 +932,7 @@ def test_loader_returns_all_18_files():
     loader = KBLoader(Path("kb/bds"))
     all_files = loader._all_files()
     md_files = [f for f in all_files if f.suffix == ".md"]
-    assert len(md_files) == 18
+    assert len(md_files) == 21
 ```
 
 - [ ] **Step 2: Run test**
@@ -949,7 +949,7 @@ If any fail → file content missing expected keyword. Re-open the file, ensure 
 
 ```bash
 git add tests/test_kb_loader_bds.py
-git commit -m "test(kb): integration test — kb_loader reads kb/bds/ 18 files"
+git commit -m "test(kb): integration test — kb_loader reads kb/bds/ 21 files"
 ```
 
 ---
@@ -1007,7 +1007,7 @@ New (add `kb/bds/` + `kb/ck/`):
 ```
 kb/bank/                         → Markdown KB Bank (7 mã: TCB/VCB/MBB/ACB/BID/CTG/VPB)
 kb/ck/                           → Markdown KB CK (5 mã: SSI/VND/HCM/VCI/SHS)
-kb/bds/                          → Markdown KB BĐS (18 file, 7 category — residential/KCN/retail/office/resort/DC + framework chung)
+kb/bds/                          → Markdown KB BĐS (21 file, 7 category — residential/KCN/retail/office/resort/DC + framework chung)
 ```
 
 - [ ] **Step 3: Commit doc update**
@@ -1050,7 +1050,7 @@ If user declines → leave commits local, user pushes later.
 
 ### Spec Coverage Check
 
-- [x] Spec Section 1 (Mục tiêu): Phase 2-3 builds 18 file static KB
+- [x] Spec Section 1 (Mục tiêu): Phase 2-3 builds 21 file static KB
 - [x] Spec Section 2 (Scope): Task 4 subagent covers 7 categories
 - [x] Spec Section 3 (Architecture): Task 1 creates dir, Task 4 populates
 - [x] Spec Section 4 (Per-file template): Task 4 subagent prompt embeds template + applies_to enum from Task 2/3 validator
@@ -1075,7 +1075,7 @@ If user declines → leave commits local, user pushes later.
 ### Type / Name Consistency
 
 - `VALID_APPLIES_TO` enum: 7 values, used identically in validator (Task 3) + test (Task 2) + subagent prompt (Task 4).
-- File names: 18 files listed identically in spec Section 3, subagent prompt (Task 4), validation loops (Tasks 5, 13).
+- File names: 21 files listed identically in spec Section 3, subagent prompt (Task 4), validation loops (Tasks 5, 13).
 - Function name `validate_kb_file` used consistently across Tasks 2, 3, 5, 6-12, 13.
 
 ---

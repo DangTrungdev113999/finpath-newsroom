@@ -52,7 +52,7 @@ Tỷ lệ doanh số chờ ghi nhận trên doanh thu năm gần nhất:
 > **Không analogize sang**: doanh nghiệp cho thuê bán lẻ như Vincom Retail (xem `bds-retail-footfall-mechanism.md`) — doanh thu định kỳ ổn định, không có mẫu hình lồi này.
 
 > **2022-2024 — Phát triển dân cư — Doanh số chờ ghi nhận ảo do pháp lý tắc**:
-> Novaland báo doanh số chờ ghi nhận hơn 60.000 tỷ tại Aqua City, nhưng vì pháp lý quy hoạch chi tiết tỷ lệ một phần năm trăm không hoàn thiện, doanh nghiệp không thể bàn giao đúng tiến độ. Mục tiêu bàn giao 752 sổ hồng năm 2026 là rất nhỏ so với 13.000 căn đã bán cọc. Doanh số chờ ghi nhận tồn tại trên giấy nhưng không chuyển thành doanh thu được.
+> Novaland báo doanh số chờ ghi nhận hơn 60.000 tỷ tại Aqua City, nhưng vì pháp lý quy hoạch chi tiết tỷ lệ một phần năm trăm không hoàn thiện, doanh nghiệp không thể bàn giao đúng tiến độ. Tốc độ bàn giao thực tế chỉ ở mức vài trăm sổ hồng — rất nhỏ so với 13.000 căn đã bán cọc. Doanh số chờ ghi nhận tồn tại trên giấy nhưng không chuyển thành doanh thu được.
 >
 > **Không analogize sang**: trường hợp Vinhomes (xem `bds-res-presales-backlog.md`) có tỷ lệ chuyển đổi doanh số chờ ghi nhận thành doanh thu trên 90% trong 24 tháng nhờ pháp lý hoàn thiện trước khi bán.
 
@@ -67,5 +67,5 @@ Tỷ lệ doanh số chờ ghi nhận trên doanh thu năm gần nhất:
 - https://notion.so/35d273c7a9a181388005d61d898f3fdc
 - Báo cáo tài chính kiểm toán các mã Vinhomes, Novaland, Khang Điền, Đất Xanh, Kinh Bắc, Vincom Retail — thuyết minh 5.1 "Doanh thu"
 - nld.com.vn 5/4/2024 — Novaland kế hoạch doanh thu năm 2024 đạt 32.587 tỷ
-- theleader.vn — Novaland Aqua City pháp lý tiến độ năm 2026
+- theleader.vn — Novaland Aqua City pháp lý tiến độ
 - Stamp: build 2026-05-11. Review every 3 years (chuẩn kế toán Việt Nam ít thay đổi).

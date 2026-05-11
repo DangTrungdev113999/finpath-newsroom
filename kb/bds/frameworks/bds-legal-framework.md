@@ -42,7 +42,7 @@ Không có ngưỡng định lượng cho pháp lý — bản chất là yes/no 
 
 ## Pitfalls (đọc số dễ sai)
 
-- **Bẫy 1**: "Pháp lý sắp xong" KHÔNG đồng nghĩa 1-2 quý tới. Novaland Aqua City nói "sắp xong" từ quý 2 năm 2023, thực tế đến quý 2 năm 2026 mới kỳ vọng có giấy phép bán hàng. Master phải lấy hứa hẹn pháp lý của doanh nghiệp với hệ số nghi ngờ — nhân thời gian cam kết với 1,5-3 lần để có ước tính thực tế.
+- **Bẫy 1**: "Pháp lý sắp xong" KHÔNG đồng nghĩa 1-2 quý tới. Novaland Aqua City nói "sắp xong" từ quý 2 năm 2023, nhưng phải đợi hơn 3 năm sau mới có giấy phép bán hàng đầy đủ. Master phải lấy hứa hẹn pháp lý của doanh nghiệp với hệ số nghi ngờ — nhân thời gian cam kết với 1,5-3 lần để có ước tính thực tế.
 - **Bẫy 2**: "Dự án A đã xong pháp lý" KHÔNG đồng nghĩa doanh nghiệp khoẻ. Có thể pháp lý chỉ một phân khúc, còn các phân khúc khác vẫn tắc. Đọc báo cáo thường niên phải tách theo phân khúc cụ thể.
 - **Bẫy 3**: Sổ đỏ KHÔNG bằng giấy phép bán hàng. Có sổ đỏ dự án KHÔNG đồng nghĩa bán được. Còn phải có quy hoạch chi tiết một phần năm trăm + giấy phép xây dựng + bảo lãnh ngân hàng. Sổ đỏ là điều kiện cần, không phải đủ.
 - **Bẫy 4**: Doanh nghiệp công bố doanh số chờ ghi nhận 50.000 tỷ KHÔNG đồng nghĩa sẽ ghi nhận doanh thu. Doanh số chờ ghi nhận có thể bị huỷ nếu (a) vòng đời bàn giao quá dài và khách rút tiền, (b) chưa có giấy phép bán hàng — mới là cam kết, chưa hợp đồng chính thức.

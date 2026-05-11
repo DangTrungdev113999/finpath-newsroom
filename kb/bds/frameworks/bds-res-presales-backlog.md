@@ -53,7 +53,7 @@ Tỷ lệ chuyển đổi doanh số chờ ghi nhận thành doanh thu trong 24 
 - **Bẫy 2**: "Doanh số mở bán" KHÔNG bằng "doanh số bán". Doanh nghiệp công bố "mở bán 5.000 căn" là nguồn cung — số căn dự kiến chào bán. Thực tế có thể chỉ bán được 500 căn. Master phải tách rõ hai con số khi đọc thông cáo.
 - **Bẫy 3**: Doanh số bán trước khi có giấy phép bán hàng — về mặt pháp lý chỉ là đặt cọc, có thể bị huỷ. Không tính chắc. Doanh nghiệp đôi khi gộp đặt cọc vào doanh số chờ ghi nhận để con số đẹp hơn — phải đọc thuyết minh để phân biệt.
 - **Bẫy 4**: Bù doanh thu bằng bàn giao dồn cuối năm. Doanh nghiệp bất động sản thường bàn giao quý 4 để ghi doanh thu cao, làm đẹp con số năm. Nhìn nhịp quý 1 đến quý 3 để đọc xu hướng thực — quý 4 nhiễu bởi áp lực hoàn thành kế hoạch.
-- **Bẫy 5**: Novaland công bố mục tiêu bàn giao 752 sổ hồng năm 2026 — con số nhỏ so với 13.000 căn đã bán. Doanh số chờ ghi nhận còn lại phải mất 5-7 năm mới tiêu thụ hết được. Đọc tốc độ bàn giao thực thay vì tổng doanh số chờ ghi nhận.
+- **Bẫy 5**: Novaland công bố mục tiêu bàn giao chỉ vài trăm sổ hồng — con số nhỏ so với 13.000 căn đã bán. Doanh số chờ ghi nhận còn lại phải mất 5-7 năm mới tiêu thụ hết được. Đọc tốc độ bàn giao thực thay vì tổng doanh số chờ ghi nhận.
 
 ## Case study lịch sử
 
@@ -62,8 +62,8 @@ Tỷ lệ chuyển đổi doanh số chờ ghi nhận thành doanh thu trong 24 
 >
 > **Không analogize sang**: trường hợp Novaland (xem `bds-debt-leverage.md`) — doanh số chờ ghi nhận trên giấy lớn hơn nhưng chất lượng thấp, tỷ lệ chuyển đổi chỉ khoảng 12% do pháp lý tắc.
 
-> **2022-2026 — Phát triển dân cư — Doanh số chờ ghi nhận ảo Novaland Aqua City**:
-> Aqua City Đồng Nai của Novaland có doanh số chờ ghi nhận khoảng 60.000 tỷ trên giấy. Mục tiêu doanh thu năm 2024: 32.500 tỷ. Thực tế đạt khoảng 4.000 tỷ — tỷ lệ chuyển đổi 12%. Mục tiêu bàn giao 2026 chỉ 752 sổ hồng tại Sun Harbor 2 và Ever Green 1 — nhỏ so với 13.000 căn đã đặt cọc. Bốn cơ chế làm doanh số chờ ghi nhận thành "ảo": pháp lý quy hoạch chi tiết tỷ lệ một phần năm trăm chậm, khách vỡ hợp đồng do lãi suất cao 2022-2023, doanh nghiệp chậm tiến độ xây dựng, và điều chỉnh quy hoạch gây tạm dừng bán hàng.
+> **2022-2024 — Phát triển dân cư — Doanh số chờ ghi nhận ảo Novaland Aqua City**:
+> Aqua City Đồng Nai của Novaland có doanh số chờ ghi nhận khoảng 60.000 tỷ trên giấy. Mục tiêu doanh thu năm 2024: 32.500 tỷ. Thực tế đạt khoảng 4.000 tỷ — tỷ lệ chuyển đổi 12%. Tốc độ bàn giao thực tế chỉ vài trăm sổ hồng — rất nhỏ so với 13.000 căn đã đặt cọc, kéo theo nhịp giải phóng doanh số chờ ghi nhận cần 5-7 năm. Bốn cơ chế làm doanh số chờ ghi nhận thành "ảo": pháp lý quy hoạch chi tiết tỷ lệ một phần năm trăm chậm, khách vỡ hợp đồng do lãi suất cao 2022-2023, doanh nghiệp chậm tiến độ xây dựng, và điều chỉnh quy hoạch gây tạm dừng bán hàng.
 >
 > **Không analogize sang**: khu công nghiệp (xem `bds-kcn-inventory-pricing.md`) — không có khái niệm doanh số chờ ghi nhận tương tự vì cho thuê ghi nhận một lần khi ký hợp đồng.
 
@@ -75,8 +75,8 @@ Tỷ lệ chuyển đổi doanh số chờ ghi nhận thành doanh thu trong 24 
 ## Source log
 
 - https://notion.so/35d273c7a9a1817da2e7ee0fd8c7335a
-- theleader.vn 2026 — Novaland Aqua City 10.000 trên 13.000 căn đã đặt cọc, mục tiêu bàn giao 752 sổ hồng năm 2026
-- theleader.vn 8/2024 — Novaland mục tiêu bàn giao 752 sổ hồng 2026
+- theleader.vn — Novaland Aqua City 10.000 trên 13.000 căn đã đặt cọc
+- theleader.vn 8/2024 — Novaland mục tiêu bàn giao chỉ vài trăm sổ hồng
 - vietnambiz.vn 23/6/2023 — Novaland tổn thất uy tín do chậm bàn giao
 - nld.com.vn 5/4/2024 — Novaland kế hoạch doanh thu 32.500 tỷ 2024
 - Chuẩn mực kế toán Việt Nam số 14, 15 — ghi nhận doanh thu bất động sản

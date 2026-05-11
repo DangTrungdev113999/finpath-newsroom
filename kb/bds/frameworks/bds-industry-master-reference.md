@@ -173,6 +173,11 @@ Master nhận diện loại bất động sản từ mã rồi áp dụng khung 
 | Đất Xanh (DXG) | Quỹ đất 3.000-4.000 héc-ta, lai môi giới qua DXS | `bds-res-*` + `bds-hybrid-business-models.md` |
 | Nam Long (NLG) | Quỹ đất nhỏ, tập trung Thành phố Hồ Chí Minh trung lưu | `bds-res-*` |
 | An Gia (AGG), Phát Đạt (PDR), Hà Đô (HDG), Đất Xanh Services (DXS) | Các mã phát triển dân cư khác | `bds-res-*` |
+| Hoàng Quân (HQC) | Phân khúc trung bình thấp, tập trung phía Nam | `bds-res-*` |
+| Hoàng Huy (TCH) | Đa mảng phân khúc Hải Phòng — dân cư + dịch vụ | `bds-res-*` + `bds-hybrid-business-models.md` |
+| Văn Phú Invest (VPI) | Trung cấp Hà Nội + Hồ Chí Minh, quỹ đất 200-300 héc-ta | `bds-res-*` |
+| Hodeco (HDC) | Trung cấp Bà Rịa-Vũng Tàu | `bds-res-*` |
+| Cenland (CRE) | Môi giới bất động sản lớn — không phải developer, ghi nhận phí giao dịch | `bds-hybrid-business-models.md` |
 
 ### 6.2 Khu công nghiệp (kcn)
 
@@ -185,6 +190,7 @@ Master nhận diện loại bất động sản từ mã rồi áp dụng khung 
 | Sonadezi Châu Đức (SZC) | Khu công nghiệp Bà Rịa-Vũng Tàu | `bds-kcn-*` |
 | Viglacera (VGC) | Khu công nghiệp + vật liệu xây dựng | `bds-kcn-*` |
 | Long Hậu (LHG) | Khu công nghiệp Long An | `bds-kcn-*` |
+| Itaco (ITA) | Khu công nghiệp Long An và Tân Tạo | `bds-kcn-*` |
 
 ### 6.3 Bán lẻ (retail)
 
@@ -227,7 +233,7 @@ Khi phân tích bài viết mới, tra theo thứ tự:
 
 1. **Báo cáo tài chính quý** — phân khúc doanh thu, đòn bẩy, tồn kho
 2. **Báo cáo thường niên** — danh sách dự án chủ lực, quỹ đất chi tiết
-3. **Framework knowledge base** — 20 file framework dưới đây cho cơ chế và lịch sử
+3. **Framework knowledge base** — 20 file framework dưới đây cho cơ chế và lịch sử (file tham chiếu này là file thứ 21)
 4. **Tìm kiếm web** — khi báo cáo tài chính thiếu số liệu cụ thể (cafef.vn, theleader.vn, vneconomy.vn, vietstock.vn)
 
 ---
