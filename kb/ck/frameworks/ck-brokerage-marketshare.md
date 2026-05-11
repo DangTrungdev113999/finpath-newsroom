@@ -123,7 +123,7 @@ Các công ty CK có liên kết ngân hàng lớn (TCBS–TCB, VPBankS–VPB, V
 - [cafef.vn — Q1/2024](https://cafef.vn/thi-phan-moi-gioi-hose-quy-1-2024-vps-chiem-1-5-ssi-va-vndirect-xuong-thap-nhat-trong-nhieu-nam-188240403182605081.chn) — VPS chiếm 20,29% Q1/2024
 - [stockbiz.vn — 5/2026](https://stockbiz.vn/tin-tuc/shs-quy-12026-tong-tai-san-tang-47-doanh-so-moi-gioi-tang-86-so-voi-cung-ky/39577838) — SHS doanh số môi giới tăng 86% Q1/2026
 - [dnse.com.vn — phí giao dịch](https://www.dnse.com.vn/senses/tin-tuc/khong-thu-phi-moi-gioi-cong-ty-chung-khoan-van-lai-nghin-ty-33843460) — Mô hình miễn phí giao dịch + lãi ký quỹ
-- [cafef.vn — MBS zero-fee](https://cafef.vn/cuoc-chien-zero-fee-mbs-tung-chinh-sach-mien-phi-giao-dich-tron-doi-188240115152018139.chn) — Cuộc chiến miễn phí giao dịch 2024
+- [cafef.vn — MBS miễn phí giao dịch trọn đời](https://cafef.vn/cuoc-chien-zero-fee-mbs-tung-chinh-sach-mien-phi-giao-dich-tron-doi-188240115152018139.chn) — Cuộc chiến miễn phí giao dịch 2024
 
 ## Phần suy luận (cần verify)
 
