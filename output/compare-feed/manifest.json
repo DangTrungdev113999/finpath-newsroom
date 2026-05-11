@@ -1,6 +1,36 @@
 {
   "articles": [
     {
+      "id": "q1-2026-vhm-lai-25-600-ty-vi-sao-du-tu-tin-nang-them-10-000",
+      "ticker": "VHM",
+      "sector": "BĐS",
+      "title": "Q1/2026 VHM lãi 25.600 tỷ — vì sao đủ tự tin nâng thêm 10.000 tỷ giữa chừng?",
+      "crawled_at": "2026-05-11T09:55:10.246259+00:00",
+      "key_view": "lạc quan",
+      "word_count": 329,
+      "category": "why_now"
+    },
+    {
+      "id": "vhm-chi-24-600-ty-co-tuc-vi-sao-chi-dung-12-loi-nhuan-tich",
+      "ticker": "VHM",
+      "sector": "BĐS",
+      "title": "VHM chi 24.600 tỷ cổ tức — vì sao chỉ dùng 12% lợi nhuận tích lũy vẫn kỷ lục?",
+      "crawled_at": "2026-05-11T09:55:10.246114+00:00",
+      "key_view": "lạc quan",
+      "word_count": 355,
+      "category": "paradox"
+    },
+    {
+      "id": "vinhomes-lai-gap-10-lan-vi-sao-ban-giao-mot-quy-bang-ca-nam",
+      "ticker": "VHM",
+      "sector": "BĐS",
+      "title": "Vinhomes lãi gấp 10 lần — vì sao bàn giao một quý bằng cả năm?",
+      "crawled_at": "2026-05-11T09:55:10.246054+00:00",
+      "key_view": "Bàn giao tập trung Ocean City + Royal Island tạo LNST Q1 tăng 866%",
+      "word_count": 346,
+      "category": "hidden_mechanism"
+    },
+    {
       "id": "bidv-vua-co-no-xau-lon-nhat-he-thong-vua-de-xuat-ban-thap",
       "ticker": "BID",
       "sector": "Bank",
