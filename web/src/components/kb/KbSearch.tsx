@@ -4,7 +4,6 @@ import Fuse, { type FuseResult, type FuseResultMatch } from 'fuse.js';
 import { Search, X } from 'lucide-react';
 import type { KbDoc } from '../../lib/kbTypes';
 import { titleForSlug } from '../../lib/kbTree';
-import { cn } from '../../shared/lib/cn';
 
 interface Props { docs: KbDoc[]; }
 
