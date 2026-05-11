@@ -1,6 +1,11 @@
 import type { DataTrailEntry } from '../types';
 
-function renderSource(source: string) {
+function renderSource(source: string | undefined) {
+  // Defensive: agent may have emitted entry without `source` key, or as plain
+  // string entry (legacy V3.6 schema). Caller normalises strings → entries.
+  if (!source) {
+    return <span className="font-semibold italic text-rec">⚠️ source thiếu</span>;
+  }
   if (source.startsWith('http://') || source.startsWith('https://')) {
     return (
       <a href={source} target="_blank" rel="noopener noreferrer" className="font-semibold underline">
@@ -46,13 +51,19 @@ export function DataTrail({
       </details>
     );
   }
+  // Coerce legacy V3.6 string entries → V4.0 dict shape. Agent may have
+  // emitted "Source — context" combined; render as source-only line.
+  const normalised: DataTrailEntry[] = trail.map((entry) =>
+    typeof entry === 'string' ? { source: entry } : entry,
+  );
+
   return (
     <details>
       <summary className="section-pill">
-        {title} ({trail.length} nguồn)
+        {title} ({normalised.length} nguồn)
       </summary>
       <ul className="mt-3 text-sm space-y-3">
-        {trail.map((entry, i) => {
+        {normalised.map((entry, i) => {
           // Backward compat: legacy entries have only `used_for`, map to supports_argument
           const supportsArg = entry.supports_argument || entry.used_for || '';
           const purpose = entry.purpose || '';

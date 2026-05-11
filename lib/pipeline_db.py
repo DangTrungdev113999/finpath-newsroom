@@ -70,7 +70,25 @@ def validate_pipeline_step(step_key: str, payload: dict) -> None:
         if field in _NON_EMPTY_FIELDS.get(step_key, set()) and not value:
             empty.append(field)
 
-    if missing or wrong_type or empty:
+    # Entry-level checks for data_trail arrays — each entry MUST be dict with
+    # at least `source` key (V4.0 canonical). VHM run 2026-05-11 caught a
+    # Master BĐS dispatch that emitted legacy V3.6 string entries like
+    # "KB:bds-... — mechanism description" → frontend DataTrail.tsx crashed
+    # on `source.startsWith()` because entry was string not dict.
+    bad_entries: list[str] = []
+    entry_field_map = {
+        "step_4_master": "data_trail",
+        "step_5_skeptic": "skeptic_data_trail",
+    }
+    entry_field = entry_field_map.get(step_key)
+    if entry_field and entry_field in payload and isinstance(payload[entry_field], list):
+        for idx, entry in enumerate(payload[entry_field]):
+            if not isinstance(entry, dict):
+                bad_entries.append(f"{entry_field}[{idx}] is {type(entry).__name__} (must be dict)")
+            elif "source" not in entry or not entry.get("source"):
+                bad_entries.append(f"{entry_field}[{idx}] missing/empty 'source' key")
+
+    if missing or wrong_type or empty or bad_entries:
         errors = []
         if missing:
             errors.append(f"missing keys: {missing}")
@@ -78,10 +96,14 @@ def validate_pipeline_step(step_key: str, payload: dict) -> None:
             errors.append(f"wrong type: {wrong_type}")
         if empty:
             errors.append(f"empty (must be non-empty): {empty}")
+        if bad_entries:
+            errors.append(f"bad entries: {bad_entries}")
         raise ValueError(
             f"pipeline_log[{step_key!r}] schema violation — {'; '.join(errors)}. "
             f"This usually means the {step_key} subagent was bypassed (orchestrator "
-            f"self-executed inline). MUST dispatch via Task tool to enforce schema."
+            f"self-executed inline) or emitted legacy V3.6 string format. "
+            f"V4.0 canonical: data_trail entries MUST be dicts with `source` key. "
+            f"MUST dispatch via Task tool to enforce schema."
         )
 
 

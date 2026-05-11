@@ -476,6 +476,41 @@ def test_validate_pipeline_step_unknown_step_passes():
     validate_pipeline_step("step_7_git_publish", {"ok": True})
 
 
+def test_validate_pipeline_step_rejects_legacy_string_data_trail_entries():
+    """VHM run regression: Master BĐS emitted master_data_trail as ARRAY OF
+    STRINGS (V3.6 legacy) → frontend crash on source.startsWith().
+    V4.0 canonical: each entry must be dict with `source` key."""
+    payload = {
+        **_VALID_STEP_4_FULL,
+        "data_trail": [
+            "KB:bds-res-presales-backlog.md — backlog mechanism, conversion 90%",
+            "WebSearch:vietstock.vn — Kế hoạch 2026",
+        ],
+    }
+    with pytest.raises(ValueError, match="bad entries"):
+        validate_pipeline_step("step_4_master", payload)
+
+
+def test_validate_pipeline_step_rejects_data_trail_entries_without_source():
+    """data_trail dict entries must have non-empty `source` key."""
+    payload = {
+        **_VALID_STEP_4_FULL,
+        "data_trail": [{"fetched": "x", "purpose": "y"}],  # source missing
+    }
+    with pytest.raises(ValueError, match="bad entries"):
+        validate_pipeline_step("step_4_master", payload)
+
+
+def test_validate_pipeline_step_rejects_legacy_skeptic_string_entries():
+    """Same check for step_5_skeptic.skeptic_data_trail."""
+    payload = {
+        **_VALID_STEP_5_FULL,
+        "skeptic_data_trail": ["DB/generated_news — echo verify"],
+    }
+    with pytest.raises(ValueError, match="bad entries"):
+        validate_pipeline_step("step_5_skeptic", payload)
+
+
 def test_insert_generated_news_validates_pipeline_log(db):
     """insert_generated_news enforces schema on pipeline_log JSON."""
     bad_payload = {
