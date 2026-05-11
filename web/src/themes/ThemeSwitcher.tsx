@@ -152,9 +152,10 @@ export function ThemeSwitcher() {
         aria-label="Đổi giao diện"
       >
         <PaletteIcon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
-        <span className="flex-1 truncate text-left font-sans text-xs">
+        <span className="hidden flex-1 truncate text-left font-sans text-xs sm:inline">
           {active.label}
         </span>
+        <span className="flex-1 sm:hidden" aria-hidden />
         <SwatchTrio swatches={active.swatches} />
         <ChevronsUpDown className="h-3 w-3 shrink-0 text-fg-3 group-hover:text-fg-1" />
       </DropdownMenuTrigger>

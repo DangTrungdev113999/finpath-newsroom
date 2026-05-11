@@ -1,7 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Skeleton } from 'boneyard-js/react';
 import { CompareFeedLayout } from '../components/CompareFeedLayout';
 import { loadManifest, loadArticle } from '../lib/articleLoader';
 import type { Article, ArticleSummary } from '../types';
+import { SymbolFilter, useSymbolFilter } from '../components/SymbolFilter';
+import { CompareFeedSkeleton } from '../components/skeletons/CompareFeedSkeleton';
 
 const PAGE_SIZE = 5;
 
@@ -12,6 +15,7 @@ export function FeedPage() {
   const [error, setError] = useState<string | null>(null);
   const [showRight, setShowRight] = useState(true);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const { selected, setSelected } = useSymbolFilter();
 
   // Load manifest on mount (already sorted desc by crawled_at in loader)
   useEffect(() => {
@@ -20,9 +24,32 @@ export function FeedPage() {
       .catch((e: Error) => setError(`Lỗi load manifest: ${e.message}`));
   }, []);
 
-  // Load articles up to visibleCount
+  const filteredManifest = useMemo(
+    () =>
+      selected.length === 0
+        ? manifest
+        : manifest.filter((a) => selected.includes(a.ticker)),
+    [manifest, selected],
+  );
+
+  const loadedById = useMemo(() => {
+    const m = new Map<string, Article>();
+    for (const a of loaded) m.set(a.id, a);
+    return m;
+  }, [loaded]);
+
+  // Reset loaded + visibleCount when filter changes
   useEffect(() => {
-    const toLoad = manifest.slice(loaded.length, visibleCount);
+    setLoaded([]);
+    setVisibleCount(PAGE_SIZE);
+  }, [selected]);
+
+  // Load articles up to visibleCount — lookup by id so we don't double-fetch
+  // after filter resets and we don't depend on array index ordering.
+  useEffect(() => {
+    const toLoad = filteredManifest
+      .slice(0, visibleCount)
+      .filter((e) => !loadedById.has(e.id));
     if (toLoad.length === 0) return;
 
     Promise.all(toLoad.map((entry) => loadArticle(entry.id)))
@@ -30,24 +57,24 @@ export function FeedPage() {
         setLoaded((prev) => [...prev, ...newArticles]);
       })
       .catch((e: Error) => setError(`Lỗi load bài: ${e.message}`));
-  }, [manifest, visibleCount, loaded.length]);
+  }, [filteredManifest, visibleCount, loadedById]);
 
   // IntersectionObserver — trigger load more when sentinel enters viewport
   useEffect(() => {
     if (!sentinelRef.current) return;
-    if (visibleCount >= manifest.length) return;
+    if (visibleCount >= filteredManifest.length) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          setVisibleCount((c) => Math.min(c + PAGE_SIZE, manifest.length));
+          setVisibleCount((c) => Math.min(c + PAGE_SIZE, filteredManifest.length));
         }
       },
       { rootMargin: '200px' },
     );
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
-  }, [manifest.length, visibleCount]);
+  }, [filteredManifest.length, visibleCount]);
 
   if (error) {
     return (
@@ -69,33 +96,55 @@ export function FeedPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-8">
-      <div className="mb-8 flex items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-fg-3 mb-1.5">
-            Feed
-          </p>
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <h1 className="text-2xl font-semibold tracking-tight text-fg-0">
-            {manifest.length} bài
+            {selected.length === 0
+              ? `${manifest.length} bài`
+              : `${filteredManifest.length}/${manifest.length} bài`}
           </h1>
+          {manifest.length > 0 && (
+            <SymbolFilter
+              items={manifest}
+              selected={selected}
+              onChange={setSelected}
+            />
+          )}
         </div>
         <ViewToggle showRight={showRight} onChange={setShowRight} />
       </div>
-      {loaded.map((article, idx) => (
-        <article
-          key={article.id}
-          className={idx > 0 ? 'mt-12 border-t-4 border-fg-4/40 pt-12' : ''}
-        >
-          <CompareFeedLayout article={article} showRight={showRight} />
-        </article>
-      ))}
-      {visibleCount < manifest.length && (
-        <div ref={sentinelRef} className="py-8 text-center text-sm text-fg-3">
-          Đang tải thêm...
-        </div>
+
+      {filteredManifest.length === 0 ? (
+        <p className="py-8 text-fg-3">Không có bài nào cho mã đã chọn.</p>
+      ) : (
+        filteredManifest.slice(0, visibleCount).map((entry, idx) => {
+          const article = loadedById.get(entry.id);
+          return (
+            <div
+              key={entry.id}
+              className={idx > 0 ? 'mt-12 border-t-4 border-fg-4/40 pt-12' : ''}
+            >
+              <Skeleton
+                name="compare-feed"
+                loading={!article}
+                fallback={<CompareFeedSkeleton showRight={showRight} />}
+              >
+                {article ? (
+                  <CompareFeedLayout article={article} showRight={showRight} />
+                ) : null}
+              </Skeleton>
+            </div>
+          );
+        })
       )}
-      {visibleCount >= manifest.length && loaded.length === manifest.length && (
-        <div className="py-8 text-center text-sm text-fg-3">— Hết feed —</div>
+      {visibleCount < filteredManifest.length && (
+        <div ref={sentinelRef} aria-hidden className="h-1" />
       )}
+      {filteredManifest.length > 0 &&
+        visibleCount >= filteredManifest.length &&
+        loadedById.size >= filteredManifest.length && (
+          <div className="py-8 text-center text-sm text-fg-3">— Hết feed —</div>
+        )}
     </main>
   );
 }
@@ -111,16 +160,8 @@ function ViewToggle({
     <div
       role="group"
       aria-label="Chế độ xem"
-      className="inline-flex items-center gap-0.5 rounded-pill border border-fg-4/40 bg-bg-2/60 p-0.5 font-sans text-[12px] font-medium"
+      className="inline-flex items-center gap-0.5 rounded-pill border border-brand/20 bg-bg-2/60 p-0.5 font-sans text-[12px] font-medium shadow-sm shadow-brand/5"
     >
-      <ToggleButton
-        active={showRight}
-        onClick={() => onChange(true)}
-        label="Đầy đủ"
-        title="Đọc bài + cột metadata bên cạnh"
-      >
-        <TwoPaneIcon />
-      </ToggleButton>
       <ToggleButton
         active={!showRight}
         onClick={() => onChange(false)}
@@ -128,6 +169,14 @@ function ViewToggle({
         title="Ẩn cột metadata để tập trung đọc"
       >
         <OnePaneIcon />
+      </ToggleButton>
+      <ToggleButton
+        active={showRight}
+        onClick={() => onChange(true)}
+        label="Đầy đủ"
+        title="Đọc bài + cột metadata bên cạnh"
+      >
+        <TwoPaneIcon />
       </ToggleButton>
     </div>
   );
@@ -154,8 +203,8 @@ function ToggleButton({
       title={title}
       className={`inline-flex items-center gap-1.5 rounded-pill px-3 py-1 transition-all duration-med ease-out-quart ${
         active
-          ? 'bg-bg-1 text-fg-0 shadow-sm ring-1 ring-fg-4/40'
-          : 'text-fg-2 hover:text-fg-0'
+          ? 'bg-brand text-brand-fg shadow-sm shadow-brand/25 ring-1 ring-brand/40'
+          : 'text-fg-2 hover:text-brand hover:bg-brand/5'
       }`}
     >
       {children}

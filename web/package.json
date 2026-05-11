@@ -8,10 +8,12 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "boneyard:build": "boneyard-js build http://localhost:5176"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "boneyard-js": "^1.8.1",
     "clsx": "^2.1.1",
     "js-yaml": "^4.1.1",
     "lucide-react": "^1.14.0",

@@ -1,12 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Skeleton } from 'boneyard-js/react';
 import type { ArticleSummary } from '../types';
 import { loadManifest } from '../lib/articleLoader';
 import { ArticleCard } from '../components/ArticleCard';
+import { SymbolFilter, useSymbolFilter } from '../components/SymbolFilter';
+import { ArticleCardSkeleton } from '../components/skeletons/ArticleCardSkeleton';
+
+const INITIAL_SKELETON_COUNT = 6;
 
 export function IndexPage() {
   const [articles, setArticles] = useState<ArticleSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const { selected, setSelected } = useSymbolFilter();
 
   useEffect(() => {
     loadManifest()
@@ -20,9 +26,17 @@ export function IndexPage() {
       });
   }, []);
 
+  const filteredArticles = useMemo(
+    () =>
+      selected.length === 0
+        ? articles
+        : articles.filter((a) => selected.includes(a.ticker)),
+    [articles, selected],
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
-      <header className="mb-10 flex items-end justify-between gap-4">
+      <header className="mb-6 flex items-end justify-between gap-4">
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-fg-3 mb-2">
             Compare feed
@@ -32,9 +46,23 @@ export function IndexPage() {
           </h1>
         </div>
         <p className="font-mono text-xs tabular-nums text-fg-3">
-          {loading ? 'Loading…' : `${articles.length} bài`}
+          {loading
+            ? ' '
+            : selected.length === 0
+              ? `${articles.length} bài`
+              : `${filteredArticles.length}/${articles.length} bài`}
         </p>
       </header>
+
+      {articles.length > 0 && (
+        <div className="mb-8">
+          <SymbolFilter
+            items={articles}
+            selected={selected}
+            onChange={setSelected}
+          />
+        </div>
+      )}
 
       {error && (
         <div className="mb-6 rounded-lg border border-rec/40 bg-rec/10 p-3 text-sm text-rec">
@@ -48,10 +76,27 @@ export function IndexPage() {
         </p>
       )}
 
+      {!loading && !error && articles.length > 0 && filteredArticles.length === 0 && (
+        <p className="text-fg-3">
+          Không có bài nào cho mã đã chọn.
+        </p>
+      )}
+
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {articles.map((a) => (
-          <ArticleCard key={a.id} article={a} />
-        ))}
+        {loading
+          ? Array.from({ length: INITIAL_SKELETON_COUNT }).map((_, i) => (
+              <Skeleton
+                key={`sk-${i}`}
+                name="article-card"
+                loading={true}
+                fallback={<ArticleCardSkeleton />}
+              >
+                <ArticleCardSkeleton />
+              </Skeleton>
+            ))
+          : filteredArticles.map((a) => (
+              <ArticleCard key={a.id} article={a} />
+            ))}
       </div>
     </div>
   );
