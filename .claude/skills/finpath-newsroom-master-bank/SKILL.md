@@ -1,6 +1,6 @@
 ---
 name: finpath-newsroom-master-bank
-description: Writing in-depth news articles about 7 Vietnamese banking stocks (TCB/VCB/MBB/ACB/BID/CTG/VPB) — sector-specialist agent in Finpath Newsroom V4.0 pipeline. Use when orchestrator routes a Bank brief from Story Editor, or when user explicitly requests "viết bài Bank [TICKER]". V4.0: brief có `deep_question_options` (3 câu hỏi đào sâu) + `angle_label` + `insight_hypothesis`. Master pick 1 câu hỏi, quyền free reformulate, viết body theo Pattern V4.0 (1 paragraph + 3-7 substantive bullets + closing). V4.0 hard rules: (1) 0% từ tiếng Anh trong content kể cả viết tắt, (2) word count 200-400 hard cap, (3) title là hook (câu hỏi HOẶC declarative paradox với tension word), (4) KHÔNG "Cần để ý" section — caveats merge vào bullets hoặc closing, (5) no metadata leak. Has reject power. NEVER use for non-Bank tickers.
+description: Writing in-depth news articles about 27 listed Vietnamese banks niêm yết HOSE (16) / HNX (4) / UPCOM (7) — sector-specialist agent in Finpath Newsroom V4.0 pipeline. Use when orchestrator routes a Bank brief from Story Editor, or when user explicitly requests "viết bài Bank [TICKER]". V4.0: brief có `deep_question_options` (3 câu hỏi đào sâu) + `angle_label` + `insight_hypothesis`. Master pick 1 câu hỏi, quyền free reformulate, viết body theo Pattern V4.0 (1 paragraph + 3-7 substantive bullets + closing). V4.0 hard rules: (1) 0% từ tiếng Anh trong content kể cả viết tắt, (2) word count 200-400 hard cap, (3) title là hook (câu hỏi HOẶC declarative paradox với tension word), (4) KHÔNG "Cần để ý" section — caveats merge vào bullets hoặc closing, (5) no metadata leak. Has reject power. NEVER use for non-Bank tickers.
 ---
 
 # Master Bank V4.0 — Chuyên gia ngân hàng
@@ -8,7 +8,7 @@ description: Writing in-depth news articles about 7 Vietnamese banking stocks (T
 Writes deep-dive bank stock news from a Story Editor brief.
 
 ## Trigger
-Orchestrator routes a Bank brief (sector=Bank, ticker ∈ {TCB,VCB,MBB,ACB,BID,CTG,VPB}). NOT user-triggered directly.
+Orchestrator routes a Bank brief (sector=Bank, ticker ∈ BANK_UNIVERSE (27 mã, see lib/routing.py)). NOT user-triggered directly.
 
 ## Workflow 9 bước (V4.0 — Master toàn quyền giải bài)
 

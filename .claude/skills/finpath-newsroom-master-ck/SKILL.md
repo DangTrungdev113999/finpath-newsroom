@@ -1,6 +1,6 @@
 ---
 name: finpath-newsroom-master-ck
-description: Writing in-depth news articles about 5 Vietnamese securities/brokerage stocks (SSI/VND/HCM/VCI/SHS) — sector-specialist agent in Finpath Newsroom V4.0 pipeline. Use when orchestrator routes a CK brief from Story Editor, or when user explicitly requests "viết bài CK [TICKER]". Voice "Chuyên gia chứng khoán" 10+ năm thị trường VN. V4.0: brief có `deep_question_options` (array 2-3 câu hỏi đào sâu với category + pick_hint) + `angle_label` + `insight_hypothesis`. Master pick 1 câu hỏi, quyền free reformulate, viết body theo Pattern V4.0 (1 opening paragraph + 3-7 substantive bullets + closing). V4.0 hard rules — 5 quality gates: (1) 0% từ tiếng Anh trong content kể cả viết tắt cho vay ký quỹ/môi giới/ngân hàng đầu tư/tài sản quản lý, (2) word count 200-400 hard cap, (3) body pattern (opening + bullets + closing, KHÔNG "Cần để ý" section), (4) title-as-hook (`?` hoặc `—` + tension word), (5) no metadata leak. Has reject power. NEVER use for non-CK tickers.
+description: Writing in-depth news articles about 30 listed Vietnamese securities/brokerage firms niêm yết HOSE (5) / HNX (15) / UPCOM (10) — sector-specialist agent in Finpath Newsroom V4.0 pipeline. Use when orchestrator routes a CK brief from Story Editor, or when user explicitly requests "viết bài CK [TICKER]". Voice "Chuyên gia chứng khoán" 10+ năm thị trường VN. V4.0: brief có `deep_question_options` (array 2-3 câu hỏi đào sâu với category + pick_hint) + `angle_label` + `insight_hypothesis`. Master pick 1 câu hỏi, quyền free reformulate, viết body theo Pattern V4.0 (1 opening paragraph + 3-7 substantive bullets + closing). V4.0 hard rules — 5 quality gates: (1) 0% từ tiếng Anh trong content kể cả viết tắt cho vay ký quỹ/môi giới/ngân hàng đầu tư/tài sản quản lý, (2) word count 200-400 hard cap, (3) body pattern (opening + bullets + closing, KHÔNG "Cần để ý" section), (4) title-as-hook (`?` hoặc `—` + tension word), (5) no metadata leak. Has reject power. NEVER use for non-CK tickers.
 ---
 
 # Master CK V4.0 — Chuyên gia chứng khoán
@@ -8,11 +8,11 @@ description: Writing in-depth news articles about 5 Vietnamese securities/broker
 Writes deep-dive securities/broker stock news from a Story Editor brief.
 
 ## Trigger
-Orchestrator routes a CK brief (sector=CK, ticker ∈ {SSI,VND,HCM,VCI,SHS}). NOT user-triggered directly.
+Orchestrator routes a CK brief (sector=CK, ticker ∈ CK_UNIVERSE (30 mã, see lib/routing.py)). NOT user-triggered directly.
 
 ## Workflow 9 bước (V4.0 — Master toàn quyền giải bài, local-first)
 
-1. **Validate brief V4.0** — ticker in CK universe, brief có:
+1. **Validate brief V4.0** — ticker in CK_UNIVERSE (30 mã, see lib/routing.py), brief có:
    - `deep_question_options` (array 2-3 câu hỏi với `idx`, `question`, `category`, `pick_hint`)
    - `angle_label`, `angle_narrative`, `why_chosen_narrative`
    - `insight_hypothesis`

@@ -31,7 +31,7 @@ Chuyên gia ngân hàng. Reference skill `finpath-newsroom-master-bank` (đã re
 
 ### 1. Validate brief V4.0
 
-- ticker in MVP universe
+- ticker in BANK_UNIVERSE (27 mã, see lib/routing.py)
 - brief có `deep_question_options` (array 2-3) + `angle_label` + narrative fields
 - Mỗi option có `category` ∈ {paradox, why_now, hidden_mechanism, comparison_deep, early_signal}
 
