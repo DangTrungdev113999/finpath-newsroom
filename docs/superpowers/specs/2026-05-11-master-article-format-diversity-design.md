@@ -37,10 +37,13 @@ Spec này chỉ inject **minimal mood-sync** (giá ngày + % change) vào brief,
 
 ## 4. Architecture overview
 
-### Pipeline V5.0 (8 steps, +1 so V4.0)
+### Pipeline V5.0 (11 steps, +2 so V4.0)
 
 ```
 Step 1: Crawler (Python lib/stages/run_crawler.py)
+Step 1.5: Market Snapshot (Python lib/stages/run_market_snapshot.py NEW)
+         fetch price_today + pct_change_today + volume_ratio_3d via Finpath API get_quote
+         Soft fetch — failure → brief proceeds without ticker_market_data
 Step 2: Editor V1 (subagent newsroom-editor)
 Step 3: Story Editor (subagent newsroom-story-editor) — pick question + stance + narrative
          ↓
@@ -49,7 +52,8 @@ Step 3.5: Format Director (subagent newsroom-format-director NEW, Sonnet)
          ↓
 Step 4: Master sector (subagent newsroom-master-{bank,ck,bds})
          receives brief V5.0 with format pre-picked → apply format pattern + 9 gates + Voice Layer
-Step 5: Skeptic (subagent newsroom-skeptic) — aware format khi critique
+         May escalate flash_qa → standard_qa ONCE if fetched data depth justifies (see §11)
+Step 5: Skeptic (subagent newsroom-skeptic) — aware format khi critique, 9 angles total
 Step 6: Render (Python lib/render_compare_feed.py)
 Step 7-9: Phase H1 (git publish / Pages wait / Telegram) — unchanged
 ```
@@ -64,6 +68,9 @@ Step 7-9: Phase H1 (git publish / Pages wait / Telegram) — unchanged
 | Quality gates | 5 gates | 9 gates (3 per-format, 6 universal) |
 | Brief schema | V4.0 (deep_question_options without format) | V5.0 (deep_question_options enriched with format fields) |
 | Models | Story Editor + Master = Opus | + Format Director = Sonnet |
+| Market context | none | Step 1.5 Market Snapshot fetches price + pct_change (soft) |
+| Migration | n/a | `pipeline_version` column gates new schema validation; V4.0 rows skip new checks |
+| Skeptic angles | 6 | 9 (+ `lifeless_writing`, `verdict_weak`, `stance_drift`) |
 
 ## 5. Format Catalog
 
@@ -166,8 +173,26 @@ Stance KHÔNG cần khớp mood ngày. Khi data justify, ngược chiều market
 Verdict mẫu contrarian:
 > "Ngược với phản ứng thị trường hôm nay, VHM vẫn tích cực dài hạn..."
 
-### Mood-sync minimal
-Inject `price_today` + `pct_change_today` vào brief để Master AWARE opening — KHÔNG force stance follow. Full top-mover trigger defer sang Subsystem A.
+### Mood-sync minimal — data source resolved
+
+Inject `price_today` + `pct_change_today` + `volume_ratio_3d` vào brief để Master AWARE opening — KHÔNG force stance follow.
+
+**Source**: Step 1.5 Market Snapshot — `lib/stages/run_market_snapshot.py` (NEW Python helper ~30 LOC) gọi Finpath API `get_quote(ticker)` ngay sau Crawler. Output schema injected vào brief:
+
+```json
+{
+  "ticker_market_data": {
+    "price_today": 92500,
+    "pct_change_today": -3.2,
+    "volume_ratio_3d": 1.4,
+    "fetched_at": "2026-05-11T14:32:00+07:00"
+  }
+}
+```
+
+**Soft fetch semantics**: nếu Finpath API fail / ticker missing / timeout → brief proceeds without `ticker_market_data` field. Format Director defaults `tone_bias: neutral`. V5 Contrarian degrades to prose-only guidance for that run (Master can still write contrarian từ data, just không có market mood context).
+
+Đây không phải hot-ticker trigger full (Subsystem A defer) — chỉ là **inline lightweight fetch** sau Crawler đã có ticker. Subsystem A khác ở chỗ: auto-discover top movers + auto-trigger pipeline; Subsystem này chỉ enrich existing pipeline run.
 
 ### Bullet pool (technique, not enforced strict)
 Master sử dụng đa dạng 4 loại bullet:
@@ -216,6 +241,81 @@ def check_all_gates(article: ArticleDraft, format_id: str, stance: str) -> list[
 ```
 
 `FORMAT_GATE_REGISTRY: dict[str, Callable]` — registry pattern parallel với `data/format_registry.yaml`. Add format mới chỉ cần thêm gate function + registry entry.
+
+### 7.1 Gates 7 + 8 — Hybrid enforcement detail (semantic gates)
+
+Verdict_line (Gate 7) và stance_consistency (Gate 8) không enforce 100% bằng regex (semantic), do đó implement **2-layer hybrid**:
+
+#### Gate 7 — verdict_line
+
+**Layer 1 — Regex catch obvious (hard reject in `lib/gate_checker.py`)**:
+
+```python
+DIRECTION_KEYWORDS = r"(tích cực|tiêu cực|cảnh báo|đáng giữ|đáng chú ý|rủi ro|cơ hội|nên giữ|nên chờ|nên thận trọng|tăng trưởng dài hạn|đỉnh ngắn hạn|đáng lo|không nên cắt)"
+TIMEFRAME_KEYWORDS = r"(12 tháng|18 tháng|6 tháng|3 tháng|Q[1-4](/\d{4})?|năm \d{4}|ngắn hạn|trung hạn|dài hạn|trung-dài hạn)"
+HOLDER_ACTION_KEYWORDS = r"(NĐT|nhà đầu tư|người giữ|người cầm|đang cầm|đang giữ).{0,30}(giữ|chờ|tích lũy|thận trọng|cắt|không nên|nên)"
+
+def check_verdict_line(article: ArticleDraft) -> GateResult:
+    closing = extract_closing_paragraphs(article.body, n_last=2)
+    checks = {
+        "direction": bool(re.search(DIRECTION_KEYWORDS, closing, re.IGNORECASE)),
+        "timeframe": bool(re.search(TIMEFRAME_KEYWORDS, closing, re.IGNORECASE)),
+        "action_for_holder": bool(re.search(HOLDER_ACTION_KEYWORDS, closing, re.IGNORECASE)),
+    }
+    missing = [k for k, v in checks.items() if not v]
+    return GateResult(
+        gate_id="verdict_line",
+        passed=(len(missing) == 0),
+        reason=f"Missing verdict elements: {missing}" if missing else None,
+    )
+```
+
+**Layer 2 — Skeptic critique angle `verdict_weak`**:
+Skeptic flag nếu Layer 1 pass nhưng verdict thực chất ba phải / hedging trá hình. Vd "Cần thận trọng nhưng vẫn có thể tích lũy" — pass Layer 1 (regex thấy direction + action) nhưng mâu thuẫn nội tại.
+
+#### Gate 8 — stance_consistency
+
+**Layer 1 — Regex keyword ratio (hard reject)**:
+
+```python
+BULLISH_TERMS = {
+    "tăng trưởng", "tích cực", "đáng giữ", "đáng chú ý", "cơ hội",
+    "tốt", "mạnh", "ổn định", "lợi thế", "phòng thủ thành công",
+    "buffer tích lũy", "cao hơn", "vượt", "lấn", "ngon", "tăng mua",
+}
+BEARISH_TERMS = {
+    "rủi ro", "cảnh báo", "yếu", "lỗ", "giảm",
+    "đỉnh ngắn hạn", "không nên", "đáng lo", "đe dọa", "căng thẳng",
+    "tiêu cực", "bùng phát", "lao dốc", "cẩn thận", "thận trọng",
+}
+
+def check_stance_consistency(article: ArticleDraft, stance: str) -> GateResult:
+    body_lower = article.body.lower()
+    bullish_count = sum(1 for t in BULLISH_TERMS if t in body_lower)
+    bearish_count = sum(1 for t in BEARISH_TERMS if t in body_lower)
+    total = bullish_count + bearish_count
+    if total == 0:
+        return GateResult(
+            gate_id="stance_consistency", passed=False,
+            reason="Article has no stance keywords (lifeless)",
+        )
+    bull_ratio = bullish_count / total
+    if stance == "bullish" and bull_ratio < 0.5:
+        return GateResult(gate_id="stance_consistency", passed=False,
+            reason=f"Brief=bullish but body tone bearish ({bullish_count} bull vs {bearish_count} bear)")
+    if stance == "bearish" and bull_ratio > 0.5:
+        return GateResult(gate_id="stance_consistency", passed=False,
+            reason=f"Brief=bearish but body tone bullish ({bullish_count} bull vs {bearish_count} bear)")
+    if stance == "divergent" and (bull_ratio < 0.3 or bull_ratio > 0.7):
+        return GateResult(gate_id="stance_consistency", passed=False,
+            reason=f"Brief=divergent but body one-sided (ratio {bull_ratio:.0%} bullish)")
+    return GateResult(gate_id="stance_consistency", passed=True, reason=None)
+```
+
+**Layer 2 — Skeptic critique angle `stance_drift`**:
+Skeptic compare `brief.stance` với executed tone of article subtly (e.g., bullish brief nhưng article hedge bằng caveat dồn dập). Flag drift even when Layer 1 ratio test passes.
+
+**Tuning note**: BULLISH_TERMS + BEARISH_TERMS lexicon là heuristic ban đầu — sau khi production data đủ (10+ bài per stance), reassess + tune weights. Initial threshold `bull_ratio < 0.5` cũng có thể adjust (vd `< 0.4` softer reject).
 
 ## 8. Format Director Agent — design
 
@@ -454,6 +554,45 @@ Add field `format_id_used` để Skeptic + render đọc:
 _STEP_4_REQUIRED["format_id_used"] = str  # NEW required in V5.0
 ```
 
+### 10.1 Pipeline version column + migration
+
+Add column `pipeline_version` vào `generated_news` table:
+
+```sql
+ALTER TABLE generated_news ADD COLUMN pipeline_version TEXT NOT NULL DEFAULT 'V4.0';
+```
+
+Migration semantics:
+- **Existing rows (legacy V4.0)**: keep `pipeline_version = 'V4.0'` via DEFAULT
+- **New rows (V5.0)**: insert với explicit `pipeline_version = 'V5.0'` in `lib/pipeline_db.py:insert_generated_news`
+- **`validate_pipeline_step` becomes version-aware** — only enforce V5.0 schema (step_3_5, format_id_used) when row's `pipeline_version >= 'V5.0'`:
+
+```python
+def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str = "V4.0") -> None:
+    """Validate per pipeline_version. V4.0 baseline always enforced (step_4_master + step_5_skeptic).
+    V5.0 adds step_3_5_format_director + step_4_master.format_id_used.
+    """
+    # Always-validated steps (V4.0 baseline schema)
+    required_map = {
+        "step_4_master": _STEP_4_REQUIRED_V4,  # without format_id_used
+        "step_5_skeptic": _STEP_5_REQUIRED,
+    }
+    # V5.0 schema additions (only when row is V5.0)
+    if _version_ge(pipeline_version, "V5.0"):
+        required_map["step_3_5_format_director"] = _STEP_3_5_REQUIRED
+        required_map["step_4_master"] = _STEP_4_REQUIRED_V5  # adds format_id_used
+    required = required_map.get(step_key)
+    # ... (rest same as before)
+```
+
+Callers of `log_pipeline_step` + `insert_generated_news` MUST pass `pipeline_version` from the row (default `'V4.0'` for back-compat).
+
+**Frontend `FormatPickPanel.tsx` graceful degrade**: hide entire panel nếu:
+- `pipeline_log.step_3_5_format_director` field missing, OR
+- Article frontmatter `pipeline_version < V5.0`
+
+Legacy V4.0 articles continue rendering without format panel.
+
 ## 11. Master agents impact
 
 ### File touch: `.claude/agents/newsroom-master-{bank,ck,bds}.md`
@@ -463,8 +602,13 @@ _STEP_4_REQUIRED["format_id_used"] = str  # NEW required in V5.0
 2. Apply pattern theo format (paragraph_only / opening_bullets_closing / etc.)
 3. Run 9-gate check after draft via `lib/gate_checker.py:check_all_gates(article, format_id, stance)`
 4. If any gate fails → reject + rewrite (max 2 retry per format, then escalate)
-5. Persist `step_4_master.format_id_used = <format_id>`
+5. Persist `step_4_master.format_id_used = <final_format_id>` (post-escalation if applicable)
 6. Bullet pool guidance: prose section "Bullet types pool" với 4 examples + recommendation "≥2 loại khác trong 1 bài"
+7. **Format escalation rule (one-shot, length-only)**:
+   - Master CAN upgrade `flash_qa → standard_qa` post-fetch IF `data_trail` (full, post-fetch) has ≥3 sources AND chỉ số chính ≥2 (vs Format Director's preview-based pick được dựa trên `data_trail_preview` từ Story Editor).
+   - Master CANNOT cross-tier swap (vd `standard_qa → standard_narrative` or `standard_listicle → standard_qa`) — structural decision của Format Director is final.
+   - Master log `format_escalation: {from: "flash_qa", to: "standard_qa", reason: "data_trail=4 sources, key_metrics=3"}` trong `step_4_master.format_escalation_reason` (optional field — null nếu không escalate).
+   - Pipeline KHÔNG re-dispatch Format Director (avoid 2nd subagent call, simplicity).
 
 ### Conflict resolution với CLAUDE.md hard rules
 
@@ -482,8 +626,12 @@ V5.0 update: pattern PER FORMAT. CLAUDE.md sẽ cần update sau khi spec approv
 2. Adjust critique expectations per format:
    - flash_qa: KHÔNG critique "thiếu bullet" (flash không có bullet)
    - standard_narrative: KHÔNG critique "ít bullet" (narrative ít cố ý)
-3. NEW optional critique angle: `lifeless_writing` — flag nếu có ≥2 fluff sentence (sentence_density gate đã catch hard, Skeptic flag soft cho border-line case)
-4. 7 angles total (V4.0 = 6): + `lifeless_writing`
+3. NEW critique angles (3):
+   - `lifeless_writing` — flag nếu có ≥2 fluff sentence (sentence_density gate catch hard, Skeptic flag soft cho border-line case)
+   - `verdict_weak` — Layer 2 cho Gate 7: flag verdict mâu thuẫn nội tại / hedging trá hình that pass regex
+   - `stance_drift` — Layer 2 cho Gate 8: flag subtle stance drift even when keyword ratio passes
+4. **9 critique angles total** (V4.0 = 6): + `lifeless_writing`, `verdict_weak`, `stance_drift`
+5. CLAUDE.md section "## 6 Critique Angles (Skeptic)" → "## 9 Critique Angles (Skeptic)" cần update (in file touch list §15).
 
 ## 13. Pipeline observability impact
 
@@ -525,6 +673,7 @@ Legacy articles (V4.0 frontmatter) vẫn parse được — viewer aware version
 |---|---|---|
 | `data/format_registry.yaml` | NEW | ~70 |
 | `lib/format_registry.py` | NEW | ~40 |
+| `lib/stages/run_market_snapshot.py` | NEW | ~30 |
 | `lib/gate_checker.py` | NEW | ~280 |
 | `.claude/agents/newsroom-format-director.md` | NEW | ~250 |
 | `.claude/skills/finpath-newsroom-format-director/SKILL.md` | NEW | ~180 |
@@ -534,16 +683,18 @@ Legacy articles (V4.0 frontmatter) vẫn parse được — viewer aware version
 | `.claude/agents/newsroom-master-ck.md` | MODIFY | +80 lines |
 | `.claude/agents/newsroom-master-bds.md` | MODIFY | +80 lines |
 | `.claude/agents/newsroom-skeptic.md` | MODIFY | +30 lines (format-aware critique + lifeless_writing angle) |
-| `lib/pipeline_db.py` | MODIFY | +25 lines (step_3_5 schema, step_4 format_id_used) |
+| `lib/pipeline_db.py` | MODIFY | +60 lines (step_3_5 schema, step_4 format_id_used, version-gate validation, pipeline_version column) |
+| `lib/schema.sql` (or equivalent) | MODIFY | +1 ALTER TABLE for pipeline_version column |
 | `lib/render_compare_feed.py` | MODIFY | +40 lines (format pick render) |
 | `web/src/components/FormatPickPanel.tsx` | NEW | ~80 |
 | `web/src/types/index.ts` | MODIFY | +10 lines (format pick types) |
-| `CLAUDE.md` | MODIFY | section "5 Quality Gates V4.0" → "9 Quality Gates V5.0", body pattern section, V4.0 → V5.0 |
+| `CLAUDE.md` | MODIFY | sections: "5 Quality Gates V4.0" → "9 Quality Gates V5.0", "Body pattern V4.0" → per-format patterns, "6 Critique Angles (Skeptic)" → "9 Critique Angles", "Hard rules cho Master + Skeptic" extend với stance + verdict rules, all V4.0 → V5.0 |
 | `tests/test_format_registry.py` | NEW | ~150 |
 | `tests/test_format_picker_logic.py` | NEW | ~200 |
 | `tests/test_gate_checker.py` | NEW | ~300 |
-| `tests/test_pipeline_db.py` | MODIFY | +50 lines (step_3_5 validation tests) |
+| `tests/test_pipeline_db.py` | MODIFY | +80 lines (step_3_5 validation, version-gate, V4.0 back-compat tests) |
 | `tests/test_render_compare_feed.py` | MODIFY | +30 lines (format pick render test) |
+| `tests/test_run_market_snapshot.py` | NEW | ~50 lines |
 
 Total: ~14 modify + 7 new ≈ 1500-1800 new LOC.
 
@@ -598,16 +749,26 @@ Total: ~14 modify + 7 new ≈ 1500-1800 new LOC.
 
 ## 18. Open questions / deferred
 
-1. **Mood-sync trigger Subsystem A** — separate spec when full hot ticker trigger needed.
+1. **Mood-sync FULL trigger Subsystem A** — separate spec when auto top-mover discovery + auto-pipeline trigger needed. (Mood-sync minimal: RESOLVED via Step 1.5 Market Snapshot, §6.)
 2. **Headline craft separate agent Subsystem C** — defer. Format Director per-format title_pattern đã cover. Nếu sếp still chê title, escalate sang dedicated agent.
 3. **Pipeline observability dedicated agent Subsystem D** — defer. Format Director logging tự đảm bảo độ chi tiết step 3.5. Subsystem D có thể cover global logging cross-step.
 4. **Bullet pool enforcement strict** — chưa quyết hard rule. Currently soft guidance. Reassess sau khi run 10+ bài.
 5. **Length downgrade threshold** — `data_trail_preview ≤ 2 sources AND chỉ số chính ≤ 1` là heuristic. Tune sau khi production data.
 6. **Variety check window** — hiện 3 bài gần nhất. Có thể tune (5/7) sau.
 7. **Author persona per sector** — REMOVED khỏi spec (user concern dập khuôn dạng mới). Nếu sau này feedback "thiếu personality" → reopen với multi-persona rotation thay fix cứng.
+8. **Stance keyword lexicon tuning** — initial BULLISH_TERMS/BEARISH_TERMS heuristic. Reassess + tune weights sau 10+ bài per stance.
+9. **Verdict regex thresholds** — currently 3/3 required. Có thể relax 2/3 sau pilot nếu reject rate cao.
+10. **Sentence-split heuristic for Gate 9** — using `re.split(r'[.!?]\s+', body)` baseline. Edge cases (Vietnamese punctuation, abbreviations vd "Q1.") need tuning post-launch.
+
+### Resolved by spec patch (advisor review 2026-05-11)
+- ~~Item: Mood-sync source~~ → RESOLVED §6 + §4 (Step 1.5 Market Snapshot)
+- ~~Item: V4.0 migration path~~ → RESOLVED §10.1 (pipeline_version column + version-gate validation)
+- ~~Item: Gates 7+8 enforceability~~ → RESOLVED §7.1 (hybrid 2-layer: regex Layer 1 + Skeptic Layer 2)
+- ~~Item: Format pre-pick timing~~ → RESOLVED §11 item 7 (Master one-shot length-only escalation)
 
 ## 19. Spec changelog
 
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-05-11 | Initial draft from brainstorming session. |
+| 1.1 | 2026-05-11 | Advisor review patches: §6 mood-sync source (Step 1.5 Market Snapshot), §7.1 hybrid gate enforcement for Gates 7+8, §10.1 pipeline_version column + version-gate validation migration, §11 Master format escalation rule (one-shot length-only), §12 Skeptic 9 angles (+ verdict_weak, stance_drift), §14 frontend graceful degrade, §15 file touch list updates. |
