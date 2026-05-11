@@ -101,11 +101,38 @@ export const TICKER_UNIVERSE: TickerInfo[] = [
   { code: 'AAS', name: 'Smart Invest', sector: 'ck', exchange: 'UPCOM', aliases: ['SmartInvest', 'AAS Securities'] },
   { code: 'VTS', name: 'Việt Tín', sector: 'ck', exchange: 'UPCOM', aliases: ['Viet Tin', 'VTS Securities'] },
 
-  // ─── BĐS · HOSE (4) ─────────────────────────────────────────────────
+  // ─── BĐS · HOSE (23) ────────────────────────────────────────────────
+  // BĐS dân cư + retail RE (KCN deferred per CLAUDE.md — KBC etc.)
   { code: 'VHM', name: 'Vinhomes', sector: 'bds', exchange: 'HOSE', aliases: ['Vin Homes'] },
   { code: 'NVL', name: 'Novaland', sector: 'bds', exchange: 'HOSE', aliases: ['Nova Land', 'NVL Group'] },
   { code: 'KDH', name: 'Khang Điền', sector: 'bds', exchange: 'HOSE', aliases: ['Khang Dien'] },
   { code: 'DXG', name: 'Đất Xanh Group', sector: 'bds', exchange: 'HOSE', aliases: ['Dat Xanh', 'DXG Real Estate'] },
+  { code: 'VRE', name: 'Vincom Retail', sector: 'bds', exchange: 'HOSE', aliases: ['Vincom', 'Vin Retail'] },
+  { code: 'PDR', name: 'Phát Đạt', sector: 'bds', exchange: 'HOSE', aliases: ['Phat Dat', 'PDR Real Estate'] },
+  { code: 'DIG', name: 'DIC Group', sector: 'bds', exchange: 'HOSE', aliases: ['DIC Corp', 'Phát triển Xây dựng'] },
+  { code: 'NLG', name: 'Nam Long', sector: 'bds', exchange: 'HOSE', aliases: ['Nam Long Investment', 'NLG Group'] },
+  { code: 'HDG', name: 'Hà Đô', sector: 'bds', exchange: 'HOSE', aliases: ['Ha Do', 'Hà Đô Group'] },
+  { code: 'HDC', name: 'Hodeco', sector: 'bds', exchange: 'HOSE', aliases: ['Phát triển Nhà BR-VT', 'Bà Rịa Vũng Tàu'] },
+  { code: 'CRE', name: 'CenLand', sector: 'bds', exchange: 'HOSE', aliases: ['Cen Land', 'Cen Group'] },
+  { code: 'AGG', name: 'An Gia', sector: 'bds', exchange: 'HOSE', aliases: ['An Gia Investment', 'AGG Real Estate'] },
+  { code: 'HQC', name: 'Hoàng Quân', sector: 'bds', exchange: 'HOSE', aliases: ['Hoang Quan', 'Địa ốc Hoàng Quân'] },
+  { code: 'SCR', name: 'TTC Land', sector: 'bds', exchange: 'HOSE', aliases: ['Sài Gòn Thương Tín RE', 'TTC'] },
+  { code: 'QCG', name: 'Quốc Cường Gia Lai', sector: 'bds', exchange: 'HOSE', aliases: ['Quoc Cuong Gia Lai', 'QCG'] },
+  { code: 'LDG', name: 'LDG Group', sector: 'bds', exchange: 'HOSE', aliases: ['LDG Investment'] },
+  { code: 'SJS', name: 'Sudico', sector: 'bds', exchange: 'HOSE', aliases: ['Sông Đà Urban', 'Song Da'] },
+  { code: 'ITC', name: 'Intresco', sector: 'bds', exchange: 'HOSE', aliases: ['ITC Real Estate', 'Đầu tư XD Kinh doanh'] },
+  { code: 'KHG', name: 'Khải Hoàn Land', sector: 'bds', exchange: 'HOSE', aliases: ['Khai Hoan Land', 'KHG Real Estate'] },
+  { code: 'VPI', name: 'Văn Phú Invest', sector: 'bds', exchange: 'HOSE', aliases: ['Van Phu Invest', 'VPI Group'] },
+  { code: 'TCH', name: 'Hoàng Huy', sector: 'bds', exchange: 'HOSE', aliases: ['Hoang Huy', 'TCH Group'] },
+  { code: 'DXS', name: 'Đất Xanh Services', sector: 'bds', exchange: 'HOSE', aliases: ['Dat Xanh Services', 'DXS'] },
+  { code: 'NTL', name: 'Lideco', sector: 'bds', exchange: 'HOSE', aliases: ['Phát triển Đô thị Từ Liêm', 'Tu Liem Urban'] },
+
+  // ─── BĐS · HNX (5) ──────────────────────────────────────────────────
+  { code: 'CEO', name: 'CEO Group', sector: 'bds', exchange: 'HNX', aliases: ['CEO Real Estate'] },
+  { code: 'HUT', name: 'Tasco', sector: 'bds', exchange: 'HNX', aliases: ['HUT Real Estate'] },
+  { code: 'VC3', name: 'Vinaconex 3', sector: 'bds', exchange: 'HNX', aliases: ['Vinaconex VC3', 'VC3 Real Estate'] },
+  { code: 'TIG', name: 'TIG Group', sector: 'bds', exchange: 'HNX', aliases: ['TIG Real Estate'] },
+  { code: 'API', name: 'APEC Investment', sector: 'bds', exchange: 'HNX', aliases: ['APEC Group BĐS'] },
 ];
 
 export function getTickerInfo(code: string): TickerInfo | undefined {

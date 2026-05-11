@@ -68,7 +68,20 @@ function countByTicker<T extends { ticker: string }>(
 
 type SectorFilter = 'all' | Sector;
 
-const ROW_HEIGHT = 40;
+const ROW_HEIGHT = 46;
+
+// Sector palette — distinct hues, mid-luminance, works across all themes
+const SECTOR_CHIP_CLASS: Record<Sector, string> = {
+  bank: 'bg-sky-500/15 text-sky-500 ring-1 ring-sky-500/25',
+  ck: 'bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/25',
+  bds: 'bg-emerald-500/15 text-emerald-500 ring-1 ring-emerald-500/25',
+};
+
+const SECTOR_DOT_CLASS: Record<Sector, string> = {
+  bank: 'bg-sky-500',
+  ck: 'bg-amber-500',
+  bds: 'bg-emerald-500',
+};
 
 export function SymbolFilter<T extends { ticker: string }>({
   items,
@@ -83,7 +96,9 @@ export function SymbolFilter<T extends { ticker: string }>({
   const [query, setQuery] = useState('');
   const [sectorTab, setSectorTab] = useState<SectorFilter>('all');
   const searchRef = useRef<HTMLInputElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  // State-based scroll element (not ref) so virtualizer re-inits when
+  // dialog content mounts on open. Pure ref doesn't trigger re-render.
+  const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
 
   const counts = useMemo(() => countByTicker(items), [items]);
 
@@ -101,11 +116,9 @@ export function SymbolFilter<T extends { ticker: string }>({
         .filter((t) => (sectorTab === 'all' ? true : t.sector === sectorTab));
     }
 
-    const sel = new Set(selected);
+    // Stable order: sector group → code asc. NEVER hoist selected to top
+    // (causes scroll jank when user toggles a row).
     return [...sectorPool].sort((a, b) => {
-      const aSel = sel.has(a.code);
-      const bSel = sel.has(b.code);
-      if (aSel !== bSel) return aSel ? -1 : 1;
       if (a.sector !== b.sector) {
         return (
           SECTORS.findIndex((s) => s.id === a.sector) -
@@ -114,7 +127,7 @@ export function SymbolFilter<T extends { ticker: string }>({
       }
       return a.code.localeCompare(b.code);
     });
-  }, [query, sectorTab, selected]);
+  }, [query, sectorTab]);
 
   // Ticker count per sector (universe size) — distinct from article counts
   const sectorTickerCounts = useMemo(() => {
@@ -131,7 +144,7 @@ export function SymbolFilter<T extends { ticker: string }>({
   // Virtualizer
   const virtualizer = useVirtualizer({
     count: visible.length,
-    getScrollElement: () => scrollRef.current,
+    getScrollElement: () => scrollEl,
     estimateSize: () => ROW_HEIGHT,
     overscan: 10,
   });
@@ -146,8 +159,8 @@ export function SymbolFilter<T extends { ticker: string }>({
 
   // Reset scroll to top when filter changes
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
-  }, [query, sectorTab]);
+    if (scrollEl) scrollEl.scrollTop = 0;
+  }, [query, sectorTab, scrollEl]);
 
   const toggle = (code: string) => {
     onChange(
@@ -329,7 +342,7 @@ export function SymbolFilter<T extends { ticker: string }>({
 
           {/* ── Virtualized list ──────────────────────────────────── */}
           <div
-            ref={scrollRef}
+            ref={setScrollEl}
             className="min-h-0 flex-1 overflow-y-auto"
           >
             {visible.length === 0 ? (
@@ -461,6 +474,12 @@ function TickerRow({
   const hasArticles = count > 0;
   const sectorShort =
     ticker.sector === 'bank' ? 'NH' : ticker.sector === 'ck' ? 'CK' : 'BĐS';
+  const sectorLabel =
+    ticker.sector === 'bank'
+      ? 'Ngân hàng'
+      : ticker.sector === 'ck'
+        ? 'Chứng khoán'
+        : 'Bất động sản';
 
   return (
     <button
@@ -468,41 +487,55 @@ function TickerRow({
       onClick={onToggle}
       aria-pressed={selected}
       className={cn(
-        'group/row flex h-full w-full items-center gap-2.5 px-4 text-left transition-colors duration-fast',
-        'border-b border-fg-4/15',
+        'group/row relative flex h-full w-full items-center gap-3 px-4 text-left',
+        'transition-[background-color] duration-150 ease-out',
         selected
-          ? 'bg-brand/[0.09] hover:bg-brand/[0.12]'
+          ? 'bg-gradient-to-r from-brand/[0.14] via-brand/[0.08] to-brand/[0.02] hover:from-brand/[0.18]'
           : 'hover:bg-bg-2/70',
-        !hasArticles && !selected && 'opacity-65',
+        !hasArticles && !selected && 'opacity-65 hover:opacity-100',
       )}
     >
-      {/* Checkbox indicator */}
+      {/* Brand accent bar — left edge when selected */}
+      {selected && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-1.5 left-0 w-[3px] rounded-r-full bg-brand"
+        />
+      )}
+
+      {/* Checkbox */}
       <span
         aria-hidden
         className={cn(
-          'flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border transition-colors duration-fast',
+          'flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border transition-all duration-150',
           selected
-            ? 'border-brand bg-brand text-brand-fg'
-            : 'border-fg-4/60 bg-bg-1',
+            ? 'border-brand bg-brand text-brand-fg shadow-sm shadow-brand/30'
+            : 'border-fg-4/60 bg-bg-1 group-hover/row:border-fg-3',
         )}
       >
-        {selected && (
-          <svg
-            viewBox="0 0 12 12"
-            className="h-2.5 w-2.5"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M2.5 6.5l2.5 2.5 4.5-5" />
-          </svg>
-        )}
+        <svg
+          viewBox="0 0 12 12"
+          className={cn(
+            'h-[11px] w-[11px] transition-opacity duration-150',
+            selected ? 'opacity-100' : 'opacity-0',
+          )}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M2.5 6.5l2.5 2.5 4.5-5" />
+        </svg>
       </span>
 
-      {/* Code */}
-      <span className="w-12 shrink-0 font-mono text-[12.5px] font-bold tabular-nums tracking-[0.03em] text-fg-0">
+      {/* Code — confident mono */}
+      <span
+        className={cn(
+          'w-[52px] shrink-0 font-mono text-[13px] font-bold tabular-nums tracking-[0.04em]',
+          selected ? 'text-fg-0' : 'text-fg-0',
+        )}
+      >
         {ticker.code}
       </span>
 
@@ -511,31 +544,40 @@ function TickerRow({
         {ticker.name}
       </span>
 
-      {/* Exchange */}
-      <span className="hidden shrink-0 font-mono text-[9px] uppercase tracking-wider text-fg-3 sm:inline">
+      {/* Exchange — subtle bg chip */}
+      <span
+        className="hidden shrink-0 rounded px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-[0.12em] text-fg-3 sm:inline"
+        title={`Niêm yết ${ticker.exchange}`}
+      >
         {ticker.exchange}
       </span>
 
-      {/* Sector chip */}
+      {/* Sector chip — color-coded per sector */}
       <span
         className={cn(
-          'shrink-0 rounded-pill px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-wider',
-          selected ? 'bg-brand/20 text-brand' : 'bg-fg-4/25 text-fg-2',
+          'shrink-0 rounded-pill px-1.5 py-[1px] font-mono text-[9.5px] font-semibold uppercase tracking-[0.08em]',
+          SECTOR_CHIP_CLASS[ticker.sector],
         )}
+        title={sectorLabel}
       >
         {sectorShort}
       </span>
 
-      {/* Count */}
-      <span className="flex w-14 shrink-0 items-center justify-end gap-1 font-mono text-[10.5px] tabular-nums">
+      {/* Article count + status dot */}
+      <span className="flex w-14 shrink-0 items-center justify-end gap-1.5 font-mono text-[10.5px] tabular-nums">
         <span
           className={cn(
             'inline-block h-1.5 w-1.5 rounded-full',
-            hasArticles ? 'bg-brand' : 'bg-fg-4',
+            hasArticles ? SECTOR_DOT_CLASS[ticker.sector] : 'bg-fg-4/60',
           )}
         />
-        <span className={hasArticles ? 'text-fg-1' : 'text-fg-3'}>
-          {hasArticles ? `${count}` : '·'}
+        <span
+          className={cn(
+            'min-w-[1.5em] text-right',
+            hasArticles ? 'font-semibold text-fg-0' : 'text-fg-3',
+          )}
+        >
+          {hasArticles ? count : '–'}
         </span>
       </span>
     </button>
