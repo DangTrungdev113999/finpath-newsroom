@@ -73,7 +73,7 @@ Trần 200% là lý do thực chất đằng sau làn sóng tăng vốn 2024-202
 
 ## 5 câu hỏi cho Master agent khi viết tin về cho vay ký quỹ
 
-1. **Dư nợ QoQ và so cùng kỳ**: tăng hay giảm? Do mở rộng kinh doanh hay do vừa tăng vốn nới trần?
+1. **Dư nợ so quý trước và so cùng kỳ**: tăng hay giảm? Do mở rộng kinh doanh hay do vừa tăng vốn nới trần?
 2. **Tỷ lệ dư nợ/VCSH**: bao nhiêu %? Còn bao nhiêu dư địa đến 200%? HCM (gần trần) hay VND (còn xa)?
 3. **Lãi suất cho vay ký quỹ**: tăng hay giảm so quý trước? Biên lãi có bị ăn mòn bởi chi phí vốn tăng không?
 4. **Nguồn vốn**: huy động vốn vay ngân hàng hay phát hành trái phiếu? Chi phí vốn thay đổi thế nào?
@@ -88,10 +88,10 @@ Trần 200% là lý do thực chất đằng sau làn sóng tăng vốn 2024-202
 - [vietnambiz.vn 4/2026](https://vietnambiz.vn/hsc-uoc-tinh-loi-nhuan-quy-i-tang-26-trinh-loat-phuong-an-phat-hanh-gan-500-trieu-co-phieu-20264310195227.htm) — HSC trình phương án tăng vốn 4.920 tỷ bổ sung cho vay ký quỹ
 - [thuonghieucongluan.com.vn](https://thuonghieucongluan.com.vn/quy-i-2026-vndirect-tang-truong-loi-nhuan-hon-40-nho-moi-gioi-khoi-sac-a314984.html) — VND Q1/2026: dư nợ ký quỹ 12.469 tỷ (-8%), VCSH 21.448 tỷ, lợi nhuận +42,5%
 - [tinnhanhchungkhoan.vn](https://m.tinnhanhchungkhoan.vn/nhieu-cong-ty-chung-khoan-dieu-chinh-lai-suat-margin-len-toi-14nam-post386536.amp) — nhiều công ty CK điều chỉnh lãi suất cho vay ký quỹ lên tới 14%/năm đầu 2026
-- [dnse.com.vn](https://www.dnse.com.vn/senses/tin-tuc/tong-du-no-margin-lap-ky-luc-moi-vuot-400000-ty-dong-cuoi-nam-2025-35183485) — tổng dư nợ Q4/2025 vượt 400.000 tỷ, kỷ lục lịch sử 25 năm thị trường
+- [dnse.com.vn](https://www.dnse.com.vn/senses/tin-tuc/tong-du-no-margin-lap-ky-luc-moi-vuot-400000-ty-dong-cuoi-nam-2025-35183485) — tổng dư nợ cho vay ký quỹ Q4/2025 vượt 400.000 tỷ, kỷ lục lịch sử 25 năm thị trường
 - [tuoitre.vn 26/7/2025](https://tuoitre.vn/thi-truong-chung-khoan-anh-huong-boi-siet-cho-vay-chung-khoan-715049.htm) — dư địa 45,6% Q2/2025, thấp nhất kể từ Q2/2022
 - [vietstock.vn 22/4/2025](https://vietstock.vn) — Q1/2025 toàn ngành 281,8 nghìn tỷ
-- [mekongasean.vn 25/4/2026](https://mekongasean.vn/du-no-margin-dat-ky-luc-nhieu-cong-ty-chung-khoan-dang-cang-54569.html) — Q1/2026 dư nợ tăng chậm, HSC cạn dư địa
+- [mekongasean.vn 25/4/2026](https://mekongasean.vn/du-no-margin-dat-ky-luc-nhieu-cong-ty-chung-khoan-dang-cang-54569.html) — Q1/2026 dư nợ cho vay ký quỹ tăng chậm, HSC cạn dư địa
 - [thuvienphapluat.vn](https://thuvienphapluat.vn/van-ban/Doanh-nghiep/Thong-tu-121-2020-TT-BTC-huong-dan-hoat-dong-cua-cong-ty-chung-khoan-453690.aspx) — Điều 28 TT 121/2020/TT-BTC: trần 200% dư nợ ký quỹ / VCSH
 - [ssc.gov.vn](https://ssc.gov.vn/webcenter/portal/ubck/pages_r/l/chitit?dDocName=APPSSCGOVVN1620153615) — SSC hỏi đáp khoản 3 Điều 28 TT 121
 
