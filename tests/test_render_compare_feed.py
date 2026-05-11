@@ -108,7 +108,7 @@ def populated_db_v4(tmp_path):
                 "step_5_skeptic": {
                     "angle": "alt_interpretation",
                     "verdict": "pass_with_caveats",
-                    "data_trail": [
+                    "skeptic_data_trail": [
                         {"source": "Finpath/shareholders", "fetched": "Foreign 22%", "used_for": "Counter risk profile"},
                     ],
                 },
@@ -222,8 +222,17 @@ def _make_minimal_article(skeptic_critique: str | None) -> tuple[dict, dict, lis
         "skeptic_angle": "alt_interpretation",
         "skeptic_verdict": "pass_with_caveats",
         "pipeline_log": json.dumps({
-            "step_4_master": {"chosen_question_idx": 0, "chosen_pick_reason": "", "skip_reasons": {}, "data_trail": []},
-            "step_5_skeptic": {"angle": "alt_interpretation", "verdict": "pass_with_caveats", "data_trail": []},
+            "step_4_master": {
+                "chosen_question_idx": 0,
+                "chosen_pick_reason": "Test pick",
+                "skip_reasons": {},
+                "data_trail": [{"source": "test", "fetched": "x", "purpose": "y", "supports_argument": "z"}],
+            },
+            "step_5_skeptic": {
+                "angle": "alt_interpretation",
+                "verdict": "pass_with_caveats",
+                "skeptic_data_trail": [{"source": "test", "fetched": "x", "purpose": "y", "supports_argument": "z"}],
+            },
         }, ensure_ascii=False),
         "public_slug": "MBB-test-slug",
     }
@@ -294,6 +303,65 @@ def test_render_skeptic_with_extra_blank_lines():
     output = render_article_md_v4(article, anchor, funnel)
     assert output.count("## Góc nhìn ngược") == 1
     assert "Bài Master nêu vấn đề" in output
+
+
+def test_render_strips_details_block_from_body():
+    """NVL run regression: orchestrator inline contaminated body field with
+    <details><summary>Góc nhìn ngược (Skeptic)</summary>...</details> block.
+    Render must strip defensively so Skeptic appears exactly once via the
+    appended `## Góc nhìn ngược` section."""
+    article, anchor, funnel = _make_minimal_article("Critique content.")
+    article["body"] = (
+        "Opening paragraph rộng đủ ba mươi từ với tension setup cho thân bài.\n\n"
+        "- **Bold 1**: bullet đủ hai mươi từ pass substantive gate one with anchor.\n"
+        "- **Bold 2**: bullet đủ hai mươi từ pass substantive gate two with anchor.\n\n"
+        "Closing line.\n\n"
+        "<details>\n<summary>Góc nhìn ngược (Skeptic)</summary>\n"
+        "Critique duplicated inside details block — must be stripped.\n"
+        "</details>"
+    )
+    output = render_article_md_v4(article, anchor, funnel)
+    # <details> block stripped from body
+    assert "<details>" not in output
+    assert "</details>" not in output
+    assert "Critique duplicated inside details block" not in output
+    # Skeptic critique appears exactly once (via appended ## heading)
+    assert output.count("## Góc nhìn ngược") == 1
+    assert "Critique content." in output
+
+
+def test_build_right_column_reads_skeptic_data_trail_key():
+    """Render reads canonical `skeptic_data_trail` key from step_5_skeptic
+    (NVL viewer regression — old code read `data_trail` and got [])."""
+    article = {
+        "pipeline_log": json.dumps({
+            "step_4_master": {
+                "chosen_question_idx": 0,
+                "chosen_pick_reason": "x",
+                "skip_reasons": {},
+                "data_trail": [{"source": "Finpath", "fetched": "y", "purpose": "z", "supports_argument": "w"}],
+            },
+            "step_5_skeptic": {
+                "angle": "data_skepticism",
+                "verdict": "pass",
+                "skeptic_data_trail": [
+                    {"source": "DB/generated_news", "fetched": "echo", "purpose": "verify", "supports_argument": True},
+                    {"source": "KB/bds-res-presales", "fetched": "lifecycle", "purpose": "check", "supports_argument": True},
+                ],
+            },
+        }),
+        "ticker": "NVL",
+        "title": "T",
+    }
+    anchor = {
+        "source_name": "X", "source_url": "https://x", "title": "T",
+        "published_time": None, "brief_json": "{}", "row_id": "r1",
+        "ticker": "NVL", "funnel_batch_id": "NVL-x",
+        "crawled_at": "2026-05-11T00:00:00+00:00",
+    }
+    result = build_right_column(article, anchor, [anchor])
+    assert len(result["skeptic_data_trail"]) == 2
+    assert result["skeptic_data_trail"][0]["source"] == "DB/generated_news"
 
 
 def test_update_manifest_atomic_concurrent(tmp_path):

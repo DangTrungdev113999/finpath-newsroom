@@ -7,6 +7,84 @@ from pathlib import Path
 from typing import Any
 
 
+# Schema validation — V4.0 Phase H2 (after NVL run revealed orchestrator
+# self-execute could silently persist pipeline_log missing required fields).
+# Fail-loud at the persist layer so prose rules in agent .md files can't be
+# bypassed by an over-cautious orchestrator. See:
+#   .claude/agents/newsroom-master-{bank,ck,bds}.md V4.0 Step 9 persist
+#   .claude/agents/newsroom-skeptic.md V4.0 Step 5 persist
+
+# step_4_master required keys (Master sector agent emits canonical schema).
+# `skip_reasons` can be empty dict {} (all options chosen) but key MUST exist.
+_STEP_4_REQUIRED: dict[str, type | tuple] = {
+    "chosen_question_idx": int,
+    "chosen_pick_reason": str,
+    "skip_reasons": dict,
+    "data_trail": list,
+}
+
+# step_5_skeptic required keys (Skeptic agent emits canonical schema). Key is
+# `skeptic_data_trail` (NOT `data_trail` like Master) — V4.0 schema explicit.
+_STEP_5_REQUIRED: dict[str, type | tuple] = {
+    "angle": str,
+    "verdict": str,
+    "skeptic_data_trail": list,
+}
+
+# Non-empty constraint — these fields must have len > 0 after type check.
+_NON_EMPTY_FIELDS: dict[str, set[str]] = {
+    "step_4_master": {"chosen_pick_reason", "data_trail"},
+    "step_5_skeptic": {"angle", "verdict", "skeptic_data_trail"},
+}
+
+
+def validate_pipeline_step(step_key: str, payload: dict) -> None:
+    """Raise ValueError if `payload` missing required fields for `step_key`.
+
+    Only enforced for agent-emitted steps (step_4_master, step_5_skeptic);
+    observability-only steps (step_1_crawler, step_6_render, …) accept any
+    payload shape. Call AFTER merge so partial observability updates from
+    orchestrator are checked against the full merged state — this catches
+    the orchestrator-self-execute regression where agent never persisted
+    the canonical schema in the first place.
+    """
+    required_map = {
+        "step_4_master": _STEP_4_REQUIRED,
+        "step_5_skeptic": _STEP_5_REQUIRED,
+    }
+    required = required_map.get(step_key)
+    if not required:
+        return  # observability-only step — no schema contract
+
+    missing = []
+    wrong_type = []
+    empty = []
+    for field, expected_type in required.items():
+        if field not in payload:
+            missing.append(field)
+            continue
+        value = payload[field]
+        if not isinstance(value, expected_type):
+            wrong_type.append(f"{field} (got {type(value).__name__}, expected {expected_type.__name__})")
+            continue
+        if field in _NON_EMPTY_FIELDS.get(step_key, set()) and not value:
+            empty.append(field)
+
+    if missing or wrong_type or empty:
+        errors = []
+        if missing:
+            errors.append(f"missing keys: {missing}")
+        if wrong_type:
+            errors.append(f"wrong type: {wrong_type}")
+        if empty:
+            errors.append(f"empty (must be non-empty): {empty}")
+        raise ValueError(
+            f"pipeline_log[{step_key!r}] schema violation — {'; '.join(errors)}. "
+            f"This usually means the {step_key} subagent was bypassed (orchestrator "
+            f"self-executed inline). MUST dispatch via Task tool to enforce schema."
+        )
+
+
 def parse_task_usage(task_return: str | None) -> int | None:
     """Defensive parse of '<usage>total_tokens: N ...</usage>' block.
 
@@ -86,6 +164,21 @@ class PipelineDB:
         return [dict(r) for r in cur.fetchall()]
 
     def insert_generated_news(self, data: dict[str, Any]) -> str:
+        # V4.0 Phase H2 — validate pipeline_log schema BEFORE insert. Master
+        # agents persist via this method with full step_4_master payload; if
+        # the payload is missing required fields (skip_reasons / data_trail /
+        # chosen_pick_reason / chosen_question_idx), refuse the write so
+        # the bug surfaces immediately instead of polluting DB + viewer.
+        raw_log = data.get("pipeline_log")
+        if raw_log:
+            try:
+                log = json.loads(raw_log) if isinstance(raw_log, str) else raw_log
+            except (json.JSONDecodeError, TypeError):
+                log = {}
+            for step_key in ("step_4_master", "step_5_skeptic"):
+                if step_key in log:
+                    validate_pipeline_step(step_key, log[step_key])
+
         cols = ", ".join(data.keys())
         placeholders = ", ".join("?" for _ in data)
         sql = f"INSERT INTO generated_news ({cols}) VALUES ({placeholders})"
@@ -133,6 +226,12 @@ class PipelineDB:
         log = json.loads(row["pipeline_log"]) if row["pipeline_log"] else {}
         # Phase G hotfix: shallow merge preserves agent-persisted fields
         log[step_key] = {**log.get(step_key, {}), **payload}
+        # V4.0 Phase H2 — validate merged state against canonical schema for
+        # agent-emitted steps. Catches orchestrator-self-execute regression:
+        # if agent never persisted the canonical schema first, orchestrator
+        # observability merge (model + duration_ms) leaves step_4/step_5
+        # missing required fields → ValueError → cannot silently proceed.
+        validate_pipeline_step(step_key, log[step_key])
         self.conn.execute(
             "UPDATE generated_news SET pipeline_log = ? WHERE article_id = ?",
             (json.dumps(log, ensure_ascii=False), article_id),

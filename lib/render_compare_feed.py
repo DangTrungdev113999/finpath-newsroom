@@ -59,8 +59,10 @@ def build_right_column(article: dict, anchor_row: dict, funnel_rows: list[dict])
     # Section 6: master data trail
     master_data_trail = step_4.get("data_trail", [])
 
-    # Section 7: skeptic data trail
-    skeptic_data_trail = step_5.get("data_trail", [])
+    # Section 7: skeptic data trail. Skeptic schema V4.0 key is
+    # `skeptic_data_trail` (NOT `data_trail` like Master); read both for
+    # backward compat — prefer canonical key.
+    skeptic_data_trail = step_5.get("skeptic_data_trail") or step_5.get("data_trail", [])
 
     # Section 8: raw article URL (link only, NO embed)
     raw_article_url = anchor_row["source_url"]
@@ -168,6 +170,18 @@ def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict
         '',
         body,
         flags=re.MULTILINE,
+    ).strip()
+
+    # NVL run found body also contaminated with <details><summary>Góc nhìn
+    # ngược (Skeptic)</summary>...</details> block (orchestrator self-execute
+    # inlined Skeptic critique into Master body field). Strip defensively so
+    # Skeptic content appears exactly once via the appended "## Góc nhìn
+    # ngược" section below.
+    body = re.sub(
+        r'\n*\s*<details>\s*<summary>\s*G[óo]c\s+nh[iì]n\s+ng[ưu][ợo]?c[^<]*</summary>[\s\S]*?</details>\s*',
+        '\n',
+        body,
+        flags=re.IGNORECASE,
     ).strip()
 
     left_section = body

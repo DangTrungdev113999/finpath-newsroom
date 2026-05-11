@@ -3,7 +3,7 @@ import json
 import pytest
 from pathlib import Path
 
-from lib.pipeline_db import PipelineDB, parse_task_usage
+from lib.pipeline_db import PipelineDB, parse_task_usage, validate_pipeline_step
 
 
 @pytest.fixture
@@ -189,10 +189,25 @@ def test_log_pipeline_step_creates_entry(db):
     assert log["step_1_crawler"]["candidates_count"] == 10
 
 
+_VALID_STEP_4 = {
+    "chosen_question_idx": 0,
+    "chosen_pick_reason": "Tension paradox đáng đào sâu",
+    "skip_reasons": {},
+    "data_trail": [{"source": "Finpath_API/income", "fetched": "Q1 ROE", "purpose": "verify", "supports_argument": "B1"}],
+}
+
+
 def test_log_pipeline_step_merges_existing(db):
-    """log_pipeline_step adds step_4 to existing pipeline_log with step_3 → both present."""
+    """log_pipeline_step adds step_4 to existing pipeline_log with step_3 → both present.
+
+    Step_4 first persisted with canonical schema (agent), then orchestrator
+    merges observability — final state has both halves.
+    """
     existing = json.dumps({"step_3_story_editor": {"model": "opus", "duration_ms": 5000, "tokens": 12000}})
     _seed_article(db, "art-2", pipeline_log=existing)
+    # Agent persists canonical schema first
+    db.log_pipeline_step("art-2", "step_4_master", _VALID_STEP_4)
+    # Orchestrator merges observability
     db.log_pipeline_step("art-2", "step_4_master", {
         "model": "opus",
         "duration_ms": 8000,
@@ -206,21 +221,27 @@ def test_log_pipeline_step_merges_existing(db):
     assert "step_4_master" in log
     assert log["step_3_story_editor"]["tokens"] == 12000
     assert log["step_4_master"]["tokens"] == 25000
+    # Canonical schema preserved by merge
+    assert log["step_4_master"]["chosen_question_idx"] == 0
 
 
 def test_log_pipeline_step_same_key_merges_with_collision_override(db):
-    """Twice with same step_key: keys conflict → latest payload wins; non-conflicting keys preserved."""
+    """Twice with same step_key: keys conflict → latest payload wins; non-conflicting keys preserved.
+
+    Uses step_1_crawler (no schema contract) to isolate collision logic from
+    schema validation — Phase H2 step_4_master would reject incomplete payloads.
+    """
     _seed_article(db, "art-3")
-    db.log_pipeline_step("art-3", "step_4_master", {"duration_ms": 1000, "tokens": 5000})
-    db.log_pipeline_step("art-3", "step_4_master", {"duration_ms": 2000, "tokens": 10000})
+    db.log_pipeline_step("art-3", "step_1_crawler", {"duration_ms": 1000, "tokens": 5000})
+    db.log_pipeline_step("art-3", "step_1_crawler", {"duration_ms": 2000, "tokens": 10000})
     row = db.conn.execute(
         "SELECT pipeline_log FROM generated_news WHERE article_id = 'art-3'"
     ).fetchone()
     log = json.loads(row["pipeline_log"])
-    assert log["step_4_master"]["duration_ms"] == 2000
-    assert log["step_4_master"]["tokens"] == 10000
-    # Only one entry for step_4_master
-    assert list(log.keys()) == ["step_4_master"]
+    assert log["step_1_crawler"]["duration_ms"] == 2000
+    assert log["step_1_crawler"]["tokens"] == 10000
+    # Only one entry for step_1_crawler
+    assert list(log.keys()) == ["step_1_crawler"]
 
 
 def test_log_pipeline_step_merges_preserve_existing_subkeys(db):
@@ -229,13 +250,15 @@ def test_log_pipeline_step_merges_preserve_existing_subkeys(db):
     even though orchestrator payload doesn't include it.
     """
     _seed_article(db, "art-merge")
-    # Step 1: Master agent persists step_4_master with data_trail (real flow)
+    # Step 1: Master agent persists step_4_master with full canonical schema
     db.log_pipeline_step("art-merge", "step_4_master", {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "Pick because Q1 paradox cot loi",
+        "skip_reasons": {},
         "data_trail": [
             {"source": "https://x", "fetched": "Q1 ROE 21,2%", "purpose": "verify", "supports_argument": "Bullet 1"}
         ],
         "gates_passed": True,
-        "chosen_question_idx": 0,
     })
     # Step 2: Orchestrator logs observability — does NOT include data_trail
     db.log_pipeline_step("art-merge", "step_4_master", {
@@ -385,3 +408,99 @@ def test_telegram_pushed_at_default_null(db):
     )
     row = cur.fetchone()
     assert row["telegram_pushed_at"] is None
+
+
+# ---------------------------------------------------------------------------
+# Phase H2 — pipeline_log schema validation (validate_pipeline_step)
+# ---------------------------------------------------------------------------
+
+
+_VALID_STEP_4_FULL = {
+    "chosen_question_idx": 0,
+    "chosen_pick_reason": "Tension paradox đáng đào sâu",
+    "skip_reasons": {"1": "Yếu hơn", "2": "Cần data web search"},
+    "data_trail": [{"source": "Finpath", "fetched": "ROE", "purpose": "verify", "supports_argument": "B1"}],
+}
+
+_VALID_STEP_5_FULL = {
+    "angle": "data_skepticism",
+    "verdict": "pass_with_caveats",
+    "skeptic_data_trail": [{"source": "DB", "fetched": "echo", "purpose": "verify", "supports_argument": True}],
+}
+
+
+def test_validate_pipeline_step_accepts_full_step_4():
+    """Full canonical schema → no error."""
+    validate_pipeline_step("step_4_master", _VALID_STEP_4_FULL)
+
+
+def test_validate_pipeline_step_accepts_full_step_5():
+    """Full canonical schema → no error."""
+    validate_pipeline_step("step_5_skeptic", _VALID_STEP_5_FULL)
+
+
+def test_validate_pipeline_step_rejects_missing_skip_reasons():
+    """skip_reasons key required even if empty dict {}."""
+    payload = {**_VALID_STEP_4_FULL}
+    del payload["skip_reasons"]
+    with pytest.raises(ValueError, match="skip_reasons"):
+        validate_pipeline_step("step_4_master", payload)
+
+
+def test_validate_pipeline_step_rejects_orchestrator_observability_only():
+    """Catches orchestrator inline regression: only observability fields,
+    no canonical schema. ValueError must mention Task tool dispatch."""
+    with pytest.raises(ValueError, match="Task tool"):
+        validate_pipeline_step("step_4_master", {"model": "opus", "duration_ms": 1234})
+
+
+def test_validate_pipeline_step_rejects_empty_skeptic_data_trail():
+    """Skeptic data_trail must be non-empty list (V4.0 mandate)."""
+    payload = {**_VALID_STEP_5_FULL, "skeptic_data_trail": []}
+    with pytest.raises(ValueError, match="empty"):
+        validate_pipeline_step("step_5_skeptic", payload)
+
+
+def test_validate_pipeline_step_wrong_type_caught():
+    """skip_reasons must be dict (not list/str/None)."""
+    payload = {**_VALID_STEP_4_FULL, "skip_reasons": ["bad"]}
+    with pytest.raises(ValueError, match="wrong type"):
+        validate_pipeline_step("step_4_master", payload)
+
+
+def test_validate_pipeline_step_unknown_step_passes():
+    """Observability-only steps (step_1_crawler, step_6_render, etc.)
+    have no schema contract — any payload accepted."""
+    validate_pipeline_step("step_1_crawler", {})
+    validate_pipeline_step("step_6_render", {"model": "python"})
+    validate_pipeline_step("step_7_git_publish", {"ok": True})
+
+
+def test_insert_generated_news_validates_pipeline_log(db):
+    """insert_generated_news enforces schema on pipeline_log JSON."""
+    bad_payload = {
+        "article_id": "art-bad",
+        "row_id": "row-bad",
+        "ticker": "VCB",
+        "sector": "Bank",
+        "title": "T",
+        "body": "B",
+        "word_count": 100,
+        "status": "draft",
+        # step_4 missing skip_reasons + data_trail
+        "pipeline_log": json.dumps({
+            "step_4_master": {"chosen_question_idx": 0, "chosen_pick_reason": "x"},
+        }),
+    }
+    # Seed crawl_log first to satisfy FK if any
+    db.insert_crawl_row({
+        "row_id": "row-bad",
+        "funnel_batch_id": "VCB-x",
+        "ticker": "VCB",
+        "source_name": "S",
+        "source_url": "https://example.com/bad",
+        "title": "T",
+        "crawled_at": "2026-05-11T00:00:00+07:00",
+    })
+    with pytest.raises(ValueError, match="step_4_master"):
+        db.insert_generated_news(bad_payload)
