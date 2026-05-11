@@ -23,7 +23,7 @@ export function KbTabs({ active }: { active: Sector }) {
     <div
       role="tablist"
       aria-label="Sector"
-      className="flex items-center gap-1 border-b border-fg-4/40 px-2"
+      className="flex items-stretch border-b border-fg-4/40"
     >
       {TABS.map((t) => {
         const isActive = t.id === active;
@@ -37,20 +37,15 @@ export function KbTabs({ active }: { active: Sector }) {
             title={t.enabled ? undefined : 'Sắp có — đang refactor pipeline'}
             onClick={() => t.enabled && onSelect(t.id)}
             className={cn(
-              'relative h-9 px-3 font-sans text-[12.5px] font-medium transition-colors duration-fast',
+              'relative flex-1 whitespace-nowrap px-2 py-2.5 font-sans text-[11.5px] font-medium tracking-[0.005em] transition-colors duration-fast',
               t.enabled
                 ? isActive
-                  ? 'text-fg-0'
+                  ? 'text-brand'
                   : 'text-fg-2 hover:text-fg-0'
-                : 'cursor-not-allowed text-fg-3 opacity-60',
+                : 'cursor-not-allowed text-fg-3 opacity-45',
             )}
           >
             {t.label}
-            {!t.enabled && (
-              <span className="ml-1 align-middle font-mono text-[9px] uppercase tracking-wider text-fg-3">
-                sắp có
-              </span>
-            )}
             {isActive && (
               <span
                 aria-hidden
