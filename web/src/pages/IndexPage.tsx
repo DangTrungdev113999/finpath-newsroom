@@ -35,34 +35,23 @@ export function IndexPage() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
-      <header className="mb-6 flex items-end justify-between gap-4">
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-fg-3 mb-2">
-            Compare feed
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-fg-0">
-            Newsroom
-          </h1>
-        </div>
-        <p className="font-mono text-xs tabular-nums text-fg-3">
+    <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="mb-8 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight text-fg-0">
           {loading
-            ? ' '
+            ? ' '
             : selected.length === 0
               ? `${articles.length} bài`
               : `${filteredArticles.length}/${articles.length} bài`}
-        </p>
-      </header>
-
-      {articles.length > 0 && (
-        <div className="mb-8">
+        </h1>
+        {articles.length > 0 && (
           <SymbolFilter
             items={articles}
             selected={selected}
             onChange={setSelected}
           />
-        </div>
-      )}
+        )}
+      </div>
 
       {error && (
         <div className="mb-6 rounded-lg border border-rec/40 bg-rec/10 p-3 text-sm text-rec">
