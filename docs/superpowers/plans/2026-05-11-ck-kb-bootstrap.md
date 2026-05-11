@@ -124,7 +124,7 @@ Lưu nội dung extracted vào memory để hand-craft markdown step tiếp.
 - [ ] **Step 3: Web research enhancement (data Q1/2026 + jargon mapping)**
 
 Web search bổ sung nếu Notion thiếu:
-- Trần dư nợ ký quỹ SSC (TT 121/2020 — 1.7× vốn chủ)
+- Trần dư nợ ký quỹ SSC (TT 121/2020 — 200% (2.0×) vốn chủ sở hữu)
 - Q1/2026 dư nợ ký quỹ 5 mã CK universe (SSI/VND/HCM/VCI/SHS)
 - Cycle 2018 NHNN siết ký quỹ (impact lên broker doanh thu)
 - Lãi suất margin VN 2026 (broker quote 12-14%/năm điển hình)
@@ -145,9 +145,9 @@ last_updated: 2026-05-11
 ```
 
 Body sections:
-- **Concept**: định nghĩa cho vay ký quỹ + cơ chế trần 1.7× SSC + cycle theo lãi suất (LS giảm → margin demand tăng → doanh thu margin tăng; LS tăng → ngược lại).
+- **Concept**: định nghĩa cho vay ký quỹ + cơ chế trần 200% (2.0×) SSC + cycle theo lãi suất (LS giảm → margin demand tăng → doanh thu margin tăng; LS tăng → ngược lại).
 - **Anchor data Q1/2026**: bảng dư nợ ký quỹ + tỷ lệ / vốn chủ + headroom 5 mã universe.
-- **Pitfalls**: 3-5 bẫy (vd: nhầm dư nợ ký quỹ với cho vay tổng; nhầm doanh thu margin gross/net; nhầm trần 1.7× với 2.0× cũ; bỏ sót buffer cảnh báo 1.5×).
+- **Pitfalls**: 3-5 bẫy (vd: nhầm dư nợ ký quỹ với cho vay tổng; nhầm doanh thu margin gross/net; nhầm trần 200% (2.0×) với 2.0× cũ; bỏ sót buffer cảnh báo 1.5×).
 - **Source log**: URLs verified.
 
 Target size 7-11 KB.
@@ -171,7 +171,7 @@ Expected: `FILES: 1`, `MATCHES: ['CK-Margin-cycle']`.
 ```bash
 cd "/Users/trungdt/Desktop/Stream Intelligent" && git add kb/ck/frameworks/ck-margin-cycle.md && git commit -m "kb(ck): add margin cycle framework deep dive
 
-Cho vay ký quỹ — trần 1.7× SSC, cycle theo lãi suất, anchor data
+Cho vay ký quỹ — trần 200% (2.0×) SSC, cycle theo lãi suất, anchor data
 5 mã universe Q1/2026. Hand-craft từ Notion baseline + web research
 2018 NHNN siết ký quỹ + 2020 COVID rally context.
 
@@ -478,7 +478,7 @@ Body — 6 lớp mental model (target ≤ 12 KB tổng):
 
 ## 1.2 UBCKNN kiểm soát
 
-- Trần dư nợ ký quỹ 1.7× vốn chủ (TT 121/2020)
+- Trần dư nợ ký quỹ 200% (2.0×) vốn chủ sở hữu (TT 121/2020)
 - Công bố thông tin (TT 96/2020)
 - Tỷ lệ an toàn vốn khả dụng
 
@@ -495,7 +495,7 @@ Body — 6 lớp mental model (target ≤ 12 KB tổng):
 
 ### Tier 1 — phản ứng ngay
 - Thị phần môi giới (HOSE + HNX)
-- Dư nợ cho vay ký quỹ + headroom 1.7×
+- Dư nợ cho vay ký quỹ + headroom vs trần 200%
 
 ### Tier 2 — phản ứng chậm
 - ROE
@@ -825,23 +825,23 @@ Spec: docs/superpowers/specs/2026-05-11-ck-kb-bootstrap-design.md"
 
 - [ ] **Step 1: Web research dư nợ ký quỹ Q1/2026 + vốn chủ 5 mã**
 
-Lấy từ BCTC Q1/2026 5 mã CK: dư nợ cho vay ký quỹ cuối quý + vốn chủ sở hữu. Tính `ratio = margin / equity` và `headroom_to_cap_ty = (1.7 × equity) - margin`.
+Lấy từ BCTC Q1/2026 5 mã CK: dư nợ cho vay ký quỹ cuối quý + vốn chủ sở hữu. Tính `ratio = margin / equity` và `headroom_to_cap_ty = (2.0 × equity) - margin`.
 
 - [ ] **Step 2: Write `data/manual/ck_margin_outstanding.yaml`**
 
 ```yaml
-# CK Margin Outstanding — dư nợ cho vay ký quỹ + headroom vs trần 1.7× SSC
+# CK Margin Outstanding — dư nợ cho vay ký quỹ + headroom vs trần 200% (2.0×) SSC
 # Source: BCTC Q1/2026 5 mã CK universe
-# SSC trần: dư nợ ký quỹ ≤ 1.7× vốn chủ sở hữu (TT 121/2020)
-# Cảnh báo SSC khi vượt 1.5×
+# SSC trần: dư nợ ký quỹ ≤ 200% (2.0×) vốn chủ sở hữu sở hữu (TT 121/2020)
+# Cảnh báo nội bộ broker khi vượt 150%
 
 - ticker: SSI
   quarter: 2026Q1
   margin_outstanding_ty: 18000
   equity_ty: 12000
   ratio: 1.50
-  cap_ratio: 1.70
-  headroom_to_cap_ty: 2400
+  cap_ratio: 2.00
+  headroom_to_cap_ty: 6000
   source: "BCTC Q1/2026 SSI"
   source_url: "https://example.com/ssi-bctc-q1-2026"
   last_verified: "unknown"
@@ -852,8 +852,8 @@ Lấy từ BCTC Q1/2026 5 mã CK: dư nợ cho vay ký quỹ cuối quý + vốn
   margin_outstanding_ty: 14000
   equity_ty: 10500
   ratio: 1.33
-  cap_ratio: 1.70
-  headroom_to_cap_ty: 3850
+  cap_ratio: 2.00
+  headroom_to_cap_ty: 7000
   source: "BCTC Q1/2026 VND"
   source_url: "https://example.com/vnd-bctc-q1-2026"
   last_verified: "unknown"
@@ -864,8 +864,8 @@ Lấy từ BCTC Q1/2026 5 mã CK: dư nợ cho vay ký quỹ cuối quý + vốn
   margin_outstanding_ty: 9500
   equity_ty: 7800
   ratio: 1.22
-  cap_ratio: 1.70
-  headroom_to_cap_ty: 3760
+  cap_ratio: 2.00
+  headroom_to_cap_ty: 6100
   source: "BCTC Q1/2026 HCM"
   source_url: "https://example.com/hcm-bctc-q1-2026"
   last_verified: "unknown"
@@ -876,8 +876,8 @@ Lấy từ BCTC Q1/2026 5 mã CK: dư nợ cho vay ký quỹ cuối quý + vốn
   margin_outstanding_ty: 8200
   equity_ty: 6500
   ratio: 1.26
-  cap_ratio: 1.70
-  headroom_to_cap_ty: 2850
+  cap_ratio: 2.00
+  headroom_to_cap_ty: 4800
   source: "BCTC Q1/2026 VCI"
   source_url: "https://example.com/vci-bctc-q1-2026"
   last_verified: "unknown"
@@ -888,8 +888,8 @@ Lấy từ BCTC Q1/2026 5 mã CK: dư nợ cho vay ký quỹ cuối quý + vốn
   margin_outstanding_ty: 4800
   equity_ty: 4200
   ratio: 1.14
-  cap_ratio: 1.70
-  headroom_to_cap_ty: 2340
+  cap_ratio: 2.00
+  headroom_to_cap_ty: 3600
   source: "BCTC Q1/2026 SHS"
   source_url: "https://example.com/shs-bctc-q1-2026"
   last_verified: "unknown"
@@ -920,7 +920,7 @@ Expected: `Rows: 5`, tất cả `OK` (headroom đúng công thức ±50 tỷ rou
 - [ ] **Step 4: Commit**
 
 ```bash
-cd "/Users/trungdt/Desktop/Stream Intelligent" && git add data/manual/ck_margin_outstanding.yaml && git commit -m "data(ck): add margin outstanding yaml + headroom vs SSC 1.7×
+cd "/Users/trungdt/Desktop/Stream Intelligent" && git add data/manual/ck_margin_outstanding.yaml && git commit -m "data(ck): add margin outstanding yaml + headroom vs SSC 200%
 
 Dư nợ ký quỹ Q1/2026 + vốn chủ + ratio vs trần SSC. Mock 5 mã,
 last_verified=unknown để Master CK web search BCTC thật khi cần.
@@ -938,7 +938,7 @@ Spec: docs/superpowers/specs/2026-05-11-ck-kb-bootstrap-design.md"
 - [ ] **Step 1: Web research SSC circulars affecting CTCK 2020-2026**
 
 Key thông tư:
-- TT 121/2020/TT-BTC — tỷ lệ an toàn vốn khả dụng + trần ký quỹ 1.7×
+- TT 121/2020/TT-BTC — tỷ lệ an toàn vốn khả dụng + trần dư nợ ký quỹ 200% (Điều 28)
 - TT 96/2020/TT-BTC — công bố thông tin
 - TT 134/2020/TT-BTC — quy định CTCK
 - TT 65/2022/TT-BTC — siết phát hành TPDN (impact IB)
@@ -955,7 +955,7 @@ Format theo Bank `nhnn_circulars.yaml`:
 - title: "Thông tư 121/2020/TT-BTC"
   effective_date: 2021-01-01
   affected_topics: ["Tỷ lệ an toàn vốn khả dụng", "Margin lending"]
-  summary: "Quy định CTCK rủi ro vốn khả dụng + trần dư nợ ký quỹ 1.7× vốn chủ. Cảnh báo khi vượt 1.5×."
+  summary: "Quy định CTCK rủi ro vốn khả dụng + trần dư nợ ký quỹ 200% (2.0×) vốn chủ sở hữu. Cảnh báo nội bộ broker khi vượt 150%."
   url: "https://example.com/ssc-tt121-2020"
 
 - title: "Thông tư 96/2020/TT-BTC"
@@ -1077,7 +1077,7 @@ Tìm `## References` section cuối file, thêm KB CK markdown links sau 5 refer
 
 ```markdown
 - `kb/ck/frameworks/ck-industry-master-reference.md` — 6 lớp mental model anchor
-- `kb/ck/frameworks/ck-margin-cycle.md` — cho vay ký quỹ + trần 1.7×
+- `kb/ck/frameworks/ck-margin-cycle.md` — cho vay ký quỹ + trần 200% (2.0×)
 - `kb/ck/frameworks/ck-brokerage-marketshare.md` — thị phần HOSE/HNX
 - `kb/ck/frameworks/ck-ib-revenue-volatility.md` — ngân hàng đầu tư
 - `kb/ck/frameworks/ck-proprietary-trading.md` — tự doanh

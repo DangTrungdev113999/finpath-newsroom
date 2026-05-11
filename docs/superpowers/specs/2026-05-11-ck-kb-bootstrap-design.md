@@ -42,7 +42,7 @@ Nếu Notion có chỗ thiếu / sơ sài → fill bằng web research, ghi rõ 
 kb/ck/
 └── frameworks/
     ├── ck-industry-master-reference.md      # 6 lớp mental model — anchor cho master skill
-    ├── ck-margin-cycle.md                   # cho vay ký quỹ, trần 1.7x, cycle lãi suất
+    ├── ck-margin-cycle.md                   # cho vay ký quỹ, trần 200% SSC, cycle lãi suất
     ├── ck-brokerage-marketshare.md          # thị phần HOSE/HNX, fee compression
     ├── ck-ib-revenue-volatility.md          # ngân hàng đầu tư (bảo lãnh + tư vấn + TPDN)
     ├── ck-proprietary-trading.md            # tự doanh, mark-to-market
@@ -51,7 +51,7 @@ kb/ck/
 data/manual/
 ├── ck_targets.yaml                          # ĐHĐCĐ kế hoạch vs actual Q1 (5 mã)
 ├── ck_market_share.yaml                     # thị phần môi giới HOSE/HNX per quarter
-├── ck_margin_outstanding.yaml               # dư nợ ký quỹ + headroom 1.7x SSC
+├── ck_margin_outstanding.yaml               # dư nợ ký quỹ + headroom 200% SSC
 └── ssc_circulars.yaml                       # quy định UBCKNN
 ```
 
@@ -80,7 +80,7 @@ last_updated: 2026-05-11
 
 Cấu trúc 6 lớp giống `bank-industry-master-reference.md`:
 
-- **Lớp 1: Hiểu ngành** — 4 mảng doanh thu (môi giới + margin + IB + tự doanh) + UBCKNN kiểm soát (TT 121/2020 trần 1.7x, công bố thông tin TT 96/2020).
+- **Lớp 1: Hiểu ngành** — 4 mảng doanh thu (môi giới + margin + IB + tự doanh) + UBCKNN kiểm soát (TT 121/2020 trần dư nợ ký quỹ 200%, công bố thông tin TT 96/2020).
 - **Lớp 2: Đọc số** — metrics tier 1/2/3 (thị phần + dư nợ ký quỹ tier 1; ROE + biên lợi nhuận tier 2; CAR/RWA tier 3) + bẫy BCTC.
 - **Lớp 3: Hiểu chu kỳ** — CK gắn với chu kỳ lãi suất + thanh khoản. Cross-link sang 5 deep dives bằng relative path: `[CK-Margin-cycle](./ck-margin-cycle.md)`, etc.
 - **Lớp 4: Per-ticker** — 5 mã universe (SSI/VND/HCM/VCI/SHS), mỗi mã 1-2 paragraph compact (positioning + edge + risk). **Inline trong file master, KHÔNG tách file thứ 7.** File master target ≤ 12 KB.
@@ -121,20 +121,22 @@ Mỗi YAML mock 5 row (1/ticker), thêm metadata `last_verified` + `verified_by`
   verified_by: "bootstrap"
 ```
 
-### `ck_margin_outstanding.yaml` — dư nợ ký quỹ + headroom
+### `ck_margin_outstanding.yaml` — dư nợ ký quỹ + headroom 200%
+
+**Lưu ý:** SSC trần thực tế là **200% (2.0×) vốn chủ sở hữu** per Điều 28 TT 121/2020/TT-BTC + Quyết định 87/QĐ-UBCK 2017. (Spec v1.0 draft ghi nhầm 1.7× — fix v1.1.)
 
 ```yaml
 - ticker: SSI
   quarter: 2026Q1
-  margin_outstanding_ty: 18000       # dư nợ ký quỹ cuối quý (tỷ đồng)
-  equity_ty: 12000                   # vốn chủ
-  ratio: 1.50                        # = 18000/12000
-  cap_ratio: 1.70                    # SSC trần
-  headroom_to_cap_ty: 2400           # còn cách trần bao nhiêu tỷ
+  margin_outstanding_ty: 36928       # dư nợ ký quỹ cuối quý (tỷ đồng) — số thật từ BCTC
+  equity_ty: 38531                   # vốn chủ — số thật từ BCTC
+  ratio: 0.96                        # = 36928/38531
+  cap_ratio: 2.00                    # SSC trần 200%
+  headroom_to_cap_ty: 40134          # = (2.0 × 38531) - 36928
   source: "BCTC Q1/2026 SSI"
   source_url: "https://example.com/ssi-bctc-q1-2026"
-  last_verified: "unknown"
-  verified_by: "bootstrap"
+  last_verified: "2026-05-11"
+  verified_by: "bootstrap web research"
 ```
 
 ### `ssc_circulars.yaml` — quy định UBCKNN
@@ -143,7 +145,7 @@ Mỗi YAML mock 5 row (1/ticker), thêm metadata `last_verified` + `verified_by`
 - title: "Thông tư 121/2020/TT-BTC"
   effective_date: 2021-01-01
   affected_topics: ["Tỷ lệ an toàn vốn khả dụng", "Margin lending"]
-  summary: "Quy định trần dư nợ ký quỹ 1.7× vốn chủ. Cảnh báo khi vượt 1.5×."
+  summary: "Quy định trần dư nợ ký quỹ 200% vốn chủ (Điều 28). Cảnh báo nội bộ broker khi vượt 150%."
   url: "https://example.com/ssc-tt121-2020"
 
 - title: "Thông tư 96/2020/TT-BTC"
@@ -251,4 +253,5 @@ for fname in ['ck_targets', 'ck_market_share', 'ck_margin_outstanding', 'ssc_cir
 
 ## Changelog
 
+- **v1.1 (2026-05-11):** Fix SSC trần 1.7× → **200% (2.0×)** per Điều 28 TT 121/2020 + Quyết định 87/QĐ-UBCK 2017 (web research từ ssc.gov.vn + thuvienphapluat.vn). Discovered during Task 1 (margin cycle) implementation.
 - **v1.0 (2026-05-11):** Initial spec, drafted via brainstorming với user. Approved structure: 6 markdown + 4 YAML + SKILL.md update. Content sourcing = read Notion 1x (output Notion-free).
