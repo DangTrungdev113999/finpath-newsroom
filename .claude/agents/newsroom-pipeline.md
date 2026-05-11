@@ -11,12 +11,12 @@ Bạn orchestrate pipeline 6-step cho 1 ticker. Reference skill `finpath-newsroo
 
 ## Input
 
-Ticker (string, vd `"VCB"`). Validate against FULL UNIVERSE 16 mã (3 sector):
-- **Bank** (7): `TCB | VCB | MBB | ACB | BID | CTG | VPB`
-- **CK** (5): `SSI | VND | HCM | VCI | SHS`
+Ticker (string, vd `"VCB"`). Validate against FULL_UNIVERSE 61 mã (3 sector):
+- **Bank** (27): HOSE 16 (VCB/CTG/BID/TCB/MBB/ACB/VPB/HDB/STB/SHB/EIB/TPB/MSB/LPB/OCB/VIB) + HNX 4 (NAB/BAB/NVB/SGB) + UPCOM 7 (VAB/BVB/ABB/KLB/VBB/PGB/HDF)
+- **CK** (30): HOSE 5 (SSI/VND/HCM/VCI/VIX) + HNX 15 (SHS/MBS/BVS/BSI/AGR/CTS/APG/EVS/IVS/PSI/TVS/WSS/ORS/VFS/TCI) + UPCOM 10 (DSC/FTS/CSI/SBS/PHS/ART/APS/BMS/AAS/VTS)
 - **BĐS** (4): `VHM | NVL | KDH | DXG` (KBC defer — KCN pattern khác)
 
-Reject nếu không thuộc 16 mã universe.
+Source of truth: `.claude/skills/finpath-newsroom-editor/scripts/routing.py::FULL_UNIVERSE`. Reject nếu không thuộc 61 mã universe.
 
 ## Project context
 
@@ -106,19 +106,19 @@ for article_id in [a["article_id"] for a in batch_articles]:
 
 ### Validate ticker
 
-FULL_UNIVERSE 16 mã = Bank (7) + CK (5) + BĐS (4):
-- **Bank**: `TCB|VCB|MBB|ACB|BID|CTG|VPB`
-- **CK**: `SSI|VND|HCM|VCI|SHS`
+FULL_UNIVERSE 61 mã = Bank (27) + CK (30) + BĐS (4) — see `.claude/skills/finpath-newsroom-editor/scripts/routing.py`:
+- **Bank**: 27 mã HOSE/HNX/UPCOM (Big4 + tư nhân top/mid/small + cooperative)
+- **CK**: 30 mã HOSE/HNX/UPCOM (truyền thống + liên kết NH mẹ + specialty)
 - **BĐS**: `VHM|NVL|KDH|DXG` (KBC defer)
 
-Map full names: Vietcombank → VCB, Techcombank → TCB, BIDV → BID, VietinBank → CTG, MB Bank → MBB, ACB → ACB, VPBank → VPB, Vinhomes → VHM, Novaland → NVL, Khang Điền → KDH, Đất Xanh → DXG, SSI/VNDirect/HSC/Vietcap/Sài Gòn-Hà Nội → SSI/VND/HCM/VCI/SHS.
+Map full names: ~80 alias entries trong `ticker_detection.COMPANY_NAME_TO_TICKER` (Vietcombank/Techcombank/BIDV/Sacombank/Eximbank/HDBank/.../VNDirect/HSC/Vietcap/FPTS/Petrosetco/.../Vinhomes/Novaland/Khang Điền/Đất Xanh) — covers 61 ticker companies.
 
 Sector detection via `.claude/skills/finpath-newsroom-editor/scripts/routing.py::get_sector(ticker)`:
 - Bank universe → sector=`Bank`
 - CK universe → sector=`CK`
 - BĐS universe → sector=`BĐS`
 
-Nếu không thuộc → reply "Ticker [X] không thuộc 16 mã universe Finpath Newsroom (Bank/CK/BĐS)." và stop pipeline.
+Nếu không thuộc → reply "Ticker [X] không thuộc 61 mã universe Finpath Newsroom (Bank/CK/BĐS)." và stop pipeline.
 
 ### Step 1 — Crawler
 
@@ -181,7 +181,7 @@ Use `Task` tool to dispatch subagent `newsroom-editor`:
 Task tool:
   description: "Editor V1 row <row_id>"
   subagent_type: newsroom-editor
-  prompt: "Process row_id <row_id>. Read it from data/pipeline.db crawl_log, detect tickers, validate against FULL_UNIVERSE (16 mã Bank+CK+BĐS), identify primary, look up sector via routing.get_sector(primary_ticker), decide route_to_story_editor or reject. Persist via db.update_crawl_row with sector field set correctly (Bank|CK|BĐS|rejected). Return JSON with decision + primary_ticker + sector + detected_tickers."
+  prompt: "Process row_id <row_id>. Read it from data/pipeline.db crawl_log, detect tickers, validate against FULL_UNIVERSE (61 mã Bank+CK+BĐS), identify primary, look up sector via routing.get_sector(primary_ticker), decide route_to_story_editor or reject. Persist via db.update_crawl_row with sector field set correctly (Bank|CK|BĐS|rejected). Return JSON with decision + primary_ticker + sector + detected_tickers."
 ```
 
 Collect outputs.

@@ -1,6 +1,6 @@
 ---
 name: finpath-newsroom-orchestrator
-description: Top-level orchestrator V2.4 cho Finpath Newsroom — viết bài tin chuyên sâu về cổ phiếu Việt Nam (16 mã thuộc 3 sector Bank/CK/BĐS). Use khi user gõ "tin về [TICKER]", "viết tin [TICKER]", hoặc bất cứ yêu cầu nào về tạo bài tin/phân tích chuyên gia/news report về 1 mã cổ phiếu trong universe (TCB/VCB/MBB/ACB/BID/CTG/VPB/SSI/VND/HCM/VCI/SHS/VHM/NVL/KDH/DXG). Pipeline 6 step: Crawler → Editor V1 → Story Editor V2.4 → Master sector → Skeptic V2.4 → Publish + Compare Feed prepend. ALWAYS use this skill when ticker xuất hiện, kể cả không nói "viết tin" rõ ràng. NEVER use cho ticker ngoài 16 universe.
+description: Top-level orchestrator V2.4 cho Finpath Newsroom — viết bài tin chuyên sâu về cổ phiếu Việt Nam (61 mã thuộc 3 sector Bank/CK/BĐS). Use khi user gõ "tin về [TICKER]", "viết tin [TICKER]", hoặc bất cứ yêu cầu nào về tạo bài tin/phân tích chuyên gia/news report về 1 mã cổ phiếu trong 61 mã universe (27 Bank + 30 CK + 4 BĐS — see routing.FULL_UNIVERSE). Pipeline 6 step: Crawler → Editor V1 → Story Editor V2.4 → Master sector → Skeptic V2.4 → Publish + Compare Feed prepend. ALWAYS use this skill when ticker xuất hiện, kể cả không nói "viết tin" rõ ràng. NEVER use cho ticker ngoài 61 mã universe.
 ---
 
 # Orchestrator V2.4 — Pipeline 6 step
@@ -9,16 +9,18 @@ Top-level coordinator gọi 5 sub-skills tuần tự + persist + render Compare 
 
 ## Trigger
 - User gõ "tin về [TICKER]" / "viết tin [TICKER]" / "phân tích [TICKER]"
-- Bất cứ message nào có ticker 16 universe + intent tạo content
-- KHÔNG trigger cho ticker ngoài universe → reply "Ticker [X] không thuộc 16 mã universe Finpath Newsroom."
+- Bất cứ message nào có ticker 61 mã universe + intent tạo content
+- KHÔNG trigger cho ticker ngoài universe → reply "Ticker [X] không thuộc 61 mã universe Finpath Newsroom."
 
-## Universe 16 mã
+## Universe 61 mã
 
-| Sector | Tickers | Master skill |
-|---|---|---|
-| Bank (7) | TCB, VCB, MBB, ACB, BID, CTG, VPB | `finpath-newsroom-master-bank` |
-| CK (5) | SSI, VND, HCM, VCI, SHS | `finpath-newsroom-master-ck` |
-| BĐS (4) | VHM, NVL, KDH, DXG | `finpath-newsroom-master-bds` |
+| Sector | Count | Source of truth | Master skill |
+|---|---|---|---|
+| Bank | 27 (HOSE 16 + HNX 4 + UPCOM 7) | `routing.BANK_UNIVERSE` | `finpath-newsroom-master-bank` |
+| CK | 30 (HOSE 5 + HNX 15 + UPCOM 10) | `routing.CK_UNIVERSE` | `finpath-newsroom-master-ck` |
+| BĐS | 4 (VHM, NVL, KDH, DXG) | `routing.BDS_UNIVERSE` | `finpath-newsroom-master-bds` |
+
+Routing module: `.claude/skills/finpath-newsroom-editor/scripts/routing.py::FULL_UNIVERSE` (single source of truth — KHÔNG hard-code enumeration trong skill/agent file).
 
 ⚠️ KBC defer (BĐS KCN, pattern khác).
 

@@ -1,6 +1,6 @@
 ---
 name: newsroom-editor
-description: Editor V1 — gate logic + route master sector. Reads 1 row from crawl_log → detects tickers → validates against FULL_UNIVERSE (16 mã: 7 Bank + 5 CK + 4 BĐS) → identifies primary ticker → looks up sector via routing.get_sector() → updates SQLite with editor_v1_decision (route_to_story_editor | reject) + editor_v1_note + sector (Bank|CK|BĐS|rejected). Use when newsroom-pipeline dispatches Step 2 per pending row. NEVER processes batch — 1 row per call.
+description: Editor V1 — gate logic + route master sector. Reads 1 row from crawl_log → detects tickers → validates against FULL_UNIVERSE (61 mã: 27 Bank + 30 CK + 4 BĐS) → identifies primary ticker → looks up sector via routing.get_sector() → updates SQLite with editor_v1_decision (route_to_story_editor | reject) + editor_v1_note + sector (Bank|CK|BĐS|rejected). Use when newsroom-pipeline dispatches Step 2 per pending row. NEVER processes batch — 1 row per call.
 tools: Bash, Read
 model: sonnet
 ---
@@ -36,9 +36,9 @@ Replace `<ROW_ID>` literally.
 
 ### Step 2 — Detect tickers
 
-FULL_UNIVERSE 16 mã (3 sector):
-- **Bank** (7): TCB · VCB · MBB · ACB · BID · CTG · VPB
-- **CK** (5): SSI · VND · HCM · VCI · SHS
+FULL_UNIVERSE 61 mã (3 sector):
+- **Bank** (27): HOSE 16 + HNX 4 + UPCOM 7 — see routing.BANK_UNIVERSE
+- **CK** (30): HOSE 5 + HNX 15 + UPCOM 10 — see routing.CK_UNIVERSE
 - **BĐS** (4): VHM · NVL · KDH · DXG (KBC defer)
 
 Implementation:
@@ -52,10 +52,9 @@ universe_tickers = [t for t in tickers_found if t in FULL_UNIVERSE]
 ```
 
 Aliases coverage trong `scripts/ticker_detection.py`:
-- Bank Pass 1 company names: vietcombank/techcombank/bidv/vietinbank/mb bank/acb/vpbank
-- CK Pass 1 company names: ssi/vndirect/hsc/vietcap/sài gòn-hà nội (SHS)
-- BĐS Pass 1 company names: vinhomes/novaland/khang điền/đất xanh
-- Pass 2 short-form ticker: regex `\b(TCB|VCB|MBB|ACB|BID|CTG|VPB|SSI|VND|HCM|VCI|SHS|VHM|NVL|KDH|DXG)\b` case-sensitive raw text
+- Pass 1 company names: ~80 entries covering 61 expanded tickers (vietcombank/techcombank/sacombank/eximbank/hdbank/.../vndirect/hsc/vietcap/fpts/petrosetco/.../vinhomes/novaland/khang điền/đất xanh)
+- Pass 2 short-form ticker: regex auto-derived từ `SHORT_FORM_TO_TICKER` dict (61 ticker codes + "MB" legacy alias, sorted longest-first)
+- See `tests/test_routing_expanded.py` cho expected detection cases
 
 ### Step 3 — Identify primary
 
@@ -73,7 +72,7 @@ If primary in FULL_UNIVERSE:
 
 Nếu không có ticker trong universe:
 - decision = `reject`
-- note = `out_of_universe — không có ticker trong 16 mã FULL_UNIVERSE`
+- note = `out_of_universe — không có ticker trong 61 mã FULL_UNIVERSE`
 - sector = `rejected`
 - status = `rejected`
 
