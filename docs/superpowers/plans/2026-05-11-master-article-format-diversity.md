@@ -8,7 +8,60 @@
 
 **Tech Stack:** Python 3.13 (uv-managed), SQLite (WAL mode), Claude subagents (Opus + Sonnet), React + TypeScript + Tailwind (Vite), pytest, PyYAML.
 
-**Spec**: `docs/superpowers/specs/2026-05-11-master-article-format-diversity-design.md` V1.1.
+**Spec**: `docs/superpowers/specs/2026-05-11-master-article-format-diversity-design.md` V5.1.
+
+---
+
+## 🚨 V5.1 PATCH NOTICE (2026-05-12) — apply EVERY task
+
+After Subsystem C (Headline Craft) brainstorm, **title craft moved out of plan B** to dedicated Headline agent. Executor MUST apply these edits to the original task content below:
+
+### Task 1 — `data/format_registry.yaml`
+SKIP fields below from all 4 format definitions:
+- `title_pattern`
+- `title_must_contain` / `title_must_contain_one_of`
+- `title_tension_words`
+- `title_must_match_regex`
+
+Keep only: `length_range`, `length_target`, `structure`, `opening_min`, `opening_max`, `bullets_count`, `bullet_min_length`, `tags`, `trigger_categories`, `tie_break_signal`.
+
+### Task 1 — `tests/test_format_registry.py`
+SKIP assertions about title fields:
+- `test_get_format_flash_qa_fields`: remove `assert fmt["title_pattern"] == "question"`
+- `test_get_format_standard_qa_tension_words`: REMOVE entire test (tension words now in Headline agent's `lib/headline_scorer.py` not registry)
+
+### Task 6 — Per-format gates
+SKIP function `check_title_per_format` (Subsystem C `lib/headline_scorer.py` replaces it). SKIP all `test_per_format_title_*` tests:
+- `test_per_format_title_flash_qa_needs_question_mark`
+- `test_per_format_title_standard_listicle_numbered`
+- `test_per_format_title_standard_narrative_em_dash`
+
+`check_all_v5` signature: `check_all_v5(body, format_id, stance)` — drop `title` arg. Returns 8 gates (was 9): 6 universal + 2 per-format (`word_count`, `body_pattern`). Update `test_check_all_v5_dispatches_per_format` to match.
+
+### Task 9 — Format Director agent prose
+SKIP `title_pattern` from Format Director output schema. Format Director outputs only structural fields (length_range, bullets_count, structure). Title decided by Headline agent in Step 4.5.
+
+5-step flow Step 4 in agent prose mentions "title hint" — REMOVE that mention. Format Director doesn't touch title.
+
+### Task 13-15 — Master agents (Bank/CK/BĐS)
+`check_all_v5` invocation drops `title` arg. Step 8 = 8 gates not 9. Master DOES still write a `draft_title` field — it gets replaced in Step 4.5 by Headline agent.
+
+Add to Step 9 persist payload: `draft_title` field (Master's attempt — kept for observability + diff vs final). Final title comes from Step 4.5 Headline (separate persist via `db.update_generated_news`).
+
+### Task 16 — Skeptic agent
+10 angles total (was 9). Add `weak_title` (Layer 2 for Headline agent's hard criteria — flag clickbait risk + title-vs-body mismatch).
+
+### Pipeline orchestrator (newsroom-pipeline.md)
+INSERT Step 4.5 dispatch sau Step 4 — exact prose in Subsystem C spec §10. Use Task dispatch to `newsroom-headline-craft` agent. Subsystem C provides own plan covering this step.
+
+### Subsystem C plan dependencies
+The above patches assume Subsystem C plan (TBD — to be written) implements:
+- `lib/headline_scorer.py` (8-point rubric)
+- `.claude/agents/newsroom-headline-craft.md`
+- `.claude/skills/finpath-newsroom-headline-craft/SKILL.md`
+- Pipeline Step 4.5 dispatch
+
+Executor should run plan B + plan C tasks in interleaved order (foundation in parallel, Master agent updates after both `lib/quality_gates.py` AND `lib/headline_scorer.py` ready).
 
 ---
 

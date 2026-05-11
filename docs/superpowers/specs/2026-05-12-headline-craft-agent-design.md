@@ -95,6 +95,16 @@ Step 7-9: Phase H1
 | 3 | **Hook strong** — ≥1 trong 4: dramatic verb OR specific big number OR paradox "X mà Y" OR open question | Regex match against pools (see §7). Reject if 0. |
 | 4 | **Bình dân nguy hiểm** (soft) | No English jargon (reuse `quality_gates.ENGLISH_JARGON`). No PR clickbait ("Cú nổ", "Bí mật", "Sốc"). Skeptic `weak_title` angle catches subtle fluff. |
 
+### 4.5 Voice Layer title_stance (V5.0 V4 rule) — owned by Headline V5.1
+
+Voice Layer V4 (title stance — title chắc nịch, không treo câu hỏi mở không trả lời) trong spec V5.0 originally enforced ở Master + Format Director. V5.1: Headline agent owns này. Enforcement:
+
+- Hard criteria #3 "Hook strong" requires ≥1 trong: dramatic verb / specific number / paradox / open question. Trong đó open question được tách ra (nếu chọn) sẽ MUST có body trả lời rõ — Skeptic `weak_title` flag nếu title hỏi mà body không trả lời.
+- Tension words pool (reused từ V5.0 spec §6) đóng góp +1 điểm score → encourage stance-forward titles.
+- PR clickbait detection (hard criteria #4) catches fake-stance titles ("Cú nổ", "Bí mật").
+
+→ title_stance không là gate riêng nữa — implicit trong 4 hard criteria của Headline.
+
 ## 7. Dramatic verb pool
 
 ```python
@@ -266,6 +276,29 @@ _NON_EMPTY_FIELDS["step_4_5_headline_craft"] = {"final_title"}
 ```
 
 `validate_pipeline_step` extends to handle step_4_5 in V5.1+ rows (V5.0 + V4.0 skip — back-compat).
+
+### 11.1 Fail-loud hard criteria check at persist (Advisor blocker)
+
+Schema "field exists + non-empty" KHÔNG đủ — agent có thể emit `final_title = "VCB Q1 báo cáo tài chính"` (fail ALL 4 hard criteria) và pass validation. Đây chính là failure mode V4.0 → V5.0 fail-loud designed to prevent.
+
+`validate_pipeline_step` step_4_5 branch MUST also enforce hard criteria:
+
+```python
+def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str = "V4.0") -> None:
+    # ... existing logic ...
+    if step_key == "step_4_5_headline_craft" and _version_ge(pipeline_version, "V5.1"):
+        from lib.headline_scorer import check_hard_criteria
+        title = payload.get("final_title", "")
+        hc = check_hard_criteria(title)
+        if not hc["pass"]:
+            raise ValueError(
+                f"pipeline_log[step_4_5_headline_craft].final_title fails hard criteria: "
+                f"{hc['failed']} — title={title!r}. Headline agent emitted weak title; "
+                f"MUST regenerate (max 2 retry) before persist."
+            )
+```
+
+Validation runs at every `log_pipeline_step` call → orchestrator cannot silently persist weak title. If hits → orchestrator surfaces ValueError → pipeline halt with diagnostic.
 
 ## 12. `lib/headline_scorer.py` — NEW module
 
@@ -483,23 +516,28 @@ Optional — chỉ show trong pipeline log debug view. Public reader chỉ thấ
 
 Total: ~7 new + ~9 modify + 2 patch (V5.0 docs) ≈ 800-1000 LOC.
 
-## 16. Patches required to V5.0 (plan B)
+## 16. Patches required to V5.0 (plan B) — APPLIED INLINE
 
-Spec V5.0 → V5.1 patches (apply concurrently with this spec):
+**Advisor blocker resolution (2026-05-12)**: per user strategy "brainstorm all → plan all → execute" (zero implement-and-delete), patches to V5.0 spec + plan B are applied INLINE concurrent với spec C commit. Plan B will reflect Headline-owns-title từ Task 1 yaml — không cần plan C re-patch sau.
+
+Single canonical patch list (merged from prior §15 + §16):
 
 | V5.0 location | V5.1 patch |
 |---|---|
-| §7 9 gates table | 8 gates (drop `title_pattern` per-format gate — Headline owns title) |
-| §7 `check_all_v5` signature | Remove `title` arg + `format_id` for title gate; signature `check_all_v5(body, format_id, stance)` only |
-| §8 Format Director output schema | Drop `title_pattern` field, drop `title_must_contain*` fields. Keep `length_range`, `bullets_count`, `structure`. |
-| §9 `data/format_registry.yaml` | Remove `title_*` fields from each format spec |
-| §11 Master Step 8 | 8 gates not 9 (title gate removed) |
-| §11 Master Step 9 persist | Add NEW Step 8.6: receive new title from Headline agent (Step 4.5), update DB |
-| §12 Skeptic angles | 9 → 10 (add `weak_title`) |
-| §15 file touch | Add Headline-related files, mark title_pattern removal in quality_gates.py |
-| Plan B Task 6 | Remove `check_title_per_format` + `check_all_v5` title arg |
-| Plan B Task 13-15 | Master applies 8 gates not 9 |
-| Plan B Task 16 (Skeptic) | 10 angles not 9 |
+| Spec V5.0 §7 9 gates table | 8 gates (drop `title_pattern` per-format gate — Headline owns title) |
+| Spec V5.0 §7 `check_all_v5` signature | `check_all_v5(body, format_id, stance)` — drop `title` arg |
+| Spec V5.0 §8 Format Director output schema | Drop `title_pattern` field, drop `title_must_contain*` fields. Keep `length_range`, `bullets_count`, `structure`. |
+| Spec V5.0 §9 `data/format_registry.yaml` schema | Remove `title_*` fields from each format spec |
+| Spec V5.0 §11 Master Step 8 | 8 gates not 9 (title gate removed) |
+| Spec V5.0 §11 Master Step 9 persist | Note Step 4.5 Headline replaces title post-Master (see plan C §10) |
+| Spec V5.0 §12 Skeptic angles | 9 → 10 (add `weak_title`) |
+| Spec V5.0 §15 file touch | Mark `lib/quality_gates.py` removes `check_title_per_format` |
+| Plan B Task 1 `data/format_registry.yaml` | Remove `title_pattern`, `title_must_contain`, `title_must_contain_one_of`, `title_tension_words`, `title_must_match_regex` from all 4 format specs |
+| Plan B Task 6 `check_title_per_format` | Remove function entirely. `check_all_v5` signature drops title arg. |
+| Plan B Task 6 test file `tests/test_quality_gates.py` | Remove all `test_per_format_title_*` tests. Update `test_check_all_v5_dispatches_per_format` to drop title check. |
+| Plan B Task 9 `newsroom-format-director.md` | Remove title_pattern from output schema + 5-step flow Step 4 (was about title — now Headline). |
+| Plan B Task 13-15 Master agents `newsroom-master-*.md` | check_all_v5 invocation drops title. Step 8 = 8 gates. Add note "title comes from Step 4.5 Headline post-Master". |
+| Plan B Task 16 Skeptic `newsroom-skeptic.md` | 10 angles not 9 (add `weak_title`) |
 
 ## 17. Testing strategy
 

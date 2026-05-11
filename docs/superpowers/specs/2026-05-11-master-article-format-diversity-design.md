@@ -1,9 +1,10 @@
-# Master Article Format Diversity — Design Spec V5.0
+# Master Article Format Diversity — Design Spec V5.1
 
-**Date**: 2026-05-11
+**Date**: 2026-05-11 (V5.0 initial), 2026-05-12 (V5.1 — title moves to Headline agent)
 **Author**: Brainstormed with em (Claude)
 **Status**: Draft — pending user review before plan
 **Supersedes**: V4.0 single-format Master article structure (gates from `2026-05-08-newsroom-v4-redesign.md`)
+**Coupled with**: `docs/superpowers/specs/2026-05-12-headline-craft-agent-design.md` (Subsystem C) — title craft moves out of this spec into dedicated agent. Both specs evolve together.
 
 ---
 
@@ -210,12 +211,14 @@ Mỗi bài KHÔNG bắt buộc đủ 4 loại nhưng nên có ≥2 loại khác 
 | 1 | no_english_jargon | Universal | 0% từ tiếng Anh trong body (giữ exception V4.0: tên riêng + pipeline log internal). |
 | 2 | word_count | Per-format | flash_qa: 100-150 / standard_qa: 200-300 / standard_listicle: 250-350 / standard_narrative: 250-350 |
 | 3 | body_pattern | Per-format | flash_qa: paragraph only NO bullet / standard_qa: opening ≥30 + 3-6 bullets each ≥20 từ + closing / standard_listicle: opening ≤30 + 4-7 bullets each ≥25 từ + closing ngắn / standard_narrative: opening ≥40 + flow paragraphs + 0-2 bullet highlight + closing |
-| 4 | title_pattern | Per-format | flash_qa: MUST `?` / standard_qa: `?` HOẶC `—` + tension word / standard_listicle: declarative numbered / standard_narrative: declarative story |
+| ~~4~~ | ~~title_pattern~~ | ~~Per-format~~ | **REMOVED V5.1** — title craft moved to Headline Craft agent (spec 2026-05-12). Master writes draft title, Headline (Step 4.5) rewrites with 4 hard criteria + 8-point scoring. |
 | 5 | no_metadata_leak | Universal | KHÔNG `strategic-shift`, `risk_highlight`, `insight_type`, `Critique angle`, 5-category enum, format_id leak vào body đọc. |
 | 6 | no_hedging (NEW) | Universal | Reject "có thể", "tùy thuộc", "vẫn chờ", "khả năng cao", "đáng theo dõi", "nhiều khả năng", "chưa rõ". |
 | 7 | verdict_line (NEW) | Universal | Closing có 3 yếu tố: hướng + khung TG + action cho NĐT ĐANG cầm. |
 | 8 | stance_consistency (NEW) | Universal | Master viết bám stance brief. Reject nếu brief=bearish nhưng article tone bullish (hoặc vice versa). |
 | 9 | sentence_density (NEW) | Universal | ≥80% câu trong body có ≥1 trong 6 element: số / tên riêng / comparative / time marker / mechanism word / action verb. Banned pure-fluff: "Đây là điều cần lưu ý", "Cần theo dõi sát sao". |
+
+**V5.1 gate count**: 8 gates (was 9 in V5.0). title_pattern removed because Headline Craft agent (Subsystem C) owns title quality holistically — 4 hard criteria + 8-point scoring give better title craft than pattern-only enforcement.
 
 ### Implementation — `lib/gate_checker.py` (NEW module)
 
@@ -236,11 +239,13 @@ def check_all_gates(article: ArticleDraft, format_id: str, stance: str) -> list[
         check_sentence_density(article),
     ]
     per_format_checker = FORMAT_GATE_REGISTRY[format_id]
-    per_format = per_format_checker(article)  # returns 3 results: word_count, body_pattern, title_pattern
+    per_format = per_format_checker(article)  # V5.1: returns 2 results word_count + body_pattern (title removed)
     return universal + per_format
 ```
 
 `FORMAT_GATE_REGISTRY: dict[str, Callable]` — registry pattern parallel với `data/format_registry.yaml`. Add format mới chỉ cần thêm gate function + registry entry.
+
+**V5.1 patch**: `check_title_per_format` removed. Title quality delegated to Headline Craft agent at Step 4.5. Master `check_all_v5` invocation: `check_all_v5(body, format_id, stance)` — title arg removed.
 
 ### 7.1 Gates 7 + 8 — Hybrid enforcement detail (semantic gates)
 
@@ -444,6 +449,8 @@ Hidden_mechanism case duy nhất:
 ### File: `data/format_registry.yaml` (NEW)
 
 ```yaml
+# V5.1 schema — title_* fields removed (Headline Craft agent owns title).
+# Format spec restricted to BODY structure: length + bullets + opening constraints.
 formats:
   flash_qa:
     length_range: [100, 150]
@@ -451,8 +458,6 @@ formats:
     structure: paragraph_only
     bullets_count: [0, 0]
     bullet_min_length: 0
-    title_pattern: question
-    title_must_contain: ["?"]
     tags: [factual, short]
     trigger_categories: []  # fallback when factual single Q, not in 5 deep_question category
 
@@ -464,9 +469,6 @@ formats:
     opening_max: 80
     bullets_count: [3, 6]
     bullet_min_length: 20
-    title_pattern: question_or_paradox
-    title_must_contain_one_of: ["?", "—"]
-    title_tension_words: ["hy sinh", "đánh đổi", "nghịch lý", "vì sao", "đổi lấy", "không phải", "bù lại", "thay vì", "chấp nhận"]
     tags: [insight, paradox]
     trigger_categories: [paradox, why_now, hidden_mechanism]
 
@@ -477,8 +479,6 @@ formats:
     opening_max: 30
     bullets_count: [4, 7]
     bullet_min_length: 25
-    title_pattern: numbered_declarative
-    title_must_match_regex: "^(\\d+|[Mm]ột|[Hh]ai|[Bb]a|[Bb][ốố]n|[Nn][ăă]m)\\s+"  # số đầu title
     tags: [comparison, signals]
     trigger_categories: [comparison_deep, early_signal]
 
@@ -489,8 +489,6 @@ formats:
     opening_min: 40
     bullets_count: [0, 2]
     bullet_min_length: 20  # if bullet present
-    title_pattern: declarative_story
-    title_must_contain: ["—"]  # narrative bao giờ cũng có em dash chia 2 vế
     tags: [mechanism, time_flow]
     trigger_categories: [hidden_mechanism]  # alt to standard_qa
     tie_break_signal: narrative_timeline_markers  # ≥3 timeline markers → pick này
@@ -750,7 +748,7 @@ Total: ~14 modify + 7 new ≈ 1500-1800 new LOC.
 ## 18. Open questions / deferred
 
 1. **Mood-sync FULL trigger Subsystem A** — separate spec when auto top-mover discovery + auto-pipeline trigger needed. (Mood-sync minimal: RESOLVED via Step 1.5 Market Snapshot, §6.)
-2. **Headline craft separate agent Subsystem C** — defer. Format Director per-format title_pattern đã cover. Nếu sếp still chê title, escalate sang dedicated agent.
+2. ~~**Headline craft separate agent Subsystem C** — defer.~~ **RESOLVED 2026-05-12** — Headline Craft V1.0 spec (`2026-05-12-headline-craft-agent-design.md`) extracts title craft to dedicated agent (Sonnet, Step 4.5). V5.0 → V5.1: title_pattern gate removed from Master, 4 hard criteria + 8-point rubric replace it.
 3. **Pipeline observability dedicated agent Subsystem D** — defer. Format Director logging tự đảm bảo độ chi tiết step 3.5. Subsystem D có thể cover global logging cross-step.
 4. **Bullet pool enforcement strict** — chưa quyết hard rule. Currently soft guidance. Reassess sau khi run 10+ bài.
 5. **Length downgrade threshold** — `data_trail_preview ≤ 2 sources AND chỉ số chính ≤ 1` là heuristic. Tune sau khi production data.
@@ -772,3 +770,4 @@ Total: ~14 modify + 7 new ≈ 1500-1800 new LOC.
 |---|---|---|
 | 1.0 | 2026-05-11 | Initial draft from brainstorming session. |
 | 1.1 | 2026-05-11 | Advisor review patches: §6 mood-sync source (Step 1.5 Market Snapshot), §7.1 hybrid gate enforcement for Gates 7+8, §10.1 pipeline_version column + version-gate validation migration, §11 Master format escalation rule (one-shot length-only), §12 Skeptic 9 angles (+ verdict_weak, stance_drift), §14 frontend graceful degrade, §15 file touch list updates. |
+| 5.1 | 2026-05-12 | **Coupled with Headline Craft spec (Subsystem C)**: §7 gates 9 → 8 (title_pattern removed, Headline owns title); §9 format_registry.yaml — title_* fields removed; `check_all_v5` signature drops title arg; §18 open question 2 (Headline agent) marked RESOLVED. Pipeline V5.0 (11 steps) → V5.1 (12 steps with Step 4.5 Headline). |
