@@ -1,18 +1,22 @@
 /**
- * Single source of truth for the 16-ticker MVP universe.
+ * Single source of truth for the ticker universe.
  *
  * Acts as the static "API" for the filter UI. When a real backend ticker
  * endpoint comes online, swap the constants for an async fetch — the
  * `TickerInfo` shape and the `SECTORS` enum stay the same.
+ *
+ * Note: HDF (Bank cooperative) intentionally deferred — flagged uncertain.
  */
 
 export type Sector = 'bank' | 'ck' | 'bds';
+export type Exchange = 'HOSE' | 'HNX' | 'UPCOM';
 
 export interface TickerInfo {
   code: string;
   name: string;
   sector: Sector;
-  /** Extra search hints — diacritic-stripped names, alt spellings, popular nicknames. */
+  exchange: Exchange;
+  /** Diacritic-stripped names, alt spellings, popular nicknames. */
   aliases?: string[];
 }
 
@@ -29,107 +33,79 @@ export const SECTORS: readonly SectorOption[] = [
 ] as const;
 
 export const TICKER_UNIVERSE: TickerInfo[] = [
-  // ─── Bank (7) ───────────────────────────────────────────────────────
-  {
-    code: 'TCB',
-    name: 'Techcombank',
-    sector: 'bank',
-    aliases: ['Kỹ Thương', 'Ky Thuong', 'NH Kỹ Thương'],
-  },
-  {
-    code: 'VCB',
-    name: 'Vietcombank',
-    sector: 'bank',
-    aliases: ['Ngoại Thương', 'Ngoai Thuong', 'NH Ngoại Thương'],
-  },
-  {
-    code: 'MBB',
-    name: 'MB Bank',
-    sector: 'bank',
-    aliases: ['Quân Đội', 'Quan Doi', 'MBBank', 'NH Quân Đội'],
-  },
-  {
-    code: 'ACB',
-    name: 'ACB',
-    sector: 'bank',
-    aliases: ['Á Châu', 'A Chau', 'NH Á Châu'],
-  },
-  {
-    code: 'BID',
-    name: 'BIDV',
-    sector: 'bank',
-    aliases: ['Đầu tư và Phát triển', 'Dau tu Phat trien', 'NH BIDV'],
-  },
-  {
-    code: 'CTG',
-    name: 'VietinBank',
-    sector: 'bank',
-    aliases: ['Công Thương', 'Cong Thuong', 'Vietin', 'NH Công Thương'],
-  },
-  {
-    code: 'VPB',
-    name: 'VPBank',
-    sector: 'bank',
-    aliases: ['Việt Nam Thịnh Vượng', 'Viet Nam Thinh Vuong', 'VPB Bank'],
-  },
+  // ─── Bank · HOSE (16) ────────────────────────────────────────────────
+  { code: 'VCB', name: 'Vietcombank', sector: 'bank', exchange: 'HOSE', aliases: ['Ngoại Thương', 'Ngoai Thuong', 'NH Ngoại Thương'] },
+  { code: 'CTG', name: 'VietinBank', sector: 'bank', exchange: 'HOSE', aliases: ['Công Thương', 'Cong Thuong', 'Vietin'] },
+  { code: 'BID', name: 'BIDV', sector: 'bank', exchange: 'HOSE', aliases: ['Đầu tư và Phát triển', 'Dau tu Phat trien'] },
+  { code: 'TCB', name: 'Techcombank', sector: 'bank', exchange: 'HOSE', aliases: ['Kỹ Thương', 'Ky Thuong'] },
+  { code: 'MBB', name: 'MB Bank', sector: 'bank', exchange: 'HOSE', aliases: ['Quân Đội', 'Quan Doi', 'MBBank', 'MB'] },
+  { code: 'ACB', name: 'ACB', sector: 'bank', exchange: 'HOSE', aliases: ['Á Châu', 'A Chau'] },
+  { code: 'VPB', name: 'VPBank', sector: 'bank', exchange: 'HOSE', aliases: ['Việt Nam Thịnh Vượng', 'Viet Nam Thinh Vuong'] },
+  { code: 'HDB', name: 'HDBank', sector: 'bank', exchange: 'HOSE', aliases: ['Phát triển TP HCM', 'HD Bank'] },
+  { code: 'STB', name: 'Sacombank', sector: 'bank', exchange: 'HOSE', aliases: ['Sài Gòn Thương Tín', 'Sai Gon Thuong Tin', 'Sacom'] },
+  { code: 'SHB', name: 'SHB', sector: 'bank', exchange: 'HOSE', aliases: ['Sài Gòn Hà Nội Bank', 'Sai Gon Ha Noi'] },
+  { code: 'EIB', name: 'Eximbank', sector: 'bank', exchange: 'HOSE', aliases: ['Xuất nhập khẩu', 'Xuat nhap khau'] },
+  { code: 'TPB', name: 'TPBank', sector: 'bank', exchange: 'HOSE', aliases: ['Tiên Phong', 'Tien Phong'] },
+  { code: 'MSB', name: 'MSB', sector: 'bank', exchange: 'HOSE', aliases: ['Maritime Bank', 'Hàng Hải', 'Hang Hai'] },
+  { code: 'LPB', name: 'LPBank', sector: 'bank', exchange: 'HOSE', aliases: ['Lộc Phát', 'Loc Phat', 'Liên Việt', 'LienVietPostBank'] },
+  { code: 'OCB', name: 'OCB', sector: 'bank', exchange: 'HOSE', aliases: ['Phương Đông', 'Phuong Dong'] },
+  { code: 'VIB', name: 'VIB', sector: 'bank', exchange: 'HOSE', aliases: ['Quốc tế', 'Quoc te', 'NH Quốc tế'] },
 
-  // ─── Chứng khoán (5) ───────────────────────────────────────────────
-  {
-    code: 'SSI',
-    name: 'CK SSI',
-    sector: 'ck',
-    aliases: ['SSI Securities', 'Sài Gòn Hà Nội Inc'],
-  },
-  {
-    code: 'VND',
-    name: 'VNDirect',
-    sector: 'ck',
-    aliases: ['VN Direct', 'VND Securities'],
-  },
-  {
-    code: 'HCM',
-    name: 'HSC',
-    sector: 'ck',
-    aliases: ['Chứng khoán TP HCM', 'HCMC Securities', 'Ho Chi Minh Securities'],
-  },
-  {
-    code: 'VCI',
-    name: 'Vietcap',
-    sector: 'ck',
-    aliases: ['Bản Việt', 'Ban Viet', 'CK Bản Việt'],
-  },
-  {
-    code: 'SHS',
-    name: 'SHS',
-    sector: 'ck',
-    aliases: ['Sài Gòn Hà Nội', 'Sai Gon Ha Noi', 'SHS Securities'],
-  },
+  // ─── Bank · HNX (4) ─────────────────────────────────────────────────
+  { code: 'NAB', name: 'Nam Á Bank', sector: 'bank', exchange: 'HNX', aliases: ['Nam A', 'Nam Á'] },
+  { code: 'BAB', name: 'Bắc Á Bank', sector: 'bank', exchange: 'HNX', aliases: ['Bac A', 'BacABank'] },
+  { code: 'NVB', name: 'NCB', sector: 'bank', exchange: 'HNX', aliases: ['Quốc Dân', 'Quoc Dan', 'National Citizen'] },
+  { code: 'SGB', name: 'Saigonbank', sector: 'bank', exchange: 'HNX', aliases: ['Sài Gòn Công Thương', 'Sai Gon Cong Thuong'] },
 
-  // ─── Bất động sản (4) ──────────────────────────────────────────────
-  {
-    code: 'VHM',
-    name: 'Vinhomes',
-    sector: 'bds',
-    aliases: ['Vin Homes', 'Vinhomes JSC'],
-  },
-  {
-    code: 'NVL',
-    name: 'Novaland',
-    sector: 'bds',
-    aliases: ['Nova Land', 'NVL Group'],
-  },
-  {
-    code: 'KDH',
-    name: 'Khang Điền',
-    sector: 'bds',
-    aliases: ['Khang Dien', 'Nhà Khang Điền'],
-  },
-  {
-    code: 'DXG',
-    name: 'Đất Xanh Group',
-    sector: 'bds',
-    aliases: ['Dat Xanh', 'Đất Xanh', 'DXG Real Estate'],
-  },
+  // ─── Bank · UPCOM (6) ───────────────────────────────────────────────
+  { code: 'VAB', name: 'VietABank', sector: 'bank', exchange: 'UPCOM', aliases: ['Việt Á', 'Viet A'] },
+  { code: 'BVB', name: 'Viet Capital Bank', sector: 'bank', exchange: 'UPCOM', aliases: ['Bản Việt Bank', 'Ban Viet Bank'] },
+  { code: 'ABB', name: 'ABBank', sector: 'bank', exchange: 'UPCOM', aliases: ['An Bình', 'An Binh'] },
+  { code: 'KLB', name: 'Kienlongbank', sector: 'bank', exchange: 'UPCOM', aliases: ['Kiên Long', 'Kien Long'] },
+  { code: 'VBB', name: 'VietBank', sector: 'bank', exchange: 'UPCOM', aliases: ['Việt Nam Thương Tín', 'Viet Nam Thuong Tin'] },
+  { code: 'PGB', name: 'PGBank', sector: 'bank', exchange: 'UPCOM', aliases: ['Xăng dầu Petrolimex', 'Xang dau'] },
+
+  // ─── CK · HOSE (5) ──────────────────────────────────────────────────
+  { code: 'SSI', name: 'SSI', sector: 'ck', exchange: 'HOSE', aliases: ['CK SSI', 'Sài Gòn', 'SSI Securities'] },
+  { code: 'VND', name: 'VNDirect', sector: 'ck', exchange: 'HOSE', aliases: ['VN Direct', 'VND Securities'] },
+  { code: 'HCM', name: 'HSC', sector: 'ck', exchange: 'HOSE', aliases: ['Chứng khoán TP HCM', 'HCMC Securities'] },
+  { code: 'VCI', name: 'Vietcap', sector: 'ck', exchange: 'HOSE', aliases: ['Bản Việt', 'Ban Viet', 'CK Bản Việt'] },
+  { code: 'VIX', name: 'VIX', sector: 'ck', exchange: 'HOSE', aliases: ['VnInvest', 'Vietnam Investment'] },
+
+  // ─── CK · HNX (15) ──────────────────────────────────────────────────
+  { code: 'SHS', name: 'SHS', sector: 'ck', exchange: 'HNX', aliases: ['Sài Gòn Hà Nội CK', 'Sai Gon Ha Noi'] },
+  { code: 'MBS', name: 'MBS', sector: 'ck', exchange: 'HNX', aliases: ['MB Securities', 'MB CK'] },
+  { code: 'BVS', name: 'BVSC', sector: 'ck', exchange: 'HNX', aliases: ['Bảo Việt CK', 'Bao Viet'] },
+  { code: 'BSI', name: 'BSC', sector: 'ck', exchange: 'HNX', aliases: ['BIDV Securities', 'BIDV CK'] },
+  { code: 'AGR', name: 'Agriseco', sector: 'ck', exchange: 'HNX', aliases: ['Agribank CK', 'Agribank Securities'] },
+  { code: 'CTS', name: 'CTS', sector: 'ck', exchange: 'HNX', aliases: ['VietinBank Securities', 'Vietin CK'] },
+  { code: 'APG', name: 'APG', sector: 'ck', exchange: 'HNX', aliases: ['APG Securities'] },
+  { code: 'EVS', name: 'Everest', sector: 'ck', exchange: 'HNX', aliases: ['Everest Securities', 'Everest CK'] },
+  { code: 'IVS', name: 'IVS', sector: 'ck', exchange: 'HNX', aliases: ['Đầu tư Việt Nam', 'Dau tu Viet Nam'] },
+  { code: 'PSI', name: 'PSI', sector: 'ck', exchange: 'HNX', aliases: ['Dầu khí', 'Dau khi', 'Petrosetco'] },
+  { code: 'TVS', name: 'Thiên Việt', sector: 'ck', exchange: 'HNX', aliases: ['Thien Viet', 'TVS Securities'] },
+  { code: 'WSS', name: 'Phố Wall', sector: 'ck', exchange: 'HNX', aliases: ['Pho Wall', 'Wall Street'] },
+  { code: 'ORS', name: 'TPS', sector: 'ck', exchange: 'HNX', aliases: ['Tiên Phong CK', 'Tien Phong Securities'] },
+  { code: 'VFS', name: 'Nhất Việt', sector: 'ck', exchange: 'HNX', aliases: ['Nhat Viet CK', 'NVS'] },
+  { code: 'TCI', name: 'Thành Công', sector: 'ck', exchange: 'HNX', aliases: ['Thanh Cong', 'TCI Securities'] },
+
+  // ─── CK · UPCOM (10) ────────────────────────────────────────────────
+  { code: 'DSC', name: 'DSC', sector: 'ck', exchange: 'UPCOM', aliases: ['Đông Sài Gòn', 'Dong Sai Gon'] },
+  { code: 'FTS', name: 'FPTS', sector: 'ck', exchange: 'UPCOM', aliases: ['FPT Securities', 'FPT CK'] },
+  { code: 'CSI', name: 'CSI', sector: 'ck', exchange: 'UPCOM', aliases: ['Kiến Thiết', 'Kien Thiet'] },
+  { code: 'SBS', name: 'SBSC', sector: 'ck', exchange: 'UPCOM', aliases: ['Sacombank Securities', 'Sacombank CK'] },
+  { code: 'PHS', name: 'Phú Hưng', sector: 'ck', exchange: 'UPCOM', aliases: ['Phu Hung', 'PHS Securities'] },
+  { code: 'ART', name: 'BOS', sector: 'ck', exchange: 'UPCOM', aliases: ['BOS Securities', 'ART CK'] },
+  { code: 'APS', name: 'APEC', sector: 'ck', exchange: 'UPCOM', aliases: ['APEC Securities', 'Châu Á Thái Bình Dương'] },
+  { code: 'BMS', name: 'Bảo Minh CK', sector: 'ck', exchange: 'UPCOM', aliases: ['Bao Minh', 'BMS Securities'] },
+  { code: 'AAS', name: 'Smart Invest', sector: 'ck', exchange: 'UPCOM', aliases: ['SmartInvest', 'AAS Securities'] },
+  { code: 'VTS', name: 'Việt Tín', sector: 'ck', exchange: 'UPCOM', aliases: ['Viet Tin', 'VTS Securities'] },
+
+  // ─── BĐS · HOSE (4) ─────────────────────────────────────────────────
+  { code: 'VHM', name: 'Vinhomes', sector: 'bds', exchange: 'HOSE', aliases: ['Vin Homes'] },
+  { code: 'NVL', name: 'Novaland', sector: 'bds', exchange: 'HOSE', aliases: ['Nova Land', 'NVL Group'] },
+  { code: 'KDH', name: 'Khang Điền', sector: 'bds', exchange: 'HOSE', aliases: ['Khang Dien'] },
+  { code: 'DXG', name: 'Đất Xanh Group', sector: 'bds', exchange: 'HOSE', aliases: ['Dat Xanh', 'DXG Real Estate'] },
 ];
 
 export function getTickerInfo(code: string): TickerInfo | undefined {

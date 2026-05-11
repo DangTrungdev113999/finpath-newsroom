@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Fuse from 'fuse.js';
-import { Check, ChevronDown, Search, Tag, X } from 'lucide-react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { ChevronDown, Search, Tag, X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -45,7 +46,7 @@ export function useSymbolFilter() {
   return { selected, setSelected };
 }
 
-// Build Fuse index once at module load — universe is static
+// Fuse index — rebuilt once at module load
 const fuse = new Fuse<TickerInfo>(TICKER_UNIVERSE, {
   keys: [
     { name: 'code', weight: 3 },
@@ -67,6 +68,8 @@ function countByTicker<T extends { ticker: string }>(
 
 type SectorFilter = 'all' | Sector;
 
+const ROW_HEIGHT = 40;
+
 export function SymbolFilter<T extends { ticker: string }>({
   items,
   selected,
@@ -80,6 +83,7 @@ export function SymbolFilter<T extends { ticker: string }>({
   const [query, setQuery] = useState('');
   const [sectorTab, setSectorTab] = useState<SectorFilter>('all');
   const searchRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const counts = useMemo(() => countByTicker(items), [items]);
 
@@ -102,7 +106,6 @@ export function SymbolFilter<T extends { ticker: string }>({
       const aSel = sel.has(a.code);
       const bSel = sel.has(b.code);
       if (aSel !== bSel) return aSel ? -1 : 1;
-      // Then: sector group order
       if (a.sector !== b.sector) {
         return (
           SECTORS.findIndex((s) => s.id === a.sector) -
@@ -123,7 +126,14 @@ export function SymbolFilter<T extends { ticker: string }>({
     return m;
   }, [counts]);
 
-  // Focus search + reset state on open
+  // Virtualizer
+  const virtualizer = useVirtualizer({
+    count: visible.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => ROW_HEIGHT,
+    overscan: 10,
+  });
+
   useEffect(() => {
     if (!open) return;
     setQuery('');
@@ -131,6 +141,11 @@ export function SymbolFilter<T extends { ticker: string }>({
     const id = requestAnimationFrame(() => searchRef.current?.focus());
     return () => cancelAnimationFrame(id);
   }, [open]);
+
+  // Reset scroll to top when filter changes
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [query, sectorTab]);
 
   const toggle = (code: string) => {
     onChange(
@@ -181,56 +196,54 @@ export function SymbolFilter<T extends { ticker: string }>({
         </DialogTrigger>
 
         <DialogContent className="flex max-h-[88vh] flex-col">
+          {/* SR-only accessibility labels — visual header below is hand-laid */}
+          <DialogTitle className="sr-only">Lọc cổ phiếu</DialogTitle>
+          <DialogDescription className="sr-only">
+            Chọn các mã cổ phiếu để lọc danh sách bài viết
+          </DialogDescription>
+
           {/* ── Header (compact single row) ────────────────────────── */}
-          <div className="flex items-center gap-3 border-b border-fg-4/30 bg-bg-2/40 px-5 py-3 pr-14">
+          <div className="flex items-center gap-2.5 border-b border-fg-4/30 bg-bg-2/40 px-4 py-2.5 pr-11">
             <Tag
-              className="h-4 w-4 shrink-0 text-brand"
+              className="h-3.5 w-3.5 shrink-0 text-brand"
               strokeWidth={2}
               aria-hidden
             />
-            <DialogTitle className="!text-[14px] !font-semibold">
+            <span className="font-display text-[14px] font-semibold tracking-[-0.01em] text-fg-0">
               Lọc cổ phiếu
-            </DialogTitle>
-            <DialogDescription className="!text-[11px] tabular-nums">
+            </span>
+            <span className="ml-auto font-mono text-[11px] tabular-nums">
               {hasSelection ? (
                 <>
-                  <span className="font-mono font-semibold text-brand">
-                    {selected.length}
-                  </span>
+                  <span className="font-semibold text-brand">{selected.length}</span>
                   <span className="text-fg-3"> chọn · </span>
-                  <span className="font-mono font-semibold text-fg-1">
-                    {filteredArticleCount}
-                  </span>
+                  <span className="font-semibold text-fg-1">{filteredArticleCount}</span>
                   <span className="text-fg-3">/{totalArticles} bài</span>
                 </>
               ) : (
                 <>
-                  <span className="font-mono font-semibold text-fg-1">
-                    {TICKER_UNIVERSE.length}
-                  </span>
+                  <span className="font-semibold text-fg-1">{TICKER_UNIVERSE.length}</span>
                   <span className="text-fg-3"> mã · </span>
-                  <span className="font-mono font-semibold text-fg-1">
-                    {totalArticles}
-                  </span>
+                  <span className="font-semibold text-fg-1">{totalArticles}</span>
                   <span className="text-fg-3"> bài</span>
                 </>
               )}
-            </DialogDescription>
+            </span>
           </div>
 
           {/* ── Controls ───────────────────────────────────────────── */}
-          <div className="space-y-2.5 border-b border-fg-4/30 px-5 py-3">
+          <div className="space-y-2 border-b border-fg-4/30 px-4 py-2.5">
             {/* Search */}
             <label
               className={cn(
-                'flex h-10 items-center gap-2 rounded-lg bg-bg-0 px-3',
+                'flex h-9 items-center gap-2 rounded-lg bg-bg-0 px-2.5',
                 'shadow-[inset_0_0_0_1px_hsl(var(--fg-4)/0.55)]',
                 'focus-within:shadow-[inset_0_0_0_1.5px_hsl(var(--brand))]',
                 'transition-shadow duration-fast ease-out-quart',
               )}
             >
               <Search
-                className="h-4 w-4 shrink-0 text-fg-3"
+                className="h-3.5 w-3.5 shrink-0 text-fg-3"
                 strokeWidth={1.75}
                 aria-hidden
               />
@@ -238,8 +251,8 @@ export function SymbolFilter<T extends { ticker: string }>({
                 ref={searchRef}
                 value={query}
                 onChange={(e) => setQuery(e.currentTarget.value)}
-                placeholder="Tìm mã hoặc tên — VCB, Vietcombank, Kỹ Thương…"
-                className="flex-1 bg-transparent font-sans text-[13px] text-fg-0 outline-none placeholder:text-fg-3"
+                placeholder="Tìm mã hoặc tên — VCB, Vietcombank, Techcom…"
+                className="flex-1 bg-transparent font-sans text-[12.5px] text-fg-0 outline-none placeholder:text-fg-3"
                 aria-label="Tìm mã cổ phiếu"
                 spellCheck={false}
                 autoComplete="off"
@@ -260,13 +273,12 @@ export function SymbolFilter<T extends { ticker: string }>({
             </label>
 
             {/* Sector tabs */}
-            <div className="flex items-center gap-1 rounded-pill bg-bg-2/60 p-1">
+            <div className="flex items-center gap-0.5 rounded-pill bg-bg-2/60 p-0.5">
               <SectorTab
                 active={sectorTab === 'all'}
                 onClick={() => setSectorTab('all')}
                 label="Tất cả"
                 count={sectorCounts.all}
-                total={TICKER_UNIVERSE.length}
               />
               {SECTORS.map((s) => (
                 <SectorTab
@@ -275,25 +287,19 @@ export function SymbolFilter<T extends { ticker: string }>({
                   onClick={() => setSectorTab(s.id)}
                   label={s.label}
                   count={sectorCounts[s.id]}
-                  total={
-                    TICKER_UNIVERSE.filter((t) => t.sector === s.id).length
-                  }
                 />
               ))}
             </div>
 
             {/* Selected chips */}
             {hasSelection && (
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-fg-3">
-                  Đã chọn
-                </span>
-                {selected.map((code) => (
+              <div className="flex flex-wrap items-center gap-1">
+                {selected.slice(0, 10).map((code) => (
                   <button
                     type="button"
                     key={code}
                     onClick={() => toggle(code)}
-                    className="group/chip inline-flex items-center gap-1 rounded-pill border border-brand/50 bg-brand/10 px-2 py-[2px] font-mono text-[10px] font-semibold tabular-nums tracking-[0.04em] text-fg-0 transition-colors duration-fast hover:border-brand hover:bg-brand/20"
+                    className="group/chip inline-flex items-center gap-1 rounded-pill border border-brand/50 bg-brand/10 px-1.5 py-[1px] font-mono text-[10px] font-semibold tabular-nums text-fg-0 transition-colors duration-fast hover:border-brand hover:bg-brand/20"
                     aria-label={`Bỏ ${code}`}
                   >
                     {code}
@@ -303,19 +309,28 @@ export function SymbolFilter<T extends { ticker: string }>({
                     />
                   </button>
                 ))}
+                {selected.length > 10 && (
+                  <span className="font-mono text-[10px] tabular-nums text-fg-3">
+                    +{selected.length - 10}
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={clearAll}
-                  className="ml-auto rounded-md px-2 py-0.5 font-sans text-[10.5px] font-medium text-fg-3 transition-colors hover:bg-bg-2 hover:text-fg-0"
+                  className="ml-auto rounded-md px-1.5 py-0.5 font-sans text-[10.5px] font-medium text-fg-3 transition-colors hover:bg-bg-2 hover:text-fg-0"
                 >
-                  Bỏ chọn tất cả
+                  Bỏ chọn
                 </button>
               </div>
             )}
           </div>
 
-          {/* ── Grid ──────────────────────────────────────────────── */}
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3">
+          {/* ── Virtualized list ──────────────────────────────────── */}
+          <div
+            ref={scrollRef}
+            className="min-h-0 flex-1 overflow-y-auto"
+            style={{ contain: 'strict' }}
+          >
             {visible.length === 0 ? (
               <div className="flex h-32 items-center justify-center">
                 <p className="text-center font-mono text-[12px] text-fg-3">
@@ -330,29 +345,48 @@ export function SymbolFilter<T extends { ticker: string }>({
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {visible.map((t) => (
-                  <TickerCard
-                    key={t.code}
-                    ticker={t}
-                    count={counts.get(t.code) ?? 0}
-                    selected={selected.includes(t.code)}
-                    onToggle={() => toggle(t.code)}
-                  />
-                ))}
+              <div
+                style={{
+                  height: virtualizer.getTotalSize(),
+                  position: 'relative',
+                }}
+              >
+                {virtualizer.getVirtualItems().map((vRow) => {
+                  const t = visible[vRow.index];
+                  if (!t) return null;
+                  return (
+                    <div
+                      key={t.code}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        transform: `translateY(${vRow.start}px)`,
+                        height: vRow.size,
+                      }}
+                    >
+                      <TickerRow
+                        ticker={t}
+                        count={counts.get(t.code) ?? 0}
+                        selected={selected.includes(t.code)}
+                        onToggle={() => toggle(t.code)}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
 
           {/* ── Footer ─────────────────────────────────────────────── */}
-          <div className="flex items-center justify-between gap-3 border-t border-fg-4/30 bg-bg-2/40 px-5 py-2.5">
+          <div className="flex items-center justify-between gap-3 border-t border-fg-4/30 bg-bg-2/40 px-4 py-2">
             <span className="font-mono text-[10.5px] text-fg-3">
-              {visible.length} mã hiển thị
+              {visible.length} / {TICKER_UNIVERSE.length} mã
               {query && (
                 <>
                   {' '}
-                  · từ khóa{' '}
-                  <span className="font-semibold text-fg-1">"{query}"</span>
+                  · "<span className="font-semibold text-fg-1">{query}</span>"
                 </>
               )}
             </span>
@@ -360,10 +394,10 @@ export function SymbolFilter<T extends { ticker: string }>({
               type="button"
               onClick={() => setOpen(false)}
               className={cn(
-                'inline-flex h-8 items-center gap-1.5 rounded-pill px-4 font-sans text-[12px] font-semibold transition-all duration-fast',
+                'inline-flex h-7 items-center gap-1.5 rounded-pill px-3.5 font-sans text-[12px] font-semibold transition-all duration-fast',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35',
                 hasSelection
-                  ? 'bg-brand text-brand-fg shadow-sm shadow-brand/25 hover:shadow-brand/40'
+                  ? 'bg-brand text-brand-fg shadow-sm shadow-brand/25'
                   : 'bg-fg-0 text-bg-1 hover:opacity-90',
               )}
             >
@@ -382,7 +416,7 @@ export function SymbolFilter<T extends { ticker: string }>({
         </DialogContent>
       </Dialog>
 
-      {/* Inline removable chips (outside dialog) */}
+      {/* Inline removable chips outside dialog */}
       {hasSelection && (
         <div className="flex flex-wrap items-center gap-1">
           {selected.slice(0, 6).map((code) => (
@@ -390,11 +424,7 @@ export function SymbolFilter<T extends { ticker: string }>({
               type="button"
               key={code}
               onClick={() => onChange(selected.filter((c) => c !== code))}
-              className={cn(
-                'group/chip inline-flex items-center gap-1 rounded-pill border border-brand/50 bg-brand/10 px-2 py-[2px]',
-                'font-mono text-[10px] font-semibold tabular-nums tracking-[0.04em] text-fg-0',
-                'transition-colors duration-fast hover:border-brand hover:bg-brand/20',
-              )}
+              className="group/chip inline-flex items-center gap-1 rounded-pill border border-brand/50 bg-brand/10 px-2 py-[2px] font-mono text-[10px] font-semibold tabular-nums tracking-[0.04em] text-fg-0 transition-colors duration-fast hover:border-brand hover:bg-brand/20"
               aria-label={`Bỏ ${code}`}
               title={`Bỏ ${code}`}
             >
@@ -416,7 +446,7 @@ export function SymbolFilter<T extends { ticker: string }>({
   );
 }
 
-function TickerCard({
+function TickerRow({
   ticker,
   count,
   selected,
@@ -428,12 +458,8 @@ function TickerCard({
   onToggle: () => void;
 }) {
   const hasArticles = count > 0;
-  const sectorLabel =
-    ticker.sector === 'bank'
-      ? 'Ngân hàng'
-      : ticker.sector === 'ck'
-        ? 'Chứng khoán'
-        : 'Bất động sản';
+  const sectorShort =
+    ticker.sector === 'bank' ? 'NH' : ticker.sector === 'ck' ? 'CK' : 'BĐS';
 
   return (
     <button
@@ -441,70 +467,76 @@ function TickerCard({
       onClick={onToggle}
       aria-pressed={selected}
       className={cn(
-        'group/card relative flex flex-col items-start gap-1.5 rounded-xl border p-3 text-left transition-all duration-fast ease-out-quart',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35',
+        'group/row flex h-full w-full items-center gap-2.5 px-4 text-left transition-colors duration-fast',
+        'border-b border-fg-4/15',
         selected
-          ? 'border-brand/60 bg-brand/[0.08] shadow-sm shadow-brand/15'
-          : hasArticles
-            ? 'border-fg-4/40 bg-bg-1 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md hover:shadow-fg-0/5'
-            : 'border-fg-4/30 bg-bg-1/60 opacity-70 hover:opacity-100 hover:border-fg-4/60',
+          ? 'bg-brand/[0.09] hover:bg-brand/[0.12]'
+          : 'hover:bg-bg-2/70',
+        !hasArticles && !selected && 'opacity-65',
       )}
     >
-      {/* Check indicator */}
-      {selected && (
-        <span
-          aria-hidden
-          className="absolute right-2.5 top-2.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand text-brand-fg shadow-sm shadow-brand/30"
-        >
-          <Check className="h-3 w-3" strokeWidth={3} />
-        </span>
-      )}
+      {/* Checkbox indicator */}
+      <span
+        aria-hidden
+        className={cn(
+          'flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border transition-colors duration-fast',
+          selected
+            ? 'border-brand bg-brand text-brand-fg'
+            : 'border-fg-4/60 bg-bg-1',
+        )}
+      >
+        {selected && (
+          <svg
+            viewBox="0 0 12 12"
+            className="h-2.5 w-2.5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M2.5 6.5l2.5 2.5 4.5-5" />
+          </svg>
+        )}
+      </span>
 
-      {/* Top row: code + sector chip */}
-      <div className="flex w-full items-center gap-2">
-        <span className="font-mono text-[15px] font-bold tabular-nums tracking-[0.02em] text-fg-0">
-          {ticker.code}
-        </span>
-        <span
-          className={cn(
-            'rounded-pill px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-wider',
-            ticker.sector === 'bank' && 'bg-fg-4/25 text-fg-2',
-            ticker.sector === 'ck' && 'bg-fg-4/25 text-fg-2',
-            ticker.sector === 'bds' && 'bg-fg-4/25 text-fg-2',
-            selected && 'bg-brand/20 text-brand',
-          )}
-          title={sectorLabel}
-        >
-          {ticker.sector === 'bank'
-            ? 'NH'
-            : ticker.sector === 'ck'
-              ? 'CK'
-              : 'BĐS'}
-        </span>
-      </div>
+      {/* Code */}
+      <span className="w-12 shrink-0 font-mono text-[12.5px] font-bold tabular-nums tracking-[0.03em] text-fg-0">
+        {ticker.code}
+      </span>
 
       {/* Name */}
-      <span className="line-clamp-1 font-sans text-[12px] font-medium text-fg-1">
+      <span className="min-w-0 flex-1 truncate font-sans text-[12px] text-fg-1">
         {ticker.name}
       </span>
 
-      {/* Bottom row: article count */}
-      <div className="mt-0.5 flex w-full items-center gap-1.5 border-t border-fg-4/25 pt-1.5">
+      {/* Exchange */}
+      <span className="hidden shrink-0 font-mono text-[9px] uppercase tracking-wider text-fg-3 sm:inline">
+        {ticker.exchange}
+      </span>
+
+      {/* Sector chip */}
+      <span
+        className={cn(
+          'shrink-0 rounded-pill px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-wider',
+          selected ? 'bg-brand/20 text-brand' : 'bg-fg-4/25 text-fg-2',
+        )}
+      >
+        {sectorShort}
+      </span>
+
+      {/* Count */}
+      <span className="flex w-14 shrink-0 items-center justify-end gap-1 font-mono text-[10.5px] tabular-nums">
         <span
           className={cn(
             'inline-block h-1.5 w-1.5 rounded-full',
             hasArticles ? 'bg-brand' : 'bg-fg-4',
           )}
         />
-        <span
-          className={cn(
-            'font-mono text-[10px] tabular-nums',
-            hasArticles ? 'text-fg-1' : 'text-fg-3',
-          )}
-        >
-          {hasArticles ? `${count} bài` : 'chưa có bài'}
+        <span className={hasArticles ? 'text-fg-1' : 'text-fg-3'}>
+          {hasArticles ? `${count}` : '·'}
         </span>
-      </div>
+      </span>
     </button>
   );
 }
@@ -519,14 +551,13 @@ function SectorTab({
   onClick: () => void;
   label: string;
   count: number;
-  total: number;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        'flex flex-1 items-center justify-center gap-1.5 rounded-pill px-3 py-1.5 font-sans text-[12px] font-medium transition-all duration-fast',
+        'flex flex-1 items-center justify-center gap-1.5 rounded-pill px-2.5 py-1 font-sans text-[11.5px] font-medium transition-all duration-fast',
         active
           ? 'bg-brand text-brand-fg shadow-sm shadow-brand/20'
           : 'text-fg-2 hover:text-fg-0',
