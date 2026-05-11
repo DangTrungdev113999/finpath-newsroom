@@ -16,90 +16,94 @@ export interface PuterVoice {
   note?: string;
 }
 
+/**
+ * Labels are Vietnamese descriptors (not the underlying engine voice name)
+ * so the UI feels native. Internal `voice` field keeps the OpenAI/Gemini id.
+ */
 export const PUTER_VIETNAMESE_VOICES: PuterVoice[] = [
-  // OpenAI multilingual (gpt-4o-mini-tts) — strong Vietnamese pronunciation
-  {
-    id: 'openai-nova',
-    label: 'Nova',
-    provider: 'openai',
-    voice: 'nova',
-    model: 'gpt-4o-mini-tts',
-    gender: 'female',
-    note: 'sáng, năng động',
-  },
-  {
-    id: 'openai-shimmer',
-    label: 'Shimmer',
-    provider: 'openai',
-    voice: 'shimmer',
-    model: 'gpt-4o-mini-tts',
-    gender: 'female',
-    note: 'nhẹ nhàng',
-  },
-  {
-    id: 'openai-coral',
-    label: 'Coral',
-    provider: 'openai',
-    voice: 'coral',
-    model: 'gpt-4o-mini-tts',
-    gender: 'female',
-    note: 'ấm, kể chuyện',
-  },
-  {
-    id: 'openai-onyx',
-    label: 'Onyx',
-    provider: 'openai',
-    voice: 'onyx',
-    model: 'gpt-4o-mini-tts',
-    gender: 'male',
-    note: 'trầm, chắc',
-  },
+  // ─── Nam ────────────────────────────────────────────────────────────
   {
     id: 'openai-echo',
-    label: 'Echo',
+    label: 'Nam điềm tĩnh',
     provider: 'openai',
     voice: 'echo',
     model: 'gpt-4o-mini-tts',
     gender: 'male',
-    note: 'điềm tĩnh',
+    note: 'rõ, đều',
+  },
+  {
+    id: 'openai-onyx',
+    label: 'Nam trầm',
+    provider: 'openai',
+    voice: 'onyx',
+    model: 'gpt-4o-mini-tts',
+    gender: 'male',
+    note: 'sâu, chắc',
   },
   {
     id: 'openai-fable',
-    label: 'Fable',
+    label: 'Nam kể chuyện',
     provider: 'openai',
     voice: 'fable',
     model: 'gpt-4o-mini-tts',
     gender: 'male',
-    note: 'kể chuyện',
-  },
-  // Gemini multilingual
-  {
-    id: 'gemini-Kore',
-    label: 'Kore',
-    provider: 'gemini',
-    voice: 'Kore',
-    gender: 'female',
-    note: 'Gemini · ấm',
-  },
-  {
-    id: 'gemini-Zephyr',
-    label: 'Zephyr',
-    provider: 'gemini',
-    voice: 'Zephyr',
-    gender: 'female',
-    note: 'Gemini · thanh',
+    note: 'biểu cảm',
   },
   {
     id: 'gemini-Puck',
-    label: 'Puck',
+    label: 'Nam năng động',
     provider: 'gemini',
     voice: 'Puck',
     gender: 'male',
-    note: 'Gemini · năng động',
+    note: 'sống động',
+  },
+  // ─── Nữ ─────────────────────────────────────────────────────────────
+  {
+    id: 'openai-nova',
+    label: 'Nữ sáng',
+    provider: 'openai',
+    voice: 'nova',
+    model: 'gpt-4o-mini-tts',
+    gender: 'female',
+    note: 'trẻ, sáng',
+  },
+  {
+    id: 'openai-coral',
+    label: 'Nữ ấm',
+    provider: 'openai',
+    voice: 'coral',
+    model: 'gpt-4o-mini-tts',
+    gender: 'female',
+    note: 'ấm, gần',
+  },
+  {
+    id: 'openai-shimmer',
+    label: 'Nữ nhẹ',
+    provider: 'openai',
+    voice: 'shimmer',
+    model: 'gpt-4o-mini-tts',
+    gender: 'female',
+    note: 'mềm, dịu',
+  },
+  {
+    id: 'gemini-Zephyr',
+    label: 'Nữ thanh',
+    provider: 'gemini',
+    voice: 'Zephyr',
+    gender: 'female',
+    note: 'thanh thoát',
+  },
+  {
+    id: 'gemini-Kore',
+    label: 'Nữ trung',
+    provider: 'gemini',
+    voice: 'Kore',
+    gender: 'female',
+    note: 'cân bằng',
   },
 ];
 
-export const DEFAULT_PUTER_VOICE_ID = 'openai-nova';
+export const DEFAULT_PUTER_VOICE_ID = 'openai-echo';
 
 /** Synthesize one chunk via Puter and return a playable HTMLAudioElement. */
 export async function synthesizePuter(

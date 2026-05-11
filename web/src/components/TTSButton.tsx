@@ -1,5 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Loader2, Pause, Play, Settings2, Sparkles, Square } from 'lucide-react';
+import {
+  Check,
+  Gauge,
+  Loader2,
+  Mic2,
+  Pause,
+  Play,
+  Settings2,
+  Sparkles,
+  Square,
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +26,49 @@ import {
   waitForPuter,
   type PuterVoice,
 } from '../lib/puterTTS';
+
+const RATE_PRESETS: { value: number; label: string }[] = [
+  { value: 0.9, label: '0.9×' },
+  { value: 1.0, label: '1×' },
+  { value: 1.15, label: '1.15×' },
+  { value: 1.3, label: '1.3×' },
+  { value: 1.5, label: '1.5×' },
+];
+
+function VoiceGlyph({
+  gender,
+  active,
+}: {
+  gender: 'female' | 'male';
+  active: boolean;
+}) {
+  // Stylised waveform glyph — gender hint via accent color, not generic icon
+  const bars = gender === 'female' ? [3, 8, 5, 11, 7] : [4, 10, 6, 9, 5];
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'flex h-6 w-6 shrink-0 items-end justify-center gap-[2px] rounded-md px-[3px] py-[2px]',
+        active
+          ? 'bg-brand/15 ring-1 ring-brand/40'
+          : gender === 'female'
+            ? 'bg-fg-4/15'
+            : 'bg-fg-4/15',
+      )}
+    >
+      {bars.map((h, i) => (
+        <span
+          key={i}
+          style={{ height: `${h * 6}%` }}
+          className={cn(
+            'w-[2px] rounded-full',
+            active ? 'bg-brand' : 'bg-fg-3',
+          )}
+        />
+      ))}
+    </span>
+  );
+}
 
 type TTSState = 'idle' | 'loading' | 'playing' | 'paused';
 
@@ -281,78 +334,168 @@ export function TTSButton({
         <DropdownMenuContent
           align="end"
           side="bottom"
-          sideOffset={6}
-          className="w-80 p-3"
+          sideOffset={8}
+          className="w-[296px] overflow-hidden p-0"
         >
-          <DropdownMenuLabel className="!p-0 !pb-2 text-fg-2">
-            Tốc độ
-          </DropdownMenuLabel>
-          <div className="mb-3 flex items-center gap-3">
-            <input
-              type="range"
-              min={0.7}
-              max={1.8}
-              step={0.05}
-              value={rate}
-              onChange={(e) => setRate(parseFloat(e.currentTarget.value))}
-              className="flex-1 accent-brand"
-              aria-label="Tốc độ đọc"
-            />
-            <span className="w-12 text-right font-mono text-[11px] tabular-nums text-fg-0">
-              {rate.toFixed(2)}×
-            </span>
+          {/* Header */}
+          <div className="border-b border-fg-4/30 bg-bg-2/40 px-3.5 py-2.5">
+            <div className="flex items-center gap-2">
+              <Sparkles
+                className="h-3.5 w-3.5 text-brand"
+                strokeWidth={2.5}
+                aria-hidden
+              />
+              <span className="font-sans text-[12px] font-semibold text-fg-0">
+                Cài đặt giọng đọc
+              </span>
+            </div>
           </div>
 
-          <DropdownMenuLabel className="!p-0 !pb-2 text-fg-2">
-            Giọng đọc
-          </DropdownMenuLabel>
+          <div className="px-3.5 py-3">
+            {/* Rate section */}
+            <DropdownMenuLabel className="!mb-1.5 !p-0 flex items-center gap-1.5 font-sans text-[10px] font-semibold uppercase tracking-[0.14em] text-fg-3">
+              <Gauge className="h-3 w-3" strokeWidth={2} aria-hidden />
+              Tốc độ
+              <span className="ml-auto font-mono text-[11px] font-bold normal-case tracking-normal text-fg-0">
+                {rate.toFixed(2)}×
+              </span>
+            </DropdownMenuLabel>
+            <div className="relative pb-2 pt-1">
+              <input
+                type="range"
+                min={0.7}
+                max={1.8}
+                step={0.05}
+                value={rate}
+                onChange={(e) => setRate(parseFloat(e.currentTarget.value))}
+                className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-fg-4/40 accent-brand"
+                style={{
+                  background: `linear-gradient(to right, hsl(var(--brand)) 0%, hsl(var(--brand)) ${((rate - 0.7) / 1.1) * 100}%, hsl(var(--fg-4) / 0.4) ${((rate - 0.7) / 1.1) * 100}%, hsl(var(--fg-4) / 0.4) 100%)`,
+                }}
+                aria-label="Tốc độ đọc"
+              />
+              <div className="mt-2 flex items-center justify-between">
+                {RATE_PRESETS.map((p) => {
+                  const active = Math.abs(rate - p.value) < 0.025;
+                  return (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => setRate(p.value)}
+                      className={cn(
+                        'rounded px-1 font-mono text-[9px] tabular-nums transition-colors duration-fast',
+                        active
+                          ? 'font-bold text-brand'
+                          : 'text-fg-3 hover:text-fg-1',
+                      )}
+                    >
+                      {p.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-          <div className="max-h-56 space-y-0.5 overflow-y-auto pr-1">
-            {PUTER_VIETNAMESE_VOICES.map((v) => {
-              const active = activeVoice.id === v.id;
-              return (
-                <button
-                  type="button"
-                  key={v.id}
-                  onClick={() => {
-                    setVoiceId(v.id);
-                    if (state !== 'idle') audioCacheRef.current.clear();
-                  }}
-                  className={cn(
-                    'flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left font-sans text-[11px] transition-colors duration-fast',
-                    active
-                      ? 'bg-brand/10 text-fg-0 ring-1 ring-brand/40'
-                      : 'text-fg-1 hover:bg-bg-2',
-                  )}
-                >
-                  <span className="flex min-w-0 flex-1 items-center gap-1.5">
-                    <span className="font-medium">{v.label}</span>
-                    <span className="text-fg-3">
-                      {v.gender === 'female' ? '· nữ' : '· nam'}
-                    </span>
-                    {v.note && (
-                      <span className="truncate text-fg-3">· {v.note}</span>
-                    )}
-                  </span>
-                  <span
-                    className={cn(
-                      'shrink-0 rounded-pill px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-wider',
-                      v.provider === 'openai'
-                        ? 'bg-brand/15 text-brand'
-                        : 'bg-fg-4/30 text-fg-2',
-                    )}
-                  >
-                    {v.provider}
-                  </span>
-                </button>
-              );
-            })}
+            {/* Voice section */}
+            <DropdownMenuLabel className="!mb-1.5 !mt-3 !p-0 flex items-center gap-1.5 font-sans text-[10px] font-semibold uppercase tracking-[0.14em] text-fg-3">
+              <Mic2 className="h-3 w-3" strokeWidth={2} aria-hidden />
+              Giọng đọc
+              <span className="ml-auto font-mono text-[10px] normal-case tracking-normal text-fg-3">
+                {PUTER_VIETNAMESE_VOICES.length} giọng
+              </span>
+            </DropdownMenuLabel>
+
+            <div className="-mr-1 max-h-64 space-y-3 overflow-y-auto pr-1">
+              {(['male', 'female'] as const).map((gender) => {
+                const voices = PUTER_VIETNAMESE_VOICES.filter(
+                  (v) => v.gender === gender,
+                );
+                if (voices.length === 0) return null;
+                return (
+                  <div key={gender} className="space-y-0.5">
+                    <div className="flex items-center gap-2 px-1 pb-1">
+                      <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-fg-3">
+                        {gender === 'male' ? 'Nam' : 'Nữ'}
+                      </span>
+                      <div className="h-px flex-1 bg-fg-4/30" />
+                    </div>
+                    {voices.map((v) => {
+                      const active = activeVoice.id === v.id;
+                      const isDefault = v.id === DEFAULT_PUTER_VOICE_ID;
+                      return (
+                        <button
+                          type="button"
+                          key={v.id}
+                          onClick={() => {
+                            setVoiceId(v.id);
+                            if (state !== 'idle')
+                              audioCacheRef.current.clear();
+                          }}
+                          className={cn(
+                            'group/voice relative flex w-full items-center gap-2.5 rounded-lg px-1.5 py-1.5 text-left transition-all duration-fast',
+                            active
+                              ? 'bg-brand/[0.09] ring-1 ring-brand/40'
+                              : 'hover:bg-bg-2',
+                          )}
+                        >
+                          {/* Active indicator bar */}
+                          {active && (
+                            <span
+                              aria-hidden
+                              className="absolute inset-y-2 left-0 w-[2px] rounded-r-full bg-brand"
+                            />
+                          )}
+                          <VoiceGlyph gender={v.gender} active={active} />
+                          <span className="flex min-w-0 flex-1 flex-col">
+                            <span
+                              className={cn(
+                                'truncate font-sans text-[12px] font-medium',
+                                active ? 'text-fg-0' : 'text-fg-1',
+                              )}
+                            >
+                              {v.label}
+                            </span>
+                            {v.note && (
+                              <span className="truncate font-sans text-[10px] text-fg-3">
+                                {v.note}
+                              </span>
+                            )}
+                          </span>
+                          {isDefault && !active && (
+                            <span
+                              className="shrink-0 rounded-pill border border-fg-4/50 bg-bg-1 px-1.5 py-[1px] font-sans text-[9px] font-medium uppercase tracking-wider text-fg-3"
+                              title="Giọng mặc định"
+                            >
+                              mặc định
+                            </span>
+                          )}
+                          {active && (
+                            <Check
+                              className="h-3.5 w-3.5 shrink-0 text-brand"
+                              strokeWidth={3}
+                              aria-hidden
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {!puterReady && (
-            <p className="mt-3 rounded-md border border-fg-4/40 bg-bg-2/40 p-2 font-sans text-[10px] leading-relaxed text-fg-2">
-              Đang tải Puter.js từ CDN…
-            </p>
+            <div className="border-t border-fg-4/30 bg-bg-2/40 px-3.5 py-2">
+              <p className="flex items-center gap-1.5 font-sans text-[10px] text-fg-3">
+                <Loader2
+                  className="h-2.5 w-2.5 animate-spin"
+                  strokeWidth={2.5}
+                  aria-hidden
+                />
+                Đang tải bộ tổng hợp giọng từ Puter…
+              </p>
+            </div>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
