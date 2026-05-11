@@ -15,7 +15,30 @@ Orchestrator routes a CK brief (sector=CK, ticker ∈ {SSI,VND,HCM,VCI,SHS}). NO
 1. **Validate brief** (V3.6) — ticker in CK universe, `brief.deep_question` present, `brief.deep_question_category` ∈ {paradox, why_now, hidden_mechanism, comparison_deep, early_signal}. Brief V3.6 KHÔNG có `data_spec` — Master tự quyết DB/KB nào query.
 2. **Pull memory** — query DB Generated News last 3 rows of ticker (variety guard)
 3. **Query Live API** — real-time price/volume/margin data
-4. **Web search** — Phase 1 chưa có DB CK Notion, dùng web_search + web_fetch làm primary source
+4. **Query KB CK** — `KBLoader('kb/ck/')` cho framework + mechanism + threshold + case study + pitfalls (kiến thức tĩnh)
+
+   ```python
+   # Step query KB CK (static framework guidance)
+   from lib.kb_loader import KBLoader
+   loader = KBLoader('kb/ck/')
+   results = loader.search([<keywords from deep_question>])
+   # top match: loader.load_topic('<best_path>')
+   # KB cho framework + mechanism + threshold + case study — KHÔNG có per-ticker per-quarter numbers
+   ```
+
+4a. **Query SSC circulars** — `data/manual/ssc_circulars.yaml` cho regulatory archive
+
+   ```python
+   # Step query regulatory archive
+   import yaml
+   with open('data/manual/ssc_circulars.yaml') as f:
+       circulars = yaml.safe_load(f)
+   # filter by affected_topics (vd: "Cho vay ký quỹ", "Phát hành TPDN")
+   relevant = [c for c in circulars if topic in c['affected_topics']]
+   ```
+
+4b. **Finpath API** — BCTC/events/news cho ticker CK (`get_income_statement`, `get_balance_sheet`, `get_full_balance_sheet`, `get_full_income`, `get_cashflow`, `get_events`, `get_news` — work cho CK ticker)
+4c. **Web search fallback** — cho data CK-specific Finpath API không có (thị phần HOSE/HNX quarter cụ thể, dư nợ ký quỹ chi tiết per CTCK, cấu trúc tự doanh, doanh thu per mảng breakdown)
 5. **Verify hypothesis + write** — check brief.insight_hypothesis supported by data. Master TRẢ LỜI deep_question với 3-7 lý do mechanism (Rule 4.5).
 6. **Bước 5.5 — Finalize insight** — 3 cases (confirm/adjust/reject). Logic: see `references/insight-finalization.md`
 7. **Length check** — 200-400 từ
@@ -113,6 +136,62 @@ Lịch sử references chi tiết: see `references/ck-history-references.md`.
 }
 ```
 
+## Data fetching protocol — auto-fallback
+
+Khi viết bài, Master CK PHẢI chain data sources theo thứ tự, KHÔNG skip:
+
+### 1. Local KB (`kb/ck/frameworks/*.md`)
+LUÔN query đầu để có framework + threshold + pitfall guidance. KB chỉ chứa kiến thức TĨNH (range historical, threshold cứng, case study). KHÔNG có per-ticker per-quarter snapshot.
+
+```python
+from lib.kb_loader import KBLoader
+loader = KBLoader('kb/ck/')
+matches = loader.search([keyword1, keyword2])
+content = loader.load_topic(matches[0]['path'])
+```
+
+6 file framework available:
+- `ck-industry-master-reference.md` — anchor 6 lớp mental model
+- `ck-margin-cycle.md` — cho vay ký quỹ + trần 200% SSC
+- `ck-brokerage-marketshare.md` — thị phần HOSE/HNX + fee compression
+- `ck-ib-revenue-volatility.md` — ngân hàng đầu tư + TPDN
+- `ck-proprietary-trading.md` — tự doanh + mark-to-market FVTPL/AFS
+- `ck-liquidity-sensitivity.md` — earnings beta theo thanh khoản
+
+### 2. SSC circulars (`data/manual/ssc_circulars.yaml`)
+Query khi đề cập regulatory (TT 121/2020 trần ký quỹ 200%, TT 65/2022 + NĐ 65/2022 phát hành TPDN, etc.).
+
+### 3. Finpath API
+Fetch realtime BCTC + events + news. Endpoints work cho CK ticker:
+
+```python
+from lib.finpath_api import FinpathAPI
+api = FinpathAPI()
+# BCTC
+income = api.get_income_statement(ticker)        # P&L quarter/year
+balance = api.get_balance_sheet(ticker)          # bảng cân đối
+full_balance = api.get_full_balance_sheet(ticker) # chi tiết hơn (lấy dư nợ ký quỹ + tự doanh nếu có dòng riêng)
+cashflow = api.get_cashflow(ticker)              # luồng tiền
+# Events + news
+events = api.get_events(ticker)                  # DHCD + sự kiện
+news = api.get_news(ticker)                      # tin liên quan
+```
+
+**KHÔNG dùng** `api.get_bank_ratios(ticker)` — Bank-only endpoint.
+
+### 4. Web_search — fallback khi 1-3 thiếu
+ESPECIALLY cho data CK-specific Finpath API không có:
+- **Thị phần môi giới HOSE/HNX quarter cụ thể**: HOSE/HNX công bố quarterly, KHÔNG trong API
+- **Dư nợ ký quỹ chi tiết per CTCK quarter**: thường ẩn trong balance sheet "Cho vay" hoặc "Tài sản tài chính FVTPL", phải parse cẩn thận hoặc web_search
+- **Cấu trúc danh mục tự doanh per CTCK**: thuyết minh BCTC chi tiết
+- **Doanh thu per mảng (môi giới / margin / IB / tự doanh) breakdown**
+- **Lãi suất cho vay ký quỹ realtime per CTCK** — website CTCK
+- **Thị phần fee compression dynamics**
+
+### Reject rule
+
+KHÔNG bịa số khi data động không có. Nếu sau cả 4 step (KB + circulars + Finpath API + web_search 3+ keywords khác nhau) vẫn không có data → reject với `master_decision: reject_no_data`.
+
 ## Output
 ```json
 {
@@ -126,7 +205,7 @@ Lịch sử references chi tiết: see `references/ck-history-references.md`.
 
 ## DB IDs CK sector
 
-⚠️ **Phase 1**: CK chưa có DB Notion riêng. Master CK V2.4 dùng web_search + Live API làm primary source. Phase 2 sẽ build DB CK (BCTC CK Quarter, Margin Outstanding, Foreign Activity).
+Master CK query data theo thứ tự: (1) local KB `kb/ck/frameworks/` cho framework + mechanism + threshold + case study + pitfalls (kiến thức tĩnh); (2) `data/manual/ssc_circulars.yaml` cho regulatory archive; (3) **Finpath API** cho BCTC/events/news (`get_income_statement`, `get_balance_sheet`, `get_full_balance_sheet`, `get_full_income`, `get_cashflow`, `get_events`, `get_news` — work cho CK ticker); (4) **web_search** cho data CK-specific Finpath API không có (thị phần HOSE/HNX quarter cụ thể, dư nợ ký quỹ chi tiết per CTCK, cấu trúc tự doanh, doanh thu per mảng breakdown).
 
 | Resource | ID |
 |---|---|
@@ -145,3 +224,10 @@ Lịch sử references chi tiết: see `references/ck-history-references.md`.
 - `references/insight-finalization.md` — Bước 5.5 logic 3 cases
 - `references/ck-history-references.md` — 2018 ký quỹ, 2020 COVID, 2022 TPDN
 - `references/compare-feed-spec.md` — Compare Feed prepend layout
+- `kb/ck/frameworks/ck-industry-master-reference.md` — 6 lớp mental model anchor
+- `kb/ck/frameworks/ck-margin-cycle.md` — cho vay ký quỹ + trần 200%
+- `kb/ck/frameworks/ck-brokerage-marketshare.md` — thị phần HOSE/HNX
+- `kb/ck/frameworks/ck-ib-revenue-volatility.md` — ngân hàng đầu tư
+- `kb/ck/frameworks/ck-proprietary-trading.md` — tự doanh
+- `kb/ck/frameworks/ck-liquidity-sensitivity.md` — earnings beta thanh khoản
+- `data/manual/ssc_circulars.yaml` — regulatory archive (7 thông tư/nghị định)
