@@ -116,15 +116,17 @@ export function SymbolFilter<T extends { ticker: string }>({
     });
   }, [query, sectorTab, selected]);
 
-  const sectorCounts = useMemo(() => {
-    const m: Record<SectorFilter, number> = { all: 0, bank: 0, ck: 0, bds: 0 };
-    for (const t of TICKER_UNIVERSE) {
-      const n = counts.get(t.code) ?? 0;
-      m.all += n;
-      m[t.sector] += n;
-    }
+  // Ticker count per sector (universe size) — distinct from article counts
+  const sectorTickerCounts = useMemo(() => {
+    const m: Record<SectorFilter, number> = {
+      all: TICKER_UNIVERSE.length,
+      bank: 0,
+      ck: 0,
+      bds: 0,
+    };
+    for (const t of TICKER_UNIVERSE) m[t.sector] += 1;
     return m;
-  }, [counts]);
+  }, []);
 
   // Virtualizer
   const virtualizer = useVirtualizer({
@@ -195,7 +197,7 @@ export function SymbolFilter<T extends { ticker: string }>({
           />
         </DialogTrigger>
 
-        <DialogContent className="flex max-h-[88vh] flex-col">
+        <DialogContent className="flex h-[min(720px,85vh)] flex-col">
           {/* SR-only accessibility labels — visual header below is hand-laid */}
           <DialogTitle className="sr-only">Lọc cổ phiếu</DialogTitle>
           <DialogDescription className="sr-only">
@@ -278,7 +280,7 @@ export function SymbolFilter<T extends { ticker: string }>({
                 active={sectorTab === 'all'}
                 onClick={() => setSectorTab('all')}
                 label="Tất cả"
-                count={sectorCounts.all}
+                count={sectorTickerCounts.all}
               />
               {SECTORS.map((s) => (
                 <SectorTab
@@ -286,7 +288,7 @@ export function SymbolFilter<T extends { ticker: string }>({
                   active={sectorTab === s.id}
                   onClick={() => setSectorTab(s.id)}
                   label={s.label}
-                  count={sectorCounts[s.id]}
+                  count={sectorTickerCounts[s.id]}
                 />
               ))}
             </div>
@@ -329,7 +331,6 @@ export function SymbolFilter<T extends { ticker: string }>({
           <div
             ref={scrollRef}
             className="min-h-0 flex-1 overflow-y-auto"
-            style={{ contain: 'strict' }}
           >
             {visible.length === 0 ? (
               <div className="flex h-32 items-center justify-center">
