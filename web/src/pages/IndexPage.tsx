@@ -4,6 +4,7 @@ import type { ArticleSummary } from '../types';
 import { loadManifest } from '../lib/articleLoader';
 import { ArticleCard } from '../components/ArticleCard';
 import { SymbolFilter, useSymbolFilter } from '../components/SymbolFilter';
+import { AngleFilter, useAngleFilter } from '../components/AngleFilter';
 import { ArticleCardSkeleton } from '../components/skeletons/ArticleCardSkeleton';
 
 const INITIAL_SKELETON_COUNT = 6;
@@ -13,6 +14,8 @@ export function IndexPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { selected, setSelected } = useSymbolFilter();
+  const { selected: angleSelected, setSelected: setAngleSelected } =
+    useAngleFilter();
 
   useEffect(() => {
     loadManifest()
@@ -26,13 +29,18 @@ export function IndexPage() {
       });
   }, []);
 
-  const filteredArticles = useMemo(
-    () =>
-      selected.length === 0
-        ? articles
-        : articles.filter((a) => selected.includes(a.ticker)),
-    [articles, selected],
-  );
+  const filteredArticles = useMemo(() => {
+    let result = articles;
+    if (selected.length > 0) {
+      result = result.filter((a) => selected.includes(a.ticker));
+    }
+    if (angleSelected.length > 0) {
+      result = result.filter(
+        (a) => a.category && angleSelected.includes(a.category as never),
+      );
+    }
+    return result;
+  }, [articles, selected, angleSelected]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
@@ -40,16 +48,23 @@ export function IndexPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-fg-0">
           {loading
             ? ' '
-            : selected.length === 0
+            : selected.length === 0 && angleSelected.length === 0
               ? `${articles.length} bài`
               : `${filteredArticles.length}/${articles.length} bài`}
         </h1>
         {articles.length > 0 && (
-          <SymbolFilter
-            items={articles}
-            selected={selected}
-            onChange={setSelected}
-          />
+          <>
+            <SymbolFilter
+              items={articles}
+              selected={selected}
+              onChange={setSelected}
+            />
+            <AngleFilter
+              items={articles}
+              selected={angleSelected}
+              onChange={setAngleSelected}
+            />
+          </>
         )}
       </div>
 

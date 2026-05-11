@@ -7,7 +7,8 @@
       "title": "BIDV vừa có nợ xấu lớn nhất hệ thống, vừa đề xuất bán thấp hơn giá sổ sách — ai được lợi?",
       "crawled_at": "2026-05-10T07:05:33.741042+00:00",
       "key_view": "phân tích đa chiều",
-      "word_count": 363
+      "word_count": 363,
+      "category": "comparison_deep"
     },
     {
       "id": "bidv-tang-von-len-100-000-ty-dong-dung-luc-no-xau-leo-thang",
@@ -16,7 +17,8 @@
       "title": "BIDV tăng vốn lên 100.000 tỷ đồng đúng lúc nợ xấu leo thang — không phải ngẫu nhiên",
       "crawled_at": "2026-05-10T07:05:33.740899+00:00",
       "key_view": "phòng thủ",
-      "word_count": 328
+      "word_count": 328,
+      "category": "hidden_mechanism"
     },
     {
       "id": "bidv-lai-q1-tang-15-6-nhung-no-xau-tang-21-9-noi-len-dieu-gi",
@@ -25,7 +27,8 @@
       "title": "BIDV lãi Q1 tăng 15,6% — nhưng nợ xấu tăng 21,9% nói lên điều gì?",
       "crawled_at": "2026-05-10T07:05:33.740788+00:00",
       "key_view": "thận trọng",
-      "word_count": 378
+      "word_count": 378,
+      "category": "paradox"
     },
     {
       "id": "CTG-20260510-0707-tin-dung-ctg-chi-tang-1-7-vi-sao-thu-nhap-lai-rong-lai-dan",
@@ -34,7 +37,8 @@
       "title": "Tín dụng CTG chỉ tăng 1,7% — vì sao thu nhập lãi ròng lại dẫn đầu hệ thống với +25%?",
       "crawled_at": "2026-05-10T07:03:46.201013+00:00",
       "key_view": "lạc quan",
-      "word_count": 394
+      "word_count": 394,
+      "category": "paradox"
     },
     {
       "id": "CTG-20260510-0711-vcb-chon-than-trong-ctg-chon-but-toc-ai-dat-cuoc-dung-hon",
@@ -43,7 +47,8 @@
       "title": "VCB chọn thận trọng, CTG chọn bứt tốc — ai đặt cược đúng hơn trong quý 1/2026?",
       "crawled_at": "2026-05-10T07:03:46.200787+00:00",
       "key_view": "lạc quan",
-      "word_count": 376
+      "word_count": 376,
+      "category": "comparison_deep"
     },
     {
       "id": "gpbank-vua-duoc-cuu-fe-credit-vua-on-dinh-vi-sao-ket-qua-lai",
@@ -52,7 +57,8 @@
       "title": "GPBank vừa được cứu, FE Credit vừa ổn định — vì sao kết quả lại đảo ngược?",
       "crawled_at": "2026-05-10T03:31:35.442769+00:00",
       "key_view": "Nghịch lý hệ sinh thái — GPBank vượt FE Credit",
-      "word_count": 333
+      "word_count": 333,
+      "category": "paradox"
     },
     {
       "id": "chu-tich-gpbank-mua-them-30-trieu-co-phieu-vpb-vi-sao-thoi",
@@ -61,7 +67,8 @@
       "title": "Chủ tịch GPBank mua thêm 30 triệu cổ phiếu VPB — vì sao thời điểm này?",
       "crawled_at": "2026-05-10T03:31:35.440860+00:00",
       "key_view": "Người trong cuộc mua — vì sao thời điểm này?",
-      "word_count": 357
+      "word_count": 357,
+      "category": "why_now"
     },
     {
       "id": "vpbank-nhan-gpbank-danh-doi-ganh-nang-de-lay-room-tin-dung",
@@ -70,7 +77,8 @@
       "title": "VPBank nhận GPBank — đánh đổi gánh nặng để lấy room tín dụng 35%?",
       "crawled_at": "2026-05-10T03:31:35.438837+00:00",
       "key_view": "Đánh đổi chính sách — room 35% đổi bằng gánh GPBank",
-      "word_count": 383
+      "word_count": 383,
+      "category": "hidden_mechanism"
     },
     {
       "id": "ACB-20260509-1029-acb-cat-co-tuc-xuong-20-trong-khi-techcombank-chia-67-vi-sao",
@@ -79,7 +87,8 @@
       "title": "ACB cắt cổ tức xuống 20% trong khi Techcombank chia 67% — vì sao chọn ngược chiều?",
       "crawled_at": "2026-05-09T10:29:52.827963+00:00",
       "key_view": "thận trọng",
-      "word_count": 398
+      "word_count": 398,
+      "category": "why_now"
     },
     {
       "id": "ACB-20260509-1029-thu-chung-khoan-acb-nhan-7-6-lan-mot-quy-chuyen-dich-mo-hinh",
@@ -88,7 +97,8 @@
       "title": "Thu chứng khoán ACB nhân 7,6 lần một quý — chuyển dịch mô hình hay cú đột biến?",
       "crawled_at": "2026-05-09T10:29:52.827715+00:00",
       "key_view": "trung lập",
-      "word_count": 396
+      "word_count": 396,
+      "category": "early_signal"
     },
     {
       "id": "ACB-20260509-1029-acb-lai-quy-1-tang-17-5-nhung-no-nhom-2-gap-doi-3-thang-con",
@@ -97,7 +107,8 @@
       "title": "ACB lãi quý 1 tăng 17,5% nhưng nợ nhóm 2 gấp đôi 3 tháng — con số nào nói thật?",
       "crawled_at": "2026-05-09T10:29:52.827447+00:00",
       "key_view": "thận trọng",
-      "word_count": 395
+      "word_count": 395,
+      "category": "paradox"
     },
     {
       "id": "MBB-20260508-1542-tin-dung-mb-vuot-huy-dong-70-000-ty-bu-lai-bang-nguon-von",
@@ -106,7 +117,8 @@
       "title": "Tín dụng MB vượt huy động 70.000 tỷ — bù lại bằng nguồn vốn nào?",
       "crawled_at": "2026-05-08T15:42:30.136231+00:00",
       "key_view": "thận trọng",
-      "word_count": 373
+      "word_count": 373,
+      "category": "hidden_mechanism"
     },
     {
       "id": "MBB-20260508-1542-mb-lai-9-500-ty-vuot-ca-nhom-tu-tru-va-techcombank-chap-nhan",
@@ -115,7 +127,8 @@
       "title": "MB lãi 9.500 tỷ vượt cả nhóm tứ trụ và Techcombank — chấp nhận đánh đổi gì?",
       "crawled_at": "2026-05-08T15:42:30.135413+00:00",
       "key_view": "thận trọng",
-      "word_count": 383
+      "word_count": 383,
+      "category": "comparison_deep"
     },
     {
       "id": "MBB-20260508-1542-vi-sao-mb-vua-hut-22-000-ty-von-moi-van-chia-8-055-ty-tien",
@@ -124,7 +137,8 @@
       "title": "Vì sao MB vừa hút 22.000 tỷ vốn mới vẫn chia 8.055 tỷ tiền mặt?",
       "crawled_at": "2026-05-08T15:42:30.132932+00:00",
       "key_view": "lạc quan",
-      "word_count": 381
+      "word_count": 381,
+      "category": "paradox"
     },
     {
       "id": "VCB-20260508-1530",

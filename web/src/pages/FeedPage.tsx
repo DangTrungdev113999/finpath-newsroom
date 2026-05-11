@@ -4,6 +4,7 @@ import { CompareFeedLayout } from '../components/CompareFeedLayout';
 import { loadManifest, loadArticle } from '../lib/articleLoader';
 import type { Article, ArticleSummary } from '../types';
 import { SymbolFilter, useSymbolFilter } from '../components/SymbolFilter';
+import { AngleFilter, useAngleFilter } from '../components/AngleFilter';
 import { CompareFeedSkeleton } from '../components/skeletons/CompareFeedSkeleton';
 
 const PAGE_SIZE = 5;
@@ -16,6 +17,8 @@ export function FeedPage() {
   const [showRight, setShowRight] = useState(true);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const { selected, setSelected } = useSymbolFilter();
+  const { selected: angleSelected, setSelected: setAngleSelected } =
+    useAngleFilter();
 
   // Load manifest on mount (already sorted desc by crawled_at in loader)
   useEffect(() => {
@@ -24,13 +27,18 @@ export function FeedPage() {
       .catch((e: Error) => setError(`Lỗi load manifest: ${e.message}`));
   }, []);
 
-  const filteredManifest = useMemo(
-    () =>
-      selected.length === 0
-        ? manifest
-        : manifest.filter((a) => selected.includes(a.ticker)),
-    [manifest, selected],
-  );
+  const filteredManifest = useMemo(() => {
+    let result = manifest;
+    if (selected.length > 0) {
+      result = result.filter((a) => selected.includes(a.ticker));
+    }
+    if (angleSelected.length > 0) {
+      result = result.filter(
+        (a) => a.category && angleSelected.includes(a.category as never),
+      );
+    }
+    return result;
+  }, [manifest, selected, angleSelected]);
 
   const loadedById = useMemo(() => {
     const m = new Map<string, Article>();
@@ -42,7 +50,7 @@ export function FeedPage() {
   useEffect(() => {
     setLoaded([]);
     setVisibleCount(PAGE_SIZE);
-  }, [selected]);
+  }, [selected, angleSelected]);
 
   // Load articles up to visibleCount — lookup by id so we don't double-fetch
   // after filter resets and we don't depend on array index ordering.
@@ -99,16 +107,23 @@ export function FeedPage() {
       <div className="mb-8 flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <h1 className="text-2xl font-semibold tracking-tight text-fg-0">
-            {selected.length === 0
+            {selected.length === 0 && angleSelected.length === 0
               ? `${manifest.length} bài`
               : `${filteredManifest.length}/${manifest.length} bài`}
           </h1>
           {manifest.length > 0 && (
-            <SymbolFilter
-              items={manifest}
-              selected={selected}
-              onChange={setSelected}
-            />
+            <>
+              <SymbolFilter
+                items={manifest}
+                selected={selected}
+                onChange={setSelected}
+              />
+              <AngleFilter
+                items={manifest}
+                selected={angleSelected}
+                onChange={setAngleSelected}
+              />
+            </>
           )}
         </div>
         <ViewToggle showRight={showRight} onChange={setShowRight} />

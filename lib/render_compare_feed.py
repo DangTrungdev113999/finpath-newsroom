@@ -279,6 +279,19 @@ def render_for_funnel_batch(db_path: Path, funnel_batch_id: str, output_dir: Pat
         md_content = render_article_md_v4(article, anchor, rows)
         out_path = output_dir / f"{public_slug}.md"
         out_path.write_text(md_content, encoding="utf-8")
+        # Extract chosen deep_question category (1 of 5 Story Editor enums)
+        # for frontend filter — paradox / why_now / hidden_mechanism /
+        # comparison_deep / early_signal.
+        brief = _parse_json(anchor.get("brief_json", "{}"))
+        pipeline_log = _parse_json(article.get("pipeline_log", "{}"))
+        options = brief.get("deep_question_options") or []
+        chosen_idx = pipeline_log.get("step_4_master", {}).get(
+            "chosen_question_idx", 0
+        )
+        chosen_category = None
+        if isinstance(chosen_idx, int) and 0 <= chosen_idx < len(options):
+            chosen_category = options[chosen_idx].get("category")
+
         summary = {
             "id": public_slug,
             "ticker": article["ticker"],
@@ -287,6 +300,7 @@ def render_for_funnel_batch(db_path: Path, funnel_batch_id: str, output_dir: Pat
             "crawled_at": anchor["crawled_at"],
             "key_view": article.get("key_view", "trung lập"),
             "word_count": article.get("word_count", 0),
+            "category": chosen_category,
         }
         update_manifest(manifest_path, summary)
         written.append(str(out_path))

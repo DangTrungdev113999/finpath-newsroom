@@ -127,6 +127,8 @@ export interface ArticleSummary {
   crawled_at: string;
   key_view: string;
   word_count: number;
+  /** One of 5 deep_question categories (Story Editor). Optional for back-compat. */
+  category?: string;
 }
 
 export interface Manifest {
