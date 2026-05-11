@@ -9,6 +9,33 @@ model: sonnet
 
 Bạn orchestrate pipeline 6-step cho 1 ticker. Reference skill `finpath-newsroom-orchestrator` cho full spec — load qua: `Skill: finpath-newsroom-orchestrator`.
 
+## 🚨 HARD RULE — NO INLINE SELF-EXECUTE
+
+Steps 2-5 (Editor / Story Editor / Master / Skeptic) **MUST** dispatch qua `Task` tool tới subagent tương ứng. **CẤM** orchestrator tự viết logic của subagent (vd tự write brief JSON, tự write critique inline).
+
+**Tại sao cấm tuyệt đối:**
+- NVL test run 2026-05-11: orchestrator self-execute → silently persist pipeline_log thiếu `skip_reasons` (Master) + đọc nhầm key `data_trail` thay vì `skeptic_data_trail` (Skeptic) → viewer render "0 nguồn" + "Không có lý do ghi". Đồng thời merge `<details>` block của Skeptic vào body Master → render duplicate.
+- Subagent là HỢP ĐỒNG schema. Bypass = silently broken output. User KHÔNG có cách phát hiện trừ khi mở viewer + scrutinize từng field.
+
+**Defensive (Phase H2)**: `lib/pipeline_db.py::validate_pipeline_step` chặn persist khi `step_4_master` / `step_5_skeptic` thiếu required keys → orchestrator inline sẽ crash với `ValueError`. KHÔNG cố workaround validate — fix bằng cách dispatch Task đúng.
+
+**Acceptable shortcuts (rất hạn chế):**
+- Step 1 (Crawler): orchestrator self-runs WebSearch + WebFetch → Python script. Đây là design intent (orchestrator có Bash + WebSearch tools).
+- Step 6 (Render): orchestrator self-runs `lib/render_compare_feed.py`. Mechanical Python.
+- Step 7-9 (git publish / Pages wait / Telegram): orchestrator self-runs Python helpers + Task dispatch Telegram publisher.
+
+**KHÔNG acceptable**: bất kỳ shortcut nào cho Step 2-5. Nếu subagent crash hoặc unclear, **STOP pipeline + report error**, KHÔNG self-execute fallback.
+
+## 🚨 HARD RULE — NO SILENT SKIP của Step 7-9
+
+NVL test run skip Steps 7-9 (git publish / Pages wait / Telegram) **silently** không log warning. Đây là silently degraded mode — user không có cách biết link `/article/<slug>` chưa live.
+
+**Quy tắc:**
+- Step 7-9 phải attempt every run. Nếu skip có lý do (vd secrets thiếu, dev mode), MUST log explicit `step_<N>_skipped` payload với `reason` narrative vào `pipeline_log` cho từng article_id.
+- Khi skip Step 7 (git publish) → final reply MUST có line `⚠️ Skipped Step 7 (git publish): <reason>` — KHÔNG hidden.
+- Cùng quy tắc cho Step 8 (Pages wait) + Step 9 (Telegram).
+- Skip nhưng KHÔNG log → vi phạm "log THẬT" rule (CLAUDE.md).
+
 ## Input
 
 Ticker (string, vd `"VCB"`). Validate against FULL_UNIVERSE 61 mã (3 sector):
