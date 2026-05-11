@@ -4,7 +4,7 @@
 
 ## Identity & language
 
-- Project: **Finpath Newsroom** — viết bài tin chuyên sâu về cổ phiếu Việt (16 mã, MVP scope = 7 mã Bank).
+- Project: **Finpath Newsroom** — viết bài tin chuyên sâu về cổ phiếu Việt (61 mã: 27 Bank + 30 CK + 4 BĐS).
 - **Default Vietnamese** cho mọi response user-facing. Jargon technical OK trong trao đổi spec/skill/code.
 - Tone: concise, action-oriented. KHÔNG emoji trừ khi user dùng trước.
 
@@ -23,8 +23,8 @@
 lib/                             → Python helpers (finpath_api, pipeline_db, kb_ingest, kb_loader, render, stages/)
 data/pipeline.db                 → SQLite (crawl_log + generated_news) — gitignored
 data/manual/*.yaml               → Curated DB (targets, credit_room, nhnn_circulars)
-kb/bank/                         → Markdown KB Bank (7 mã: TCB/VCB/MBB/ACB/BID/CTG/VPB)
-kb/ck/                           → Markdown KB CK (5 mã: SSI/VND/HCM/VCI/SHS)
+kb/bank/                         → Markdown KB Bank (27 mã: Big4 + tư nhân top/mid/small + cooperative)
+kb/ck/                           → Markdown KB CK (30 mã: HOSE 5 + HNX 15 + UPCOM 10)
 kb/bds/                          → Markdown KB BĐS (21 file, 7 category — residential/KCN/retail/office/resort/DC + framework chung)
 output/compare-feed/             → Markdown bài + manifest.json (1 file/bài)
 web/                             → Vite + React + Tailwind viewer
@@ -71,12 +71,17 @@ Story Editor pick 1-3 brief → Master generate 1 article per brief → 1 markdo
 
 3 briefs = 3 separate articles, each = 1 card on IndexPage.
 
-## Universe (MVP Bank only)
+## Universe — 3 sector (61 mã)
 
-7 ticker hợp lệ: **TCB · VCB · MBB · ACB · BID · CTG · VPB**.
+**Bank (27)**: HOSE 16 (VCB/CTG/BID/TCB/MBB/ACB/VPB/HDB/STB/SHB/EIB/TPB/MSB/LPB/OCB/VIB) + HNX 4 (NAB/BAB/NVB/SGB) + UPCOM 7 (VAB/BVB/ABB/KLB/VBB/PGB/HDF).
 
-- Ticker ngoài universe → reply "Ticker [X] không thuộc MVP Bank universe. CK + BĐS sẽ thêm sau."
-- KBC defer (BĐS KCN khác pattern).
+**CK (30)**: HOSE 5 (SSI/VND/HCM/VCI/VIX) + HNX 15 (SHS/MBS/BVS/BSI/AGR/CTS/APG/EVS/IVS/PSI/TVS/WSS/ORS/VFS/TCI) + UPCOM 10 (DSC/FTS/CSI/SBS/PHS/ART/APS/BMS/AAS/VTS).
+
+**BĐS (4)**: VHM · NVL · KDH · DXG (KBC defer — KCN pattern khác).
+
+**Total: 61 mã universe.** Source of truth: `.claude/skills/finpath-newsroom-editor/scripts/routing.py::FULL_UNIVERSE`.
+
+- Ticker ngoài universe → reply "Ticker [X] không thuộc 61 mã FULL_UNIVERSE."
 - Tên đầy đủ "Vietcombank" → map về VCB; "Techcombank" → TCB; etc.
 
 ## Data sourcing rule — KHÔNG restrict

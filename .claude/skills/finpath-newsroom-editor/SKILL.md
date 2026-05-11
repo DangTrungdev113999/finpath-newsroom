@@ -1,11 +1,11 @@
 ---
 name: finpath-newsroom-editor
-description: Mechanical filter for Finpath Newsroom V2.4 — validates ticker universe + routes to correct master sector. Use when orchestrator triggers Step 2 per crawled row. Reads 1 row pending from DB Crawl Log → detects ticker mentions → validates universe (16 mã: 7 Bank + 5 CK + 4 BĐS) → identifies primary ticker → routes to master sector (Bank/CK/BĐS). Sets Editor_V1_decision (route_to_story_editor / reject) + Editor_V1_note (reject reason: out_of_universe / low_quality_source / dup_url) for Compare Feed Crawl Funnel section. NEVER use for batch processing — 1 row per call. NEVER skip universe validation.
+description: Mechanical filter for Finpath Newsroom V2.4 — validates ticker universe + routes to correct master sector. Use when orchestrator triggers Step 2 per crawled row. Reads 1 row pending from DB Crawl Log → detects ticker mentions → validates universe (61 mã: 27 Bank + 30 CK + 4 BĐS) → identifies primary ticker → routes to master sector (Bank/CK/BĐS). Sets Editor_V1_decision (route_to_story_editor / reject) + Editor_V1_note (reject reason: out_of_universe / low_quality_source / dup_url) for Compare Feed Crawl Funnel section. NEVER use for batch processing — 1 row per call. NEVER skip universe validation.
 ---
 
 # Finpath Newsroom Editor (M2)
 
-Editor agent — gate logic + route master tương ứng sector. Universe đầy đủ 16 mã.
+Editor agent — gate logic + route master tương ứng sector. Universe đầy đủ 61 mã.
 
 ## Khi nào trigger
 
@@ -44,15 +44,13 @@ Orchestrator gọi với 1 row_id từ DB Crawl Log (Trạng thái = pending).
 }
 ```
 
-## Universe M2 — Full 16 mã
+## Universe M2 — Full 61 mã
+
+Source of truth: `scripts/routing.py::FULL_UNIVERSE` (Bank 27 + CK 30 + BĐS 4 = 61 mã).
 
 ```python
-UNIVERSE = {
-    "Bank": ["TCB", "VCB", "MBB", "ACB", "BID", "CTG", "VPB"],
-    "CK":   ["SSI", "VND", "HCM", "VCI", "SHS"],
-    "BĐS":  ["VHM", "NVL", "KDH", "DXG"],
-}
-ALL_TICKERS = sum(UNIVERSE.values(), [])  # 16 mã
+from scripts.routing import FULL_UNIVERSE, BANK_UNIVERSE, CK_UNIVERSE, BDS_UNIVERSE
+# FULL_UNIVERSE = 61 mã (HOSE + HNX + UPCOM cross-sector)
 ```
 
 ## Workflow 5 bước
@@ -70,7 +68,7 @@ tickers = detect_combined(text)
 # detect_combined dùng cả regex 3-char uppercase + company name lookup
 ```
 
-### Bước 2 — Validate universe (M2: full 16 mã)
+### Bước 2 — Validate universe (M2: full 61 mã)
 
 ```python
 from scripts.routing import filter_universe, ALL_TICKERS
@@ -81,7 +79,7 @@ if not valid_tickers:
     db.update_crawl_row(row_id, {
         "status": "rejected",
         "editor_v1_decision": "reject",
-        "editor_v1_note": "out_of_universe — không có ticker trong universe 16 mã (Bank/CK/BĐS)",
+        "editor_v1_note": "out_of_universe — không có ticker trong universe 61 mã (Bank/CK/BĐS)",
         "notes": "Editor V1 reject"
     })
     return {"decision": "rejected", "reason": "out_of_universe"}

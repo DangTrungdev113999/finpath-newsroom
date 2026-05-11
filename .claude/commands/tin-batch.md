@@ -6,9 +6,9 @@ allowed-tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 
 Trigger N pipeline 6-step Newsroom V4.0 PARALLEL cho list tickers comma-separated **$ARGUMENTS**.
 
-FULL_UNIVERSE 16 mã (3 sector):
-- **Bank** (7): TCB · VCB · MBB · ACB · BID · CTG · VPB
-- **CK** (5): SSI · VND · HCM · VCI · SHS
+FULL_UNIVERSE 61 mã (3 sector):
+- **Bank** (27): HOSE 16 + HNX 4 + UPCOM 7 (see routing.BANK_UNIVERSE)
+- **CK** (30): HOSE 5 + HNX 15 + UPCOM 10 (see routing.CK_UNIVERSE)
 - **BĐS** (4): VHM · NVL · KDH · DXG (KBC defer)
 
 ## Parse $ARGUMENTS
@@ -32,14 +32,14 @@ FULL_UNIVERSE 16 mã (3 sector):
 
 For mỗi ticker trong list:
 - Strip whitespace + uppercase
-- Map alias full names:
-  - Bank: Vietcombank→VCB, Techcombank→TCB, BIDV→BID, VietinBank→CTG, MB Bank→MBB, ACB→ACB, VPBank→VPB
-  - CK: SSI→SSI, VNDirect→VND, HSC→HCM, Vietcap→VCI, Sài Gòn-Hà Nội→SHS
-  - BĐS: Vinhomes→VHM, Novaland→NVL, Khang Điền→KDH, Đất Xanh→DXG
-- Check membership trong FULL_UNIVERSE = `{TCB,VCB,MBB,ACB,BID,CTG,VPB,SSI,VND,HCM,VCI,SHS,VHM,NVL,KDH,DXG}`
-- Invalid → log warn `⚠️ Skip ticker [X] — không thuộc 16 mã FULL_UNIVERSE` + remove khỏi list (KHÔNG crash whole batch)
+- Alias mapping comprehensive — see `.claude/skills/finpath-newsroom-editor/scripts/ticker_detection.py::COMPANY_NAME_TO_TICKER` (~80 alias entries covering 61 tickers).
+  - Bank examples: Vietcombank→VCB, Sacombank→STB, Eximbank→EIB, HDBank→HDB, Nam Á Bank→NAB, ...
+  - CK examples: VNDirect→VND, HSC→HCM, FPTS→FTS, Petrosetco→PSI, BIDV Securities→BSI, ...
+  - BĐS examples: Vinhomes→VHM, Novaland→NVL, Khang Điền→KDH, Đất Xanh→DXG
+- Check membership trong FULL_UNIVERSE (61 mã, see routing.py) — use `from scripts.routing import FULL_UNIVERSE` để verify
+- Invalid → log warn `⚠️ Skip ticker [X] — không thuộc 61 mã FULL_UNIVERSE` + remove khỏi list (KHÔNG crash whole batch)
 
-Nếu sau validation 0 ticker hợp lệ → reply "Không có ticker hợp lệ trong 16 mã FULL_UNIVERSE" + stop.
+Nếu sau validation 0 ticker hợp lệ → reply "Không có ticker hợp lệ trong 61 mã FULL_UNIVERSE" + stop.
 
 ## Spawn parallel pipelines
 

@@ -1,22 +1,24 @@
 ---
-description: Viết bài tin chuyên sâu về 1 mã cổ phiếu Việt Nam (16 mã: Bank/CK/BĐS)
+description: Viết bài tin chuyên sâu về 1 mã cổ phiếu Việt Nam (61 mã: Bank/CK/BĐS)
 argument-hint: <TICKER>
 allowed-tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 ---
 
 Trigger pipeline 6-step Newsroom V4.0 cho ticker **$ARGUMENTS**.
 
-FULL_UNIVERSE 16 mã (3 sector):
-- **Bank** (7): TCB · VCB · MBB · ACB · BID · CTG · VPB
-- **CK** (5): SSI · VND · HCM · VCI · SHS
-- **BĐS** (4): VHM · NVL · KDH · DXG (KBC defer — KCN pattern khác)
+FULL_UNIVERSE 61 mã (3 sector):
+- **Bank** (27): HOSE 16 + HNX 4 + UPCOM 7 (see routing.BANK_UNIVERSE)
+- **CK** (30): HOSE 5 + HNX 15 + UPCOM 10 (see routing.CK_UNIVERSE)
+- **BĐS** (4): VHM · NVL · KDH · DXG (KBC defer)
 
-Map alias full names:
-- Bank: Vietcombank→VCB, Techcombank→TCB, BIDV→BID, VietinBank→CTG, MB Bank→MBB, ACB→ACB, VPBank→VPB
-- CK: SSI→SSI, VNDirect→VND, HSC→HCM, Vietcap→VCI, Sài Gòn-Hà Nội→SHS
+Alias mapping comprehensive — see `.claude/skills/finpath-newsroom-editor/scripts/ticker_detection.py::COMPANY_NAME_TO_TICKER` (~80 alias entries covering 61 tickers).
+
+Examples:
+- Bank: Vietcombank→VCB, Sacombank→STB, Eximbank→EIB, HDBank→HDB, LPBank→LPB, Maritime Bank→MSB, Nam Á Bank→NAB, ...
+- CK: VNDirect→VND, HSC→HCM, Vietcap→VCI, FPTS→FTS, Petrosetco→PSI, BIDV Securities→BSI, Agriseco→AGR, ...
 - BĐS: Vinhomes→VHM, Novaland→NVL, Khang Điền→KDH, Đất Xanh→DXG
 
-Nếu $ARGUMENTS không thuộc 16 mã → reply "Ticker $ARGUMENTS không thuộc 16 mã universe Finpath Newsroom (Bank/CK/BĐS)." và dừng pipeline.
+Nếu $ARGUMENTS không thuộc 61 mã → reply "Ticker $ARGUMENTS không thuộc 61 mã universe Finpath Newsroom (Bank/CK/BĐS)." và dừng pipeline.
 
 Nếu $ARGUMENTS hợp lệ → dispatch agent `newsroom-pipeline` với input ticker = $ARGUMENTS, để chạy 6-step:
 
