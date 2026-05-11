@@ -153,6 +153,81 @@ KHÔNG `## Cần để ý` section. Caveats merge vào bullets hoặc closing.
 ```
 Brief schema V4.0: see Story Editor SKILL.md.
 
+## Data fetching protocol — auto-fallback
+
+Khi viết bài, Master Bank PHẢI chain data sources theo thứ tự, KHÔNG skip. Pipeline log emit `data_trail` array per V4.0 schema.
+
+### 1. Local KB (`kb/bank/frameworks/*.md`)
+
+LUÔN query đầu để có framework + threshold + pitfall guidance. KB chỉ chứa kiến thức TĨNH (range historical, threshold cứng, case study). KHÔNG có per-bank per-quarter snapshot.
+
+```python
+from lib.kb_loader import KBLoader
+loader = KBLoader('kb/bank/')
+matches = loader.search([keyword1, keyword2])
+content = loader.load_topic(matches[0]['path'])
+```
+
+4 file framework available:
+- `bank-industry-master-reference.md` — anchor 6 lớp mental model
+- `bank-nim-cycle.md` — chu kỳ biên lãi vay + tỷ lệ tiền gửi không kỳ hạn + loan mix
+- `bank-npl-reading.md` — đọc nợ xấu thật vs reported + TPDN exposure
+- `bank-target-vs-actual-pattern.md` — pattern ĐHĐCĐ kế hoạch vs actual
+
+`data_trail[].source = "KB/<filename>"`
+
+### 2. YAML semi-static
+- `data/manual/credit_room.yaml` — NHNN room allocation per bank per năm
+- `data/manual/nhnn_circulars.yaml` — quy định NHNN ảnh hưởng Bank sector
+
+`data_trail[].source = "YAML/<filename>"`
+
+**KHÔNG còn `targets.yaml`** — đã drop trong refactor v2.0. Master fetch ĐHĐCĐ + actual quarter qua Finpath API + web_search (xem step 3-4).
+
+### 3. Finpath API
+
+Fetch realtime BCTC + Bank ratios + events:
+
+```python
+from lib.finpath_api import FinpathAPI
+api = FinpathAPI()
+# Bank-specific ratios
+ratios = api.get_bank_ratios(ticker)             # biên lãi vay/tỷ lệ tiền gửi không kỳ hạn/chi phí vốn/nợ xấu/tỷ lệ cho vay trên huy động/PE/PB/tỷ suất sinh lời vốn chủ
+ratios_batch = api.get_bank_ratios_batch([t1, t2])  # so sánh cạnh tranh
+# BCTC
+income = api.get_income_statement(ticker)
+balance = api.get_balance_sheet(ticker)
+full_income = api.get_full_income(ticker)
+full_balance = api.get_full_balance_sheet(ticker)
+cashflow = api.get_cashflow(ticker)
+# Bank-specific items
+nii = api.get_net_interest_income(ticker)
+deposit_credit = api.get_deposit_credit(ticker)
+bad_debt = api.get_bad_debt(ticker)
+# Ownership + events + news
+shareholders = api.get_shareholders(ticker)
+events = api.get_events(ticker)                   # ĐHĐCĐ events (thay thế tra targets.yaml)
+news = api.get_news(ticker)
+profile = api.get_company_profile(ticker)
+```
+
+`data_trail[].source = "Finpath_API/<endpoint_name>"` (vd `Finpath_API/bankfinancialratios`)
+
+### 4. Web_search — fallback khi 1-3 thiếu
+
+ESPECIALLY web_search cho:
+- **ĐHĐCĐ kế hoạch năm chi tiết** (Finpath events có summary nhưng không full plan): keywords `"[TICKER] nghị quyết ĐHĐCĐ [năm]"`, `"[TICKER] kế hoạch lợi nhuận [năm]"`, `"[TICKER] ĐHĐCĐ [năm] room tín dụng"`
+- **Actual quarter completion %**: keywords `"[TICKER] kết quả Q[X]/[năm]"`, `"[TICKER] đạt bao nhiêu kế hoạch năm"`
+- **NHNN nới room mid-year** (case 28/8/2024): keywords `"NHNN nới room [TICKER] [năm]"`, `"NHNN cấp room đợt 2 [năm]"`
+- **Tin tức recent về bank cụ thể**: keywords `"[TICKER] [topic] [date]"`
+- **Sự kiện thị trường ảnh hưởng sector**: keywords `"ngành ngân hàng [topic] [date]"`
+
+`data_trail[].source = "WebSearch/<sanitized-keyword>"`
+
+### Reject rule
+
+KHÔNG bịa số khi data không có. Sau cả 4 step (KB + YAML + Finpath API + web_search 3+ keywords khác nhau) vẫn không có data → reject với `master_decision: reject_no_data` + `data_trail` ghi rõ search attempts (transparency).
+
 ## Output
 ```json
 {
@@ -184,7 +259,7 @@ Brief schema V4.0: see Story Editor SKILL.md.
 | `WebSearch:` | `WebSearch: "<exact query>"` (quoted) | italic span |
 | `Finpath_API/` | `Finpath_API/<endpoint>` (vd `Finpath_API/bankfinancialratios`) | `<code>` mono |
 | `KB/` | `KB/<path>` (vd `KB/bank/frameworks/bank-nim-cycle.md`) | `<code>` mono |
-| `Manual_YAML/` | `Manual_YAML/<file>:<row_key>` (vd `Manual_YAML/targets.yaml:MBB-2026`) | `<code>` mono |
+| `Manual_YAML/` | `Manual_YAML/<file>:<row_key>` (vd `Manual_YAML/credit_room.yaml:MBB-2026`) | `<code>` mono |
 | (none — fallback) | `Lập luận tự` (self-reasoning, no external fetch) | plain bold span |
 
 ❌ Bad: `cafef.vn` (abbreviated label, không clickable)
@@ -239,7 +314,6 @@ Fail check → rebuild data_trail trước persist. KHÔNG persist incomplete sc
 |---|---|
 | BCTC Quarter | `api.get_bank_ratios(ticker)` → `{quarterlyProfits[], yearlyProfits[]}` |
 | BCTC Annual | `api.get_full_income(ticker)` + `api.get_full_balance_sheet(ticker)` + `api.get_cashflow(ticker)` |
-| Targets vs Actual | `data/manual/targets.yaml` (load with pyyaml) |
 | Credit Room | `data/manual/credit_room.yaml` |
 | M&A | `api.get_events(ticker)` (filter for M&A events) |
 | Foreign Ownership | `api.get_shareholders(ticker)` |
@@ -277,3 +351,9 @@ Fail any → REWRITE specific issue → re-check. Loop until ALL 5 PASS trước
 - `references/live-api-spec.md` — API endpoints + helper code
 - `references/compare-feed-spec.md` — Compare Feed prepend layout
 - `references/master-pitfalls.md` — 12 pitfalls common
+- `kb/bank/frameworks/bank-industry-master-reference.md` — 6 lớp mental model anchor
+- `kb/bank/frameworks/bank-nim-cycle.md` — chu kỳ biên lãi vay + tỷ lệ tiền gửi không kỳ hạn
+- `kb/bank/frameworks/bank-npl-reading.md` — đọc nợ xấu thật vs reported + TPDN
+- `kb/bank/frameworks/bank-target-vs-actual-pattern.md` — pattern ĐHĐCĐ kế hoạch vs actual
+- `data/manual/credit_room.yaml` — NHNN room allocation per bank per năm
+- `data/manual/nhnn_circulars.yaml` — quy định NHNN ảnh hưởng Bank sector
