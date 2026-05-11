@@ -198,16 +198,6 @@ export function AngleFilter<T extends { category?: string }>({
                     {cat.description}
                   </span>
                 </span>
-
-                {/* Count */}
-                <span
-                  className={cn(
-                    'mt-0.5 shrink-0 font-mono text-[10.5px] tabular-nums',
-                    count > 0 ? 'font-semibold text-fg-1' : 'text-fg-3',
-                  )}
-                >
-                  {count > 0 ? count : '–'}
-                </span>
               </button>
             );
           })}
