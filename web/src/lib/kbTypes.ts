@@ -8,7 +8,7 @@ export interface KbMeta {
   [extra: string]: unknown;
 }
 
-export interface Heading {
+export interface KbHeading {
   level: 2 | 3;
   text: string;
   slug: string;
@@ -19,10 +19,10 @@ export interface KbDoc {
   sector: 'bds' | 'bank' | 'ck';
   meta: KbMeta;
   body: string;
-  headings: Heading[];
+  headings: KbHeading[];
 }
 
-export interface GroupConfig {
+export interface KbGroupConfig {
   id: string;
   icon: string;
   label: string;
