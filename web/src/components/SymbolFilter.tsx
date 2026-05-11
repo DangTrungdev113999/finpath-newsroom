@@ -181,45 +181,45 @@ export function SymbolFilter<T extends { ticker: string }>({
         </DialogTrigger>
 
         <DialogContent className="flex max-h-[88vh] flex-col">
-          {/* ── Header ─────────────────────────────────────────────── */}
-          <div className="relative border-b border-fg-4/30 bg-bg-2/40 px-6 py-5">
-            {/* Brand corner glow */}
-            <span
+          {/* ── Header (compact single row) ────────────────────────── */}
+          <div className="flex items-center gap-3 border-b border-fg-4/30 bg-bg-2/40 px-5 py-3 pr-14">
+            <Tag
+              className="h-4 w-4 shrink-0 text-brand"
+              strokeWidth={2}
               aria-hidden
-              className="pointer-events-none absolute -left-12 -top-12 h-24 w-24 rounded-full bg-brand/20 blur-2xl"
             />
-            <DialogTitle>Lọc cổ phiếu</DialogTitle>
-            <DialogDescription className="mt-1.5">
+            <DialogTitle className="!text-[14px] !font-semibold">
+              Lọc cổ phiếu
+            </DialogTitle>
+            <DialogDescription className="!text-[11px] tabular-nums">
               {hasSelection ? (
-                <span>
-                  Đang chọn{' '}
-                  <span className="font-mono font-semibold text-fg-1">
+                <>
+                  <span className="font-mono font-semibold text-brand">
                     {selected.length}
-                  </span>{' '}
-                  mã ·{' '}
+                  </span>
+                  <span className="text-fg-3"> chọn · </span>
                   <span className="font-mono font-semibold text-fg-1">
                     {filteredArticleCount}
                   </span>
-                  /{totalArticles} bài hiển thị
-                </span>
+                  <span className="text-fg-3">/{totalArticles} bài</span>
+                </>
               ) : (
-                <span>
-                  Universe{' '}
+                <>
                   <span className="font-mono font-semibold text-fg-1">
                     {TICKER_UNIVERSE.length}
-                  </span>{' '}
-                  mã · tổng{' '}
+                  </span>
+                  <span className="text-fg-3"> mã · </span>
                   <span className="font-mono font-semibold text-fg-1">
                     {totalArticles}
-                  </span>{' '}
-                  bài
-                </span>
+                  </span>
+                  <span className="text-fg-3"> bài</span>
+                </>
               )}
             </DialogDescription>
           </div>
 
           {/* ── Controls ───────────────────────────────────────────── */}
-          <div className="space-y-3 border-b border-fg-4/30 px-6 py-4">
+          <div className="space-y-2.5 border-b border-fg-4/30 px-5 py-3">
             {/* Search */}
             <label
               className={cn(
@@ -315,7 +315,7 @@ export function SymbolFilter<T extends { ticker: string }>({
           </div>
 
           {/* ── Grid ──────────────────────────────────────────────── */}
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3">
             {visible.length === 0 ? (
               <div className="flex h-32 items-center justify-center">
                 <p className="text-center font-mono text-[12px] text-fg-3">
@@ -345,7 +345,7 @@ export function SymbolFilter<T extends { ticker: string }>({
           </div>
 
           {/* ── Footer ─────────────────────────────────────────────── */}
-          <div className="flex items-center justify-between gap-3 border-t border-fg-4/30 bg-bg-2/40 px-6 py-3">
+          <div className="flex items-center justify-between gap-3 border-t border-fg-4/30 bg-bg-2/40 px-5 py-2.5">
             <span className="font-mono text-[10.5px] text-fg-3">
               {visible.length} mã hiển thị
               {query && (

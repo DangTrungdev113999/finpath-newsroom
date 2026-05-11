@@ -58,14 +58,14 @@ export const DialogContent = React.forwardRef<
       {!hideClose && (
         <DialogPrimitive.Close
           className={cn(
-            'absolute right-3.5 top-3.5 inline-flex h-7 w-7 items-center justify-center rounded-pill',
+            'absolute right-2.5 top-2.5 inline-flex h-6 w-6 items-center justify-center rounded-pill',
             'border border-fg-4/40 bg-bg-1 text-fg-2',
             'transition-colors duration-fast hover:border-fg-0/30 hover:text-fg-0',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35',
           )}
           aria-label="Đóng"
         >
-          <X className="h-3.5 w-3.5" strokeWidth={2.25} />
+          <X className="h-3 w-3" strokeWidth={2.25} />
         </DialogPrimitive.Close>
       )}
     </DialogPrimitive.Content>
