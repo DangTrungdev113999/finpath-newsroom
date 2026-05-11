@@ -99,12 +99,19 @@ Cho top match: `loader.load_topic('<best_path>')` để đọc full content.
 cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
 import yaml, json
 from pathlib import Path
-for name in ['targets', 'credit_room', 'nhnn_circulars']:
+for name in ['credit_room', 'nhnn_circulars']:
     data = yaml.safe_load(Path(f'data/manual/{name}.yaml').read_text())
     matches = [d for d in data if d.get('ticker') == '<TICKER>']
     print(f'{name}:', json.dumps(matches, ensure_ascii=False))
 "
 ```
+
+**Note v2.0**: `targets.yaml` ĐÃ DROP. Master fetch ĐHĐCĐ + actual quarter realtime:
+- `api.get_events(ticker)` → ĐHĐCĐ events
+- `api.get_income_statement(ticker)` → actual quarter LNTT
+- web_search `"[TICKER] nghị quyết ĐHĐCĐ [năm]"` cho full plan detail
+
+Hướng dẫn chi tiết: `kb/bank/frameworks/bank-target-vs-actual-pattern.md` § Realtime data fetch guidance.
 
 ### 6. Web search fallback (BẮT BUỘC khi local thiếu)
 
@@ -264,7 +271,7 @@ Output: article_id + public_slug.
 - WebSearch → `WebSearch: "<exact query>"` (quoted query — reproducible)
 - Finpath API → `Finpath_API/<endpoint>` (e.g. `Finpath_API/bankfinancialratios`)
 - KB → `KB/<path>` (e.g. `KB/bank/frameworks/bank-nim-cycle.md`)
-- YAML → `Manual_YAML/<file>:<row_key>` (e.g. `Manual_YAML/targets.yaml:MBB-2026`)
+- YAML → `Manual_YAML/<file>:<row_key>` (e.g. `Manual_YAML/credit_room.yaml:MBB-2026`)
 - Self-reasoning (no external fetch) → `Lập luận tự`
 
 **Schema split (Phase F)** — `purpose` (vì sao đi tra nguồn này) tách khỏi `supports_argument` (bổ sung cho luận điểm nào trong bài). Cả 2 đều tiếng Việt thuần, narrative ngắn 1 câu.
