@@ -83,7 +83,8 @@ Sidebar fixed width 280px. Content panel max 760px (reading width). Khoảng cá
 Derived từ filename prefix bằng `lib/kbTree.ts`. Static config:
 
 ```ts
-// kbTree.ts — BĐS group config
+// kbTree.ts — BĐS group config. Match in order, first match wins.
+// Cuối list = catch-all group "Khác" để bắt KB mới chưa có prefix biết trước.
 export const BDS_GROUPS: GroupConfig[] = [
   { id: 'master',  icon: '🏛', label: 'Tham chiếu ngành',
     match: (slug) => slug === 'bds-industry-master-reference' },
@@ -101,6 +102,10 @@ export const BDS_GROUPS: GroupConfig[] = [
     match: (slug) => /^bds-resort-/.test(slug) },
   { id: 'dc',      icon: '🖥', label: 'Trung tâm dữ liệu',
     match: (slug) => /^bds-dc-/.test(slug) },
+  // Catch-all — KB mới không match prefix nào trên rơi vào đây.
+  // Giữ slug ở đây cho đến khi maintainer quyết định thêm group mới.
+  { id: 'other',   icon: '📎', label: 'Khác',
+    match: () => true },
 ];
 ```
 
@@ -156,23 +161,58 @@ export const BDS_TITLES: Record<string, string> = {
 </header>
 ```
 
-- Title = từ BDS_TITLES map hoặc fallback rule
-- `last_updated` từ frontmatter (format: 2026-05-11)
-- `applies_to` array: render chips space-separated. Special: nếu `["all"]` → "tất cả mã ngành"
-- Nếu thiếu trường nào → ẩn (graceful degrade, không hiện "undefined")
+**Title strategy (cùng nguồn cho tree + content header)**:
+- Resolve theo thứ tự: `BDS_TITLES[slug]` → H1 đầu tiên trong body → `meta.title` frontmatter → slug raw
+- Tree sidebar VÀ content header h1 đều dùng cùng resolved title
+- → reader thấy title trong tree match title trên content, không bị mismatch
+- → H1 trong body bị ẩn (`h1: () => null` trong KbMarkdown) để tránh duplicate
+- → KB hiện tại: master file có H1 dài "Ngành bất động sản Việt Nam — Tham chiếu ngành (6 lớp mental model)" nhưng BDS_TITLES override thành "Tham chiếu ngành". Editorial decision: ưu tiên short label cho consistency.
+
+`last_updated` từ frontmatter (format: 2026-05-11). `applies_to` array: render chips space-separated. Special: nếu `["all"]` → "tất cả mã ngành". Nếu thiếu trường nào → ẩn (graceful degrade, không hiện "undefined").
 
 ### 6.2 Body
-Reuse `<Markdown>` component hiện có (`web/src/components/Markdown.tsx`). Bổ sung styling:
+Tạo `<KbMarkdown>` riêng (KHÔNG modify `Markdown.tsx` hiện có — component đó article-specific). Cấu hình react-markdown:
 
 ```tsx
-// New customizations cần thêm cho h1, h3, blockquote, table:
-h1: () => null,                    // ẩn H1 trong body (đã render trong header strip)
-h3: 'text-[14px] font-semibold...' // styling matched h2 nhưng nhỏ hơn
-blockquote: 'border-l-4 border-brand bg-brand/5 ...'
-table: scrollable container        // tables trong KB có thể wide
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';   // ← thêm để gắn id vào heading
+
+<ReactMarkdown
+  remarkPlugins={[remarkGfm]}
+  rehypePlugins={[rehypeSlug]}           // ← h2/h3 sẽ có id="<slugified-text>"
+  components={{
+    h1: () => null,                              // ẩn H1 trong body (đã render header strip)
+    h2: ({ id, children }) => (
+      <h2 id={id} className="...same style as Markdown.tsx h2..." />
+    ),
+    h3: ({ id, children }) => (
+      <h3 id={id} className="text-[14px] font-semibold mt-5 mb-3 text-fg-0" />
+    ),
+    blockquote: 'border-l-4 border-brand bg-brand/5 ...',
+    table: ({ children }) => (
+      <div className="overflow-x-auto"><table className="...">{children}</table></div>
+    ),
+    a: ({ href, children }) => {
+      // Cross-reference: ./other-file.md hoặc other-file.md → React Router link
+      const isInternalKb = href && /\.md$/.test(href);
+      if (isInternalKb) {
+        const slug = href.replace(/^\.\//, '').replace(/\.md$/, '');
+        return <Link to={`/tai-lieu/${slug}`}>{children}</Link>;
+      }
+      return <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>;
+    },
+  }}
+>
+  {body}
+</ReactMarkdown>
 ```
 
-H1 ẩn vì title đã render top. Frontmatter cũng strip out (do `kbLoader` parse).
+**Tại sao `rehype-slug`**: section 5.1 nói search result match heading → scroll đến anchor heading. Cần `<h2 id="...">` trên DOM. `rehype-slug` tự gắn id từ heading text (giống GitHub slug). `extractHeadings` (§7.4) phải dùng cùng thuật toán slugify để index slug khớp DOM id.
+
+**Slugify algorithm**: dùng `github-slugger` (cùng lib rehype-slug dùng) qua `extractHeadings`. Bảo đảm consistency.
+
+H1 ẩn vì title đã render trong header strip. Frontmatter cũng được strip bởi `kbLoader` parse, không reach markdown render.
 
 ### 6.3 Cross-references
 - Markdown link `[text](./other-file.md)` hoặc `[text](other-file.md)` → React Router `<Link to="/tai-lieu/<slug>">`
@@ -229,7 +269,7 @@ Vite project root = `web/`. KB folder `kb/` nằm SIBLING của web, NGOÀI root
 
 3. **Build mode**: Vite `import.meta.glob` resolve tại build time, inline content vào bundle. `fs.allow` chỉ ảnh hưởng dev server, không ảnh hưởng build. Production bundle tự chứa.
 
-Verify trong implementation: chạy `npm run build` xong check `dist/assets/*.js` có chuỗi từ KB file (vd `Bds-Industry-Master-Reference`). Nếu có = OK.
+**Spike verified 2026-05-11**: tạo `web/src/_kb_spike.ts` với glob `'../../kb/bds/**/*.md'`, chạy `npx vite build --config vite.spike.config.ts` → bundle output `dist-spike/kb-spike.js` 186KB raw / **47KB gzipped** chứa 21 module transformed + KB strings ("bds-res-land-bank-nav", "Tham chiếu"). Cả config `fs.allow` + relative path approach work. Implementation lock theo path config trên.
 
 ### 7.3 Frontmatter parser (inline)
 ```ts
@@ -317,14 +357,15 @@ Mỗi result:
 | `web/src/components/kb/KbTabs.tsx` | 3 sector tabs (BĐS active, Bank/CK disabled) |
 | `web/src/lib/kbLoader.ts` | Vite glob + parse frontmatter + extract headings |
 | `web/src/lib/kbTree.ts` | Group config + VN title map + helpers |
+| `web/src/components/kb/KbMarkdown.tsx` | react-markdown setup riêng cho KB (rehype-slug + internal link routing) |
 
 ### 9.2 Edit
 | Path | Thay đổi |
 |---|---|
 | `web/src/App.tsx` | Add route `/tai-lieu` + `/tai-lieu/:slug` |
 | `web/src/components/Header.tsx` | Add 3rd nav link "Tài liệu" |
-| `web/vite.config.ts` | Add alias `@kb → ../kb` (nếu cần) |
-| `web/package.json` | `fuse.js` dependency (~5KB gzipped) |
+| `web/vite.config.ts` | Add `server.fs.allow: ['..', '.']` cho dev server glob outside web/ |
+| `web/package.json` | Add deps: `fuse.js` (~5KB gz) + `rehype-slug` (~1KB gz) + `github-slugger` (~1KB gz) |
 
 ### 9.3 Không động
 - KB markdown files (kb/bds/frameworks/*.md) — unchanged
@@ -417,3 +458,4 @@ Trường hợp KB mới không match prefix nào (vd `bds-newcategory-foo.md`):
 | Ngày | Thay đổi |
 |---|---|
 | 2026-05-11 | Initial — brainstorm với user, 5 quyết định lock (scope BĐS only, 2-panel, search yes, nav "Tài liệu", tree label tiếng Việt). |
+| 2026-05-11 | Advisor review fix — (1) thêm catch-all group "Khác" cuối BDS_GROUPS để auto-update không drop file; (2) thêm `rehype-slug` + `github-slugger` cho heading anchor IDs (search result scroll); (3) lock title strategy = BDS_TITLES short cho cả tree + content header (consistency); (4) spike Vite `../../kb/...` glob path → confirmed work, 47KB gz bundle, lock implementation. |
