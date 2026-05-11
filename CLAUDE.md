@@ -23,7 +23,9 @@
 lib/                             → Python helpers (finpath_api, pipeline_db, kb_ingest, kb_loader, render, stages/)
 data/pipeline.db                 → SQLite (crawl_log + generated_news) — gitignored
 data/manual/*.yaml               → Curated DB (targets, credit_room, nhnn_circulars)
-kb/bank/                         → Markdown KB (bootstrap từ Notion Bank Sector page)
+kb/bank/                         → Markdown KB Bank (7 mã: TCB/VCB/MBB/ACB/BID/CTG/VPB)
+kb/ck/                           → Markdown KB CK (5 mã: SSI/VND/HCM/VCI/SHS)
+kb/bds/                          → Markdown KB BĐS (21 file, 7 category — residential/KCN/retail/office/resort/DC + framework chung)
 output/compare-feed/             → Markdown bài + manifest.json (1 file/bài)
 web/                             → Vite + React + Tailwind viewer
 ```
