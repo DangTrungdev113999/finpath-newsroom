@@ -43,8 +43,48 @@ Driver ngắn hạn là chu kỳ lãi suất (NHNN). Driver dài hạn là tăng
 | TCB | Techcombank | Retail-banking + hệ sinh thái BĐS/Masan; CASA cao cấu trúc; NIM trên 4% khi NIM ngành ≈ 3% |
 | ACB | ACB | Bảo thủ nhất nhóm tư nhân; SME + khách hàng cá nhân; NPL thấp nhất tư nhân lớn; ít exposure BĐS |
 | VPB | VPB | Consumer-finance heavy qua FE Credit; NIM cao nhất nhóm nhưng NPL cao hơn tương ứng; chu kỳ tiêu dùng ảnh hưởng trực tiếp |
+| HDB | HDBank | Phát triển TP.HCM, FE Credit consumer finance (sở hữu một phần), mua HDFC Saudi 2023 mở rộng quốc tế |
+| STB | Sacombank | Sài Gòn Thương Tín, post-Trầm Bê 2022 phục hồi rõ, nợ xấu giảm dần, mạng lưới rộng miền Nam |
 
-> **Decision rule phân loại**: Quốc doanh = nhiệm vụ chính sách → NIM thấp hơn, coverage cao hơn, credit growth do NHNN/Chính phủ drive. Tư nhân = market-driven → NIM cao hơn nhưng NPL cycle rõ hơn, cần phân tích chất lượng danh mục kỹ hơn.
+### Nhóm tư nhân mid
+
+| Mã | Tên | Đặc trưng cấu trúc |
+|---|---|---|
+| SHB | SHB | Sài Gòn - Hà Nội, exposure BĐS lớn, NPL biến động theo cycle bất động sản |
+| EIB | Eximbank | Cổ đông phân tán, định hướng xuất nhập khẩu, tái cấu trúc kéo dài |
+| TPB | TPBank | Tiên Phong, tech-retail focus, ESOP đậm, cho vay tiêu dùng tăng nhanh |
+| MSB | MSB | Maritime Bank, vận tải biển legacy, đang chuyển hướng retail banking |
+| LPB | LPBank | Lộc Phát Việt Nam (đổi tên 2024), mạng lưới rộng kế thừa Postal Bank |
+| OCB | OCB | Phương Đông, retail mid-market, NPL thấp, mạnh thẻ tín dụng |
+| VIB | VIB | Quốc Tế, dẫn đầu thẻ tín dụng, cho vay tiêu dùng tập trung |
+
+### Nhóm tư nhân nhỏ HNX
+
+| Mã | Tên | Đặc trưng cấu trúc |
+|---|---|---|
+| NAB | Nam Á Bank | Vừa niêm yết HNX 2024, mid-cap, retail miền Nam |
+| BAB | Bắc Á Bank | Mạnh Bắc Trung Bộ, mid-cap, sở hữu cô đặc |
+| NVB | NCB | Từng kiểm soát đặc biệt, đang phục hồi từ 2023, vốn nhỏ |
+| SGB | Saigonbank | State-owned background, niche commercial, vốn nhỏ nhất nhóm |
+
+### Nhóm UPCOM nhỏ
+
+| Mã | Tên | Đặc trưng cấu trúc |
+|---|---|---|
+| VAB | Việt Á Bank | Thanh khoản thấp, mid-cap, hoạt động ổn định |
+| BVB | Bản Việt Bank | Viet Capital Bank, retail focus phía Nam |
+| ABB | ABBank | An Bình Bank, exposure doanh nghiệp vừa, mid-low |
+| KLB | Kienlongbank | Mạng lưới mỏng, vốn nhỏ, mid-low |
+| VBB | VietBank | Mid-low cap, hoạt động retail tập trung |
+| PGB | PGBank | Petrolimex Bank, niche năng lượng, đang tái cấu trúc cổ đông |
+
+### Nhóm hợp tác xã
+
+| Mã | Tên | Đặc trưng cấu trúc |
+|---|---|---|
+| HDF | Co-op Bank | Ngân hàng Hợp tác xã, không phải TMCP thuần, hỗ trợ hệ thống quỹ tín dụng nhân dân |
+
+> **Decision rule phân loại**: Quốc doanh = nhiệm vụ chính sách → NIM thấp hơn, coverage cao hơn, credit growth do NHNN/Chính phủ drive. Tư nhân = market-driven → NIM cao hơn nhưng NPL cycle rõ hơn, cần phân tích chất lượng danh mục kỹ hơn. Nhóm tư nhân mid/nhỏ + UPCOM = thanh khoản thấp hơn, định giá thường discount so với tier lớn; phân tích cần focus vào catalyst riêng (M&A, đổi cổ đông, niêm yết HOSE).
 
 ## 1.3 NHNN kiểm soát
 

@@ -36,9 +36,49 @@ Công ty chứng khoán Việt Nam sinh lợi nhuận từ bốn nguồn chính:
 
 | Mô hình | Đặc trưng | Đại diện |
 |---|---|---|
-| Truyền thống đầy đủ dịch vụ | Môi giới + ký quỹ chiếm phần lớn; IB phụ trợ | SSI, HCM, VND |
+| Truyền thống đầy đủ dịch vụ | Môi giới + ký quỹ chiếm phần lớn; IB phụ trợ | SSI, HCM, VND, VIX |
 | Ngân hàng đầu tư dẫn dắt | IB + tự doanh tỷ trọng cao; môi giới phụ | VCI |
 | Bán lẻ tập trung sàn | Tập trung thị phần HNX, ký quỹ tích cực | SHS |
+| Liên kết ngân hàng mẹ | Vốn rẻ từ NH mẹ, phân phối sản phẩm IB nội bộ | MBS, BSI, CTS, AGR, BVS, VFS |
+| Bán lẻ/specialty nhỏ | Quy mô vốn nhỏ, niche khách hàng, ít hưởng lợi FTSE | APG, EVS, IVS, PSI, TVS, WSS, ORS, TCI |
+| UPCOM nhỏ | Thanh khoản thấp, ít visibility analyst, phụ thuộc chu kỳ | DSC, FTS, CSI, SBS, PHS, ART, APS, BMS, AAS, VTS |
+
+### 1.2.bis Phân nhóm chi tiết theo mã
+
+*Bảng dưới gom 30 mã CK vào phân nhóm + đặc thù riêng. Số liệu định lượng tra Finpath API; bảng này chỉ ghi định vị cấu trúc.*
+
+| Mã | Mô hình | Đặc thù cấu trúc |
+|---|---|---|
+| SSI | Truyền thống đầy đủ dịch vụ | Vốn chủ lớn nhất ngành; SSIAM phân phối quốc tế; danh mục tự doanh nghiêng trái phiếu + chứng chỉ tiền gửi |
+| HCM | Truyền thống đầy đủ dịch vụ | HSC; danh mục tự doanh 100% cổ phiếu FVTPL; danh tiếng tốt với nhà đầu tư nước ngoài |
+| VND | Truyền thống đầy đủ dịch vụ | VNDirect; bán lẻ thị phần lớn; dư nợ ký quỹ / vốn chủ thường cao |
+| VIX | Truyền thống đầy đủ dịch vụ | Vietnam Investment Securities; mid-cap HOSE; tăng vốn mạnh giai đoạn 2024-2026 |
+| VCI | Ngân hàng đầu tư dẫn dắt | Vietcap; danh mục AFS tích lũy nhiều năm tạo "dự trữ lãi"; biên lợi nhuận IB cao nhất nhóm |
+| SHS | Bán lẻ tập trung sàn | Sài Gòn - Hà Nội; thị phần dẫn đầu HNX; tự doanh FVTPL cổ phiếu cao |
+| MBS | Liên kết ngân hàng mẹ | MB Securities; vốn từ MBBank; IB tăng dần qua các năm |
+| BVS | Liên kết ngân hàng mẹ | Bảo Việt CK; phân phối sản phẩm bảo hiểm liên kết |
+| BSI | Liên kết ngân hàng mẹ | BIDV Securities (BSC); mạnh trái phiếu doanh nghiệp; mạng lưới rộng |
+| AGR | Liên kết ngân hàng mẹ | Agriseco; Agribank backing; retail focus tỉnh |
+| CTS | Liên kết ngân hàng mẹ | VietinBank Securities; mid-tier IB; cross-selling khách hàng VietinBank |
+| VFS | Liên kết ngân hàng mẹ | Nhất Việt CK; quy mô vốn vừa; định hướng IB |
+| APG | Bán lẻ/specialty nhỏ | APG Securities; niche client; quy mô nhỏ |
+| EVS | Bán lẻ/specialty nhỏ | Everest Securities; mid-tier; cơ cấu cổ đông tập trung |
+| IVS | Bán lẻ/specialty nhỏ | Đầu tư Việt Nam CK; quy mô nhỏ |
+| PSI | Bán lẻ/specialty nhỏ | CK Dầu khí; Petrosetco backing; niche ngành năng lượng |
+| TVS | Bán lẻ/specialty nhỏ | Thiên Việt CK; quy mô vừa; định hướng IB và quản lý quỹ |
+| WSS | Bán lẻ/specialty nhỏ | Phố Wall Securities; quy mô nhỏ |
+| ORS | Bán lẻ/specialty nhỏ | TPS Tiên Phong CK; quy mô vừa; bán lẻ |
+| TCI | Bán lẻ/specialty nhỏ | Thành Công CK; quy mô nhỏ |
+| DSC | UPCOM nhỏ | Đông Sài Gòn CK; quy mô nhỏ |
+| FTS | UPCOM nhỏ | FPT Securities (FPTS); fintech-oriented; mid-cap |
+| CSI | UPCOM nhỏ | Kiến Thiết CK; quy mô nhỏ |
+| SBS | UPCOM nhỏ | Sacombank Securities (đã bán khỏi Sacombank); cơ cấu cổ đông tái cấu trúc |
+| PHS | UPCOM nhỏ | Phú Hưng CK; mid-low; định hướng retail |
+| ART | UPCOM nhỏ | BOS Securities; cơ cấu cổ đông biến động lịch sử |
+| APS | UPCOM nhỏ | APEC CK; cơ cấu cổ đông biến động lịch sử |
+| BMS | UPCOM nhỏ | Bảo Minh CK; backing Bảo Minh insurance group |
+| AAS | UPCOM nhỏ | Smart Invest; fintech retail focus |
+| VTS | UPCOM nhỏ | Việt Tín CK; quy mô nhỏ |
 
 ### 1.3 Đặc thù thị trường Việt Nam cần nhớ
 
