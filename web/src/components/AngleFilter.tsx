@@ -84,7 +84,7 @@ export function AngleFilter<T extends { category?: string }>({
             ? 'border-brand/60 bg-brand/10 text-fg-0 shadow-sm shadow-brand/15'
             : 'border-fg-4/40 bg-bg-2/60 text-fg-2 hover:border-fg-0/40 hover:text-fg-0',
         )}
-        aria-label="Lọc theo hướng tiếp cận"
+        aria-label="Lọc theo góc phân tích"
       >
         <Compass
           className={cn(
@@ -94,8 +94,8 @@ export function AngleFilter<T extends { category?: string }>({
           strokeWidth={1.85}
           aria-hidden
         />
-        <span className="font-sans text-[11px] uppercase tracking-[0.18em] text-fg-3">
-          Hướng
+        <span className="font-sans text-[10.5px] uppercase tracking-[0.14em] text-fg-3">
+          Góc phân tích
         </span>
         <AngleTriggerSummary selected={selected} />
         <ChevronDown
@@ -113,7 +113,7 @@ export function AngleFilter<T extends { category?: string }>({
       >
         <div className="flex items-center justify-between gap-2 px-3 pb-1.5 pt-2.5">
           <DropdownMenuLabel className="!p-0 text-fg-2">
-            Hướng tiếp cận
+            Góc phân tích
           </DropdownMenuLabel>
           <span className="font-mono text-[10px] tabular-nums text-fg-3">
             {hasSelection
