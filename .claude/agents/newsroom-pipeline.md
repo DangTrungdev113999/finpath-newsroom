@@ -11,7 +11,12 @@ Bạn orchestrate pipeline 6-step cho 1 ticker. Reference skill `finpath-newsroo
 
 ## Input
 
-Ticker (string, vd `"VCB"`). Validate against MVP Bank universe: `TCB | VCB | MBB | ACB | BID | CTG | VPB`. Reject nếu không thuộc universe.
+Ticker (string, vd `"VCB"`). Validate against FULL UNIVERSE 16 mã (3 sector):
+- **Bank** (7): `TCB | VCB | MBB | ACB | BID | CTG | VPB`
+- **CK** (5): `SSI | VND | HCM | VCI | SHS`
+- **BĐS** (4): `VHM | NVL | KDH | DXG` (KBC defer — KCN pattern khác)
+
+Reject nếu không thuộc 16 mã universe.
 
 ## Project context
 
@@ -29,7 +34,9 @@ Code helpers:
 Subagents (Phase 4 LLM):
 - `newsroom-editor` — Step 2
 - `newsroom-story-editor` — Step 3
-- `newsroom-master-bank` — Step 4
+- `newsroom-master-bank` — Step 4 (sector=Bank)
+- `newsroom-master-ck` — Step 4 (sector=CK)
+- `newsroom-master-bds` — Step 4 (sector=BĐS)
 - `newsroom-skeptic` — Step 5
 
 ---
@@ -99,9 +106,19 @@ for article_id in [a["article_id"] for a in batch_articles]:
 
 ### Validate ticker
 
-UNIVERSE = `TCB|VCB|MBB|ACB|BID|CTG|VPB`. Map full names: Vietcombank → VCB, Techcombank → TCB, BIDV → BID, VietinBank → CTG, MB Bank → MBB, ACB → ACB, VPBank → VPB.
+FULL_UNIVERSE 16 mã = Bank (7) + CK (5) + BĐS (4):
+- **Bank**: `TCB|VCB|MBB|ACB|BID|CTG|VPB`
+- **CK**: `SSI|VND|HCM|VCI|SHS`
+- **BĐS**: `VHM|NVL|KDH|DXG` (KBC defer)
 
-Nếu không thuộc → reply "Ticker [X] không thuộc MVP Bank universe. CK + BĐS sẽ thêm sau." và stop pipeline.
+Map full names: Vietcombank → VCB, Techcombank → TCB, BIDV → BID, VietinBank → CTG, MB Bank → MBB, ACB → ACB, VPBank → VPB, Vinhomes → VHM, Novaland → NVL, Khang Điền → KDH, Đất Xanh → DXG, SSI/VNDirect/HSC/Vietcap/Sài Gòn-Hà Nội → SSI/VND/HCM/VCI/SHS.
+
+Sector detection via `lib/skills/finpath-newsroom-editor/scripts/routing.py::get_sector(ticker)`:
+- Bank universe → sector=`Bank`
+- CK universe → sector=`CK`
+- BĐS universe → sector=`BĐS`
+
+Nếu không thuộc → reply "Ticker [X] không thuộc 16 mã universe Finpath Newsroom (Bank/CK/BĐS)." và stop pipeline.
 
 ### Step 1 — Crawler
 
@@ -164,7 +181,7 @@ Use `Task` tool to dispatch subagent `newsroom-editor`:
 Task tool:
   description: "Editor V1 row <row_id>"
   subagent_type: newsroom-editor
-  prompt: "Process row_id <row_id>. Read it from data/pipeline.db crawl_log, detect tickers, validate against MVP Bank universe, identify primary, decide route_to_story_editor or reject. Persist via db.update_crawl_row. Return JSON with decision + primary_ticker + sector + detected_tickers."
+  prompt: "Process row_id <row_id>. Read it from data/pipeline.db crawl_log, detect tickers, validate against FULL_UNIVERSE (16 mã Bank+CK+BĐS), identify primary, look up sector via routing.get_sector(primary_ticker), decide route_to_story_editor or reject. Persist via db.update_crawl_row with sector field set correctly (Bank|CK|BĐS|rejected). Return JSON with decision + primary_ticker + sector + detected_tickers."
 ```
 
 Collect outputs.
@@ -207,10 +224,34 @@ Collect briefs (0-N items — uncapped).
 
 #### Iteration N (1..N briefs):
 
-1. **Step 4 — Master Bank**: Task dispatch `newsroom-master-bank` với brief N. Wait for return:
+1. **Step 4 — Master sector** (route based on sector from Editor V1): Read `sector` field from brief's crawl_log row → dispatch correct master agent:
+
+   | Sector | subagent_type | KB path | Finpath endpoints |
+   |---|---|---|---|
+   | Bank | `newsroom-master-bank` | `kb/bank/` | `get_bank_ratios` + bank-specific |
+   | CK | `newsroom-master-ck` | `kb/ck/` | general endpoints (no bank-only) |
+   | BĐS | `newsroom-master-bds` | `kb/bds/` | general endpoints + web_search primary |
+
+   Get sector from brief row:
+   ```bash
+   sector=$(uv run python -c "
+   from lib.pipeline_db import PipelineDB
+   db = PipelineDB('data/pipeline.db')
+   row = db.get_crawl_row('<ROW_ID>')
+   print(row.get('sector', 'Bank'))
+   db.close()
+   ")
+   ```
+
+   Map sector → subagent_type:
+   - `Bank` → `newsroom-master-bank`
+   - `CK` → `newsroom-master-ck`
+   - `BĐS` → `newsroom-master-bds`
+
+   Wait for return (same schema cho cả 3 sector):
    - article_id (uuid)
    - title, body, insight_final
-   - data_trail (V4.0 schema 4-field per entry — see SKILL.md V4.0 schema explicit)
+   - data_trail (V4.0 schema 4-field per entry)
    - quality_gates dict (5 gates pass/fail)
    - accepted_hypothesis (true/false)
 
@@ -218,13 +259,13 @@ Collect briefs (0-N items — uncapped).
 
    Capture: `t0_master`, `task_return_master` (for tokens parse).
 
-   Task dispatch:
+   Task dispatch (use sector-specific subagent_type):
 
    ```
    Task tool:
-     description: "Master Bank brief <ticker>"
-     subagent_type: newsroom-master-bank
-     prompt: "Write article for brief <brief_json>. row_id = <row_id>. Run 9-step V4.0 workflow with Finpath API + KB + YAML + web search. Step 6.5: pick 1 question from deep_question_options, log chosen_question_idx + chosen_pick_reason + skip_reasons. Self-check 5 quality gates V4.0 BEFORE persist (use lib/quality_gates.py — all 5 must pass). Persist generated_news with public_slug + pipeline_log with data_trail + master_decision. Return article_id + public_slug + body + word_count + insight_final + accepted_hypothesis + quality_gates dict."
+     description: "Master <sector> brief <ticker>"
+     subagent_type: newsroom-master-<sector_lowercase>  # bank | ck | bds
+     prompt: "Write article for brief <brief_json>. row_id = <row_id>. Run 9-step V4.0 workflow with Finpath API + KB <sector> + web search. Step 6.5: pick 1 question from deep_question_options, log chosen_question_idx + chosen_pick_reason + skip_reasons. Self-check 5 quality gates V4.0 BEFORE persist (use lib/quality_gates.py — all 5 must pass). Persist generated_news with sector=<sector> + public_slug + pipeline_log with data_trail + master_decision. Return article_id + public_slug + body + word_count + insight_final + accepted_hypothesis + quality_gates dict."
    ```
 
    Observability:

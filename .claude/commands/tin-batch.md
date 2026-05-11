@@ -1,20 +1,24 @@
 ---
-description: Viết bài tin chuyên sâu cho NHIỀU mã cổ phiếu Bank cùng lúc (parallel pipelines)
+description: Viết bài tin chuyên sâu cho NHIỀU mã cổ phiếu cùng lúc (parallel pipelines, đa sector Bank/CK/BĐS)
 argument-hint: <TICKER1,TICKER2,TICKER3,...>
 allowed-tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 ---
 
 Trigger N pipeline 6-step Newsroom V4.0 PARALLEL cho list tickers comma-separated **$ARGUMENTS**.
 
-Universe MVP Bank: **TCB · VCB · MBB · ACB · BID · CTG · VPB**.
+FULL_UNIVERSE 16 mã (3 sector):
+- **Bank** (7): TCB · VCB · MBB · ACB · BID · CTG · VPB
+- **CK** (5): SSI · VND · HCM · VCI · SHS
+- **BĐS** (4): VHM · NVL · KDH · DXG (KBC defer)
 
 ## Parse $ARGUMENTS
 
 1. **Empty $ARGUMENTS** → reply usage:
    ```
    Usage: /tin-batch <TICKER1,TICKER2,...>
-   Example: /tin-batch ACB,TPB,VPB
-   Single ticker: /tin-batch VCB (fall back to /tin behavior)
+   Example: /tin-batch VCB,SSI,VHM    (mixed sectors)
+   Example: /tin-batch ACB,TPB,VPB    (Bank only)
+   Single ticker: /tin-batch VCB     (fall back to /tin behavior)
    ```
    Stop.
 
@@ -22,29 +26,37 @@ Universe MVP Bank: **TCB · VCB · MBB · ACB · BID · CTG · VPB**.
    - Single Task dispatch `newsroom-pipeline` với ticker=VCB
    - Same output format as /tin
 
-3. **Comma-separated** (vd `/tin-batch ACB,TPB,VPB`) → split → list of N tickers.
+3. **Comma-separated** (vd `/tin-batch VCB,SSI,VHM`) → split → list of N tickers.
 
 ## Validate tickers
 
 For mỗi ticker trong list:
 - Strip whitespace + uppercase
-- Map alias: Vietcombank→VCB, Techcombank→TCB, BIDV→BID, VietinBank→CTG, MB Bank→MBB, ACB→ACB, VPBank→VPB
-- Check membership trong UNIVERSE = `{TCB, VCB, MBB, ACB, BID, CTG, VPB}`
-- Invalid → log warn `⚠️ Skip ticker [X] — không thuộc MVP Bank universe` + remove khỏi list (KHÔNG crash whole batch)
+- Map alias full names:
+  - Bank: Vietcombank→VCB, Techcombank→TCB, BIDV→BID, VietinBank→CTG, MB Bank→MBB, ACB→ACB, VPBank→VPB
+  - CK: SSI→SSI, VNDirect→VND, HSC→HCM, Vietcap→VCI, Sài Gòn-Hà Nội→SHS
+  - BĐS: Vinhomes→VHM, Novaland→NVL, Khang Điền→KDH, Đất Xanh→DXG
+- Check membership trong FULL_UNIVERSE = `{TCB,VCB,MBB,ACB,BID,CTG,VPB,SSI,VND,HCM,VCI,SHS,VHM,NVL,KDH,DXG}`
+- Invalid → log warn `⚠️ Skip ticker [X] — không thuộc 16 mã FULL_UNIVERSE` + remove khỏi list (KHÔNG crash whole batch)
 
-Nếu sau validation 0 ticker hợp lệ → reply "Không có ticker hợp lệ trong universe MVP Bank" + stop.
+Nếu sau validation 0 ticker hợp lệ → reply "Không có ticker hợp lệ trong 16 mã FULL_UNIVERSE" + stop.
 
 ## Spawn parallel pipelines
 
 Single message với N Task tool calls — Claude Code runs parallel:
 
 ```
-Task tool call 1: subagent_type=newsroom-pipeline, prompt="ticker=ACB ..."
-Task tool call 2: subagent_type=newsroom-pipeline, prompt="ticker=TPB ..."
-Task tool call 3: subagent_type=newsroom-pipeline, prompt="ticker=VPB ..."
+Task tool call 1: subagent_type=newsroom-pipeline, prompt="ticker=VCB ..."
+Task tool call 2: subagent_type=newsroom-pipeline, prompt="ticker=SSI ..."
+Task tool call 3: subagent_type=newsroom-pipeline, prompt="ticker=VHM ..."
 ```
 
 Mỗi pipeline có own `funnel_batch_id` (timestamp + ticker) → no row collision.
+
+Pipeline orchestrator tự route master theo sector (Editor V1 set sector field từ routing.get_sector(ticker)):
+- VCB → sector=Bank → Master Bank
+- SSI → sector=CK → Master CK
+- VHM → sector=BĐS → Master BĐS
 
 Prereqs (Phase G):
 - **WAL mode** (T1) handles SQLite write serialization automatically
@@ -58,21 +70,26 @@ Sau khi all N pipelines return, format final reply:
 ```
 ✅ Pipeline /tin-batch <TICKER1,TICKER2,...> hoàn tất
 
-[per ticker block]
-📊 ACB:
-  - Funnel batch: ACB-YYYYMMDD-HHMM
-  - Crawled: N rows
-  - Articles: M published
-  - Files: output/compare-feed/ACB-...
-  - Telegram: K pushed (X failed)
+[per ticker block — group by sector]
 
-📊 TPB:
-  ...
+📊 Bank:
+  VCB:
+    - Funnel batch: VCB-YYYYMMDD-HHMM
+    - Crawled: N rows
+    - Articles: M published
+    - Files: output/compare-feed/VCB-...
 
-📊 VPB:
-  ...
+📊 CK:
+  SSI:
+    - Funnel batch: SSI-YYYYMMDD-HHMM
+    ...
 
-Total: <N tickers> × <avg articles per ticker> = <total> articles
+📊 BĐS:
+  VHM:
+    - Funnel batch: VHM-YYYYMMDD-HHMM
+    ...
+
+Total: <N tickers across X sectors> × <avg articles per ticker> = <total> articles
 Total Telegram: <K> pushed
 Total wall-clock: <T>s (parallel speedup vs <T_seq>s sequential = X.Yx)
 ```
@@ -83,3 +100,4 @@ Total wall-clock: <T>s (parallel speedup vs <T_seq>s sequential = X.Yx)
 - **Skipped invalid tickers** → list at top of reply ("⚠️ Bỏ qua: [X, Y]").
 - **0 valid tickers** → reply stop message (see Validate section above).
 - **All pipelines reject (0 articles each)** → aggregate "Batch không đủ chất lượng cho tất cả tickers — xem reject reasons per ticker."
+- **Mixed sectors** (vd VCB+SSI+VHM) — Pipeline orchestrator handles routing tự động per ticker. Output group by sector trong reply.

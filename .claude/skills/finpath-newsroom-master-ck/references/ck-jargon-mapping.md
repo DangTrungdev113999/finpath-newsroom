@@ -1,10 +1,12 @@
-# CK Jargon Mapping — Tiếng Việt thuần
+# CK Jargon Mapping V4.0 — Tiếng Việt thuần
 
 ## ⚠️ QUY TẮC CỨNG — 0% TỪ TIẾNG ANH TRONG CONTENT USER-FACING
 
-**Bài Master + Skeptic + Compare Feed cột trái + Cần để ý + insight_final = KHÔNG được có 1 từ tiếng Anh nào.**
+**Bài Master + Skeptic + Compare Feed cột trái + insight_final = KHÔNG được có 1 từ tiếng Anh nào.**
 
-Rule binary: hoặc 0% Anh, hoặc fail self-check, KHÔNG persist. Exception: tên riêng (HOSE, HNX, UPCoM, VN-Index, SSI, VND, HCM, VCI, SHS, NHNN, UBCK, Q1/Q2/Q3/Q4) + Pipeline log internal.
+V4.0 BAN heading `## Cần để ý` — caveats merge vào bullets hoặc closing. Rule này áp dụng cho mọi phần content user-facing (opening paragraph + bullets + closing + Skeptic critique).
+
+Rule binary: hoặc 0% Anh, hoặc fail self-check (`no_english_jargon` gate), KHÔNG persist. Exception: tên riêng (HOSE, HNX, UPCoM, VN-Index, SSI, VND, HCM, VCI, SHS, NHNN, UBCK, Q1/Q2/Q3/Q4, FTSE) + Pipeline log internal toggle.
 
 ### Bảng thay thế tiếng Anh → tiếng Việt thuần
 
@@ -58,7 +60,7 @@ Bảng KHÔNG đầy đủ. Quy tắc: thấy từ Anh → tìm tiếng Việt t
 
 ## ⚠️ CRITICAL — Enum metadata KHÔNG được leak vào content user-facing
 
-Brief có 2 enum nội bộ — CHỈ dùng làm metadata, KHÔNG xuất hiện trong text user đọc.
+Brief V4.0 có 3 enum nội bộ — CHỈ dùng làm metadata, KHÔNG xuất hiện trong text user đọc. Self-check gate `no_metadata_leak` quét content cho 3 enum families bên dưới.
 
 ### Enum `insight_type` (Story Editor → Master)
 8 giá trị: `phân loại cổ phiếu | decode | risk | pattern | catalyst | strategic-shift | industry-impact | position`
@@ -72,6 +74,17 @@ Brief có 2 enum nội bộ — CHỈ dùng làm metadata, KHÔNG xuất hiện 
 | `pattern` | "mô hình" / "khuôn mẫu lặp lại" |
 | `risk` | "rủi ro" / "điểm rủi ro" |
 | `position` | "vị thế" / "định vị cạnh tranh" |
+
+### Enum `deep_question_options[].category` (V4.0 — Story Editor → Master)
+5 giá trị: `paradox | why_now | hidden_mechanism | comparison_deep | early_signal` — CHỈ dùng metadata phân loại câu hỏi đào sâu, KHÔNG được viết trong content.
+
+| Enum (metadata only) | Viết trong content (tiếng Việt) |
+|---|---|
+| `paradox` | "nghịch lý" / "2 sự kiện ngược chiều" |
+| `why_now` | "vì sao thời điểm này" / "vì sao chọn lúc này" |
+| `hidden_mechanism` | "cơ chế ẩn" / "cách vận hành đằng sau con số" |
+| `comparison_deep` | "so sánh sâu" / "đối chiếu góc nhìn mới" |
+| `early_signal` | "chỉ dấu sớm" / "tín hiệu sớm của chu kỳ" |
 
 ### Enum `Critique angle` Skeptic (6 options)
 `data_skepticism | historical_analog | alt_interpretation | risk_highlight | insight_wrong | execution_unfaithful` — cùng quy tắc. Mapping xem master-bank `references/jargon-mapping.md`.
@@ -87,9 +100,11 @@ Brief có 2 enum nội bộ — CHỈ dùng làm metadata, KHÔNG xuất hiện 
 ### Exception
 Pipeline log toggle internal CÓ THỂ giữ enum dạng `code style backtick` cho power-user verify.
 
-## Self-check trước khi viết xong
+## Self-check trước khi viết xong (V4.0)
 
-2 bước (binary pass/fail):
+2 bước (binary pass/fail) — bám sát 2 quality gate V4.0 `no_english_jargon` + `no_metadata_leak`:
 
-1. **0% Anh**: quét body + Cần để ý + insight_final + Skeptic. Có 1 từ tiếng Anh nào (kể cả viết tắt margin/broker/IB/AUM, kể cả thông dụng move/momentum/defensive) → fail, REWRITE. Exception: tên riêng + Pipeline log internal.
-2. **Enum leak**: search content cho 8 `insight_type` + 6 `Critique angle`. Nếu xuất hiện trong narrative → REPLACE bằng tiếng Việt theo bảng "Enum metadata" ở trên.
+1. **0% Anh** (gate `no_english_jargon`): quét title + opening paragraph + bullets + closing + insight_final + Skeptic critique. Có 1 từ tiếng Anh nào (kể cả viết tắt margin/broker/IB/AUM/market share, kể cả thông dụng move/momentum/defensive/catalyst/portfolio/trade-off) → fail, REWRITE. Exception: tên riêng (HOSE, HNX, UPCoM, VN-Index, NHNN, UBCK, FTSE, ticker) + Pipeline log internal toggle.
+2. **Enum leak** (gate `no_metadata_leak`): search content cho 8 `insight_type` + 5 `deep_question_options[].category` (paradox/why_now/hidden_mechanism/comparison_deep/early_signal) + 6 `Critique angle`. Nếu xuất hiện trong narrative → REPLACE bằng tiếng Việt theo các bảng "Enum metadata" ở trên.
+
+Fail gate 1 hoặc 2 → KHÔNG persist, loop rewrite cho đến khi pass cả 5 gate V4.0.

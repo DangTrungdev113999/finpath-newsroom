@@ -1,6 +1,6 @@
 ---
 name: newsroom-editor
-description: Editor V1 — gate logic + route master sector. Reads 1 row from crawl_log → detects tickers → validates against MVP Bank universe (TCB/VCB/MBB/ACB/BID/CTG/VPB) → identifies primary ticker → updates SQLite with editor_v1_decision (route_to_story_editor | reject) + editor_v1_note. Use when newsroom-pipeline dispatches Step 2 per pending row. NEVER processes batch — 1 row per call.
+description: Editor V1 — gate logic + route master sector. Reads 1 row from crawl_log → detects tickers → validates against FULL_UNIVERSE (16 mã: 7 Bank + 5 CK + 4 BĐS) → identifies primary ticker → looks up sector via routing.get_sector() → updates SQLite with editor_v1_decision (route_to_story_editor | reject) + editor_v1_note + sector (Bank|CK|BĐS|rejected). Use when newsroom-pipeline dispatches Step 2 per pending row. NEVER processes batch — 1 row per call.
 tools: Bash, Read
 model: sonnet
 ---
@@ -36,24 +36,26 @@ Replace `<ROW_ID>` literally.
 
 ### Step 2 — Detect tickers
 
-UNIVERSE = TCB | VCB | MBB | ACB | BID | CTG | VPB.
+FULL_UNIVERSE 16 mã (3 sector):
+- **Bank** (7): TCB · VCB · MBB · ACB · BID · CTG · VPB
+- **CK** (5): SSI · VND · HCM · VCI · SHS
+- **BĐS** (4): VHM · NVL · KDH · DXG (KBC defer)
 
-Aliases (search `title + raw_content`):
+Implementation:
 
-Pass 1 — Lowercase company-name match (case-insensitive substring):
-- vietcombank → VCB
-- techcombank → TCB
-- bidv → BID
-- vietinbank → CTG
-- mb bank | mbbank | quân đội → MBB
-- acb → ACB
-- vpbank → VPB
+```python
+from scripts.routing import FULL_UNIVERSE, get_sector
+from scripts.ticker_detection import detect_combined
 
-Pass 2 — Uppercase short-form ticker tokens (case-sensitive, raw text trước lowercase — regex derived from `SHORT_FORM_TO_TICKER` keys in `scripts/ticker_detection.py`):
-- MB → MBB (bắt "MB" alone — 2 chữ, lowercase "mb" KHÔNG match để tránh false positive với "miễn bàn", "mb chi"...)
-- VCB → VCB · TCB → TCB · ACB → ACB · BID → BID · CTG → CTG · VPB → VPB · MBB → MBB
+tickers_found = detect_combined(text)  # gộp Pass 1 (company name) + Pass 2 (short-form) + regex 3-char
+universe_tickers = [t for t in tickers_found if t in FULL_UNIVERSE]
+```
 
-Implementation: `scripts/ticker_detection.detect_combined(text)` — gộp Pass 1 + Pass 2 + regex 3-char. Collect all detected tickers in universe.
+Aliases coverage trong `scripts/ticker_detection.py`:
+- Bank Pass 1 company names: vietcombank/techcombank/bidv/vietinbank/mb bank/acb/vpbank
+- CK Pass 1 company names: ssi/vndirect/hsc/vietcap/sài gòn-hà nội (SHS)
+- BĐS Pass 1 company names: vinhomes/novaland/khang điền/đất xanh
+- Pass 2 short-form ticker: regex `\b(TCB|VCB|MBB|ACB|BID|CTG|VPB|SSI|VND|HCM|VCI|SHS|VHM|NVL|KDH|DXG)\b` case-sensitive raw text
 
 ### Step 3 — Identify primary
 
@@ -62,15 +64,16 @@ Implementation: `scripts/ticker_detection.detect_combined(text)` — gộp Pass 
 
 ### Step 4 — Decide
 
-If primary in universe:
+If primary in FULL_UNIVERSE:
+- Look up sector via `routing.get_sector(primary_ticker)` — returns `Bank` | `CK` | `BĐS`
 - decision = `route_to_story_editor`
-- note = `Pass — primary={ticker}, sector=Bank, route to Story Editor`
-- sector = `Bank`
+- note = `Pass — primary={ticker}, sector={Bank|CK|BĐS}, route to Story Editor`
+- sector = `{Bank|CK|BĐS}` (from get_sector lookup, NOT hard-coded)
 - status = `processed`
 
 Nếu không có ticker trong universe:
 - decision = `reject`
-- note = `out_of_universe — không có ticker trong MVP Bank universe`
+- note = `out_of_universe — không có ticker trong 16 mã FULL_UNIVERSE`
 - sector = `rejected`
 - status = `rejected`
 
