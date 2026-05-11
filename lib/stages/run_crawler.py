@@ -16,7 +16,23 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-BANK_UNIVERSE = ["TCB", "VCB", "MBB", "ACB", "BID", "CTG", "VPB"]
+# Full 61-mã universe (Bank 27 + CK 30 + BĐS 4).
+# Source of truth: .claude/skills/finpath-newsroom-editor/scripts/routing.py::FULL_UNIVERSE
+# Inlined here to avoid import-time circular dep; keep in sync with routing.py.
+BANK_UNIVERSE = [
+    "VCB", "CTG", "BID", "TCB", "MBB", "ACB", "VPB", "HDB",
+    "STB", "SHB", "EIB", "TPB", "MSB", "LPB", "OCB", "VIB",
+    "NAB", "BAB", "NVB", "SGB",
+    "VAB", "BVB", "ABB", "KLB", "VBB", "PGB", "HDF",
+]
+CK_UNIVERSE = [
+    "SSI", "VND", "HCM", "VCI", "VIX",
+    "SHS", "MBS", "BVS", "BSI", "AGR", "CTS", "APG", "EVS",
+    "IVS", "PSI", "TVS", "WSS", "ORS", "VFS", "TCI",
+    "DSC", "FTS", "CSI", "SBS", "PHS", "ART", "APS", "BMS", "AAS", "VTS",
+]
+BDS_UNIVERSE = ["VHM", "NVL", "KDH", "DXG"]
+FULL_UNIVERSE = BANK_UNIVERSE + CK_UNIVERSE + BDS_UNIVERSE
 
 SOURCES_WHITELIST = {
     "CafeF": "cafef.vn",
@@ -89,8 +105,8 @@ def main() -> int:
     args = parser.parse_args()
 
     ticker = args.ticker.upper()
-    if ticker not in BANK_UNIVERSE:
-        print(json.dumps({"error": f"{ticker} not in MVP Bank universe", "universe": BANK_UNIVERSE}))
+    if ticker not in FULL_UNIVERSE:
+        print(json.dumps({"error": f"{ticker} not in 61-mã FULL_UNIVERSE (Bank/CK/BĐS)", "universe_count": len(FULL_UNIVERSE)}))
         return 1
 
     from lib.pipeline_db import PipelineDB
