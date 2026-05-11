@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Fuse from 'fuse.js';
-import { ChevronDown, Search, Tag, X } from 'lucide-react';
+import { Check, ChevronDown, Search, Tag, X } from 'lucide-react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '../shared/ui/dropdown-menu';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from '../shared/ui/dialog';
 import { cn } from '../shared/lib/cn';
 import {
   SECTORS,
@@ -83,7 +83,6 @@ export function SymbolFilter<T extends { ticker: string }>({
 
   const counts = useMemo(() => countByTicker(items), [items]);
 
-  // Apply sector tab + Fuse search + selected-first ordering
   const visible = useMemo(() => {
     const sectorPool =
       sectorTab === 'all'
@@ -91,25 +90,29 @@ export function SymbolFilter<T extends { ticker: string }>({
         : TICKER_UNIVERSE.filter((t) => t.sector === sectorTab);
 
     const q = query.trim();
-    const searched: TickerInfo[] = q
-      ? fuse.search(q).map((r) => r.item).filter((t) =>
-          sectorTab === 'all' ? true : t.sector === sectorTab,
-        )
-      : sectorPool;
+    if (q) {
+      return fuse
+        .search(q)
+        .map((r) => r.item)
+        .filter((t) => (sectorTab === 'all' ? true : t.sector === sectorTab));
+    }
 
-    if (q) return searched;
-
-    // No query — sort: selected first, then alphabetical within sector groups
     const sel = new Set(selected);
-    return [...searched].sort((a, b) => {
+    return [...sectorPool].sort((a, b) => {
       const aSel = sel.has(a.code);
       const bSel = sel.has(b.code);
       if (aSel !== bSel) return aSel ? -1 : 1;
+      // Then: sector group order
+      if (a.sector !== b.sector) {
+        return (
+          SECTORS.findIndex((s) => s.id === a.sector) -
+          SECTORS.findIndex((s) => s.id === b.sector)
+        );
+      }
       return a.code.localeCompare(b.code);
     });
   }, [query, sectorTab, selected]);
 
-  // Section count per sector tab — uses CURRENT counts map
   const sectorCounts = useMemo(() => {
     const m: Record<SectorFilter, number> = { all: 0, bank: 0, ck: 0, bds: 0 };
     for (const t of TICKER_UNIVERSE) {
@@ -120,10 +123,11 @@ export function SymbolFilter<T extends { ticker: string }>({
     return m;
   }, [counts]);
 
-  // Reset query + focus search on open
+  // Focus search + reset state on open
   useEffect(() => {
     if (!open) return;
     setQuery('');
+    setSectorTab('all');
     const id = requestAnimationFrame(() => searchRef.current?.focus());
     return () => cancelAnimationFrame(id);
   }, [open]);
@@ -146,8 +150,8 @@ export function SymbolFilter<T extends { ticker: string }>({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <DropdownMenu open={open} onOpenChange={setOpen}>
-        <DropdownMenuTrigger
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger
           className={cn(
             'group inline-flex h-8 max-w-full items-center gap-2 rounded-pill border px-3 font-sans text-[12px] font-medium transition-all duration-fast ease-out-quart',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35',
@@ -155,7 +159,7 @@ export function SymbolFilter<T extends { ticker: string }>({
               ? 'border-brand/60 bg-brand/10 text-fg-0 shadow-sm shadow-brand/15'
               : 'border-fg-4/40 bg-bg-2/60 text-fg-2 hover:border-fg-0/40 hover:text-fg-0',
           )}
-          aria-label="Lọc theo mã cổ phiếu"
+          aria-label="Mở bộ lọc mã cổ phiếu"
         >
           <Tag
             className={cn(
@@ -170,233 +174,215 @@ export function SymbolFilter<T extends { ticker: string }>({
           </span>
           <TriggerSummary selected={selected} />
           <ChevronDown
-            className="h-3 w-3 shrink-0 text-fg-3 transition-transform duration-fast group-data-[state=open]:rotate-180"
+            className="h-3 w-3 shrink-0 text-fg-3"
             strokeWidth={2}
             aria-hidden
           />
-        </DropdownMenuTrigger>
+        </DialogTrigger>
 
-        <DropdownMenuContent
-          align="start"
-          side="bottom"
-          sideOffset={6}
-          className="w-[336px] p-0"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between gap-2 px-3 pb-1 pt-2.5">
-            <DropdownMenuLabel className="!p-0 text-fg-2">
-              Mã cổ phiếu
-            </DropdownMenuLabel>
-            <span className="font-mono text-[10px] tabular-nums text-fg-3">
-              {hasSelection
-                ? `${selected.length} chọn · ${filteredArticleCount}/${totalArticles} bài`
-                : `${TICKER_UNIVERSE.length} mã · ${totalArticles} bài`}
-            </span>
-          </div>
-
-          {/* Sector tabs */}
-          <div className="mx-2 mb-1.5 flex items-center gap-0.5 rounded-pill bg-bg-2/60 p-0.5">
-            <SectorTab
-              active={sectorTab === 'all'}
-              onClick={() => setSectorTab('all')}
-              label="Tất cả"
-              count={sectorCounts.all}
-              total={TICKER_UNIVERSE.length}
-            />
-            {SECTORS.map((s) => (
-              <SectorTab
-                key={s.id}
-                active={sectorTab === s.id}
-                onClick={() => setSectorTab(s.id)}
-                label={s.short}
-                title={s.label}
-                count={sectorCounts[s.id]}
-                total={TICKER_UNIVERSE.filter((t) => t.sector === s.id).length}
-              />
-            ))}
-          </div>
-
-          {/* Search */}
-          <label
-            className={cn(
-              'mx-2 mb-1.5 flex h-7 items-center gap-1.5 rounded-md bg-bg-0 px-2',
-              'shadow-[inset_0_0_0_1px_hsl(var(--fg-4)/0.55)]',
-              'focus-within:shadow-[inset_0_0_0_1.5px_hsl(var(--focus-ring))]',
-              'transition-shadow duration-fast ease-out-quart',
-            )}
-          >
-            <Search
-              className="h-3 w-3 shrink-0 text-fg-3"
-              strokeWidth={1.75}
+        <DialogContent className="flex max-h-[88vh] flex-col">
+          {/* ── Header ─────────────────────────────────────────────── */}
+          <div className="relative border-b border-fg-4/30 bg-bg-2/40 px-6 py-5">
+            {/* Brand corner glow */}
+            <span
               aria-hidden
+              className="pointer-events-none absolute -left-12 -top-12 h-24 w-24 rounded-full bg-brand/20 blur-2xl"
             />
-            <input
-              ref={searchRef}
-              value={query}
-              onChange={(e) => setQuery(e.currentTarget.value)}
-              onKeyDown={(e) => {
-                if (e.key.length === 1 || e.key === 'Backspace') {
-                  e.stopPropagation();
-                }
-              }}
-              placeholder="Tìm mã hoặc tên (VCB, Vietcombank, Techcom…)"
-              className={cn(
-                'flex-1 bg-transparent font-sans text-[11px] text-fg-0',
-                'placeholder:text-fg-3 placeholder:font-sans placeholder:text-[11px]',
-                'outline-none',
+            <DialogTitle>Lọc cổ phiếu</DialogTitle>
+            <DialogDescription className="mt-1.5">
+              {hasSelection ? (
+                <span>
+                  Đang chọn{' '}
+                  <span className="font-mono font-semibold text-fg-1">
+                    {selected.length}
+                  </span>{' '}
+                  mã ·{' '}
+                  <span className="font-mono font-semibold text-fg-1">
+                    {filteredArticleCount}
+                  </span>
+                  /{totalArticles} bài hiển thị
+                </span>
+              ) : (
+                <span>
+                  Universe{' '}
+                  <span className="font-mono font-semibold text-fg-1">
+                    {TICKER_UNIVERSE.length}
+                  </span>{' '}
+                  mã · tổng{' '}
+                  <span className="font-mono font-semibold text-fg-1">
+                    {totalArticles}
+                  </span>{' '}
+                  bài
+                </span>
               )}
-              aria-label="Tìm mã cổ phiếu"
-              spellCheck={false}
-              autoComplete="off"
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery('');
-                  searchRef.current?.focus();
-                }}
-                className="text-fg-3 transition-colors hover:text-fg-0"
-                aria-label="Xóa tìm kiếm"
-              >
-                <X className="h-3 w-3" strokeWidth={2} />
-              </button>
-            )}
-          </label>
+            </DialogDescription>
+          </div>
 
-          {/* Clear-all action */}
-          {hasSelection && (
-            <button
-              type="button"
-              onClick={clearAll}
+          {/* ── Controls ───────────────────────────────────────────── */}
+          <div className="space-y-3 border-b border-fg-4/30 px-6 py-4">
+            {/* Search */}
+            <label
               className={cn(
-                'mx-2 mb-1 flex h-6 w-[calc(100%-1rem)] items-center justify-between rounded-md px-2',
-                'font-sans text-[11px] text-fg-2',
-                'hover:bg-bg-2 hover:text-fg-0',
-                'transition-colors duration-fast',
+                'flex h-10 items-center gap-2 rounded-lg bg-bg-0 px-3',
+                'shadow-[inset_0_0_0_1px_hsl(var(--fg-4)/0.55)]',
+                'focus-within:shadow-[inset_0_0_0_1.5px_hsl(var(--brand))]',
+                'transition-shadow duration-fast ease-out-quart',
               )}
             >
-              <span className="flex items-center gap-1.5">
-                <X className="h-3 w-3" strokeWidth={2} />
-                Bỏ chọn tất cả
-              </span>
-              <span className="font-mono text-[10px] tabular-nums text-fg-3">
-                {selected.length}
-              </span>
-            </button>
-          )}
+              <Search
+                className="h-4 w-4 shrink-0 text-fg-3"
+                strokeWidth={1.75}
+                aria-hidden
+              />
+              <input
+                ref={searchRef}
+                value={query}
+                onChange={(e) => setQuery(e.currentTarget.value)}
+                placeholder="Tìm mã hoặc tên — VCB, Vietcombank, Kỹ Thương…"
+                className="flex-1 bg-transparent font-sans text-[13px] text-fg-0 outline-none placeholder:text-fg-3"
+                aria-label="Tìm mã cổ phiếu"
+                spellCheck={false}
+                autoComplete="off"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery('');
+                    searchRef.current?.focus();
+                  }}
+                  className="text-fg-3 transition-colors hover:text-fg-0"
+                  aria-label="Xóa tìm kiếm"
+                >
+                  <X className="h-3.5 w-3.5" strokeWidth={2} />
+                </button>
+              )}
+            </label>
 
-          <DropdownMenuSeparator className="mx-2 my-1" />
+            {/* Sector tabs */}
+            <div className="flex items-center gap-1 rounded-pill bg-bg-2/60 p-1">
+              <SectorTab
+                active={sectorTab === 'all'}
+                onClick={() => setSectorTab('all')}
+                label="Tất cả"
+                count={sectorCounts.all}
+                total={TICKER_UNIVERSE.length}
+              />
+              {SECTORS.map((s) => (
+                <SectorTab
+                  key={s.id}
+                  active={sectorTab === s.id}
+                  onClick={() => setSectorTab(s.id)}
+                  label={s.label}
+                  count={sectorCounts[s.id]}
+                  total={
+                    TICKER_UNIVERSE.filter((t) => t.sector === s.id).length
+                  }
+                />
+              ))}
+            </div>
 
-          {/* List */}
-          <div className="max-h-[280px] overflow-y-auto px-1 pb-1.5">
-            {visible.length === 0 ? (
-              <div className="px-3 py-6 text-center font-mono text-[11px] text-fg-3">
-                {query
-                  ? `Không có mã nào khớp "${query}"`
-                  : 'Không có mã nào trong ngành này'}
-              </div>
-            ) : (
-              visible.map((t) => {
-                const isSelected = selected.includes(t.code);
-                const count = counts.get(t.code) ?? 0;
-                const dim = count === 0;
-                return (
+            {/* Selected chips */}
+            {hasSelection && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-fg-3">
+                  Đã chọn
+                </span>
+                {selected.map((code) => (
                   <button
                     type="button"
-                    key={t.code}
-                    onClick={() => toggle(t.code)}
-                    className={cn(
-                      'group/row relative flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-all duration-fast',
-                      isSelected
-                        ? 'bg-brand/[0.09] ring-1 ring-brand/40'
-                        : 'hover:bg-bg-2',
-                      dim && !isSelected && 'opacity-60',
-                    )}
+                    key={code}
+                    onClick={() => toggle(code)}
+                    className="group/chip inline-flex items-center gap-1 rounded-pill border border-brand/50 bg-brand/10 px-2 py-[2px] font-mono text-[10px] font-semibold tabular-nums tracking-[0.04em] text-fg-0 transition-colors duration-fast hover:border-brand hover:bg-brand/20"
+                    aria-label={`Bỏ ${code}`}
                   >
-                    {isSelected && (
-                      <span
-                        aria-hidden
-                        className="absolute inset-y-1.5 left-0 w-[2px] rounded-r-full bg-brand"
-                      />
-                    )}
-                    {/* Checkbox indicator */}
-                    <span
-                      aria-hidden
-                      className={cn(
-                        'flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border transition-colors duration-fast',
-                        isSelected
-                          ? 'border-brand bg-brand text-brand-fg'
-                          : 'border-fg-4/60 bg-bg-1',
-                      )}
-                    >
-                      {isSelected && (
-                        <svg
-                          viewBox="0 0 12 12"
-                          className="h-2.5 w-2.5"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M2.5 6.5l2.5 2.5 4.5-5" />
-                        </svg>
-                      )}
-                    </span>
-                    {/* Code */}
-                    <span
-                      className={cn(
-                        'shrink-0 font-mono text-[12px] font-bold tabular-nums tracking-[0.04em]',
-                        isSelected ? 'text-fg-0' : 'text-fg-0',
-                      )}
-                    >
-                      {t.code}
-                    </span>
-                    {/* Name */}
-                    <span className="min-w-0 flex-1 truncate font-sans text-[11px] text-fg-2">
-                      {t.name}
-                    </span>
-                    {/* Sector chip */}
-                    <span
-                      className={cn(
-                        'shrink-0 rounded-pill px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-wider',
-                        t.sector === 'bank' && 'bg-fg-4/30 text-fg-2',
-                        t.sector === 'ck' && 'bg-fg-4/30 text-fg-2',
-                        t.sector === 'bds' && 'bg-fg-4/30 text-fg-2',
-                      )}
-                    >
-                      {t.sector === 'bank'
-                        ? 'NH'
-                        : t.sector === 'ck'
-                          ? 'CK'
-                          : 'BĐS'}
-                    </span>
-                    {/* Article count */}
-                    <span
-                      className={cn(
-                        'shrink-0 font-mono text-[10px] tabular-nums',
-                        count > 0 ? 'text-fg-1' : 'text-fg-3',
-                      )}
-                    >
-                      {count}
-                    </span>
+                    {code}
+                    <X
+                      className="h-2.5 w-2.5 text-fg-3 group-hover/chip:text-fg-0"
+                      strokeWidth={2.5}
+                    />
                   </button>
-                );
-              })
+                ))}
+                <button
+                  type="button"
+                  onClick={clearAll}
+                  className="ml-auto rounded-md px-2 py-0.5 font-sans text-[10.5px] font-medium text-fg-3 transition-colors hover:bg-bg-2 hover:text-fg-0"
+                >
+                  Bỏ chọn tất cả
+                </button>
+              </div>
             )}
           </div>
 
-          {/* Footer hint */}
-          <div className="border-t border-fg-4/30 bg-bg-2/40 px-3 py-1.5">
-            <p className="font-sans text-[10px] text-fg-3">
-              {visible.length} mã · {hasSelection ? 'chọn nhiều' : 'click để lọc'}
-            </p>
+          {/* ── Grid ──────────────────────────────────────────────── */}
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+            {visible.length === 0 ? (
+              <div className="flex h-32 items-center justify-center">
+                <p className="text-center font-mono text-[12px] text-fg-3">
+                  {query ? (
+                    <>
+                      Không có mã nào khớp{' '}
+                      <span className="font-semibold text-fg-1">"{query}"</span>
+                    </>
+                  ) : (
+                    'Không có mã nào trong ngành này'
+                  )}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {visible.map((t) => (
+                  <TickerCard
+                    key={t.code}
+                    ticker={t}
+                    count={counts.get(t.code) ?? 0}
+                    selected={selected.includes(t.code)}
+                    onToggle={() => toggle(t.code)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
 
-      {/* Inline removable chips */}
+          {/* ── Footer ─────────────────────────────────────────────── */}
+          <div className="flex items-center justify-between gap-3 border-t border-fg-4/30 bg-bg-2/40 px-6 py-3">
+            <span className="font-mono text-[10.5px] text-fg-3">
+              {visible.length} mã hiển thị
+              {query && (
+                <>
+                  {' '}
+                  · từ khóa{' '}
+                  <span className="font-semibold text-fg-1">"{query}"</span>
+                </>
+              )}
+            </span>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className={cn(
+                'inline-flex h-8 items-center gap-1.5 rounded-pill px-4 font-sans text-[12px] font-semibold transition-all duration-fast',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35',
+                hasSelection
+                  ? 'bg-brand text-brand-fg shadow-sm shadow-brand/25 hover:shadow-brand/40'
+                  : 'bg-fg-0 text-bg-1 hover:opacity-90',
+              )}
+            >
+              {hasSelection ? (
+                <>
+                  Áp dụng
+                  <span className="rounded-full bg-brand-fg/20 px-1.5 py-[1px] font-mono text-[10px]">
+                    {selected.length}
+                  </span>
+                </>
+              ) : (
+                'Đóng'
+              )}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Inline removable chips (outside dialog) */}
       {hasSelection && (
         <div className="flex flex-wrap items-center gap-1">
           {selected.slice(0, 6).map((code) => (
@@ -430,18 +416,108 @@ export function SymbolFilter<T extends { ticker: string }>({
   );
 }
 
+function TickerCard({
+  ticker,
+  count,
+  selected,
+  onToggle,
+}: {
+  ticker: TickerInfo;
+  count: number;
+  selected: boolean;
+  onToggle: () => void;
+}) {
+  const hasArticles = count > 0;
+  const sectorLabel =
+    ticker.sector === 'bank'
+      ? 'Ngân hàng'
+      : ticker.sector === 'ck'
+        ? 'Chứng khoán'
+        : 'Bất động sản';
+
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-pressed={selected}
+      className={cn(
+        'group/card relative flex flex-col items-start gap-1.5 rounded-xl border p-3 text-left transition-all duration-fast ease-out-quart',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35',
+        selected
+          ? 'border-brand/60 bg-brand/[0.08] shadow-sm shadow-brand/15'
+          : hasArticles
+            ? 'border-fg-4/40 bg-bg-1 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md hover:shadow-fg-0/5'
+            : 'border-fg-4/30 bg-bg-1/60 opacity-70 hover:opacity-100 hover:border-fg-4/60',
+      )}
+    >
+      {/* Check indicator */}
+      {selected && (
+        <span
+          aria-hidden
+          className="absolute right-2.5 top-2.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand text-brand-fg shadow-sm shadow-brand/30"
+        >
+          <Check className="h-3 w-3" strokeWidth={3} />
+        </span>
+      )}
+
+      {/* Top row: code + sector chip */}
+      <div className="flex w-full items-center gap-2">
+        <span className="font-mono text-[15px] font-bold tabular-nums tracking-[0.02em] text-fg-0">
+          {ticker.code}
+        </span>
+        <span
+          className={cn(
+            'rounded-pill px-1.5 py-[1px] font-mono text-[9px] uppercase tracking-wider',
+            ticker.sector === 'bank' && 'bg-fg-4/25 text-fg-2',
+            ticker.sector === 'ck' && 'bg-fg-4/25 text-fg-2',
+            ticker.sector === 'bds' && 'bg-fg-4/25 text-fg-2',
+            selected && 'bg-brand/20 text-brand',
+          )}
+          title={sectorLabel}
+        >
+          {ticker.sector === 'bank'
+            ? 'NH'
+            : ticker.sector === 'ck'
+              ? 'CK'
+              : 'BĐS'}
+        </span>
+      </div>
+
+      {/* Name */}
+      <span className="line-clamp-1 font-sans text-[12px] font-medium text-fg-1">
+        {ticker.name}
+      </span>
+
+      {/* Bottom row: article count */}
+      <div className="mt-0.5 flex w-full items-center gap-1.5 border-t border-fg-4/25 pt-1.5">
+        <span
+          className={cn(
+            'inline-block h-1.5 w-1.5 rounded-full',
+            hasArticles ? 'bg-brand' : 'bg-fg-4',
+          )}
+        />
+        <span
+          className={cn(
+            'font-mono text-[10px] tabular-nums',
+            hasArticles ? 'text-fg-1' : 'text-fg-3',
+          )}
+        >
+          {hasArticles ? `${count} bài` : 'chưa có bài'}
+        </span>
+      </div>
+    </button>
+  );
+}
+
 function SectorTab({
   active,
   onClick,
   label,
-  title,
   count,
-  total,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
-  title?: string;
   count: number;
   total: number;
 }) {
@@ -449,9 +525,8 @@ function SectorTab({
     <button
       type="button"
       onClick={onClick}
-      title={title ?? label}
       className={cn(
-        'flex flex-1 items-center justify-center gap-1 rounded-pill px-2 py-1 font-sans text-[10.5px] font-medium transition-all duration-fast',
+        'flex flex-1 items-center justify-center gap-1.5 rounded-pill px-3 py-1.5 font-sans text-[12px] font-medium transition-all duration-fast',
         active
           ? 'bg-brand text-brand-fg shadow-sm shadow-brand/20'
           : 'text-fg-2 hover:text-fg-0',
@@ -460,11 +535,11 @@ function SectorTab({
       <span className={active ? 'font-semibold' : ''}>{label}</span>
       <span
         className={cn(
-          'font-mono text-[9px] tabular-nums',
-          active ? 'text-brand-fg/85' : 'text-fg-3',
+          'rounded-full px-1.5 py-[1px] font-mono text-[9px] font-bold tabular-nums',
+          active ? 'bg-brand-fg/25 text-brand-fg' : 'bg-fg-4/30 text-fg-2',
         )}
       >
-        {count}/{total > 0 ? total : 0}
+        {count}
       </span>
     </button>
   );
@@ -488,12 +563,7 @@ function TriggerSummary({ selected }: { selected: string[] }) {
       <span className="font-mono text-[12px] font-semibold tabular-nums tracking-[0.04em] text-fg-0">
         {selected[0]}
       </span>
-      <span
-        className={cn(
-          'inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1',
-          'font-sans text-[10px] font-bold tabular-nums text-brand-fg',
-        )}
-      >
+      <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 font-sans text-[10px] font-bold tabular-nums text-brand-fg">
         +{selected.length - 1}
       </span>
     </span>
