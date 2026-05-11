@@ -1,35 +1,53 @@
-# CK KB Bootstrap Implementation Plan
+# CK KB Bootstrap Implementation Plan (v1.2 — pure static KB pivot)
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build local knowledge base (6 markdown framework files) + manual quantitative data (4 YAML files) cho ngành chứng khoán VN, song song với KB Bank đã có. Update Master CK skill để query KB + YAML trước khi web_search.
+**Goal:** Build **pure static knowledge base** (6 markdown framework files) + **1 static YAML** (regulatory archive) cho ngành chứng khoán VN. Update Master CK skill để chain data sources: local KB → ssc_circulars → Finpath API → web_search.
 
-**Architecture:** Hand-craft 6 markdown từ Notion child pages (read 1 lần, output Notion-free) + 4 YAML mock stub cho 5 mã universe (SSI/VND/HCM/VCI/SHS). Reuse `lib/kb_loader.py` (đã generic — accept arbitrary root path). Update `.claude/skills/finpath-newsroom-master-ck/SKILL.md` wire KB + YAML.
+**Architecture:** Hand-craft 6 markdown chứa kiến thức TĨNH (framework + mechanism + case study + threshold + pitfalls + regulatory). 1 YAML static cho UBCKNN circulars. KHÔNG hard-code per-ticker per-quarter snapshot — Master fetch realtime qua Finpath API + web_search.
 
-**Tech Stack:** Python 3 / `lib/kb_loader.py` / PyYAML / Markdown. Reference Bank pattern: `kb/bank/frameworks/` + `data/manual/{targets,credit_room,nhnn_circulars}.yaml` + `.claude/skills/finpath-newsroom-master-bank/SKILL.md`.
+**Tech Stack:** Python 3 / `lib/kb_loader.py` / `lib/finpath_api.py` / PyYAML / Markdown.
 
-**Spec:** `docs/superpowers/specs/2026-05-11-ck-kb-bootstrap-design.md`
+**Spec:** `docs/superpowers/specs/2026-05-11-ck-kb-bootstrap-design.md` (v1.2)
+
+## v1.2 Revision Note (apply to ALL tasks)
+
+User pivot giữa Task 2 + 3: KB phải PURE STATIC. Tasks 1+2 đã commit có dynamic anchor section (Dữ liệu neo Q1/2026) — sẽ refactor xóa.
+
+**Changes vs v1.0:**
+- Tasks 7, 8, 9 (3 dynamic YAML: `ck_targets`, `ck_market_share`, `ck_margin_outstanding`) → **CANCELLED**.
+- Tasks 1, 2 markdown → **REFACTOR** xóa per-ticker per-quarter section, thay benchmark ranges static.
+- Tasks 3-6 markdown → implement với **pure-static pattern** (xem spec § 5):
+  - Khái niệm & cơ chế
+  - Quy định pháp lý + threshold cứng
+  - **Benchmark dài hạn (ranges)** — KHÔNG per-ticker per-quarter
+  - Case study lịch sử + chu kỳ
+  - Bẫy
+  - 5 câu hỏi cho Master
+  - **Realtime data fetch guidance** (NEW) — hướng dẫn Master gọi Finpath API / web_search cho data động
+  - Cross-link
+  - Source log
+  - Phần suy luận
+- Task 10 (`ssc_circulars.yaml`) → giữ, expand 5-7 thông tư.
+- Task 11 (SKILL.md) → add section `## Data fetching protocol — auto-fallback` (KB → ssc_circulars → Finpath API → web_search).
 
 ---
 
-## File Structure
+## File Structure (v1.2)
 
-**Will create (10 file mới):**
+**Will create (7 file mới):**
 
 ```
 kb/ck/frameworks/
-├── ck-margin-cycle.md                  # Task 1
-├── ck-brokerage-marketshare.md         # Task 2
-├── ck-ib-revenue-volatility.md         # Task 3
-├── ck-proprietary-trading.md           # Task 4
-├── ck-liquidity-sensitivity.md         # Task 5
-└── ck-industry-master-reference.md     # Task 6 (last — cross-link 5 deep dives)
+├── ck-margin-cycle.md                  # Task 1 (DONE — needs refactor v1.2)
+├── ck-brokerage-marketshare.md         # Task 2 (DONE — needs refactor v1.2)
+├── ck-ib-revenue-volatility.md         # Task 3 (pure static)
+├── ck-proprietary-trading.md           # Task 4 (pure static)
+├── ck-liquidity-sensitivity.md         # Task 5 (pure static)
+└── ck-industry-master-reference.md     # Task 6 (pure static, cross-link 5)
 
 data/manual/
-├── ck_targets.yaml                     # Task 7
-├── ck_market_share.yaml                # Task 8
-├── ck_margin_outstanding.yaml          # Task 9
-└── ssc_circulars.yaml                  # Task 10
+└── ssc_circulars.yaml                  # Task 10 (only YAML; Tasks 7-9 CANCELLED)
 ```
 
 **Will modify (1 file):**
@@ -601,7 +619,7 @@ Spec: docs/superpowers/specs/2026-05-11-ck-kb-bootstrap-design.md"
 
 ---
 
-## Task 7: ck_targets.yaml
+## ~~Task 7: ck_targets.yaml~~ — CANCELLED (v1.2 pivot — dynamic data, Master fetch realtime)
 
 **Files:**
 - Create: `data/manual/ck_targets.yaml`
@@ -717,7 +735,7 @@ Spec: docs/superpowers/specs/2026-05-11-ck-kb-bootstrap-design.md"
 
 ---
 
-## Task 8: ck_market_share.yaml
+## ~~Task 8: ck_market_share.yaml~~ — CANCELLED (v1.2 pivot — dynamic data)
 
 **Files:**
 - Create: `data/manual/ck_market_share.yaml`
@@ -818,7 +836,7 @@ Spec: docs/superpowers/specs/2026-05-11-ck-kb-bootstrap-design.md"
 
 ---
 
-## Task 9: ck_margin_outstanding.yaml
+## ~~Task 9: ck_margin_outstanding.yaml~~ — CANCELLED (v1.2 pivot — dynamic data)
 
 **Files:**
 - Create: `data/manual/ck_margin_outstanding.yaml`
