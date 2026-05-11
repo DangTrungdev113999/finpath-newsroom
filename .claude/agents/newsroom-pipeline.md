@@ -113,7 +113,7 @@ FULL_UNIVERSE 16 mã = Bank (7) + CK (5) + BĐS (4):
 
 Map full names: Vietcombank → VCB, Techcombank → TCB, BIDV → BID, VietinBank → CTG, MB Bank → MBB, ACB → ACB, VPBank → VPB, Vinhomes → VHM, Novaland → NVL, Khang Điền → KDH, Đất Xanh → DXG, SSI/VNDirect/HSC/Vietcap/Sài Gòn-Hà Nội → SSI/VND/HCM/VCI/SHS.
 
-Sector detection via `lib/skills/finpath-newsroom-editor/scripts/routing.py::get_sector(ticker)`:
+Sector detection via `.claude/skills/finpath-newsroom-editor/scripts/routing.py::get_sector(ticker)`:
 - Bank universe → sector=`Bank`
 - CK universe → sector=`CK`
 - BĐS universe → sector=`BĐS`

@@ -36,14 +36,16 @@ Icon sector: 🏦 Bank | 📈 CK | 🏠 BĐS
 
 [Mở đầu 25-30 từ — không heading]
 
-[Body bullet/đoạn ngắn 150-250 từ]
-- **Bold số key** trong bullet
-- ...
+[Opening paragraph 30-60 từ — sự kiện + tension/setup, không heading]
 
-## Cần để ý
-[optional 25-30 từ — Mốc cần theo dõi]
+- **Bold keypoint 1**: substantive bullet ≥20 từ với connector + mechanism
+- **Bold keypoint 2**: bullet ≥20 từ
+- **Bold keypoint 3**: bullet ≥20 từ
+- ... up to 7 bullets
 
-[Chốt insight tự nhiên — không nhãn "Tóm lại"]
+⚠️ **V4.0 BAN heading `## Cần để ý`** — caveat phải merge vào bullet substantive HOẶC closing sentence. Body Master KHÔNG được có bất kỳ heading nào ngoài body chính (opening + bullets + closing). Skeptic append `## Góc nhìn ngược` riêng (không tính vào gates Master).
+
+[Closing 1 câu — phân loại NĐT phù hợp, không nhãn "Tóm lại". Caveat merge ở đây nếu cần.]
 
 ## Góc nhìn ngược
 [Skeptic append sau publish — 100-300 từ bullet]
