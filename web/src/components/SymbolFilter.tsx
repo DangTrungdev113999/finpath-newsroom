@@ -102,11 +102,37 @@ export function SymbolFilter<T extends { ticker: string }>({
 
   const counts = useMemo(() => countByTicker(items), [items]);
 
+  // Snapshot order at dialog-open time: tickers with articles first,
+  // then sector group + code. Frozen until next open so clicking a row
+  // doesn't reorder (no scroll jank).
+  const [orderedUniverse, setOrderedUniverse] =
+    useState<TickerInfo[]>(TICKER_UNIVERSE);
+
+  useEffect(() => {
+    if (!open) return;
+    const ordered = [...TICKER_UNIVERSE].sort((a, b) => {
+      const aCount = counts.get(a.code) ?? 0;
+      const bCount = counts.get(b.code) ?? 0;
+      if (aCount !== bCount) return bCount - aCount; // articles desc
+      if (a.sector !== b.sector) {
+        return (
+          SECTORS.findIndex((s) => s.id === a.sector) -
+          SECTORS.findIndex((s) => s.id === b.sector)
+        );
+      }
+      return a.code.localeCompare(b.code);
+    });
+    setOrderedUniverse(ordered);
+    // counts intentionally omitted — we want a single snapshot per
+    // open transition, not a live re-sort.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   const visible = useMemo(() => {
     const sectorPool =
       sectorTab === 'all'
-        ? TICKER_UNIVERSE
-        : TICKER_UNIVERSE.filter((t) => t.sector === sectorTab);
+        ? orderedUniverse
+        : orderedUniverse.filter((t) => t.sector === sectorTab);
 
     const q = query.trim();
     if (q) {
@@ -116,18 +142,9 @@ export function SymbolFilter<T extends { ticker: string }>({
         .filter((t) => (sectorTab === 'all' ? true : t.sector === sectorTab));
     }
 
-    // Stable order: sector group → code asc. NEVER hoist selected to top
-    // (causes scroll jank when user toggles a row).
-    return [...sectorPool].sort((a, b) => {
-      if (a.sector !== b.sector) {
-        return (
-          SECTORS.findIndex((s) => s.id === a.sector) -
-          SECTORS.findIndex((s) => s.id === b.sector)
-        );
-      }
-      return a.code.localeCompare(b.code);
-    });
-  }, [query, sectorTab]);
+    // Preserve snapshot order (.filter is stable). No re-sort on selection.
+    return sectorPool;
+  }, [query, sectorTab, orderedUniverse]);
 
   // Ticker count per sector (universe size) — distinct from article counts
   const sectorTickerCounts = useMemo(() => {
