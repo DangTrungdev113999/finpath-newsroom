@@ -34,38 +34,48 @@ Thị phần môi giới = phần trăm giá trị giao dịch khớp lệnh qua
 
 **Quy tắc đọc:** Thị phần tăng ≠ doanh thu tăng khi bào mòn phí diễn ra mạnh. VPS tăng từ 13% (Q1/2021) lên 20% (Q1/2024) nhưng lợi nhuận mảng môi giới tăng chậm hơn nhiều vì phí trên mỗi giao dịch thấp. SSI giữ thị phần thấp hơn VPS nhưng lợi nhuận cao hơn nhờ phí cao hơn + doanh thu ngân hàng đầu tư + tự doanh.
 
-## Dữ liệu neo Q1/2026 — Top 10 HOSE
+## Benchmark dài hạn + threshold delta
 
-Nguồn: HOSE công bố ngày 6/4/2026, tổng hợp qua baodautu.vn và vietstock.vn.
+Số dùng cho Master sanity-check khi web_search realtime data thị phần. Toàn bộ là range historical, KHÔNG per-quarter snapshot.
 
-| Hạng | Mã | Thị phần Q1/2026 | Thị phần Q4/2025 | Thay đổi (đpt) | Ghi chú |
-|---|---|---|---|---|---|
-| 1 | VPS | **15,32%** | 14,28% | +1,04 | Giữ #1 liên tục từ Q1/2021 (~21 quý) |
-| 2 | **SSI** | **11,14%** | 12,50% | -1,36 | Thuộc 5 mã universe; vẫn #2 dù giảm |
-| 3 | TCBS | 8,85% | ~9,12% | -0,27 | Liên kết ngân hàng TCB; miễn phí giao dịch |
-| 4 | **VCI** (Vietcap) | **7,35%** | 6,39% | +0,96 | Thuộc 5 mã universe; đỉnh thị phần kể từ Q2/2020 |
-| 5 | **HCM** (HSC) | **7,30%** | 6,74% | +0,56 | Thuộc 5 mã universe; bị VCI vượt mặt sau nhiều năm #4 |
-| 6 | MBS | 5,29% | ~5,30% | không đổi | Liên kết ngân hàng MB |
-| 7 | **VND** | **4,78%** | ~4,80% | không đổi | Thuộc 5 mã universe; từ #3 (2023) xuống #7 |
-| 8 | KIS VN | 3,21% | ~3,30% | -0,10 | Vốn Hàn Quốc |
-| 9 | VPBankS | 2,94% | ~3,00% | -0,06 | Liên kết ngân hàng VPB |
-| 10 | VCBS | **2,87%** | Không có (Mirae out) | mới | Liên kết ngân hàng VCB; thay Mirae Asset |
-| — | **SHS** | Không lọt top 10 HOSE | — | — | Universe; chuyên HNX |
+### Range thị phần Top 10 HOSE (historical 2021-2026)
 
-**Tổng top 10 HOSE Q1/2026: ~66,2% toàn sàn.** 4/5 mã universe lọt top 10 HOSE; SHS tập trung HNX.
+| Tier | Thị phần range | Đặc điểm |
+|---|---|---|
+| Top 1-3 | 11-20% mỗi mã | Leader — VPS dominate khách lẻ trực tuyến từ 2021, SSI/TCBS truyền thống |
+| Top 4-7 | 5-10% mỗi mã | Competitive segment — VCI/HCM/VND/MBS/MAS |
+| Top 8-10 | 3-5% mỗi mã | Niche/cận biên — VPBankS, KIS, FPTS, VCBS |
 
-## Dữ liệu neo Q1/2026 — HNX (5 mã hàng đầu)
+### Range thị phần Top 10 HNX
 
-Nguồn: HNX công bố tháng 4/2026 (doanhnghiephoinhap.vn, vietstock.vn).
+- HNX nhỏ hơn HOSE ~10× về thanh khoản → broker top HNX khác top HOSE
+- SHS thường top 5-10 HNX (mạnh khối tổ chức + nhà đầu tư khu vực)
+- Niche broker chuyên HNX có tỷ trọng tương đối lớn dù tuyệt đối thấp
 
-| Hạng | Mã | Thị phần HNX Q1/2026 | So Q4/2025 | Ghi chú |
-|---|---|---|---|---|
-| 1 | VPS | **19,45%** | +1,27 đpt | Tiếp tục #1 HNX lẫn HOSE |
-| 2 | TCBS | 9,66% | +0,81 đpt | |
-| 3 | SSI | 8,32% | tăng | Vượt qua VND lên #3 HNX |
-| 4 | VND | 6,62% | -1,66 đpt | Giảm mạnh nhất top 5 |
-| 5 | MBS | 5,91% | +0,59 đpt | |
-| — | **SHS** | Không lọt top 5 HNX | — | Doanh số môi giới SHS tăng **86% so cùng kỳ** nhưng chưa đủ để lọt top 10 — đang trong lộ trình tái cấu trúc, mục tiêu top 10 thị phần. Mã universe SHS cần theo dõi HNX, không dùng HOSE làm thước đo. |
+### Threshold delta thị phần (tín hiệu cho Master)
+
+- **Delta <0,5 điểm phần trăm**: nhiễu — KHÔNG nên viết bài
+- **Delta 0,5-1,0 đpt**: tín hiệu yếu — đáng quan sát
+- **Delta 1,0-2,0 đpt**: tín hiệu rõ — viết bài về structural shift
+- **Delta >2,0 đpt**: tín hiệu mạnh — change of guard hoặc disruption sự kiện
+
+### Range biên phí môi giới (fee compression timeline)
+
+- **2018**: 0,15-0,25% per giao dịch (chuẩn ngành cũ)
+- **2021-2023**: 0,10-0,15% retail; 0,05-0,10% tổ chức
+- **2024 onwards**: 0,05-0,10% retail; 0,03-0,05% tổ chức (TCBS/DNSE zero-fee disruption)
+- **Block trade thoả thuận**: ~0,03-0,05%, riêng broker-tổ chức relationships có thể thấp hơn
+
+### Per-công ty CK structural positioning (KHÔNG per-quarter)
+
+- **VPS**: Leader khách lẻ trực tuyến (mô hình miễn phí giao dịch + biên lợi nhuận từ ký quỹ)
+- **SSI**: Truyền thống mạnh full-service, suy giảm thị phần do online disruption
+- **TCBS**: Backed bởi Techcombank, mô hình miễn phí giao dịch tận dụng tệp khách ngân hàng
+- **VCI**: Mid-tier mạnh IB tổ chức + tăng vốn liên tục mở rộng ký quỹ
+- **HCM**: Mạnh khối ngoại + nhà đầu tư tổ chức nước ngoài
+- **VND**: Suy giảm sau sự cố hệ thống 2024, đang tái cơ cấu
+- **SHS**: Chuyên HNX + mục tiêu top 10 HOSE qua tái cấu trúc
+- **MBS / VPBankS / VCBS**: Liên kết ngân hàng mẹ → tệp khách chuyển tự nhiên
 
 ## Dữ liệu lịch sử — Thay đổi thứ hạng Top 10 HOSE (2021-2026)
 
@@ -104,6 +114,16 @@ Các công ty CK có liên kết ngân hàng lớn (TCBS–TCB, VPBankS–VPB, V
 3. **Mức phí trên mỗi giao dịch của công ty đó là bao nhiêu?** — Nếu chưa rõ, không nên kết luận "thị phần tăng → doanh thu tăng". Cần phân biệt mô hình phí thấp–khối lượng lớn (VPS) vs phí cao–chất lượng khách (SSI, HCM).
 4. **Tệp khách chính của công ty CK đó là cá nhân, tổ chức hay khối ngoại?** — Ảnh hưởng đến cách đọc thị phần và tốc độ bào mòn phí. Khách cá nhân dễ chuyển sang nền tảng miễn phí hơn khách tổ chức.
 5. **Áp lực cạnh tranh từ đối thủ nào?** — Cần xem công ty CK nào đang tăng thị phần (TCBS, VCI Q1/2026) để xác định ai đang thắng và ai đang mất khách.
+
+## Realtime data fetch guidance (cho Master CK)
+
+Khi viết bài về thị phần công ty CK quarter cụ thể, Master KHÔNG đọc số từ KB. Phải fetch realtime:
+
+- **Top 10 HOSE thị phần quarter X**: web_search "top 10 thị phần HOSE Q[X]/[Y]" hoặc tra trực tiếp website HOSE.vn (công bố mỗi quý)
+- **Top 10 HNX thị phần quarter X**: web_search "top 10 thị phần HNX Q[X]/[Y]"
+- **Doanh thu môi giới per công ty CK**: Finpath API `get_income_statement(ticker)` — dòng "Doanh thu hoạt động môi giới chứng khoán"
+- **Phí môi giới hiện tại per công ty CK**: web_search "[TICKER] biểu phí giao dịch" hoặc website công ty CK
+- **Sự kiện thay đổi rank** (broker mới vào top 10, soán ngôi): web_search "[TICKER] thị phần Q[X] HOSE"
 
 ## Cross-link
 

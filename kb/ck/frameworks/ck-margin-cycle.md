@@ -29,37 +29,60 @@ Trần 200% là lý do thực chất đằng sau làn sóng tăng vốn 2024-202
 
 **Lưu ý phân biệt** (bẫy lẫn vốn điều lệ với vốn chủ): Vốn điều lệ = mệnh giá × số cổ phần phát hành (10.000 VND × số cổ phiếu). Vốn chủ sở hữu (VCSH) = vốn điều lệ + thặng dư phát hành + lợi nhuận giữ lại + các quỹ. Trần 200% áp lên **VCSH**, không phải vốn điều lệ. Khi đọc thông cáo "tăng vốn lên X tỷ", phải xác định rõ vốn nào.
 
-## Dữ liệu neo Q1/2026 — 5 mã universe
-
-**Toàn ngành**: Dư nợ cho vay ký quỹ đạt **355 nghìn tỷ đồng** cuối Q1/2026 (không gồm ứng trước tiền bán — nếu gộp đạt ~405 nghìn tỷ), giảm 12% so với đỉnh Q4/2025 (406 nghìn tỷ). Tỷ lệ dư nợ/vốn chủ toàn ngành: **94%** cuối Q1/2026, hạ nhiệt từ mức 116% cuối Q4/2025 — dấu hiệu đòn bẩy đang thu hẹp theo thị trường.
-
-| Mã | Dư nợ ký quỹ (Q1/2026) | Vốn chủ sở hữu | Tỷ lệ / VCSH | Dư địa (còn cách trần 200%) | Ghi chú |
-|---|---|---|---|---|---|
-| **SSI** | 36.928 tỷ | 38.531 tỷ | ~96% | ~104% | Dư nợ giảm 5% so đầu năm sau tăng vốn |
-| **VND** | 12.469 tỷ | 21.448 tỷ | ~58% | ~142% | Dư nợ giảm 8%, còn nhiều dư địa nhất |
-| **HCM** | ~28.000 tỷ | ~14.700 tỷ (ước tính) | ~190% | ~10% | Chạm trần — lý do tăng vốn khẩn cấp 4.920 tỷ |
-| **VCI** | ~16.600 tỷ | ~14.500 tỷ (ước tính) | ~114% | ~86% | Tổng cho vay (gồm ký quỹ + cho vay khác) |
-| **SHS** | ~10.502 tỷ | ~8.500 tỷ (ước tính) | ~124% | ~76% | Tăng 15% so đầu năm, +126% so cùng kỳ |
-
-**Ghi chú**: VCSH của HCM, VCI, SHS là ước tính từ BCTC Q4/2025 và xu hướng Q1/2026 — BCTC kiểm toán Q1/2026 chưa công bố đầy đủ tại thời điểm viết (5/2026). SSI và VND có số chính xác từ BCTC quý đã công bố.
-
-**Quan sát then chốt**: Tỷ lệ dư địa toàn thị trường giảm xuống dưới 50% là dấu hiệu đòn bẩy đã căng — Q2/2021 chạm ~29% thì thị trường lập đỉnh ngay sau. Q2/2025 toàn ngành còn 45,6% dư địa, thấp nhất kể từ Q2/2022. Q1/2026 phục hồi về ~53% nhờ giảm dư nợ + tăng vốn.
-
 ## Dữ liệu lịch sử toàn ngành (chu kỳ)
 
 | Thời điểm | Tổng dư nợ ký quỹ | Tỷ lệ dư nợ/VCSH | Ghi chú |
 |---|---|---|---|
 | Q4/2021 | ~280 nghìn tỷ | 129% | Đỉnh lịch sử — ngay trước khi VN-Index lập đỉnh 1.500 |
 | Q4/2022 | ~150 nghìn tỷ | ~70% | Thị trường sụp — nhà đầu tư trả nợ loạt |
-| Q1/2025 | 281,8 nghìn tỷ | ~96% | Mở rộng trở lại, VCSH toàn ngành 292,9 nghìn tỷ |
-| Q2/2025 | 295,7 nghìn tỷ | ~155% | Còn 45,6% dư địa (tuoitre.vn 26/7/2025) — thấp nhất từ Q2/2022 |
-| Q3/2025 | 380 nghìn tỷ | 115% | Kỷ lục giai đoạn 2022-2025; HCM gần cạn |
-| Q4/2025 | ~406 nghìn tỷ | 116% | Đỉnh tuyệt đối lịch sử ngành CK |
-| Q1/2026 | ~355 nghìn tỷ | 94% | Thu hẹp theo điều chỉnh VN-Index |
 
 **Chu kỳ 2018 — NHNN siết tín dụng chứng khoán**: Khi ngân hàng thắt chặt cho vay với công ty CK, các công ty phải phát hành trái phiếu bổ sung nguồn vốn — chi phí vốn tăng, một phần biên lãi cho vay ký quỹ bị ăn mòn. Thanh khoản thị trường giảm đồng thời do nhà đầu tư bị siết nguồn tiền. Doanh thu cho vay ký quỹ chiếm 30-50% tổng doanh thu một số công ty CK lớn — khi chu kỳ co hẹp, kết quả kinh doanh phân hóa mạnh giữa công ty có vốn chủ dồi dào và công ty phụ thuộc vay ngắn hạn.
 
 **Chu kỳ 2020-2021 — lãi suất thấp + COVID rally**: Lãi suất điều hành NHNN xuống đáy, tín dụng ngân hàng dồi dào → chi phí vốn công ty CK giảm → lãi suất cho vay ký quỹ giảm về 11-12% → dư nợ toàn ngành tăng từ ~100 nghìn tỷ (2019) lên ~280 nghìn tỷ (Q4/2021), gần gấp 3×. Thị trường lập đỉnh 1.500 điểm, tiếp theo là đợt giải chấp mạnh 2022 khi NHNN tăng lãi suất.
+
+## Benchmark dài hạn + threshold cảnh báo
+
+Số dùng cho Master sanity-check khi web_search về data realtime. Toàn bộ là threshold/range historical, KHÔNG per-quarter snapshot.
+
+### Hard caps + warning thresholds (SSC)
+
+- **Trần cứng**: Tổng dư nợ ký quỹ ≤ **200% vốn chủ sở hữu** (TT 121/2020 Điều 28 + Quyết định 87/QĐ-UBCK 2017)
+- **Cảnh báo nội bộ broker**: vượt **150%** = yellow zone (broker phải báo cáo SSC theo dõi)
+- **Per-cổ phiếu**: dư nợ ký quỹ cho 1 mã ≤ **10%** vốn chủ — chống tập trung rủi ro
+
+### Range historical tỷ lệ dư nợ/VCSH toàn ngành
+
+| Pha chu kỳ | Tỷ lệ dư nợ/VCSH ngành | Dấu hiệu |
+|---|---|---|
+| Đáy (post-crash) | 60-80% | Nhà đầu tư trả nợ loạt sau giải chấp |
+| Phục hồi | 80-100% | Bắt đầu dùng đòn bẩy lại, thận trọng |
+| Mở rộng | 100-130% | Đòn bẩy cao, thị trường có động lực |
+| Đỉnh (cảnh báo) | >130% | Căng đòn bẩy — VN-Index thường lập đỉnh trong 1-2 quý |
+| Quá tải | >150% | SSC quan ngại, broker buộc tăng vốn |
+
+**Decision rule**: Dư địa toàn ngành <50% (tức tỷ lệ >150%) = đòn bẩy bão hoà — Master nên flag risk khi viết bài.
+
+### Range historical lãi suất cho vay ký quỹ
+
+- 11-12%/năm (chu kỳ lãi suất NHNN thấp 2020-2021)
+- 13-14%/năm (chu kỳ lãi suất NHNN cao 2022-2024 + 2026)
+- Spread vs lãi suất huy động ngân hàng: ~5-7 điểm phần trăm
+- Cao hơn → broker biên lãi tốt; thấp hơn → biên lãi bị nén
+
+### Per-ticker positioning structural (KHÔNG per-quarter)
+
+- **Top broker** (SSI, VPS, TCBS): tỷ lệ dư nợ/VCSH thường 80-180% — competitive cho khách lẻ + tổ chức
+- **Mid broker** (HCM, VCI, MBS): 80-200% — niche segments (HCM mạnh khối ngoại, VCI mạnh IB)
+- **Niche broker** (SHS, FPTS): 60-130% — focus thị trường HNX hoặc retail địa phương
+
+## Realtime data fetch guidance (cho Master CK)
+
+Khi viết bài quý cụ thể về cho vay ký quỹ, Master KHÔNG đọc số từ KB. Phải fetch realtime:
+
+- **BCTC quarter (lấy VCSH + dư nợ ký quỹ chi tiết)**: Finpath API `get_balance_sheet(ticker)` + `get_full_balance_sheet(ticker)`. Note: dư nợ ký quỹ thường ẩn trong dòng "Cho vay" hoặc "Tài sản tài chính ghi nhận theo giá thị trường" — phải parse cẩn thận.
+- **Tổng dư nợ toàn ngành quarter**: web_search "tổng dư nợ ký quỹ toàn ngành Q[X]/[Y]" hoặc "margin lending VN Q[X]"
+- **Lãi suất cho vay ký quỹ realtime per công ty CK**: web_search "[TICKER] lãi suất cho vay ký quỹ" hoặc xem website công ty CK
+- **Sự kiện tăng vốn (impact lên trần)**: Finpath API `get_events(ticker)` + web_search "[TICKER] phát hành cổ phiếu [năm]"
 
 ## Bẫy khi đọc số cho vay ký quỹ
 
