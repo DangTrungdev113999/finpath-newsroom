@@ -22,31 +22,36 @@ export const ANGLE_CATEGORIES: readonly AngleCategory[] = [
     id: 'paradox',
     label: 'Nghịch lý',
     short: 'Nghịch lý',
-    description: '2 sự kiện ngược chiều cùng lúc',
+    description:
+      'Cùng lúc xảy ra 2 sự kiện ngược chiều (ví dụ: lãi kỷ lục nhưng nợ xấu cũng tăng) — bài đi tìm vì sao cả 2 cùng đến.',
   },
   {
     id: 'why_now',
     label: 'Vì sao bây giờ',
     short: 'Vì sao',
-    description: 'Timing của hành động lớn',
+    description:
+      'Doanh nghiệp vừa ra quyết định lớn — vì sao chọn ĐÚNG thời điểm này, không phải năm trước hay năm sau?',
   },
   {
     id: 'hidden_mechanism',
     label: 'Cơ chế ngầm',
     short: 'Cơ chế',
-    description: 'Cơ chế đằng sau con số',
+    description:
+      'Con số chỉ là kết quả. Bài đào sâu cơ chế kinh doanh đứng sau: tiền đến từ đâu, ai trả, vì sao bền vững được.',
   },
   {
     id: 'comparison_deep',
     label: 'So sánh sâu',
     short: 'So sánh',
-    description: 'So sánh 2 nhóm góc nhìn mới',
+    description:
+      'Đặt 2 nhóm cạnh nhau với góc ít người để ý — ví dụ Big4 vs tư nhân, hay 2 chiến lược ngược chiều cùng quý.',
   },
   {
     id: 'early_signal',
     label: 'Chỉ dấu sớm',
     short: 'Chỉ dấu',
-    description: 'Tín hiệu sớm cho chu kỳ',
+    description:
+      'Một chỉ số nhỏ đang nhấp nháy — có thể là tín hiệu sớm cho chu kỳ 6-12 tháng tới. Bài check chỉ số đó.',
   },
 ] as const;
 

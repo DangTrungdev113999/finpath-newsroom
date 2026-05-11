@@ -109,7 +109,7 @@ export function AngleFilter<T extends { category?: string }>({
         align="start"
         side="bottom"
         sideOffset={6}
-        className="w-72 p-0"
+        className="w-[340px] p-0"
       >
         <div className="flex items-center justify-between gap-2 px-3 pb-1.5 pt-2.5">
           <DropdownMenuLabel className="!p-0 text-fg-2">
@@ -157,7 +157,7 @@ export function AngleFilter<T extends { category?: string }>({
                 onClick={() => toggle(cat.id)}
                 aria-pressed={isSelected}
                 className={cn(
-                  'group/row relative flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-all duration-fast',
+                  'group/row relative flex w-full items-start gap-2.5 rounded-md px-2 py-2 text-left transition-all duration-fast',
                   isSelected
                     ? 'bg-brand/[0.09] ring-1 ring-brand/40'
                     : 'hover:bg-bg-2',
@@ -168,7 +168,7 @@ export function AngleFilter<T extends { category?: string }>({
                 <span
                   aria-hidden
                   className={cn(
-                    'flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border transition-colors duration-fast',
+                    'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-[5px] border transition-colors duration-fast',
                     isSelected
                       ? 'border-brand bg-brand text-brand-fg'
                       : 'border-fg-4/60 bg-bg-1',
@@ -190,11 +190,11 @@ export function AngleFilter<T extends { category?: string }>({
                 </span>
 
                 {/* Label + description */}
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="font-sans text-[12px] font-medium text-fg-0">
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className="font-sans text-[12.5px] font-semibold text-fg-0">
                     {cat.label}
                   </span>
-                  <span className="truncate font-sans text-[10px] text-fg-3">
+                  <span className="font-sans text-[11px] leading-snug text-fg-2">
                     {cat.description}
                   </span>
                 </span>
@@ -202,7 +202,7 @@ export function AngleFilter<T extends { category?: string }>({
                 {/* Count */}
                 <span
                   className={cn(
-                    'shrink-0 font-mono text-[10.5px] tabular-nums',
+                    'mt-0.5 shrink-0 font-mono text-[10.5px] tabular-nums',
                     count > 0 ? 'font-semibold text-fg-1' : 'text-fg-3',
                   )}
                 >
