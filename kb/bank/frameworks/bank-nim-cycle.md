@@ -1,9 +1,7 @@
 ---
-notion_page_id: "358273c7-a9a1-8153-addd-f609f1239daf"
-source_url: "https://www.notion.so/358273c7a9a18153adddf609f1239daf"
-last_synced: 2026-05-08T09:07:07.892478+00:00
 category: frameworks
 title: "Bank-NIM-cycle"
+last_updated: 2026-05-11
 ---
 Framework đọc chu kỳ biên lãi thuần — decision rules cho Master Bank agent. NIM của bank VN đang trong cycle compression dài hạn; cần đọc theo pha lãi suất NHNN + CASA + loan mix.
 
@@ -25,29 +23,42 @@ Trong đó:
 - **Lãi suất tăng (tightening)**: Loan yield re-price quarterly tăng nhanh, deposit cost tăng chậm hơn (lock kỳ hạn dài) → NIM nở 1-2 quý đầu cycle
 - **Lãi suất giảm (easing)**: Ngược lại — loan yield giảm trước, deposit cost giảm chậm → NIM compress
 - **Lag effect 1-3 quý** tùy mix kỳ hạn deposit. Bank CASA cao có lag ngắn vì funding ít chịu re-price
-### 2. Profile NIM theo bank type (Q4/2025 reference)
+## Benchmark dài hạn + ranges (NIM/CASA per bank type)
 
-- **High NIM (>4%)**: VPB consumer finance + retail; TCB từ ~5% peak 2022 giảm xuống >4%; MBB ~4.5%; VIB ~4.9%
-- **Mid NIM (3-4%)**: ACB, STB, HDB
-- **Low but stable (~3%)**: VCB, CTG, BID — quốc doanh, lãi suất cho vay thấp do chính sách ngành
-### 3. CASA — driver số 1 ở VN
+KHÔNG per-bank per-quarter snapshot. Dùng cho Master sanity-check khi Finpath API trả số realtime.
 
-CASA Q4/2025 (12 NH lớn niêm yết, bình quân 21.27%):
+### NIM range theo bank type (historical 2020-2026)
 
-- **Top tier**: MBB 36.83%, TCB 34.48%, VCB 33.72%
-- **Mid tier**: CTG 24.84%, ACB 21.28%, BID 21.13%, TPB 19.92%
-- **Low tier**: STB 14.97%, VIB 14.39%, VPB 13.65%, HDB 12.10%, SHB 7.96%
-**KEY INSIGHT**: CASA cao ≠ NIM cao tự động. VCB CASA 33% nhưng NIM ~3% (cho vay corporate yield thấp). VPB CASA 14% nhưng NIM ~4-5% (consumer + retail yield cao). Phụ thuộc loan mix.
+| Tier | NIM range | Bank typical |
+|---|---|---|
+| **High** | >4% | Tư nhân consumer-finance heavy (VPB), tư nhân retail-strong (TCB, MBB, VIB) |
+| **Mid** | 3-4% | Tư nhân corporate (ACB, STB, HDB) |
+| **Low stable** | ~3% | Quốc doanh (VCB, CTG, BID) — cho vay corporate yield thấp do chính sách ngành |
 
-### 4. Loan mix — yield by segment
+Trend dài hạn 2011-2025: NIM bình quân 27 NH giảm từ 3,88% → 2,93% (secular compression).
 
-- **Retail/consumer finance**: 12-20% yield
-- **SME**: 9-12% yield
-- **Corporate big**: 7-9% yield
-- **DNNN/state-led project**: 5-7% yield
-Decision rule: NIM expansion thực chất từ shift mix sang retail/SME — không phải chỉ repricing.
+### CASA range theo bank type
 
-### 5. NIM trend dài hạn (secular decline)
+| Tier | CASA range | Bank typical |
+|---|---|---|
+| **Top** | 30-37% | MBB, TCB, VCB |
+| **Mid** | 18-25% | CTG, ACB, BID, TPB |
+| **Low** | <15% | STB, VIB, VPB, HDB, SHB |
+
+**KEY INSIGHT**: CASA cao ≠ NIM cao tự động. Phụ thuộc loan mix (corporate yield thấp vs retail/SME yield cao).
+
+### Loan yield range theo segment
+
+| Segment | Yield range |
+|---|---|
+| Retail / consumer finance | 12-20%/năm |
+| SME | 9-12%/năm |
+| Corporate big | 7-9%/năm |
+| DNNN / state-led project | 5-7%/năm |
+
+**Decision rule**: NIM expansion thực chất từ shift mix sang retail/SME — KHÔNG phải chỉ repricing chu kỳ.
+
+### 3. NIM trend dài hạn (secular decline)
 
 Bình quân 27 NH niêm yết:
 
@@ -87,11 +98,25 @@ Trend YEA vs COF (2024 → 2025): YEA 7.02% → 7.06% (gần đứng yên), COF 
 1. YEA và COF tách riêng: ai đẩy NIM hơn (lợi suất hay chi phí vốn)?
 1. Loan mix shift retail/SME/corporate? Có shift chưa hay vẫn còn dư địa?
 1. Pha NHNN: tăng hay giảm lãi suất → predict NIM 1-2 quý sau (lag).
+## Realtime data fetch guidance (cho Master Bank)
+
+Khi viết bài quý cụ thể về NIM/CASA, Master KHÔNG đọc số từ KB. Phải fetch realtime:
+
+- **NIM/CASA/COF/NPL/LDR realtime per bank**: Finpath API `get_bank_ratios(ticker)` — endpoint `/api/stocks/bankfinancialratios/{ticker}` trả NIM/CASA/COF/NPL/LDR/PE/PB/ROE quarterly + yearly.
+- **NIM trend nhiều quý**: parse `quarterlyProfits` từ `get_bank_ratios` (trả 8+ quarters).
+- **NIM batch nhiều bank cùng lúc**: `get_bank_ratios_batch(['VCB', 'TCB', 'MBB'])` cho competitive comparison.
+- **Net interest income breakdown**: `get_net_interest_income(ticker)`.
+- **Loan + deposit growth**: `get_deposit_credit(ticker)` — credit growth + deposit composition (CASA breakdown).
+- **Lãi suất điều hành NHNN realtime**: web_search "NHNN lãi suất tái cấp vốn [date]" hoặc "lãi suất điều hành NHNN [năm]".
+- **CASA peer comparison toàn ngành quarter**: web_search "CASA Q[X]/[Y] toàn ngành" hoặc "top 10 ngân hàng CASA quý [X]".
+
+Pipeline log: `data_trail[].source = "Finpath_API/bankfinancialratios"` hoặc `"WebSearch/<keyword>"`.
+
 ## Cross-link
 
-- Master reference (overview 6 lớp): xem [Bank-Industry-Master-Reference](https://www.notion.so/358273c7a9a1817d8ed1c082f51ab351). Page này là deep dive Lớp 3 (chu kỳ) về NIM.
-- NIM ↔ NPL: chất lượng tài sản kém → trích lập tăng → market đôi khi nhầm tín hiệu này với NIM compression. Tách bạch rất quan trọng. Xem [Bank-NPL-reading](https://www.notion.so/358273c7a9a181f9a3d7c67887064b64).
-- NIM ↔ Target: NIM compression là nguyên nhân top miss target lợi nhuận trong 2023-2024 (VPB hoàn thành chỉ 75% target 2024). Xem [Bank-Target-vs-Actual-pattern](https://www.notion.so/358273c7a9a181b9ae4bf37b05ec9224).
+- [bank-npl-reading.md](./bank-npl-reading.md) — NIM compress mạnh có thể che dấu nợ xấu tăng (giảm trích lập để giữ lợi nhuận).
+- [bank-target-vs-actual-pattern.md](./bank-target-vs-actual-pattern.md) — Bank đặt target NIM cao hơn historical = pre-bid kỳ vọng repricing thuận lợi → hợp lý hay aggressive?
+- [bank-industry-master-reference.md](./bank-industry-master-reference.md) — Lớp 3 chu kỳ lãi suất NHNN ↔ NIM phase analysis.
 ## Nguồn web đã dùng (search 06/05/2026)
 
 - [DNSE — Lợi nhuận phân hóa 2025](https://www.dnse.com.vn/senses/tin-tuc/loi-nhuan-phan-hoa-ro-net-dau-la-chien-luoc-cua-cac-ngan-hang-trong-nam-2025-35037689) — TCB NIM ~5% → >4%, VCB NIM tiệm cận VietinBank, VPB hoàn thành chỉ 75% kế hoạch 2024, ACB lợi nhuận giảm do NIM
@@ -105,7 +130,7 @@ Trend YEA vs COF (2024 → 2025): YEA 7.02% → 7.06% (gần đứng yên), COF 
 - [Techcombank IR — Kết quả 6 tháng 2024](https://techcombank.com/thong-tin/thong-bao/techcombank-cong-bo-ket-qua-kinh-doanh-6-thang-dau-nam-2024) — TCB Q2/2024 NIM 4.6%, COF 3.2%
 - [Nhịp Cầu Đầu Tư — Bản đồ lợi thế NH](https://m.nhipcaudautu.vn/tai-chinh/ban-do-loi-the-ngan-hang-3350425/) — historical CASA top (TCB/VCB/MBB), retail mix VIB 87%, ACB 64%
 - [Tạp chí Tài chính — NIM theo group Q2/2024](https://tapchitaichinh.vn/nganh-ngan-hang-loi-nhuan-va-ty-le-no-xau-cung-dat-dinh.html) — quốc doanh NIM 2.73% Q2, tư nhân DN 3.96%; CASA cụm quốc doanh 50-60% toàn hệ thống
-## Phần tự suy luận (cần verify)
+## Phần suy luận (cần verify)
 
 Các điểm dưới Claude rút từ data + framework chung, không có nguồn VN cite trực tiếp:
 
@@ -113,9 +138,8 @@ Các điểm dưới Claude rút từ data + framework chung, không có nguồn
 - **Loan yield by segment** (retail 12-20% / SME 9-12% / corporate 7-9% / DNNN 5-7%) — approximate ranges từ kiến thức chung, không 1 báo break down như vậy
 - **"NIM expansion thực chất từ shift mix sang retail/SME"** — analytical heuristic, không analyst cụ thể
 - **"Bank quốc doanh maintain low yield để ổn định ngành"** — common interpretation, không nguồn direct
-- **Profile bank theo NIM tier** (high >4% / mid 3-4% / low ~3% quốc doanh) — Claude phân loại từ data Q4/2025
+- **Profile bank theo NIM tier** (high >4% / mid 3-4% / low ~3% quốc doanh) — Claude phân loại từ data historical range, không per-bank Q4/2025 cụ thể
 - **"Q1 CASA thường drop do Tết Âm lịch"** — empirical observation, không analyst public lý do này
 - **"Bank có công ty con tài chính tiêu dùng bóp NIM lên"** — common interpretation, không analyst quantify
 - **5 câu hỏi Master agent** ở section Áp dụng — checklist Claude tổng hợp
-Master agent khi viết tin nên pull data thật từ DB BCTC Quarter Bank trên Notion (không dùng snapshot ở page này).
 
