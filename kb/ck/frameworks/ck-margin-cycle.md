@@ -25,7 +25,9 @@ Cho vay ký quỹ là nguồn thu **ổn định nhất** trong 5 dòng doanh th
 - Cho 1 khách hàng ≤ **3% vốn chủ** — hạn chế tập trung rủi ro theo khách hàng
 - Cho 1 mã chứng khoán ≤ **10% vốn chủ** — hạn chế tập trung rủi ro theo tài sản đảm bảo
 
-Trần 200% là lý do thực chất đằng sau làn sóng tăng vốn 2024-2026 của SSI, VCI, HCM, VND: **muốn mở rộng cho vay ký quỹ thì phải nới vốn chủ trước**. SSI tháng 9/2025 phát hành 415,5 triệu cổ phiếu giá 15.000 đồng, nâng vốn chủ từ ~20.779 lên ~25.000 tỷ với mục đích tường minh là "bổ sung vốn cho vay ký quỹ". HCM trình cổ đông 2026 phát hành thêm ~270 triệu cổ phiếu (huy động ~4.920 tỷ) vì đã chạm trần.
+Trần 200% là lý do thực chất đằng sau làn sóng tăng vốn 2024-2026 của SSI, VCI, HCM, VND: **muốn mở rộng cho vay ký quỹ thì phải nới vốn chủ trước**. SSI tháng 9/2025 phát hành 415,5 triệu cổ phiếu giá 15.000 đồng, nâng **vốn điều lệ** từ ~20.779 lên ~24.934 tỷ (tổng VCSH cuối Q1/2026 = 38.531 tỷ — bao gồm thặng dư + lợi nhuận giữ lại) với mục đích tường minh là "bổ sung vốn cho vay ký quỹ". HCM trình cổ đông 2026 phát hành thêm ~270 triệu cổ phiếu (huy động ~4.920 tỷ) vì đã chạm trần.
+
+**Lưu ý phân biệt** (bẫy lẫn vốn điều lệ với vốn chủ): Vốn điều lệ = mệnh giá × số cổ phần phát hành (10.000 VND × số cổ phiếu). Vốn chủ sở hữu (VCSH) = vốn điều lệ + thặng dư phát hành + lợi nhuận giữ lại + các quỹ. Trần 200% áp lên **VCSH**, không phải vốn điều lệ. Khi đọc thông cáo "tăng vốn lên X tỷ", phải xác định rõ vốn nào.
 
 ## Dữ liệu neo Q1/2026 — 5 mã universe
 
@@ -50,7 +52,7 @@ Trần 200% là lý do thực chất đằng sau làn sóng tăng vốn 2024-202
 | Q4/2021 | ~280 nghìn tỷ | 129% | Đỉnh lịch sử — ngay trước khi VN-Index lập đỉnh 1.500 |
 | Q4/2022 | ~150 nghìn tỷ | ~70% | Thị trường sụp — nhà đầu tư trả nợ loạt |
 | Q1/2025 | 281,8 nghìn tỷ | ~96% | Mở rộng trở lại, VCSH toàn ngành 292,9 nghìn tỷ |
-| Q2/2025 | 295,7 nghìn tỷ | — | Còn 51% dư địa |
+| Q2/2025 | 295,7 nghìn tỷ | ~155% | Còn 45,6% dư địa (tuoitre.vn 26/7/2025) — thấp nhất từ Q2/2022 |
 | Q3/2025 | 380 nghìn tỷ | 115% | Kỷ lục giai đoạn 2022-2025; HCM gần cạn |
 | Q4/2025 | ~406 nghìn tỷ | 116% | Đỉnh tuyệt đối lịch sử ngành CK |
 | Q1/2026 | ~355 nghìn tỷ | 94% | Thu hẹp theo điều chỉnh VN-Index |
