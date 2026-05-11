@@ -6,6 +6,7 @@ export function Header() {
   const { pathname } = useLocation();
   const isCards = pathname === '/' || pathname.startsWith('/article/');
   const isFeed = pathname === '/feed';
+  const isKb = pathname === '/tai-lieu' || pathname.startsWith('/tai-lieu/');
 
   return (
     <header
@@ -28,6 +29,10 @@ export function Header() {
             <span aria-hidden className="h-3 w-px bg-fg-4/60" />
             <NavLink to="/feed" active={isFeed}>
               Dòng tin
+            </NavLink>
+            <span aria-hidden className="h-3 w-px bg-fg-4/60" />
+            <NavLink to="/tai-lieu" active={isKb}>
+              Tài liệu
             </NavLink>
           </nav>
         </div>
