@@ -41,14 +41,20 @@ FULL_UNIVERSE 61 mã (3 sector):
 - **CK** (30): HOSE 5 + HNX 15 + UPCOM 10 — see routing.CK_UNIVERSE
 - **BĐS** (4): VHM · NVL · KDH · DXG (KBC defer)
 
-Implementation:
+Implementation (run từ project root với sys.path hack — scripts/ dir nằm trong skill, không phải lib):
 
-```python
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import sys, json
+sys.path.insert(0, '.claude/skills/finpath-newsroom-editor')
 from scripts.routing import FULL_UNIVERSE, get_sector
 from scripts.ticker_detection import detect_combined
 
-tickers_found = detect_combined(text)  # gộp Pass 1 (company name) + Pass 2 (short-form) + regex 3-char
+text = '''<ROW_TITLE + RAW_CONTENT>'''
+tickers_found = detect_combined(text)  # Pass 1 (company name) + Pass 2 (short-form) + regex 3-char
 universe_tickers = [t for t in tickers_found if t in FULL_UNIVERSE]
+print(json.dumps({'all': tickers_found, 'universe': universe_tickers}, ensure_ascii=False))
+"
 ```
 
 Aliases coverage trong `scripts/ticker_detection.py`:
@@ -69,6 +75,17 @@ If primary in FULL_UNIVERSE:
 - note = `Pass — primary={ticker}, sector={Bank|CK|BĐS}, route to Story Editor`
 - sector = `{Bank|CK|BĐS}` (from get_sector lookup, NOT hard-coded)
 - status = `processed`
+
+Sector lookup (same sys.path pattern):
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import sys
+sys.path.insert(0, '.claude/skills/finpath-newsroom-editor')
+from scripts.routing import get_sector
+print(get_sector('<PRIMARY_TICKER>'))
+"
+```
 
 Nếu không có ticker trong universe:
 - decision = `reject`
