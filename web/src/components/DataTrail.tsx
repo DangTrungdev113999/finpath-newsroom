@@ -54,7 +54,7 @@ export function DataTrail({
   // Coerce legacy V3.6 string entries → V4.0 dict shape. Agent may have
   // emitted "Source — context" combined; render as source-only line.
   const normalised: DataTrailEntry[] = trail.map((entry) =>
-    typeof entry === 'string' ? { source: entry } : entry,
+    typeof entry === 'string' ? { source: entry, fetched: '' } : entry,
   );
 
   return (
