@@ -1,11 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Fuse, { type FuseResult, type FuseResultMatch } from 'fuse.js';
 import { Search, X } from 'lucide-react';
 import type { KbDoc } from '../../lib/kbTypes';
 import { titleForSlug } from '../../lib/kbTree';
 
-interface Props { docs: KbDoc[]; }
+interface Props {
+  docs: KbDoc[];
+  query: string;
+  onQueryChange: (q: string) => void;
+}
 
 interface IndexedDoc extends KbDoc {
   title: string;
@@ -15,9 +19,8 @@ interface IndexedDoc extends KbDoc {
 const SNIPPET_RADIUS = 60;
 const MAX_RESULTS = 5;
 
-export function KbSearch({ docs }: Props) {
+export function KbSearch({ docs, query, onQueryChange }: Props) {
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const indexed = useMemo<IndexedDoc[]>(
@@ -55,19 +58,19 @@ export function KbSearch({ docs }: Props) {
   const onPick = (slug: string, anchor?: string) => {
     const url = anchor ? `/tai-lieu/${slug}#${anchor}` : `/tai-lieu/${slug}`;
     navigate(url);
-    setQuery('');
+    onQueryChange('');
   };
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape' && document.activeElement === inputRef.current) {
-        setQuery('');
+        onQueryChange('');
         inputRef.current?.blur();
       }
     }
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, []);
+  }, [onQueryChange]);
 
   const isOpen = query.trim().length >= 2;
 
@@ -84,13 +87,13 @@ export function KbSearch({ docs }: Props) {
           type="search"
           placeholder="tìm KB..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => onQueryChange(e.target.value)}
           className="h-9 w-full rounded-md border border-fg-4/40 bg-bg-1 pl-9 pr-8 font-sans text-[13px] text-fg-0 placeholder:text-fg-3 focus:border-brand/60 focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
         {query && (
           <button
             type="button"
-            onClick={() => setQuery('')}
+            onClick={() => onQueryChange('')}
             className="absolute right-2 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded text-fg-3 hover:bg-bg-2 hover:text-fg-0"
             aria-label="Xoá tìm kiếm"
           >
@@ -158,11 +161,7 @@ function buildSnippet(
   const bodyMatch = matches.find((m) => m.key === 'body');
   const titleMatch = matches.find((m) => m.key === 'title');
 
-  if (bodyMatch?.indices?.length) {
-    const [start, end] = bodyMatch.indices[0];
-    return { snippet: sliceSnippet(doc.body, start, end) };
-  }
-
+  // Heading match first — it gives us an anchor for scroll-to-section.
   if (headingMatch?.indices?.length) {
     const [start, end] = headingMatch.indices[0];
     const text = doc.headingText;
@@ -176,6 +175,11 @@ function buildSnippet(
       cumulative = next;
     }
     return { snippet };
+  }
+
+  if (bodyMatch?.indices?.length) {
+    const [start, end] = bodyMatch.indices[0];
+    return { snippet: sliceSnippet(doc.body, start, end) };
   }
 
   if (titleMatch) {

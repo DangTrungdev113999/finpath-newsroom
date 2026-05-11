@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { X } from 'lucide-react';
 import type { KbDoc } from '../../lib/kbTypes';
 import { cn } from '../../shared/lib/cn';
+import { groupForSlug } from '../../lib/kbTree';
 import { KbSearch } from './KbSearch';
 import { KbTabs } from './KbTabs';
 import { KbTree } from './KbTree';
@@ -16,6 +18,9 @@ interface Props {
 }
 
 export function KbSidebar({ sector, docs, isDrawerOpen, onClose }: Props) {
+  const { slug: activeSlug } = useParams<{ slug?: string }>();
+
+  // ESC closes drawer
   useEffect(() => {
     if (!isDrawerOpen) return;
     function onKey(e: KeyboardEvent) {
@@ -25,17 +30,43 @@ export function KbSidebar({ sector, docs, isDrawerOpen, onClose }: Props) {
     return () => document.removeEventListener('keydown', onKey);
   }, [isDrawerOpen, onClose]);
 
+  // Search state shared between desktop + mobile renders
+  const [query, setQuery] = useState('');
+
+  // Expand state shared between desktop + mobile renders
+  const storageKey = `kb.expanded.${sector}`;
+  const [expanded, setExpanded] = useState<Set<string>>(() => {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) return new Set(JSON.parse(raw) as string[]);
+    } catch { /* ignore */ }
+    return new Set();
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify([...expanded]));
+    } catch { /* ignore */ }
+  }, [expanded, storageKey]);
+
+  // Auto-expand active slug's owner group
+  useEffect(() => {
+    if (!activeSlug) return;
+    const owner = groupForSlug(activeSlug);
+    setExpanded((prev) => (prev.has(owner.id) ? prev : new Set([...prev, owner.id])));
+  }, [activeSlug]);
+
   const body = (
     <div className="flex h-full flex-col">
       <KbTabs active={sector} />
       <div className="flex-1 overflow-y-auto pb-4">
-        <KbSearch docs={docs} />
+        <KbSearch docs={docs} query={query} onQueryChange={setQuery} />
         {docs.length === 0 ? (
           <p className="px-3 pt-4 font-sans text-[12px] text-fg-3">
             Sector này chưa có KB. Sắp có.
           </p>
         ) : (
-          <KbTree docs={docs} sector={sector} />
+          <KbTree docs={docs} expanded={expanded} onExpandedChange={setExpanded} />
         )}
       </div>
     </div>

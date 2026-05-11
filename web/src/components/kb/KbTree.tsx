@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import type { KbDoc } from '../../lib/kbTypes';
@@ -7,7 +7,8 @@ import { cn } from '../../shared/lib/cn';
 
 interface Props {
   docs: KbDoc[];
-  sector: 'bds' | 'bank' | 'ck';
+  expanded: Set<string>;
+  onExpandedChange: (next: Set<string>) => void;
 }
 
 interface GroupedDocs {
@@ -17,7 +18,7 @@ interface GroupedDocs {
   docs: KbDoc[];
 }
 
-export function KbTree({ docs, sector }: Props) {
+export function KbTree({ docs, expanded, onExpandedChange }: Props) {
   const { slug: activeSlug } = useParams<{ slug?: string }>();
 
   const grouped = useMemo<GroupedDocs[]>(() => {
@@ -35,34 +36,11 @@ export function KbTree({ docs, sector }: Props) {
     return result.filter((g) => g.docs.length > 0);
   }, [docs]);
 
-  const storageKey = `kb.expanded.${sector}`;
-  const [expanded, setExpanded] = useState<Set<string>>(() => {
-    try {
-      const raw = localStorage.getItem(storageKey);
-      if (raw) return new Set(JSON.parse(raw) as string[]);
-    } catch { /* ignore */ }
-    return new Set(grouped.map((g) => g.groupId));
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(storageKey, JSON.stringify([...expanded]));
-    } catch { /* ignore */ }
-  }, [expanded, storageKey]);
-
-  useEffect(() => {
-    if (!activeSlug) return;
-    const owner = groupForSlug(activeSlug);
-    setExpanded((prev) => (prev.has(owner.id) ? prev : new Set([...prev, owner.id])));
-  }, [activeSlug]);
-
   const toggle = (id: string) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+    const next = new Set(expanded);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    onExpandedChange(next);
   };
 
   return (
