@@ -145,12 +145,29 @@ def test_quan_doi_alias_present():
 
 
 def test_short_form_table_complete():
-    """SHORT_FORM_TO_TICKER cover toàn bộ 7 Bank universe + MB."""
-    expected = {"MB", "MBB", "VCB", "TCB", "ACB", "BID", "CTG", "VPB"}
+    """SHORT_FORM_TO_TICKER cover toàn bộ 61 mã universe (Bank 27 + CK 30 + BĐS 4)
+    + legacy alias "MB" → MBB. Total 62 keys."""
+    expected = {
+        # Special legacy alias
+        "MB",
+        # Bank HOSE (16)
+        "VCB", "CTG", "BID", "TCB", "MBB", "ACB", "VPB", "HDB",
+        "STB", "SHB", "EIB", "TPB", "MSB", "LPB", "OCB", "VIB",
+        # Bank HNX (4)
+        "NAB", "BAB", "NVB", "SGB",
+        # Bank UPCOM (7)
+        "VAB", "BVB", "ABB", "KLB", "VBB", "PGB", "HDF",
+        # CK HOSE (5)
+        "SSI", "VND", "HCM", "VCI", "VIX",
+        # CK HNX (15)
+        "SHS", "MBS", "BVS", "BSI", "AGR", "CTS", "APG", "EVS",
+        "IVS", "PSI", "TVS", "WSS", "ORS", "VFS", "TCI",
+        # CK UPCOM (10)
+        "DSC", "FTS", "CSI", "SBS", "PHS", "ART", "APS", "BMS", "AAS", "VTS",
+        # BĐS (4)
+        "VHM", "NVL", "KDH", "DXG",
+    }
     assert set(SHORT_FORM_TO_TICKER.keys()) == expected
-    # Mọi value phải thuộc Bank MVP universe
-    bank_mvp = {"TCB", "VCB", "MBB", "ACB", "BID", "CTG", "VPB"}
-    assert set(SHORT_FORM_TO_TICKER.values()) <= bank_mvp
 
 
 def test_no_lowercase_mb_in_company_dict():

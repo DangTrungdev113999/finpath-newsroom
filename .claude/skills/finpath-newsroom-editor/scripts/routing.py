@@ -12,10 +12,26 @@ from .ticker_detection import detect_tickers_with_position, count_ticker_mention
 
 
 # Universe constants
-BANK_UNIVERSE = ["TCB", "VCB", "MBB", "ACB", "BID", "CTG", "VPB"]
-CK_UNIVERSE = ["SSI", "VND", "HCM", "VCI", "SHS"]
-BDS_UNIVERSE = ["VHM", "NVL", "KDH", "DXG"]
-FULL_UNIVERSE = BANK_UNIVERSE + CK_UNIVERSE + BDS_UNIVERSE
+BANK_UNIVERSE = [
+    # HOSE (16)
+    "VCB", "CTG", "BID", "TCB", "MBB", "ACB", "VPB", "HDB",
+    "STB", "SHB", "EIB", "TPB", "MSB", "LPB", "OCB", "VIB",
+    # HNX (4)
+    "NAB", "BAB", "NVB", "SGB",
+    # UPCOM (7)
+    "VAB", "BVB", "ABB", "KLB", "VBB", "PGB", "HDF",
+]  # 27 mã
+CK_UNIVERSE = [
+    # HOSE (5)
+    "SSI", "VND", "HCM", "VCI", "VIX",
+    # HNX (15)
+    "SHS", "MBS", "BVS", "BSI", "AGR", "CTS", "APG", "EVS",
+    "IVS", "PSI", "TVS", "WSS", "ORS", "VFS", "TCI",
+    # UPCOM (10)
+    "DSC", "FTS", "CSI", "SBS", "PHS", "ART", "APS", "BMS", "AAS", "VTS",
+]  # 30 mã
+BDS_UNIVERSE = ["VHM", "NVL", "KDH", "DXG"]  # 4 mã (unchanged)
+FULL_UNIVERSE = BANK_UNIVERSE + CK_UNIVERSE + BDS_UNIVERSE  # 61 mã
 ALL_TICKERS = FULL_UNIVERSE  # alias
 
 # Reverse lookup ticker → sector
