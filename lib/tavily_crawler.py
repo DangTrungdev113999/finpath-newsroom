@@ -1,0 +1,186 @@
+"""Tavily-based crawler adapter for Finpath Newsroom Step 1.
+
+Replaces 20-source scrape with single tavily_search call per ticker.
+Falls back to built-in WebSearch if Tavily fails. Falls back to legacy
+20-source crawler if WebSearch also fails (3-tier chain).
+
+Spec: docs/superpowers/specs/2026-05-12-crawler-tavily-migration-design.md
+"""
+from __future__ import annotations
+import re
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urlparse
+from typing import Any
+
+# Ensure project root on sys.path
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+from lib.stages.run_crawler import SOURCES_WHITELIST, FULL_UNIVERSE, BANK_UNIVERSE, CK_UNIVERSE, BDS_UNIVERSE
+
+
+# Reverse map domain → friendly source name
+_DOMAIN_TO_NAME: dict[str, str] = {
+    domain: name for name, domain in SOURCES_WHITELIST.items()
+}
+
+
+def domain_to_source_name(url: str) -> str:
+    """Reverse map URL → friendly source name from SOURCES_WHITELIST.
+
+    Args:
+        url: Full URL (e.g. "https://cafef.vn/article.chn")
+
+    Returns:
+        Friendly source name (e.g. "CafeF") or domain itself if not in whitelist.
+    """
+    parsed = urlparse(url)
+    domain = parsed.netloc.lower()
+    if domain.startswith("www."):
+        domain = domain[4:]
+    return _DOMAIN_TO_NAME.get(domain, domain)
+
+
+# Ticker → full company name for query enrichment
+_TICKER_FULL_NAMES: dict[str, str] = {
+    # Bank universe (27 mã)
+    "VCB": "Vietcombank", "CTG": "VietinBank", "BID": "BIDV",
+    "TCB": "Techcombank", "MBB": "MB Bank", "ACB": "ACB",
+    "VPB": "VPBank", "HDB": "HDBank", "STB": "Sacombank",
+    "SHB": "SHB", "EIB": "Eximbank", "TPB": "TPBank",
+    "MSB": "MSB", "LPB": "LPBank", "OCB": "OCB",
+    "VIB": "VIB", "NAB": "Nam A Bank", "BAB": "BacABank",
+    "NVB": "NCB", "SGB": "Saigonbank",
+    "VAB": "VietABank", "BVB": "BaoVietBank", "ABB": "ABBank",
+    "KLB": "Kienlongbank", "VBB": "VietBank", "PGB": "PGBank", "HDF": "HDF",
+    # CK universe (30 mã) — short tickers thường = tên thương hiệu
+    "SSI": "SSI", "VND": "VNDirect", "HCM": "HSC", "VCI": "Vietcap",
+    "VIX": "VIX", "SHS": "SHS", "MBS": "MBS", "BVS": "Bảo Việt",
+    "BSI": "BIDV Securities", "AGR": "Agriseco", "CTS": "Vietinbank Securities",
+    "APG": "APG", "EVS": "Everest", "IVS": "IVS", "PSI": "PSI",
+    "TVS": "Thiên Việt", "WSS": "Phố Wall", "ORS": "Tiên Phong CK",
+    "VFS": "Nhất Việt", "TCI": "Thành Công", "DSC": "Đông Sài Gòn",
+    "FTS": "FPTS", "CSI": "Kiến Thiết", "SBS": "SBS", "PHS": "Phú Hưng",
+    "ART": "BOS", "APS": "APEC", "BMS": "Bảo Minh", "AAS": "Smart Invest", "VTS": "Việt Tín",
+    # BĐS universe (4 mã)
+    "VHM": "Vinhomes", "NVL": "Novaland", "KDH": "Khang Điền", "DXG": "Đất Xanh",
+}
+
+
+def get_full_name(ticker: str) -> str:
+    """Return full company name for ticker. Fallback to ticker itself if unknown."""
+    return _TICKER_FULL_NAMES.get(ticker.upper(), ticker.upper())
+
+
+import uuid
+
+
+def _ticker_to_sector(ticker: str) -> str:
+    """Lookup sector from FULL_UNIVERSE constants."""
+    t = ticker.upper()
+    if t in BANK_UNIVERSE:
+        return "Bank"
+    if t in CK_UNIVERSE:
+        return "CK"
+    if t in BDS_UNIVERSE:
+        return "BĐS"
+    return "Unknown"
+
+
+def parse_tavily_result(result: dict[str, Any], ticker: str, batch_id: str) -> dict[str, Any]:
+    """Map a single Tavily search result → crawl_log row dict.
+
+    Schema (per data/pipeline.schema.sql crawl_log table):
+        row_id, funnel_batch_id, ticker, source_name, source_url,
+        title, raw_content, published_time, crawled_at, sector
+
+    Args:
+        result: Single Tavily search result dict (with url, title, content, ...)
+        ticker: VN stock ticker (uppercase)
+        batch_id: format <TICKER>-YYYYMMDD-HHMM
+
+    Returns:
+        Dict ready for db.insert_crawl_row()
+    """
+    crawled_at = datetime.now(timezone.utc).isoformat()
+    url = result.get("url", "")
+    return {
+        "row_id": str(uuid.uuid4()),
+        "funnel_batch_id": batch_id,
+        "ticker": ticker.upper(),
+        "source_name": domain_to_source_name(url),
+        "source_url": url,
+        "title": result.get("title", ""),
+        "raw_content": result.get("content", ""),
+        "published_time": result.get("published_date") or crawled_at,
+        "crawled_at": crawled_at,
+        "sector": _ticker_to_sector(ticker),
+    }
+
+
+# Map ticker → ticker's own corporate site domain (skip these in results)
+_CORPORATE_DOMAINS: dict[str, list[str]] = {
+    "TCB": ["techcombank.com"],
+    "VCB": ["vietcombank.com.vn"],
+    "BID": ["bidv.com.vn"],
+    "CTG": ["vietinbank.vn"],
+    "MBB": ["mbbank.com.vn"],
+    "ACB": ["acb.com.vn"],
+    "VPB": ["vpbank.com.vn"],
+    "HDB": ["hdbank.com.vn"],
+    "SSI": ["ssi.com.vn"],
+    "VND": ["vndirect.com.vn"],
+    "HCM": ["hsc.com.vn"],
+    "VCI": ["vietcap.com.vn"],
+    "SHS": ["shs.com.vn"],
+    "VHM": ["vinhomes.vn"],
+    "NVL": ["novaland.com.vn"],
+    "KDH": ["khangdienhouse.com.vn"],
+    "DXG": ["datxanh.vn"],
+    # Add more ticker → domain mappings as needed
+}
+
+
+def _strip_query_string(url: str) -> str:
+    """Strip ?query and #fragment for dedup purposes."""
+    parsed = urlparse(url)
+    return f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
+
+
+def filter_results(results: list[dict[str, Any]], ticker: str) -> list[dict[str, Any]]:
+    """Filter Tavily results: skip PDF + corporate sites of ticker + dedup by URL.
+
+    Args:
+        results: Raw Tavily search results
+        ticker: Ticker uppercase (used for corporate site exclusion)
+
+    Returns:
+        Filtered list (PDFs out, ticker's corporate site out, deduped)
+    """
+    corporate_domains = _CORPORATE_DOMAINS.get(ticker.upper(), [])
+    seen_urls: set[str] = set()
+    filtered: list[dict[str, Any]] = []
+    for r in results:
+        url = r.get("url", "")
+        if not url:
+            continue
+        # Skip PDFs
+        if url.lower().endswith(".pdf"):
+            continue
+        # Skip corporate site of this ticker
+        parsed = urlparse(url)
+        domain = parsed.netloc.lower()
+        if domain.startswith("www."):
+            domain = domain[4:]
+        if any(domain == cd or domain.endswith("." + cd) for cd in corporate_domains):
+            continue
+        # Dedup by URL (strip query string)
+        canonical = _strip_query_string(url)
+        if canonical in seen_urls:
+            continue
+        seen_urls.add(canonical)
+        filtered.append(r)
+    return filtered
