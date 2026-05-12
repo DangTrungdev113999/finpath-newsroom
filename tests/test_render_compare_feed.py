@@ -116,6 +116,9 @@ def populated_db_v4(tmp_path):
             "status": "published",
             "published_at": "2026-05-08T16:00:00+07:00",
             "public_slug": slug,
+            # V4.0 baseline for legacy render-output tests. These predate V5.0 schema.
+            # Render output structure tested here — schema validation tested separately.
+            "pipeline_version": "V4.0",
         })
     yield db, db_path
     db.close()
