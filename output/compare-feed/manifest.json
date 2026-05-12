@@ -1,6 +1,17 @@
 {
   "articles": [
     {
+      "id": "STB-20260512-1512-stb-hy-sinh-loi-nhuan-quy-1-de-doi-lay-dieu-gi",
+      "ticker": "STB",
+      "sector": "Bank",
+      "title": "STB hy sinh lợi nhuận quý 1 để đổi lấy điều gì?",
+      "crawled_at": "2026-05-12T15:12:21.593998+00:00",
+      "key_view": "lạc quan",
+      "word_count": 284,
+      "category": "paradox",
+      "format_id": "standard_qa"
+    },
+    {
       "id": "bsr-danh-doi-ke-hoach-thap-58-de-doi-lay-dieu-gi",
       "ticker": "BSR",
       "sector": "Dầu khí",

@@ -1,6 +1,89 @@
 {
-  "built_at": "2026-05-12T14:04:28.629199+00:00",
+  "built_at": "2026-05-12T15:20:59.978954+00:00",
   "sessions": [
+    {
+      "session_id": "288AFA32-EC80-4D36-8447-CE68423AFBAC",
+      "trigger_type": "tin-hot",
+      "trigger_args": "N=1",
+      "started_at": "2026-05-12T15:12:21.593998+00:00",
+      "ended_at": "2026-05-12T15:12:21.595227+00:00",
+      "fetched_total": 7,
+      "chosen_total": 1,
+      "rejected_total": 6,
+      "batches": [
+        {
+          "funnel_batch_id": "STB-20260512-1512",
+          "ticker": "STB",
+          "sector_code": null,
+          "sector_name": "Bank tư nhân top",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 7,
+          "chosen_count": 1,
+          "rejected_count": 6,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "cafef.vn",
+                "url": "https://cafef.vn/sacombank-cong-bo-ket-qua-kinh-doanh-quy-i-2026-duy-tri-dinh-huong-than-trong-thuc-chat-tung-buoc-nang-cao-hieu-qua-hoat-dong-188260429113244305.chn",
+                "published": "2026-04-29",
+                "reason": "OK — accepted_hypothesis: true. Title: STB hy sinh lợi nhuận quý 1 để đổi lấy điều gì?"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "nhadautu.vn",
+                "url": "https://nhadautu.vn/sacombank-va-vingroup-ky-ket-hop-tac-chien-luoc-toan-dien-d104571.html",
+                "published": "2026-04-24",
+                "reject_agent": "story_editor",
+                "reject_label": "low_data_foundation — thông tin hợp tác chiến lược chưa có chi tiết cụ thể, không đủ số liệu",
+                "reason": "low_data_foundation — thông tin hợp tác chiến lược chưa có chi tiết cụ thể, không đủ số liệu"
+              },
+              {
+                "source": "cafef.vn",
+                "url": "https://cafef.vn/sacombank-doi-ten-thanh-ngan-hang-sai-gon-tai-loc-co-quyen-tong-giam-doc-moi-188260422160147052.chn",
+                "published": "2026-04-22",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached — đổi tên là sự kiện hành chính, thiếu chiều sâu phân tích đầu tư",
+                "reason": "sub_event_attached — đổi tên là sự kiện hành chính, thiếu chiều sâu phân tích đầu tư"
+              },
+              {
+                "source": "tinnhanhchungkhoan.vn",
+                "url": "https://www.tinnhanhchungkhoan.vn/dhcd-sacombank-stb-ngan-hang-dang-trinh-xu-ly-325-co-phieu-ong-tram-be-se-khong-mua-lai-chung-khoan-sbs-post368208.html",
+                "published": "2026-04-22",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_angle_recent — cùng góc xử lý cổ phần Trầm Bê với row 0a03ef11",
+                "reason": "dup_angle_recent — cùng góc xử lý cổ phần Trầm Bê với row 0a03ef11"
+              },
+              {
+                "source": "vietnambiz.vn",
+                "url": "https://vietnambiz.vn/co-phieu-stb-tang-hon-5-sau-thong-tin-ong-nguyen-duc-thuy-ung-cu-vao-hdqt-sacombank-2026421144734577.htm",
+                "published": "2026-04-21",
+                "reject_agent": "story_editor",
+                "reject_label": "low_insight_potential — biến động giá cổ phiếu 1 ngày không đủ chiều sâu phân tích",
+                "reason": "low_insight_potential — biến động giá cổ phiếu 1 ngày không đủ chiều sâu phân tích"
+              },
+              {
+                "source": "vietnamnet.vn",
+                "url": "https://vietnamnet.vn/co-the-can-them-vai-nam-de-xu-ly-32-5-co-phan-cua-ong-tram-be-tai-sacombank-2508943.html",
+                "published": "2026-04-22",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached — thuộc ĐHĐCĐ ngày 22/4, timeline dài và phụ thuộc NHNN approval, low_writeability",
+                "reason": "sub_event_attached — thuộc ĐHĐCĐ ngày 22/4, timeline dài và phụ thuộc NHNN approval, low_writeability"
+              },
+              {
+                "source": "thoibaotaichinhvietnam.vn",
+                "url": "https://thoibaotaichinhvietnam.vn/sacombank-lai-hon-2100-ty-dong-quy-i2026-tang-manh-chi-phi-du-phong-gap-10-lan-196527.html",
+                "published": "2026-04-29",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event — cùng sự kiện kết quả quý 1 với row 5e2ceff6, nguồn kém uy tín hơn CafeF",
+                "reason": "dup_event — cùng sự kiện kết quả quý 1 với row 5e2ceff6, nguồn kém uy tín hơn CafeF"
+              }
+            ]
+          }
+        }
+      ]
+    },
     {
       "session_id": "2A1CD133-6137-4C80-B4A7-7132F1CB36F7",
       "trigger_type": "tin",
