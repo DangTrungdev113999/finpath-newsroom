@@ -193,15 +193,41 @@ Today = `$(date +%-d/%-m/%Y)` (vd "12/5/2026")
 - Query 3: `{ticker} {today_short} {category_keyword}` (volume_explosion → "khối lượng đột biến", price_decrement → "giảm sàn"/"bán tháo", etc.)
 - Query 4: `{ticker} catalyst tin nóng phiên {today_short}`
 
-**Tavily search filter (if using mcp__tavily__tavily_search):**
+**Tavily search filter (2-tier fallback — V1.5.1 refinement):**
+
+Tier 1 — strict day filter (catches today-only news):
 ```python
 mcp__tavily__tavily_search(
     query="{ticker} phiên {today_short}",
-    time_range="day",   # V1.5 — restrict to last 24h
+    time_range="day",
     country="Vietnam",
     max_results=10,
 )
 ```
+
+Tier 2 — week filter with domain restriction (catches recent corporate
+actions / dividend announcements / nghị quyết HĐQT that may explain
+volume_explosion without explicit "today's session" news):
+```python
+mcp__tavily__tavily_search(
+    query="{ticker} {company_name} cổ tức báo cáo tin tức",
+    time_range="week",
+    country="Vietnam",
+    max_results=10,
+    include_domains=["cafef.vn", "vietstock.vn", "vneconomy.vn",
+                     "vietnambiz.vn", "tinnhanhchungkhoan.vn",
+                     "ndh.vn", "fireant.vn", "baodautu.vn"],
+)
+```
+
+⚠ Ticker name collision warning: nếu ticker = tên viết tắt trùng tỉnh/địa
+danh (vd QNS = Đường Quảng Ngãi but "QNS"+"Quảng Ngãi" có thể trả tin tỉnh),
+PHẢI include `include_domains` để biased finance sources. Bỏ phố "Quảng Ngãi"
+khỏi query 1 nếu cần. Use full company name khi search.
+
+Tier 3 fallback — if tiers 1+2 đều 0-results: broader month range, no domain
+filter, accept that catalyst may be technical/positioning-driven (block trade
+or chart breakout) and pass that interpretation to Story Editor.
 
 **WebFetch filter:**
 - Reject URLs without explicit today's date marker (12/5 / 2026-05-12) OR clear "hôm nay"/"phiên này"
