@@ -219,6 +219,7 @@ Fail any → REWRITE specific issue → re-check. Loop until ALL PASS trước k
 ### Cross-cutting rules (always load) — V5.1.2
 - `references/voice-layer-rules.md` — V1-V5 Voice rules + em_dash_density
 - `references/stance-directive-handler.md` — schema + apply rules + examples 3 directions
+- `references/foreign-flow-when-to-call.md` — V5.1.3: when to call foreign flow API for body cite
 
 ### External data (V5.1.3 web-search-heavy)
 - Finpath API endpoints (`lib/finpath_api.py`) — income/balance/cashflow/shareholders/events

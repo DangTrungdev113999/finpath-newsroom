@@ -238,6 +238,7 @@ Fail any → REWRITE specific issue → re-check. Loop until ALL PASS trước k
 - `references/insight-finalization.md` — insight wording finalization patterns
 - `references/title-hook-checklist.md` — title-as-hook gate checklist (placeholder use until Headline agent live)
 - `references/compare-feed-spec.md` — Compare Feed prepend layout
+- `references/foreign-flow-when-to-call.md` — V5.1.3: when to call foreign flow API for body cite
 
 ### External KB + manual data
 - `kb/ck/frameworks/ck-industry-master-reference.md` — 6 lớp mental model anchor

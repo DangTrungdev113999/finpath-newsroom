@@ -168,6 +168,7 @@ Pattern reasoning hay dùng:
 - `references/format-bodies/standard-qa.md` — standard Q&A 200-300 từ (FPT/REE examples)
 - `references/format-bodies/standard-listicle.md` — listicle 250-350 từ (FPT vs REE vs TRA comparison + TRA pharma early signal)
 - `references/format-bodies/standard-narrative.md` — narrative 250-350 từ (FPT outsourcing history + PC1 grid expansion)
+- `references/foreign-flow-when-to-call.md` — V5.1.3: when to call foreign flow API for body cite
 
 ## Edge cases (return reject_no_data)
 
