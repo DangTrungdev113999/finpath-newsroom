@@ -194,3 +194,50 @@ def test_crawl_with_websearch_failure_returns_empty(monkeypatch):
     monkeypatch.setattr(tavily_crawler, "_call_websearch", mock_fail)
     rows = tavily_crawler.crawl_with_websearch("TCB", "TCB-20260512-1500")
     assert rows == []
+
+
+def test_crawl_uses_tier1_when_available(monkeypatch):
+    """Tier 1 returns rows → use Tier 1, skip Tier 2+3."""
+    from lib import tavily_crawler
+    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", lambda a: {
+        "results": [{"url": "https://cafef.vn/a.chn", "title": "T", "content": "B"}]
+    })
+    monkeypatch.setattr(tavily_crawler, "_call_websearch", lambda q: pytest.fail("Tier 2 should NOT be called"))
+    rows, tier = tavily_crawler.crawl("TCB", "TCB-20260512-1500")
+    assert tier == "Tavily"
+    assert len(rows) == 1
+
+
+def test_crawl_falls_back_to_tier2_when_tier1_empty(monkeypatch):
+    """Tier 1 returns [] → fallback to Tier 2."""
+    from lib import tavily_crawler
+    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", lambda a: {"results": []})
+    monkeypatch.setattr(tavily_crawler, "_call_websearch", lambda q: [
+        {"url": "https://cafef.vn/x.chn", "title": "WebSearch result", "content": "B"}
+    ])
+    rows, tier = tavily_crawler.crawl("TCB", "TCB-20260512-1500")
+    assert tier == "WebSearch"
+    assert len(rows) == 1
+
+
+def test_crawl_falls_back_to_tier3_when_both_fail(monkeypatch):
+    """Both Tier 1 + 2 return [] → fallback to Tier 3 legacy."""
+    from lib import tavily_crawler
+    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", lambda a: {"results": []})
+    monkeypatch.setattr(tavily_crawler, "_call_websearch", lambda q: [])
+    monkeypatch.setattr(tavily_crawler, "_call_legacy_crawler", lambda t, b: [
+        {"row_id": "abc", "ticker": "TCB", "funnel_batch_id": b, "source_name": "Legacy",
+         "source_url": "https://x", "title": "Legacy", "raw_content": "L",
+         "published_time": "2026-01-01", "crawled_at": "2026-01-01", "sector": "Bank"}
+    ])
+    rows, tier = tavily_crawler.crawl("TCB", "TCB-20260512-1500")
+    assert tier == "Crawler-legacy"
+    assert len(rows) == 1
+    assert rows[0]["source_name"] == "Legacy"
+
+
+def test_crawl_invalid_ticker_raises():
+    """Ticker not in 61-mã universe → ValueError."""
+    from lib import tavily_crawler
+    with pytest.raises(ValueError, match="not in 61-mã universe"):
+        tavily_crawler.crawl("XYZ", "XYZ-20260512-1500")

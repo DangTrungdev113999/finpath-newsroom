@@ -19,7 +19,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from lib.stages.run_crawler import SOURCES_WHITELIST, BANK_UNIVERSE, CK_UNIVERSE, BDS_UNIVERSE
+from lib.stages.run_crawler import SOURCES_WHITELIST, FULL_UNIVERSE, BANK_UNIVERSE, CK_UNIVERSE, BDS_UNIVERSE
 
 
 # Reverse map domain → friendly source name
@@ -268,3 +268,60 @@ def crawl_with_websearch(ticker: str, batch_id: str) -> list[dict[str, Any]]:
     except Exception as e:
         print(f"[tavily_crawler] Tier 2 failed: {type(e).__name__}: {e}", file=sys.stderr)
         return []
+
+
+def _call_legacy_crawler(ticker: str, batch_id: str) -> list[dict[str, Any]]:
+    """Call legacy 20-source crawler — wraps existing scripts.
+
+    Real implementation: invokes lib/stages/run_crawler.py logic directly OR
+    via subprocess. For testing: monkeypatched.
+
+    Returns:
+        List of crawl_log row dicts (already in target schema).
+    """
+    raise NotImplementedError(
+        "_call_legacy_crawler invokes legacy crawler scripts. "
+        "Real implementation TBD by agent or subprocess wrapper. "
+        "For unit tests, monkeypatch this function."
+    )
+
+
+def crawl_with_legacy(ticker: str, batch_id: str) -> list[dict[str, Any]]:
+    """Tier 3: Last-resort fallback via existing 20-source scripts."""
+    try:
+        return _call_legacy_crawler(ticker, batch_id)
+    except Exception as e:
+        print(f"[tavily_crawler] Tier 3 failed: {type(e).__name__}: {e}", file=sys.stderr)
+        return []
+
+
+def crawl(ticker: str, batch_id: str) -> tuple[list[dict[str, Any]], str]:
+    """3-tier crawler orchestrator. Try Tavily → WebSearch → legacy.
+
+    Args:
+        ticker: VN stock ticker (must be in 61-mã FULL_UNIVERSE)
+        batch_id: format <TICKER>-YYYYMMDD-HHMM
+
+    Returns:
+        (rows, tier_used) where tier_used in {"Tavily", "WebSearch", "Crawler-legacy"}.
+        rows may be empty if all 3 tiers fail.
+
+    Raises:
+        ValueError if ticker not in 61-mã universe.
+    """
+    if ticker.upper() not in FULL_UNIVERSE:
+        raise ValueError(f"Ticker {ticker!r} not in 61-mã universe (Bank/CK/BĐS)")
+
+    # Tier 1: Tavily
+    rows = crawl_with_tavily(ticker, batch_id)
+    if rows:
+        return rows, "Tavily"
+
+    # Tier 2: WebSearch fallback
+    rows = crawl_with_websearch(ticker, batch_id)
+    if rows:
+        return rows, "WebSearch"
+
+    # Tier 3: Legacy crawler last resort
+    rows = crawl_with_legacy(ticker, batch_id)
+    return rows, "Crawler-legacy"
