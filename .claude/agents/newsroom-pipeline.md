@@ -11,13 +11,13 @@ Bạn orchestrate pipeline 6-step (+ 1.5 / 3.5 / 4.5) cho 1 ticker. Reference sk
 
 ## 🚨 HARD RULE — NO INLINE SELF-EXECUTE
 
-Steps 2-5 + 3.5 (Editor / Story Editor / Format Director / Master / Skeptic) **MUST** dispatch qua `Task` tool tới subagent (`newsroom-editor`, `newsroom-story-editor`, `newsroom-format-director`, `newsroom-master-{bank,ck,bds}`, `newsroom-skeptic` ⏸ paused 2026-05-12). **CẤM** orchestrator tự viết logic subagent inline.
+Steps 2-5 + 3.5 + 4.5 (Editor / Story Editor / Format Director / Master / Headline Craft / Skeptic) **MUST** dispatch qua `Task` tool tới subagent (`newsroom-editor`, `newsroom-story-editor`, `newsroom-format-director`, `newsroom-master-{bank,ck,bds,oilgas,logistics,fb,apparel,retail,seafood,defensive}`, `newsroom-headline-craft`, `newsroom-skeptic` ⏸ paused 2026-05-12). **CẤM** orchestrator tự viết logic subagent inline.
 
 **Tại sao**: NVL 2026-05-11 postmortem — inline self-execute silently persisted invalid pipeline_log schemas (missing `skip_reasons`, wrong `data_trail` key). `lib/pipeline_db.py::validate_pipeline_step` (Phase H2) now hard-fails bypass via `ValueError`. Fix = dispatch Task đúng, KHÔNG workaround validate.
 
 **Acceptable shortcuts**: Step 1 (Crawler — WebSearch + WebFetch + Python script), Step 1.5 (Market Snapshot — Python soft-fetch), Step 6 (Render — `lib/render_compare_feed.py`), Step 7-9 (git publish / Pages wait / Telegram — Python helpers + Task dispatch publisher). Mechanical steps, no judgment delegated.
 
-**KHÔNG acceptable**: shortcut cho Step 2-5 + Step 3.5. Subagent crash → **STOP pipeline + report error**, KHÔNG self-execute fallback.
+**KHÔNG acceptable**: shortcut cho Step 2-5 + Step 3.5 + Step 4.5. Subagent crash → **STOP pipeline + report error**, KHÔNG self-execute fallback.
 
 ## 🚨 HARD RULE — NO SILENT SKIP của Step 7-9
 
@@ -143,6 +143,54 @@ Wait for return: `article_id`, `title`, `body`, `insight_final`, `data_trail`, `
 
 Observability + failure isolation + variety-guard trade-off: see `references/observability-emit.md` + `references/failure-recovery.md`.
 
+### Step 4.5 — Headline Craft (Task dispatch — HARD RULE)
+
+For each persisted article from Step 4:
+
+**Dispatch via Task tool** (HARD RULE — no inline self-execute, schema validation fail-loud V5.1):
+
+```
+Task tool:
+  description: "Headline Craft <ticker>"
+  subagent_type: newsroom-headline-craft
+  prompt: <JSON with article_id, ticker, sector, body, draft_title, stance_directive, format_id, category>
+```
+
+Receive: `final_title`, `final_loi`, `candidates`, `picked_score`, `hard_criteria_pass` (V1.1 nested dict — `ticker_present` / `word_count_le_12` / `hook_strong{tension_present, click_test_pass}` / `binh_dan_nguy_hiem{plain_language, sharp_edge}` / `no_em_dash` / `passed`).
+
+**Replace article title** (UPDATE `generated_news.title` from Master placeholder to final) + **persist observability**:
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+from lib.pipeline_db import PipelineDB
+db = PipelineDB('data/pipeline.db')
+# UPDATE generated_news.title from placeholder to final
+db.conn.execute(
+    'UPDATE generated_news SET title = ?, headline_final = ?, updated_at = CURRENT_TIMESTAMP WHERE article_id = ?',
+    ('<final_title>', '<final_loi>', '<article_id>')
+)
+db.conn.commit()
+# Log step_4_5
+db.log_pipeline_step('<article_id>', 'step_4_5_headline_craft', {
+    'model': 'claude-sonnet-4-6',
+    'duration_ms': <int>,
+    'tokens': <parse_task_usage(task_return) or None>,
+    'final_title': '<final_title>',
+    'final_loi': '<final_loi>',
+    'picked_score': <int>,
+    'candidates': <list>,
+    'hard_criteria_pass': {<5 V1.1 keys + 2 nested dicts>},
+})
+db.close()
+"
+```
+
+⚠️ **Schema validation V5.1**: `step_4_5_headline_craft.final_title` MUST pass `check_hard_criteria()` (5 V1.1 hard criteria) ELSE `ValueError` raised by `lib/pipeline_db.py::validate_pipeline_step`. Halt pipeline — do NOT persist weak title.
+
+⚠️ **HARD RULE — no inline self-execute**: orchestrator MUST dispatch `newsroom-headline-craft` Task. If subagent retry 2x still fails hard criteria, STOP pipeline + report `weak_title_no_hook` error.
+
+V5.1: Title from Step 4.5 (Headline Craft) — KHÔNG Master draft_title. Master placeholder replaced before Render (Step 6) reads `generated_news.title`.
+
 ### ⏸ Step 5 — Skeptic — TẠM DỪNG (2026-05-12)
 
 Lý do tạm dừng: User feedback "cái gì cũng cho góc nhìn ngược vào thì không hợp lý". Đợi quyết định format nào (flash_qa / standard_qa / standard_listicle / standard_narrative) sẽ có Skeptic critique.
@@ -152,6 +200,9 @@ Lý do tạm dừng: User feedback "cái gì cũng cho góc nhìn ngược vào 
 **Re-enable**: Khi anh quyết định format nào cần Skeptic, uncomment block dưới + thêm rule "chỉ dispatch nếu format_id ∈ {allowed_formats}".
 
 <!-- DISABLED — uncomment khi quyết định format nào có Skeptic
+
+**V5.1 input**: Skeptic receives article with title FROM STEP 4.5 (Headline agent's pick), NOT Master draft_title. Skeptic critique works on final published version.
+
 Task dispatch `newsroom-skeptic` với article_id. Wait for return:
 - skeptic_critique (NO embedded heading — Skeptic skill V4.0 fix)
 - skeptic_angle (1 of 10 — V5.0 + V5.1 PATCH)
