@@ -112,3 +112,57 @@ def test_filter_results_dedups_by_url():
     ]
     filtered = filter_results(results, ticker="TCB")
     assert len(filtered) == 2
+
+
+def test_build_tavily_args_basic():
+    """Build Tavily search args dict cho ticker."""
+    from lib.tavily_crawler import build_tavily_args, SOURCES_WHITELIST
+    args = build_tavily_args("TCB")
+    assert args["query"] == "TCB Techcombank tin tức"
+    assert args["max_results"] == 20
+    assert args["search_depth"] == "advanced"
+    assert args["time_range"] == "week"
+    assert args["country"] == "Vietnam"
+    # All 20 sources in include_domains
+    expected_domains = list(SOURCES_WHITELIST.values())
+    assert sorted(args["include_domains"]) == sorted(expected_domains)
+
+
+def test_crawl_with_tavily_happy_path(monkeypatch):
+    """Tier 1: Tavily returns 3 results → 3 rows after parse + filter."""
+    from lib import tavily_crawler
+
+    def mock_call(args):
+        return {
+            "results": [
+                {"url": "https://cafef.vn/a.chn", "title": "TCB news 1", "content": "Body 1"},
+                {"url": "https://vietstock.vn/b.htm", "title": "TCB news 2", "content": "Body 2"},
+                {"url": "https://example.com/x.pdf", "title": "PDF skip", "content": "PDF"},
+            ]
+        }
+
+    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", mock_call)
+    rows = tavily_crawler.crawl_with_tavily("TCB", "TCB-20260512-1500")
+    # PDF filtered → 2 rows
+    assert len(rows) == 2
+    assert rows[0]["ticker"] == "TCB"
+    assert rows[0]["funnel_batch_id"] == "TCB-20260512-1500"
+    assert rows[0]["source_name"] == "CafeF"
+
+
+def test_crawl_with_tavily_empty_results(monkeypatch):
+    """Tier 1: Tavily returns 0 results → return empty list."""
+    from lib import tavily_crawler
+    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", lambda args: {"results": []})
+    rows = tavily_crawler.crawl_with_tavily("TCB", "TCB-20260512-1500")
+    assert rows == []
+
+
+def test_crawl_with_tavily_exception_returns_empty(monkeypatch):
+    """Tier 1: Tavily raises exception → return empty list (signal fallback)."""
+    from lib import tavily_crawler
+    def mock_fail(args):
+        raise RuntimeError("Tavily API down")
+    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", mock_fail)
+    rows = tavily_crawler.crawl_with_tavily("TCB", "TCB-20260512-1500")
+    assert rows == []

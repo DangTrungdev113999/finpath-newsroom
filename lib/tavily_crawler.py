@@ -181,3 +181,57 @@ def filter_results(results: list[dict[str, Any]], ticker: str) -> list[dict[str,
         seen_urls.add(canonical)
         filtered.append(r)
     return filtered
+
+
+def build_tavily_args(ticker: str) -> dict[str, Any]:
+    """Build args dict for tavily_search MCP call.
+
+    Args:
+        ticker: VN stock ticker
+
+    Returns:
+        Dict with query/max_results/search_depth/time_range/country/include_domains
+    """
+    full_name = get_full_name(ticker)
+    return {
+        "query": f"{ticker.upper()} {full_name} tin tức",
+        "max_results": 20,
+        "search_depth": "advanced",
+        "time_range": "week",
+        "country": "Vietnam",
+        "include_domains": list(SOURCES_WHITELIST.values()),
+    }
+
+
+def _call_tavily_mcp(args: dict[str, Any]) -> dict[str, Any]:
+    """Call mcp__tavily__tavily_search MCP tool.
+
+    Real implementation: invoked by orchestrator/agent which has MCP tool access.
+    For testing: monkeypatched.
+
+    Returns:
+        Dict with 'results' key (list of search result dicts).
+    """
+    raise NotImplementedError(
+        "_call_tavily_mcp must be invoked from agent context with MCP access. "
+        "For unit tests, monkeypatch this function."
+    )
+
+
+def crawl_with_tavily(ticker: str, batch_id: str) -> list[dict[str, Any]]:
+    """Tier 1: Call Tavily MCP tavily_search, return parsed + filtered rows.
+
+    Returns empty list on any failure (signal to caller for Tier 2 fallback).
+    """
+    try:
+        args = build_tavily_args(ticker)
+        response = _call_tavily_mcp(args)
+        raw_results = response.get("results", [])
+        if not raw_results:
+            return []
+        filtered = filter_results(raw_results, ticker)
+        return [parse_tavily_result(r, ticker, batch_id) for r in filtered]
+    except Exception as e:
+        # Log to stderr for visibility; return empty for fallback
+        print(f"[tavily_crawler] Tier 1 failed: {type(e).__name__}: {e}", file=sys.stderr)
+        return []
