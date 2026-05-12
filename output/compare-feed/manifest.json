@@ -12,6 +12,28 @@
       "format_id": "standard_qa"
     },
     {
+      "id": "ssi-20260512-1535-ssi-quy-1-tang-46-ke-hoach-nam-chi-15-ban-lanh-dao-dang-u",
+      "ticker": "SSI",
+      "sector": "CK",
+      "title": "SSI tự chậm lại: quý 1 tăng 46%, năm chỉ 15%?",
+      "crawled_at": "2026-05-12T15:35:29.070201+00:00",
+      "key_view": null,
+      "word_count": 242,
+      "category": "hidden_mechanism",
+      "format_id": "standard_qa"
+    },
+    {
+      "id": "ssi-20260512-1535-ssi-esop-chu-tich-huong-loi-18-ty-cong-ty-thu-100-ty-ai-thuc",
+      "ticker": "SSI",
+      "sector": "CK",
+      "title": "SSI đánh đổi 510 triệu cổ phiếu mới để lấy gì?",
+      "crawled_at": "2026-05-12T15:35:29.068657+00:00",
+      "key_view": null,
+      "word_count": 258,
+      "category": "paradox",
+      "format_id": "standard_qa"
+    },
+    {
       "id": "STB-20260512-1512-stb-hy-sinh-loi-nhuan-quy-1-de-doi-lay-dieu-gi",
       "ticker": "STB",
       "sector": "Bank",

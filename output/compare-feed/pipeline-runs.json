@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-05-12T15:45:54.945841+00:00",
+  "built_at": "2026-05-12T15:46:44.276575+00:00",
   "sessions": [
     {
       "session_id": "D066809B-1DD5-4F42-B28A-26AAB4B4548C",
@@ -327,13 +327,13 @@
                 "source": "Vietstock",
                 "url": "https://finance.vietstock.vn/bao-cao-phan-tich/20127/ssi-bao-cao-cap-nhat-dhcd-2026.htm",
                 "published": "2026-05-05",
-                "reason": "OK — accepted_hypothesis: true. Title: [PLACEHOLDER — Headline agent sẽ override]"
+                "reason": "OK — accepted_hypothesis: true. Title: SSI tự chậm lại: quý 1 tăng 46%, năm chỉ 15%?"
               },
               {
                 "source": "CafeF",
                 "url": "https://cafef.vn/ssi-du-kien-phat-hanh-10-trieu-co-phieu-esop-cho-295-nguoi-188260509093443431.chn",
                 "published": "2026-05-09",
-                "reason": "OK — accepted_hypothesis: true. Title: [PLACEHOLDER — Headline agent sẽ override]"
+                "reason": "OK — accepted_hypothesis: true. Title: SSI đánh đổi 510 triệu cổ phiếu mới để lấy gì?"
               }
             ],
             "rejected": [
