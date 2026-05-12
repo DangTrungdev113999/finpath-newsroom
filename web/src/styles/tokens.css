@@ -22,3 +22,43 @@
   --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out-sine: cubic-bezier(0.65, 0, 0.35, 1);
 }
+
+/* ─── Component animations ─────────────────────────────────────────────────
+ * CommentSection (and any future similarly-paced reveals) reach for these.
+ * Kept here (not Tailwind config) so other components can `animate-[name_…]`
+ * without touching the build config.
+ * ────────────────────────────────────────────────────────────────────────── */
+@keyframes commentReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlide {
+  0% {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Voice equalizer — 4 bars staggered, scaleY rhythmic.
+ * Used in ListenControl as a "live audio" indicator while TTS đang đọc.
+ * Each bar uses same keyframe with different animation-delay (0, .12s, .24s, .36s)
+ * to phase-offset → wave illusion. transform-origin: bottom kept in component CSS. */
+@keyframes eqBar {
+  0%, 100% {
+    transform: scaleY(0.28);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}

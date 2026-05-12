@@ -204,25 +204,25 @@ export function SymbolFilter<T extends { ticker: string }>({
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35',
             hasSelection
               ? 'border-brand/60 bg-brand/10 text-fg-0 shadow-sm shadow-brand/15'
-              : 'border-fg-4/40 bg-bg-2/60 text-fg-2 hover:border-fg-0/40 hover:text-fg-0',
+              : 'border-fg-3/55 bg-bg-2 text-fg-1 hover:border-fg-0/60 hover:text-fg-0',
           )}
           aria-label="Mở bộ lọc mã cổ phiếu"
         >
           <Tag
             className={cn(
               'h-3.5 w-3.5 shrink-0',
-              hasSelection ? 'text-brand' : 'text-fg-3',
+              hasSelection ? 'text-brand' : 'text-fg-1',
             )}
-            strokeWidth={1.85}
+            strokeWidth={2}
             aria-hidden
           />
-          <span className="font-sans text-[11px] uppercase tracking-[0.18em] text-fg-3">
+          <span className="font-sans text-[11px] font-semibold uppercase tracking-[0.18em] text-fg-2">
             Mã
           </span>
           <TriggerSummary selected={selected} />
           <ChevronDown
-            className="h-3 w-3 shrink-0 text-fg-3"
-            strokeWidth={2}
+            className="h-3 w-3 shrink-0 text-fg-2"
+            strokeWidth={2.25}
             aria-hidden
           />
         </DialogTrigger>
@@ -639,7 +639,7 @@ function SectorTab({
 function TriggerSummary({ selected }: { selected: string[] }) {
   if (selected.length === 0) {
     return (
-      <span className="truncate font-sans text-[12px] text-fg-2">Tất cả</span>
+      <span className="truncate font-sans text-[12px] font-semibold text-fg-0">Tất cả</span>
     );
   }
   if (selected.length === 1) {

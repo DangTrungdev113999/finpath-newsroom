@@ -6,6 +6,12 @@ import type { Article, ArticleSummary } from '../types';
 import { SymbolFilter, useSymbolFilter } from '../components/SymbolFilter';
 import { AngleFilter, useAngleFilter } from '../components/AngleFilter';
 import { FormatFilter, useFormatFilter } from '../components/FormatFilter';
+import {
+  ListenControl,
+  useTimeWindowFilter,
+  filterByTimeWindow,
+} from '../components/ListenControl';
+import { useArticleListener } from '../lib/useArticleListener';
 import { CompareFeedSkeleton } from '../components/skeletons/CompareFeedSkeleton';
 
 const PAGE_SIZE = 5;
@@ -22,6 +28,8 @@ export function FeedPage() {
     useAngleFilter();
   const { selected: formatSelected, setSelected: setFormatSelected } =
     useFormatFilter();
+  const { selected: windowSelected, setSelected: setWindowSelected } =
+    useTimeWindowFilter();
 
   // Load manifest on mount (already sorted desc by crawled_at in loader)
   useEffect(() => {
@@ -30,6 +38,8 @@ export function FeedPage() {
       .catch((e: Error) => setError(`Lỗi load manifest: ${e.message}`));
   }, []);
 
+  // Feed visual filter — symbol / format / angle. KHÔNG dùng time window
+  // (window setting riêng cho TTS queue, không ép feed hiển thị giảm theo).
   const filteredManifest = useMemo(() => {
     let result = manifest;
     if (selected.length > 0) {
@@ -47,6 +57,31 @@ export function FeedPage() {
     }
     return result;
   }, [manifest, selected, angleSelected, formatSelected]);
+
+  // TTS queue = filteredManifest THEN cắt theo time window cho việc đọc liên tục.
+  const ttsQueue = useMemo(
+    () => filterByTimeWindow(filteredManifest, windowSelected),
+    [filteredManifest, windowSelected],
+  );
+
+  // TTS items — bản đọc gọn: "Tin về [TICKER]: [title]. Quan điểm chính: [key_view]."
+  // Dùng dữ liệu sẵn trong ArticleSummary (không fetch body) cho 1 bài ~10-15s.
+  const ttsItems = useMemo(
+    () =>
+      ttsQueue.map((a) => {
+        const kv = (a.key_view ?? '').trim();
+        return [
+          `Tin về ${a.ticker || 'cổ phiếu'}.`,
+          `${a.title}.`,
+          kv ? `Quan điểm chính: ${kv}.` : '',
+        ]
+          .filter(Boolean)
+          .join(' ');
+      }),
+    [ttsQueue],
+  );
+
+  const listener = useArticleListener(ttsItems, { lang: 'vi-VN', rate: 1.05 });
 
   // AngleFilter hide rule: ẩn khi user pin chỉ flash_qa (format không dùng
   // 5-category enum). Hiện khi không filter format hoặc filter format ∈ standard_*.
@@ -131,13 +166,6 @@ export function FeedPage() {
     <main className="mx-auto max-w-7xl px-6 py-8">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight text-fg-0">
-            {selected.length === 0 &&
-            angleSelected.length === 0 &&
-            formatSelected.length === 0
-              ? `${manifest.length} bài`
-              : `${filteredManifest.length}/${manifest.length} bài`}
-          </h1>
           {manifest.length > 0 && (
             <>
               <SymbolFilter
@@ -160,7 +188,22 @@ export function FeedPage() {
             </>
           )}
         </div>
-        <ViewToggle showRight={showRight} onChange={setShowRight} />
+        <div className="flex flex-wrap items-center gap-2">
+          <ListenControl
+            window={windowSelected}
+            onChangeWindow={setWindowSelected}
+            filteredCount={ttsQueue.length}
+            state={listener.state}
+            currentIdx={listener.currentIdx}
+            total={listener.total}
+            supported={listener.supported}
+            onPlay={listener.play}
+            onPause={listener.pause}
+            onStop={listener.stop}
+            onNext={listener.next}
+          />
+          <ViewToggle showRight={showRight} onChange={setShowRight} />
+        </div>
       </div>
 
       {filteredManifest.length === 0 ? (

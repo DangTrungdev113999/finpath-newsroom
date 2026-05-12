@@ -10,9 +10,8 @@ export default defineConfig({
   plugins: [react()],
   base: isProd ? '/finpath-newsroom/' : '/',
   server: {
-    // KB markdown files (kb/) live sibling to web/. import.meta.glob('../../../kb/...')
-    // from src/lib/kbLoader.ts needs fs.allow for dev server. Build mode resolves
-    // statically and doesn't use this — keeping symmetric for clarity.
+    port: 5174,
+    strictPort: true,
     fs: { allow: ['..', '.'] },
   },
 });

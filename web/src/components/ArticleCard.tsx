@@ -3,6 +3,9 @@ import type { ArticleSummary } from '../types';
 import { formatCrawledAt } from '../lib/format';
 
 export function ArticleCard({ article }: { article: ArticleSummary }) {
+  const stamp = formatCrawledAt(article.crawled_at);
+  const [datePart, timePart] = stamp.split(' '); // "11/05/2026" + "16:55"
+
   return (
     <Link
       to={`/article/${article.id}`}
@@ -13,12 +16,24 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
         className="pointer-events-none absolute inset-x-5 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-brand via-brand/60 to-transparent transition-transform duration-med ease-out-quart group-hover:scale-x-100"
       />
 
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-5 flex items-center justify-between gap-3">
         <span className="rounded-md bg-fg-0 px-2.5 py-1 font-sans text-[12px] font-bold tracking-[0.02em] text-bg-1">
           {article.ticker}
         </span>
-        <time className="font-mono text-[10px] tabular-nums text-fg-3">
-          {formatCrawledAt(article.crawled_at)}
+        {/* Byline timestamp — editorial "date · time" split, mono semibold */}
+        <time
+          dateTime={article.crawled_at}
+          className="inline-flex items-baseline gap-1.5 font-mono tabular-nums"
+        >
+          <span className="text-[11px] font-semibold tracking-[0.02em] text-fg-1">
+            {datePart}
+          </span>
+          <span aria-hidden className="text-fg-4">
+            ·
+          </span>
+          <span className="text-[10.5px] tracking-[0.02em] text-fg-2">
+            {timePart}
+          </span>
         </time>
       </div>
 
@@ -27,12 +42,18 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
       </h3>
 
       <div className="flex items-center justify-between border-t border-fg-4/30 pt-3">
-        <span className="font-mono text-[10px] tabular-nums text-fg-3">
-          {article.word_count} từ
+        {/* Word count — number emphasized, unit demoted to caption */}
+        <span className="inline-flex items-baseline gap-1 font-mono tabular-nums">
+          <span className="text-[12.5px] font-bold text-fg-1">
+            {article.word_count}
+          </span>
+          <span className="text-[9.5px] font-medium uppercase tracking-[0.14em] text-fg-3">
+            từ
+          </span>
         </span>
         <span
           aria-hidden
-          className="font-mono text-[11px] text-fg-3 transition-all duration-med ease-out-quart group-hover:translate-x-0.5 group-hover:text-brand"
+          className="font-mono text-[12px] text-fg-3 transition-all duration-med ease-out-quart group-hover:translate-x-0.5 group-hover:text-brand"
         >
           →
         </span>

@@ -4,7 +4,6 @@ import {
   Gauge,
   Loader2,
   Mic2,
-  Pause,
   Play,
   Settings2,
   Sparkles,
@@ -17,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '../shared/ui/dropdown-menu';
 import { cn } from '../shared/lib/cn';
+import { EqualizerBars } from './EqualizerBars';
 import { chunkForTTS, stripMarkdown } from '../lib/tts';
 import {
   DEFAULT_PUTER_VOICE_ID,
@@ -274,20 +274,13 @@ export function TTSButton({
         {state === 'loading' ? (
           <Loader2 className="h-3 w-3 animate-spin" strokeWidth={2.5} aria-hidden />
         ) : state === 'playing' ? (
-          <Pause className="h-3 w-3" strokeWidth={2.5} aria-hidden />
+          <EqualizerBars active size="sm" color="current" />
+        ) : state === 'paused' ? (
+          <Play className="h-3 w-3" strokeWidth={2.5} aria-hidden fill="currentColor" />
         ) : (
           <Play className="h-3 w-3" strokeWidth={2.5} aria-hidden />
         )}
         <span>{buttonLabel}</span>
-        {state === 'playing' && (
-          <span
-            aria-hidden
-            className="relative ml-0.5 inline-flex h-1.5 w-1.5 items-center justify-center"
-          >
-            <span className="absolute inline-block h-1.5 w-1.5 animate-ping rounded-full bg-brand-fg/70" />
-            <span className="relative inline-block h-1 w-1 rounded-full bg-brand-fg" />
-          </span>
-        )}
         {state === 'idle' && (
           <Sparkles
             className="h-2.5 w-2.5 text-brand"
