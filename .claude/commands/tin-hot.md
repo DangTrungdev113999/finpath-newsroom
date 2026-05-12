@@ -154,62 +154,115 @@ Emit skipped tickers nếu có:
   - VCB: Đã có bài 23 phút trước
 ```
 
-## Step 6 — Sequential dispatch with shared SESSION_ID + HOT CONTEXT
+## Step 6 — Sequential per-ticker orchestration (MAIN-DRIVEN, V1.4 ARCHITECTURE)
 
-For each `to_dispatch` entry, in order:
+⚠️ ARCHITECTURE (V1.4 fix 2026-05-12 — discovered Claude Code Task tool gated
+by nesting depth):
+
+`/tin-hot` does NOT dispatch `newsroom-pipeline` as subagent (level 1 subagent
+can't nested-dispatch Editor/Story/Master at level 2 — Task tool unavailable
+in subagent context). Instead MAIN session (level 0) orchestrates each ticker's
+6 pipeline steps directly, dispatching level 1 subagents (Editor / Story Editor
+/ Format Director / Master / Headline) per step. This satisfies `newsroom-pipeline.md`
+HARD RULE "no inline-execute for Steps 2-5 + 3.5 + 4.5" — each judgment step
+gets its own subagent context window + skill loading.
+
+For each `to_dispatch` entry, MAIN session sequentially runs these per-ticker steps:
+
+### Per-ticker Step 1 — Crawler (Bash, MAIN inline)
+
+```bash
+[{i}/{M}] Crawling {ticker} (cats: {cats}, dcp={dcp}%, dvp={dvp}%)
+```
+
+MAIN executes per `.claude/agents/newsroom-pipeline.md` Step 1 instructions:
+- WebSearch (3-4 query) + WebFetch top 5-10 results
+- Build JSON candidates → `/tmp/crawler-input-{ticker}.json`
+- Run `lib/stages/run_crawler.py {ticker} --candidates-json ... --session-id $SESSION_ID --trigger-type tin-hot --trigger-args N=$N`
+- Capture `funnel_batch_id` from output
+
+### Per-ticker Step 1.5 — Market Snapshot (Bash, MAIN inline)
+
+```bash
+uv run python lib/stages/run_market_snapshot.py {ticker}
+```
+
+### Per-ticker Step 2 — Editor V1 (Task → newsroom-editor, ONE per row)
+
+For each pending row in funnel_batch_id:
+```
+Task tool call (from MAIN — level 0 → newsroom-editor level 1):
+  description: "Editor V1 row {row_id_short}"
+  subagent_type: newsroom-editor
+  prompt: "Process row_id={row_id}. Apply Step 2 V5.1.3: FinpathSectors.get_ticker_sector + get_master_route + validate_crawl_log_v5_1_3 + update_crawl_row(row_id, payload). Hot context: dcp={dcp}% dvp={dvp}% — preserve into pipeline_log step_2_editor_v1.hot_context for downstream consumers."
+```
+
+### Per-ticker Step 3 — Story Editor (Task → newsroom-story-editor, batch)
 
 ```
-[{i}/{M}] Dispatching /tin {ticker}... (categories: {cats}, dcp={dcp}%, dvp={dvp}%)
+Task tool call (from MAIN):
+  description: "Story Editor batch {ticker}"
+  subagent_type: newsroom-story-editor
+  prompt: "Process all routed crawl_log rows for funnel_batch_id={funnel_batch_id}. APPLY HOT INTENT V1.3: user trigger /tin-hot ngụ ý 'Tại sao {ticker} HOT phiên nay (dcp={dcp}%, dvp={dvp}%)'. Prefer angle category=why_now hoặc early_signal khi có catalyst today (block trade / news today / sector rotation / breakout / NN flow today). Reject low_writeability nếu không có catalyst rõ — KHÔNG force bài. Cite data trail = today's source."
 ```
 
-⚠️ CRITICAL — hot context dispatch intent (V1.3 quality patch 2026-05-12):
+### Per-ticker Step 3.5 — Format Director (Task → newsroom-format-director, per brief)
 
-User trigger `/tin-hot` ngụ ý: **"Tại sao mã này HOT phiên nay?"** — Master/Story
-Editor MUST explain TODAY's price/volume action, KHÔNG được gượng ép paradox
-giữa lịch sử (Q1 fundamentals) và phiên nay nếu thiếu causal link.
+For each picked brief from Story Editor:
+```
+Task tool call (from MAIN):
+  description: "Format director brief {ticker}"
+  subagent_type: newsroom-format-director
+  prompt: "Pick format_id + tone_bias + length_target for each deep_question_option in brief: {brief_json}. Apply 5-step deterministic flow."
+```
 
-Then dispatch via Task tool (pass shared session metadata + hot context + intent
-narrative qua prompt):
+### Per-ticker Step 4 — Master sector (Task → newsroom-master-{master_route})
+
+Read `master_route` field from crawl_log (set by Editor V1):
+```
+Task tool call (from MAIN):
+  description: "Master {master_route} writing for {ticker}"
+  subagent_type: newsroom-master-{master_route}   # bank|ck|bds|oilgas|logistics|fb|apparel|retail|seafood|defensive
+  prompt: "Write article for brief={brief_json}, row_id={row_id}. master_route={master_route}. APPLY HOT INTENT V1.3: open body với today's move ({dcp}% giá, {dvp}% KL) + catalyst, KHÔNG generic fundamental intro. Cite số cụ thể của TODAY (giá +X%, volume +Y%, NN mua/bán Z tỷ phiên nay). Old data (Q1/quarterly) chỉ dùng làm CONTEXT supporting today's narrative — KHÔNG lead với LNTT Q1 / ROE / NPL."
+```
+
+### Per-ticker Step 4.5 — Headline Craft (Task → newsroom-headline-craft)
 
 ```
-Task tool call:
-  description: "Master pipeline hot ticker {ticker}"
-  subagent_type: newsroom-pipeline
-  prompt: |
-    ticker={ticker}
-    session_id=$SESSION_ID
-    trigger_type=tin-hot
-    trigger_args=N=$N
-    hot_category={categories joined}
-    hot_metric_today: dcp={dcp:+.2f}% (price change), dvp={dvp:+.2f}% (volume change)
-
-    INTENT (V1.3 HARD RULE — /tin-hot quality):
-    User wants to know WHY this ticker is HOT TODAY (last 24-48h session).
-    Master + Story Editor MUST find news/event explaining today's move:
-      ✅ Block trade / room ngoại announcement (last 1-3 days)
-      ✅ News event today (regulator action / earnings released / corporate action)
-      ✅ Sector rotation today (peer movement explaining ticker move)
-      ✅ Technical breakout (chart level broken today)
-      ✅ Foreign flow today (NN mua/bán ròng strong)
-
-    AVOID (gây bài gượng ép):
-      ❌ Force-fit paradox giữa Q1/2026 (old) fundamentals và phiên nay
-         unless data shows direct causal chain
-      ❌ Generic angle về fundamentals nếu không có news today
-      ❌ Lead body với LNTT Q1 / ROE / NPL khi user hỏi "tại sao hôm nay tăng/giảm"
-
-    STORY EDITOR specifically:
-      - Prefer angle category=why_now hoặc early_signal khi có catalyst today
-      - Reject low_writeability nếu không có catalyst rõ — KHÔNG ép bài
-      - Cite data trail = today's source (news today + technical today + NN today)
-
-    MASTER specifically:
-      - Open body với today's move + catalyst, KHÔNG generic fundamental intro
-      - Cite số cụ thể của TODAY: giá +X%, volume +Y%, NN mua/bán Z tỷ phiên nay
-      - Old data (Q1/quarterly) chỉ dùng làm CONTEXT supporting today's narrative
-
-    Inherit SESSION_ID from parent — DO NOT generate new uuidgen at Step 0.
+Task tool call (from MAIN):
+  description: "Headline craft {article_id}"
+  subagent_type: newsroom-headline-craft
+  prompt: "Generate title for article_id={article_id} following V1.1 rules: 5 hard criteria + 4 lối + 8-point rubric. Em dash banned. Hot context: title may reference today's move ({dcp}%, {dvp}%) if angle is catalyst-driven."
 ```
+
+### Per-ticker Step 5 — Skeptic PAUSED
+
+Skip per CLAUDE.md 2026-05-12 decision.
+
+### Per-ticker Step 6 — Render (Bash, MAIN inline)
+
+```bash
+uv run python lib/render_compare_feed.py --funnel-batch-id={funnel_batch_id}
+```
+
+### Per-ticker Step 7-9 — Git + GH Pages + Telegram (Bash, MAIN inline)
+
+```bash
+git add output/compare-feed/ && git commit --no-verify -m "feat(content): {ticker} hot ticker article (session $SESSION_ID)" && git push origin main
+# wait for GH Pages deploy (~30s)
+gh run watch $(gh run list --limit 1 --json databaseId -q '.[0].databaseId') --exit-status
+# publish telegram
+uv run python scripts/publish_telegram.py {article_id}
+```
+
+Emit completion:
+```
+  → ✅ {ticker} done in {Xm:Ys}: "{title}" → Telegram msg #{msg_id}
+```
+
+If any step fails → log error + continue to next ticker (don't halt /tin-hot batch). Record fail in `errors.append({...})`.
+
+⚠️ HARD RULE preserved — sequential, NOT parallel. Wait for current ticker's full pipeline to finish before starting next ticker. DB write safety + UX progress.
 
 ⚠️ HARD RULE — sequential, NOT parallel. Dispatch tiếp theo CHỈ sau khi current Task return. DB write safety + per-ticker progress emission ưu tiên hơn parallel speedup.
 
