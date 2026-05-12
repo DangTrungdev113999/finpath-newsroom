@@ -169,17 +169,62 @@ gets its own subagent context window + skill loading.
 
 For each `to_dispatch` entry, MAIN session sequentially runs these per-ticker steps:
 
-### Per-ticker Step 1 — Crawler (Bash, MAIN inline)
+### Per-ticker Step 1 — Crawler (Bash, MAIN inline) — V1.5 DATE-FILTERED
 
 ```bash
 [{i}/{M}] Crawling {ticker} (cats: {cats}, dcp={dcp}%, dvp={dvp}%)
 ```
 
-MAIN executes per `.claude/agents/newsroom-pipeline.md` Step 1 instructions:
-- WebSearch (3-4 query) + WebFetch top 5-10 results
-- Build JSON candidates → `/tmp/crawler-input-{ticker}.json`
-- Run `lib/stages/run_crawler.py {ticker} --candidates-json ... --session-id $SESSION_ID --trigger-type tin-hot --trigger-args N=$N`
+⚠️ V1.5 PATCH — crawler MUST bias toward TODAY's news (last 24-48h):
+
+User triggered /tin-hot vì ticker hot **phiên nay**. News từ 3-5 ngày trước về
+cluster events cũ sẽ bị Story Editor reject `dup_event` nếu pipeline đã viết
+bài về cluster đó trong ngày gần đây. To produce a fresh article about
+TODAY's session, crawler MUST find URLs PUBLISHED IN LAST 24-48 HOURS.
+
+MAIN executes per `.claude/agents/newsroom-pipeline.md` Step 1 instructions
+PLUS V1.5 date filter:
+
+**WebSearch queries (3-4 queries) — V1.5 date-biased:**
+Today = `$(date +%-d/%-m/%Y)` (vd "12/5/2026")
+
+- Query 1: `{ticker} phiên {today_short}` (vd "NVL phiên 12/5")
+- Query 2: `{ticker} hôm nay {dcp_direction}` (direction = "tăng"/"giảm" theo dcp)
+- Query 3: `{ticker} {today_short} {category_keyword}` (volume_explosion → "khối lượng đột biến", price_decrement → "giảm sàn"/"bán tháo", etc.)
+- Query 4: `{ticker} catalyst tin nóng phiên {today_short}`
+
+**Tavily search filter (if using mcp__tavily__tavily_search):**
+```python
+mcp__tavily__tavily_search(
+    query="{ticker} phiên {today_short}",
+    time_range="day",   # V1.5 — restrict to last 24h
+    country="Vietnam",
+    max_results=10,
+)
+```
+
+**WebFetch filter:**
+- Reject URLs without explicit today's date marker (12/5 / 2026-05-12) OR clear "hôm nay"/"phiên này"
+- Prefer URLs published within last 24-48h
+- If <3 today-specific URLs found → fall back broader search BUT clearly mark which URLs are "today's session" vs "background context"
+
+**Crawler script call (V1.5 — add --hot-mode flag passthrough):**
+```bash
+uv run python lib/stages/run_crawler.py {ticker} \
+  --candidates-json /tmp/crawler-input-{ticker}.json \
+  --session-id $SESSION_ID \
+  --trigger-type tin-hot \
+  --trigger-args N=$N
+```
+
+(Note: candidates JSON itself encodes today's date preference via crawled_at /
+published_time fields. No script change needed — date filter happens at
+WebSearch + WebFetch layer above.)
+
 - Capture `funnel_batch_id` from output
+- Verify: ≥3 of N candidate rows have `published_time` within last 48h. If
+  fewer → log warning "low today's coverage, expect Story Editor to reject for
+  dup_event" — MAIN can choose to skip this ticker rather than waste pipeline tokens.
 
 ### Per-ticker Step 1.5 — Market Snapshot (Bash, MAIN inline)
 
