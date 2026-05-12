@@ -151,7 +151,9 @@ db.close()
 "
 ```
 
-IF all 3 same as current pick → set `variety_check.current_pick_diversity_warning: true` in log + add note `"Recent 3 articles all use {fmt} — consider alternative if data supports"` to `format_reason`. **Do NOT change pick** (data justifies pick is sticky).
+IF `len(formats) == 3` AND all 3 same as current pick → set `variety_check.current_pick_diversity_warning: true` in log + add note `"Recent 3 articles all use {fmt} — consider alternative if data supports"` to `format_reason`. **Do NOT change pick** (data justifies pick is sticky).
+
+⚠ Cold start: nếu ticker chưa có 3 article prior (`len(formats) < 3`), set `current_pick_diversity_warning: false` — không trigger warning.
 
 ## Format spec reference
 
