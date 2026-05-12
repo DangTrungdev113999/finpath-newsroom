@@ -2,10 +2,10 @@
 Routing logic cho Finpath Newsroom Editor (M2).
 
 4 chức năng:
-1. filter_universe — giữ ticker thuộc universe (M2: full 16 mã)
+1. filter_universe — giữ ticker thuộc universe (M2: full 71 mã)
 2. identify_primary_ticker — rule 4 bước
 3. worth_writing — simple heuristic check
-4. get_sector — lookup ticker → sector (Bank/CK/BĐS)
+4. get_sector — lookup ticker → sector (Bank/CK/BĐS/Oil-Gas)
 """
 
 from .ticker_detection import detect_tickers_with_position, count_ticker_mentions
@@ -30,8 +30,24 @@ CK_UNIVERSE = [
     # UPCOM (10)
     "DSC", "FTS", "CSI", "SBS", "PHS", "ART", "APS", "BMS", "AAS", "VTS",
 ]  # 30 mã
-BDS_UNIVERSE = ["VHM", "NVL", "KDH", "DXG"]  # 4 mã (unchanged)
-FULL_UNIVERSE = BANK_UNIVERSE + CK_UNIVERSE + BDS_UNIVERSE  # 61 mã
+BDS_UNIVERSE = ["VHM", "NVL", "KDH", "DXG"]  # 4 mã
+OIL_GAS_UNIVERSE = [
+    # Upstream + Midstream
+    "GAS",  # PV Gas — khí, độc quyền hạ tầng
+    "PVD",  # PV Drilling — khoan
+    "PVS",  # PTSC — dịch vụ kỹ thuật
+    "PVT",  # PV Trans — vận tải
+    # Downstream
+    "BSR",  # Bình Sơn Refinery — lọc dầu
+    "PLX",  # Petrolimex — phân phối xăng dầu
+    "OIL",  # PV Oil — phân phối
+    # Phân bón (nguyên liệu khí)
+    "DPM",  # Đạm Phú Mỹ
+    "DCM",  # Đạm Cà Mau
+    # Dịch vụ
+    "PVC",  # PV Coating — bọc ống
+]  # 10 mã
+FULL_UNIVERSE = BANK_UNIVERSE + CK_UNIVERSE + BDS_UNIVERSE + OIL_GAS_UNIVERSE  # 71 mã
 ALL_TICKERS = FULL_UNIVERSE  # alias
 
 # Reverse lookup ticker → sector
@@ -42,6 +58,8 @@ for t in CK_UNIVERSE:
     TICKER_TO_SECTOR[t] = "CK"
 for t in BDS_UNIVERSE:
     TICKER_TO_SECTOR[t] = "BĐS"
+for t in OIL_GAS_UNIVERSE:
+    TICKER_TO_SECTOR[t] = "Oil-Gas"
 
 
 def get_sector(ticker: str) -> str | None:

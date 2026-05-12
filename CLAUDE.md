@@ -4,7 +4,7 @@
 
 ## Identity & language
 
-- Project: **Finpath Newsroom** — viết bài tin chuyên sâu về cổ phiếu Việt (61 mã: 27 Bank + 30 CK + 4 BĐS).
+- Project: **Finpath Newsroom** — viết bài tin chuyên sâu về cổ phiếu Việt (71 mã: 27 Bank + 30 CK + 4 BĐS + 10 Oil-Gas).
 - **Default Vietnamese** cho mọi response user-facing. Jargon technical OK trong trao đổi spec/skill/code.
 - Tone: concise, action-oriented. KHÔNG emoji trừ khi user dùng trước.
 
@@ -26,6 +26,7 @@ data/manual/*.yaml               → Curated DB (targets, credit_room, nhnn_circ
 kb/bank/                         → Markdown KB Bank (27 mã: Big4 + tư nhân top/mid/small + cooperative)
 kb/ck/                           → Markdown KB CK (30 mã: HOSE 5 + HNX 15 + UPCOM 10)
 kb/bds/                          → Markdown KB BĐS (21 file, 7 category — residential/KCN/retail/office/resort/DC + framework chung)
+kb/oil-gas/                      → Markdown KB Oil-Gas (10 mã: upstream/midstream/downstream + phân bón)
 output/compare-feed/             → Markdown bài + manifest.json (1 file/bài)
 web/                             → Vite + React + Tailwind viewer
 ```
@@ -71,13 +72,15 @@ Story Editor pick 1-3 brief → Master generate 1 article per brief → 1 markdo
 
 3 briefs = 3 separate articles, each = 1 card on IndexPage.
 
-## Universe — 3 sector (61 mã)
+## Universe — 4 sector (71 mã)
 
 **Bank (27)**: HOSE 16 (VCB/CTG/BID/TCB/MBB/ACB/VPB/HDB/STB/SHB/EIB/TPB/MSB/LPB/OCB/VIB) + HNX 4 (NAB/BAB/NVB/SGB) + UPCOM 7 (VAB/BVB/ABB/KLB/VBB/PGB/HDF).
 
 **CK (30)**: HOSE 5 (SSI/VND/HCM/VCI/VIX) + HNX 15 (SHS/MBS/BVS/BSI/AGR/CTS/APG/EVS/IVS/PSI/TVS/WSS/ORS/VFS/TCI) + UPCOM 10 (DSC/FTS/CSI/SBS/PHS/ART/APS/BMS/AAS/VTS).
 
 **BĐS (4)**: VHM · NVL · KDH · DXG (KBC defer — KCN pattern khác).
+
+**Oil-Gas (10)**: GAS (PV Gas) · PVD (PV Drilling) · PVS (PTSC) · PVT (PV Trans) · BSR (Bình Sơn) · PLX (Petrolimex) · OIL (PV Oil) · DPM (Đạm Phú Mỹ) · DCM (Đạm Cà Mau) · PVC (PV Coating).
 
 **Total: 61 mã universe.** Source of truth: `.claude/skills/finpath-newsroom-editor/scripts/routing.py::FULL_UNIVERSE`.
 
