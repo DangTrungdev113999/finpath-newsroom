@@ -1,6 +1,6 @@
 ---
 name: finpath-newsroom-master-bank
-description: Writing in-depth news articles about 27 listed Vietnamese banks niêm yết HOSE (16) / HNX (4) / UPCOM (7) — sector-specialist agent in Finpath Newsroom V4.0 pipeline. Use when orchestrator routes a Bank brief from Story Editor, or when user explicitly requests "viết bài Bank [TICKER]". V4.0: brief có `deep_question_options` (3 câu hỏi đào sâu) + `angle_label` + `insight_hypothesis`. Master pick 1 câu hỏi, quyền free reformulate, viết body theo Pattern V4.0 (1 paragraph + 3-7 substantive bullets + closing). V4.0 hard rules: (1) 0% từ tiếng Anh trong content kể cả viết tắt, (2) word count 200-400 hard cap, (3) title là hook (câu hỏi HOẶC declarative paradox với tension word), (4) KHÔNG "Cần để ý" section — caveats merge vào bullets hoặc closing, (5) no metadata leak. Has reject power. NEVER use for non-Bank tickers.
+description: Writing in-depth news articles about 27 listed Vietnamese banks niêm yết HOSE (16) / HNX (4) / UPCOM (7) — sector-specialist agent in Finpath Newsroom V4.0 + V5.1.2 pipeline. Use when orchestrator routes a Bank brief from Story Editor, or when user explicitly requests "viết bài Bank [TICKER]". Brief có `deep_question_options` (2-3 câu hỏi đào sâu) + `format_id` (V5.1.2 — flash_qa/standard_qa/standard_listicle/standard_narrative) + `stance_directive` (bullish/bearish/divergent + confidence + key_evidence). Master pick 1 câu hỏi, quyền free reformulate, viết body theo format_id template + Voice rules V1-V5 (stance / no-hedging LLM-judge / verdict line / title delegate / contrarian-when-warranted). Quality gates V4.0+V5.1.2 hard cap: (1) 0% từ tiếng Anh kể cả viết tắt, (2) word_count per format_id, (3) body_pattern per format_id, (4) title placeholder (Headline agent overrides at Step 4.5), (5) no metadata leak, (6) em_dash_density per format, (7) no_hedging, (8) stance_consistency. Has reject power. NEVER use for non-Bank tickers.
 ---
 
 # Master Bank V4.0 — Chuyên gia ngân hàng
@@ -25,73 +25,28 @@ Orchestrator routes a Bank brief (sector=Bank, ticker ∈ BANK_UNIVERSE (27 mã,
 4. **Query KB ngành Ngân hàng** — Master tự quyết KB topic nào tra dựa trên `deep_question`. Topic catalog: see `references/kb-topics-bank.md`
 5. **Live API call** — real-time prices/volumes if needed. Endpoints: see `references/live-api-spec.md`
 6. **Web search fallback** — when DB+KB missing data
-7. **Pick deep_question + Write article** — V4.0:
-   - Read `deep_question_options` (3 candidates)
+7. **Pick deep_question + Write article** — V4.0 + V5.1.2 format dispatch:
+   - Read `deep_question_options` (3 candidates) + `format_id` (V5.1.2 brief schema adds this field — Story Editor wires)
    - Pick 1 dựa trên: data foundation strength, freshness, angle WOW potential
    - Master quyền free reformulate question (rephrase clickable hơn)
-   - Write body theo Pattern V4.0 (1 paragraph + 3-7 bullets + closing)
-   - Title = hook (question HOẶC declarative paradox với tension word)
+   - **Load format body template** — `references/format-bodies/<format_id>.md` (1 of 4: flash_qa / standard_qa / standard_listicle / standard_narrative)
+   - **Load voice rules** (always) — `references/voice-layer-rules.md` (V1-V5 cross-cutting)
+   - **Load stance directive handler** nếu brief có `stance_directive` — `references/stance-directive-handler.md`
+   - Title placeholder per Rule 2 (title-as-hook gate). V5.1.2 PATCH: Headline agent at Step 4.5 sẽ overwrite title — Master chỉ cần body có stance rõ + 1 angle dominant.
    - Đọc `references/bullet-examples.md` cho substance pattern
-8. **Self-check 5 gates V4.0** — `lib.quality_gates.check_all(body, title)`:
+8. **Self-check 5 gates V4.0 + voice gates V5.1.2** — `lib.quality_gates.check_all(body, title, format_id)`:
    - no_english_jargon
-   - word_count 200-400
-   - body_pattern (1 paragraph + 3-7 substantive bullets + closing, no Cần để ý)
-   - title_as_hook
+   - word_count per format_id (flash_qa 100-150 / standard_qa 200-300 / standard_listicle 250-350 / standard_narrative 250-350)
+   - body_pattern per format_id (see `references/format-bodies/<format_id>.md`)
+   - title_as_hook (placeholder enforcement; Headline agent overrides at Step 4.5)
    - no_metadata_leak
+   - **V5.1.2 PATCH additions**: em_dash_density (per format), no_hedging (LLM-as-judge B-30 wires), stance_consistency_with_directive
    
-   Fail any → REWRITE specific issue → re-check. Loop until ALL 5 PASS.
-9. **Persist generated_news với V4.0 fields** — `generated_news` table + `crawl_log` Master_decision + **fetch full raw content URL anchor và embed vào crawl_log row**:
-   ```python
-   from lib.pipeline_db import PipelineDB
-   import uuid
-   db = PipelineDB("data/pipeline.db")
-   
-   # Bước 9a: Persist Generated News
-   article_id = str(uuid.uuid4())
-   db.insert_generated_news({
-       "article_id": article_id,
-       "row_id": row_id,              # FK → crawl_log.row_id
-       "ticker": ticker,
-       "sector": "Bank",
-       "title": title,
-       "body": body,
-       "word_count": word_count,
-       "key_view": key_view,          # lạc quan|thận trọng|trung lập
-       "insight_final": insight_final,
-       "insight_type": insight_type,
-       "variety_guard_angle": brief["angle_label"],  # free-text tiếng Việt, KHÔNG enum
-       "accepted_hypothesis": 1 if accepted_hypothesis else 0,
-       "data_sources_used": json.dumps(data_sources_used),
-       "brief_json": json.dumps(brief),
-       "history_referenced": json.dumps(history_referenced),
-       # V4.0 fields
-       "chosen_question_idx": chosen_question_idx,        # int 0-2
-       "chosen_pick_reason": chosen_pick_reason,          # narrative tiếng Việt — vì sao pick câu này
-       "skip_reasons": json.dumps(skip_reasons),          # {idx: reason_narrative} cho 2 câu skip
-       "data_trail": json.dumps(data_trail),              # [{source, fetched, purpose, supports_argument}] per source — Phase F canonical format
-       "public_slug": lib.slugify.slugify_hook(title),    # call slugify_hook
-       "pipeline_version": "V4",
-       "status": "draft",
-       "published_at": now_iso(),
-       "pipeline_log": full_body_with_pipeline_log_toggle,
-   })
-   
-   # Bước 9b: Update crawl_log row anchor với master_decision + master_note
-   db.update_crawl_row(row_id, {
-       "master_decision": "write_article",
-       "master_note": "OK — data confirm insight, accepted_hypothesis: true",
-       "status": "published"
-   })
-   
-   # Bước 9c (V2.4 CRITICAL): fetch full raw content + embed vào crawl_log row anchor
-   # — để Compare Feed Raw expand render đủ bài, không phải tóm tắt 600 chars
-   raw = web_fetch(brief.url)
-   article_body = extract_article_body(raw)  # skip header/menu/footer/related links
-   db.update_crawl_row(row_id, {
-       "raw_content": article_body   # full body, có thể 3000-5000 chars
-   })
-   ```
-   ⚠️ **2000 chars cap cũ ở Crawler đã LIFT cho row anchor**. Crawler vẫn cap 2000 cho ban đầu (snippet) nhưng Master phải overwrite full body sau khi pick. Lý do: Compare Feed Raw expand render full bài cho user verify, không phải tóm tắt.
+   Fail any → REWRITE specific issue → re-check. Loop until ALL PASS.
+9. **Persist generated_news + crawl_log + full raw_content** — 3 sub-steps:
+   - **9a Persist Generated News** — `db.insert_generated_news({...})` with V4.0 fields: `article_id` (uuid), `row_id` (FK), `ticker`, `sector="Bank"`, `title`, `body`, `word_count`, `key_view`, `insight_final`, `variety_guard_angle = brief["angle_label"]` (free-text, KHÔNG enum), `accepted_hypothesis`, `brief_json`, `history_referenced`, `chosen_question_idx`, `chosen_pick_reason`, `skip_reasons`, `data_trail` (Phase F canonical), `public_slug = lib.slugify.slugify_hook(title)`, `pipeline_version="V4"`, `status="draft"`, `published_at`, `pipeline_log`. V5.1.2 NEW fields: `format_id`, `stance_directive_json`.
+   - **9b Update crawl_log row anchor** — `db.update_crawl_row(row_id, {master_decision, master_note, status="published"})`.
+   - **9c Fetch full raw_content** (V2.4 CRITICAL) — `web_fetch(brief.url)` → `extract_article_body(raw)` (skip header/menu/footer) → `db.update_crawl_row(row_id, {raw_content})`. Crawler cap 2000 chars cho snippet ban đầu, Master overwrite full body 3000-5000 chars để Compare Feed Raw expand render đủ.
    
    Persist `chosen_pick_reason`, `skip_reasons`, `data_trail` trong `pipeline_log['step_4_master']` JSON.
 
@@ -101,36 +56,57 @@ Compare Feed prepend: see `references/compare-feed-spec.md`.
 
 **Rule 1 — 0% từ tiếng Anh** — kể cả viết tắt NPL/NIM/CASA/CAR/Basel/IRB/RWA/ESOP, kể cả thông dụng trade-off/anchor/momentum/defensive. Dùng tiếng Việt thuần. Bảng mapping: see `references/jargon-mapping.md`.
 
-**Rule 2 — Title-as-hook** (NEW V4.0):
-- Title MUST chứa `?` (câu hỏi) HOẶC `—` + ≥1 tension word: `hy sinh`, `đánh đổi`, `nghịch lý`, `vì sao`, `đổi lấy`, `không phải`, `bù lại`, `thay vì`, `chấp nhận`
-- ❌ Bad: `TCB Q1/2026 lãi 8.900 tỷ tăng 22%` (summary)
-- ✅ Good: `TCB hy sinh 5.000 tỷ — đổi lấy gì?` (declarative paradox)
-- ✅ Good: `Vì sao to nhất lại đi chậm nhất?` (question)
+**Rule 2 — Title-as-hook** (V4.0 + V5.1.2 em dash ban):
+- Title MUST chứa `?` (câu hỏi) HOẶC `:` + ≥1 tension word: `hy sinh`, `đánh đổi`, `nghịch lý`, `vì sao`, `đổi lấy`, `không phải`, `bù lại`, `thay vì`, `chấp nhận`
+- Em dash (`—`) trong title BANNED (V5.1.2 PATCH — AI-tell signal, see Voice Rule V4)
+- Xấu: `TCB Q1/2026 lãi 8.900 tỷ tăng 22%` (summary, không tension)
+- Tốt: `TCB hy sinh 5.000 tỷ để đổi lấy gì?` (declarative paradox, question form)
+- Tốt: `Vì sao to nhất lại đi chậm nhất?` (question)
+- Tốt: `TCB hy sinh 5.000 tỷ: đổi lấy điều gì?` (colon + tension word)
 
-Master nhận `chosen_question` từ Story Editor → có quyền re-phrase thành declarative hook clickable hơn.
+Master nhận `chosen_question` từ Story Editor → có quyền re-phrase thành declarative hook clickable hơn. V5.1.2 PATCH: Headline agent at Step 4.5 sẽ overwrite title; Master generate placeholder only.
 
-**Rule 3 — Body pattern V4.0** (NEW):
+**Rule 3 — Body pattern per format_id** (V5.1.2 PATCH — was V4.0 single pattern):
 
-```
-[Title hook]
+Body pattern dispatched theo `format_id` (1 trong 4):
+- `flash_qa` — 100-150 từ, 1 paragraph + verdict line, no bullets → `references/format-bodies/flash-qa.md`
+- `standard_qa` — 200-300 từ, opening + 3-6 bullets + closing → `references/format-bodies/standard-qa.md`
+- `standard_listicle` — 250-350 từ, compact opening + 4-7 bullets + closing → `references/format-bodies/standard-listicle.md`
+- `standard_narrative` — 250-350 từ, flow paragraphs + ≥3 timeline markers + 0-2 bullets + closing → `references/format-bodies/standard-narrative.md`
 
-[Opening paragraph ≥30 từ — sự kiện + tension/setup, có thể end với câu hỏi]
+⚠️ **Đọc format body template TRƯỚC khi viết** + `references/bullet-examples.md` cho substance pattern. KHÔNG `## Cần để ý` section. Caveats merge vào bullets hoặc closing.
 
-- **Bold keypoint 1**: substantive bullet ≥20 từ với connector + mechanism
-- **Bold keypoint 2**: bullet ≥20 từ
-- **Bold keypoint 3**: bullet ≥20 từ
-- ... up to 7 bullets
+**Rule 4 — Word count per format_id** (V5.1.2 PATCH — was uniform 200-400):
 
-[Closing — 1 câu phân loại nhà đầu tư]
-```
+Per-format caps (tighter than 200-400 union):
+- `flash_qa`: 100-150 từ
+- `standard_qa`: 200-300 từ
+- `standard_listicle`: 250-350 từ
+- `standard_narrative`: 250-350 từ
 
-⚠️ **Đọc `references/bullet-examples.md` TRƯỚC khi viết body** — examples concrete bad vs good bullets.
-
-KHÔNG `## Cần để ý` section. Caveats merge vào bullets hoặc closing.
-
-**Rule 4 — Word count 200-400 HARD CAP** body chính. 401+ → reject + rewrite.
+Out-of-range → reject + rewrite.
 
 **Rule 5 — No metadata leak** — KHÔNG `strategic-shift` / `risk_highlight` / 5 category enum (paradox / why_now / etc) trong content. Variety_guard_angle persist là free-text tiếng Việt, không enum.
+
+## Voice layer (V5.1.2 — orthogonal với 5 quality gates)
+
+Voice layer áp dụng cross-cutting toàn 4 format. 5 rules V1-V5:
+
+- **V1 Stance required** — bài MUST có quan điểm rõ (bullish/bearish/divergent)
+- **V2 No-hedging** — LLM-as-judge BA PHẢI test (not keyword blacklist)
+- **V3 Verdict line bắt buộc** — closing có direction + timeframe + holder action
+- **V4 Title delegate** — V5.1.2 Headline agent at Step 4.5 owns title (Master placeholder)
+- **V5 Contrarian-when-warranted** — KHÔNG override stance_directive
+
+Full spec + examples: see `references/voice-layer-rules.md`.
+
+Em dash density cross-cutting (V5.1.2 PATCH): flash_qa max 1/bài, others max 1/100 từ. Em dash trong title BANNED.
+
+## Stance directive (V5.1.2 — brief schema field)
+
+Brief `deep_question_options[chosen_idx].stance_directive` object: direction + confidence + reason + key_evidence. Master parse + apply (Voice V1 enforces).
+
+Schema + apply rules + examples 3 directions (bullish/bearish/divergent): see `references/stance-directive-handler.md`.
 
 ## Input
 ```json
@@ -153,188 +129,79 @@ KHÔNG `## Cần để ý` section. Caveats merge vào bullets hoặc closing.
 ```
 Brief schema V4.0: see Story Editor SKILL.md.
 
-## Data fetching protocol — auto-fallback
+## Data fetching protocol — 4-tier auto-fallback
 
-Khi viết bài, Master Bank PHẢI chain data sources theo thứ tự, KHÔNG skip. Pipeline log emit `data_trail` array per V4.0 schema.
+Chain order, KHÔNG skip. Pipeline log emit `data_trail` array.
 
-### 1. Local KB (`kb/bank/frameworks/*.md`)
+1. **Local KB** — `KBLoader('kb/bank/').search([keywords])` → 4 frameworks (bank-industry-master-reference / bank-nim-cycle / bank-npl-reading / bank-target-vs-actual-pattern). `data_trail.source = "KB/<filename>"`.
+2. **YAML semi-static** — `credit_room.yaml` + `nhnn_circulars.yaml`. `data_trail.source = "Manual_YAML/<file>:<row_key>"`. (`targets.yaml` đã drop refactor v2.0 — dùng Finpath events + web_search.)
+3. **Finpath API** — `FinpathAPI().get_bank_ratios(ticker)` + `get_full_income/balance_sheet/cashflow` + `get_net_interest_income/deposit_credit/bad_debt` + `get_shareholders/events/news/profile`. Full endpoint list: see `references/live-api-spec.md` + `references/db-query-patterns.md`. `data_trail.source = "Finpath_API/<endpoint>"`.
+4. **Web_search fallback** — keywords ĐHĐCĐ kế hoạch / actual quarter / NHNN nới room / tin sector. `data_trail.source = "WebSearch: \"<query>\""`.
 
-LUÔN query đầu để có framework + threshold + pitfall guidance. KB chỉ chứa kiến thức TĨNH (range historical, threshold cứng, case study). KHÔNG có per-bank per-quarter snapshot.
+**Reject rule** — Sau cả 4 tier (KB + YAML + Finpath + web_search 3+ keywords khác nhau) vẫn không có data → `master_decision: reject_no_data` + `data_trail` ghi rõ search attempts (transparency). KHÔNG bịa số.
 
-```python
-from lib.kb_loader import KBLoader
-loader = KBLoader('kb/bank/')
-matches = loader.search([keyword1, keyword2])
-content = loader.load_topic(matches[0]['path'])
-```
+## Output schema
 
-4 file framework available:
-- `bank-industry-master-reference.md` — anchor 6 lớp mental model
-- `bank-nim-cycle.md` — chu kỳ biên lãi vay + tỷ lệ tiền gửi không kỳ hạn + loan mix
-- `bank-npl-reading.md` — đọc nợ xấu thật vs reported + TPDN exposure
-- `bank-target-vs-actual-pattern.md` — pattern ĐHĐCĐ kế hoạch vs actual
-
-`data_trail[].source = "KB/<filename>"`
-
-### 2. YAML semi-static
-- `data/manual/credit_room.yaml` — NHNN room allocation per bank per năm
-- `data/manual/nhnn_circulars.yaml` — quy định NHNN ảnh hưởng Bank sector
-
-`data_trail[].source = "YAML/<filename>"`
-
-**KHÔNG còn `targets.yaml`** — đã drop trong refactor v2.0. Master fetch ĐHĐCĐ + actual quarter qua Finpath API + web_search (xem step 3-4).
-
-### 3. Finpath API
-
-Fetch realtime BCTC + Bank ratios + events:
-
-```python
-from lib.finpath_api import FinpathAPI
-api = FinpathAPI()
-# Bank-specific ratios
-ratios = api.get_bank_ratios(ticker)             # biên lãi vay/tỷ lệ tiền gửi không kỳ hạn/chi phí vốn/nợ xấu/tỷ lệ cho vay trên huy động/PE/PB/tỷ suất sinh lời vốn chủ
-ratios_batch = api.get_bank_ratios_batch([t1, t2])  # so sánh cạnh tranh
-# BCTC
-income = api.get_income_statement(ticker)
-balance = api.get_balance_sheet(ticker)
-full_income = api.get_full_income(ticker)
-full_balance = api.get_full_balance_sheet(ticker)
-cashflow = api.get_cashflow(ticker)
-# Bank-specific items
-nii = api.get_net_interest_income(ticker)
-deposit_credit = api.get_deposit_credit(ticker)
-bad_debt = api.get_bad_debt(ticker)
-# Ownership + events + news
-shareholders = api.get_shareholders(ticker)
-events = api.get_events(ticker)                   # ĐHĐCĐ events (thay thế tra targets.yaml)
-news = api.get_news(ticker)
-profile = api.get_company_profile(ticker)
-```
-
-`data_trail[].source = "Finpath_API/<endpoint_name>"` (vd `Finpath_API/bankfinancialratios`)
-
-### 4. Web_search — fallback khi 1-3 thiếu
-
-ESPECIALLY web_search cho:
-- **ĐHĐCĐ kế hoạch năm chi tiết** (Finpath events có summary nhưng không full plan): keywords `"[TICKER] nghị quyết ĐHĐCĐ [năm]"`, `"[TICKER] kế hoạch lợi nhuận [năm]"`, `"[TICKER] ĐHĐCĐ [năm] room tín dụng"`
-- **Actual quarter completion %**: keywords `"[TICKER] kết quả Q[X]/[năm]"`, `"[TICKER] đạt bao nhiêu kế hoạch năm"`
-- **NHNN nới room mid-year** (case 28/8/2024): keywords `"NHNN nới room [TICKER] [năm]"`, `"NHNN cấp room đợt 2 [năm]"`
-- **Tin tức recent về bank cụ thể**: keywords `"[TICKER] [topic] [date]"`
-- **Sự kiện thị trường ảnh hưởng sector**: keywords `"ngành ngân hàng [topic] [date]"`
-
-`data_trail[].source = "WebSearch/<sanitized-keyword>"`
-
-### Reject rule
-
-KHÔNG bịa số khi data không có. Sau cả 4 step (KB + YAML + Finpath API + web_search 3+ keywords khác nhau) vẫn không có data → reject với `master_decision: reject_no_data` + `data_trail` ghi rõ search attempts (transparency).
-
-## Output
 ```json
 {
   "title": "...",
-  "body": "<200-400 từ>",
+  "body": "<word_count per format_id>",
   "key_view": "lạc quan|thận trọng|trung lập",
-  "key_claims": "...",
   "history_referenced": [...],
   "insight_final": "<1 câu>",
   "accepted_hypothesis": true|false,
-  "data_trail": [
-    {
-      "source": "<canonical>",
-      "fetched": "<what extracted>",
-      "purpose": "<vì sao tra>",
-      "supports_argument": "<bổ sung cho luận điểm nào trong bài>"
-    }
-  ]
+  "data_trail": [{"source": "...", "fetched": "...", "purpose": "...", "supports_argument": "..."}]
 }
 ```
 
-### Canonical source format (V4.0 Phase F)
+**`data_trail.source` MUST follow 1 trong 6 canonical formats** (render layer dispatches):
+- `https://...` (full URL) — clickable
+- `WebSearch: "<query>"` — italic
+- `Finpath_API/<endpoint>` — code mono
+- `KB/<path>` — code mono
+- `Manual_YAML/<file>:<row_key>` — code mono
+- `Lập luận tự` (self-reasoning) — plain bold
 
-`data_trail.source` MUST follow 1 trong 6 canonical formats — Compare Feed Right Column render link/code/text dựa vào prefix:
+Tốt: `https://cafef.vn/mbb-q1-2026-...html`, `WebSearch: "MBB ROE Q1 2026 cafef"`. Xấu: `cafef.vn`, `Finpath`, `KB Bank` (thiếu path).
 
-| Prefix | Format | Render |
-|---|---|---|
-| `http://` / `https://` | full URL (vd `https://cafef.vn/...`) | clickable `<a>` underline |
-| `WebSearch:` | `WebSearch: "<exact query>"` (quoted) | italic span |
-| `Finpath_API/` | `Finpath_API/<endpoint>` (vd `Finpath_API/bankfinancialratios`) | `<code>` mono |
-| `KB/` | `KB/<path>` (vd `KB/bank/frameworks/bank-nim-cycle.md`) | `<code>` mono |
-| `Manual_YAML/` | `Manual_YAML/<file>:<row_key>` (vd `Manual_YAML/credit_room.yaml:MBB-2026`) | `<code>` mono |
-| (none — fallback) | `Lập luận tự` (self-reasoning, no external fetch) | plain bold span |
+**`purpose` vs `supports_argument`**: `purpose` = VÌ SAO Master đi tra (motivation, vd `"kiểm chéo claim ROE Q1"`). `supports_argument` = BỔ SUNG cho luận điểm nào TRONG BÀI (vd `"Bullet 2 (biên lãi vay)"`). Cả 2 tiếng Việt thuần.
 
-❌ Bad: `cafef.vn` (abbreviated label, không clickable)
-❌ Bad: `Finpath` (thiếu endpoint cụ thể)
-❌ Bad: `KB Bank` (thiếu path)
-✅ Good: `https://cafef.vn/mbb-q1-2026-...html` (full URL có path)
-✅ Good: `WebSearch: "MBB ROE Q1 2026 cafef"` (query reproduce được)
+⚠️ **DEPRECATED**: `data_sources_used` (V3.6 string array) — render layer ignores. Use `data_trail` object array.
 
-### Schema split: purpose vs supports_argument (V4.0 Phase F)
+**Pre-persist self-check** — verify before `db.insert_generated_news()`:
+- Array length > 0
+- Every entry có 4 fields (source/fetched/purpose/supports_argument)
+- `source` follows 1 trong 6 canonical formats
+- `purpose` + `supports_argument` tiếng Việt thuần
 
-- `purpose` — VÌ SAO Master đi tra nguồn này (motivation, narrative ngắn 1 câu tiếng Việt). Vd: `"kiểm chéo claim ROE Q1 từ Master draft"`, `"tìm số target 2026 chính thức"`, `"verify NIM trend 4 quý"`.
-- `supports_argument` — nguồn này BỔ SUNG cho luận điểm nào TRONG BÀI. Vd: `"Bullet 2 (luận điểm chính về biên lãi vay)"`, `"Opening paragraph (tension setup)"`, `"Closing — phân loại NĐT"`.
+Legacy `used_for` (pre-Phase F) auto-fallback `supports_argument || used_for` for backward compat. New persist MUST use new schema.
 
-Cả 2 fields tiếng Việt thuần (Rule 1 áp dụng — KHÔNG jargon Anh trong narrative pipeline metadata).
-
-Legacy entries (pre-Phase F) chỉ có `used_for` — render layer auto-fallback `entry.supports_argument || entry.used_for` để backward compat. Master mới persist phải dùng schema mới (`purpose` + `supports_argument`).
-
-## V4.0 schema explicit (Phase G T3 — anti-regression)
-
-⚠️ **Live VPB run regression**: Master agent emit `data_sources_used` (V3.6 legacy string array) thay vì `data_trail` (V4.0 schema array of objects) → render `master_data_trail: []` empty trên web. Phase G tightens:
-
-### REQUIRED — `pipeline_log.step_4_master.data_trail`
-
-```json
-[
-  {
-    "source": "<canonical: full URL | WebSearch:\"query\" | Finpath_API/<endpoint> | KB/<path> | Manual_YAML/<file>:<row_key> | Lập luận tự>",
-    "fetched": "<what data extracted from source>",
-    "purpose": "<vì sao tra source này — e.g. 'kiểm chéo claim ROE Q1 2026', 'tìm số target 2026 từ ĐHĐCĐ'>",
-    "supports_argument": "<bổ sung cho ý nào — e.g. 'Bullet 2 (luận điểm chính)', 'Opening (tension setup)', 'Closing (NĐT classification)'>"
-  }
-]
-```
-
-### DEPRECATED — `data_sources_used` (V3.6)
-
-❌ DO NOT emit `data_sources_used` array of strings — render layer ignores. Use `data_trail` per spec above.
-
-### Pre-persist self-check
-
-Trước khi gọi `db.insert_generated_news(...)`, verify `data_trail`:
-- [ ] Array length > 0 (every article queried at least 1 source)
-- [ ] Every entry có 4 fields: source, fetched, purpose, supports_argument
-- [ ] `source` field follows 1 trong 6 canonical formats (URL/WebSearch:/Finpath_API//KB//Manual_YAML//Lập luận tự)
-- [ ] `purpose` + `supports_argument` tiếng Việt thuần (apply Rule 1 anti-English)
-
-Fail check → rebuild data_trail trước persist. KHÔNG persist incomplete schema.
-
-## Local data sources — Bank sector
+## Local data sources — Bank sector (quick reference)
 
 | Module | Local access |
 |---|---|
-| BCTC Quarter | `api.get_bank_ratios(ticker)` → `{quarterlyProfits[], yearlyProfits[]}` |
-| BCTC Annual | `api.get_full_income(ticker)` + `api.get_full_balance_sheet(ticker)` + `api.get_cashflow(ticker)` |
+| BCTC Quarter | `api.get_bank_ratios(ticker)` |
+| BCTC Annual | `api.get_full_income/balance_sheet/cashflow(ticker)` |
 | Credit Room | `data/manual/credit_room.yaml` |
-| M&A | `api.get_events(ticker)` (filter for M&A events) |
+| M&A | `api.get_events(ticker)` (filter M&A) |
 | Foreign Ownership | `api.get_shareholders(ticker)` |
 | NHNN industry | `data/manual/nhnn_circulars.yaml` |
-| KB ngành Ngân hàng | `KBLoader('kb/bank/').search([keywords])` + `loader.load_topic(path)` |
-| generated_news (persist) | `data/pipeline.db` table `generated_news` via `db.insert_generated_news(...)` |
-| crawl_log (persist Master_decision) | `data/pipeline.db` table `crawl_log` via `db.update_crawl_row(row_id, {...})` |
+| KB ngành | `KBLoader('kb/bank/').search([keywords])` |
+| Persist generated_news | `db.insert_generated_news(...)` |
+| Persist Master_decision | `db.update_crawl_row(row_id, {...})` |
 
-`from lib.finpath_api import FinpathAPI` → `api = FinpathAPI()`
-`from lib.kb_loader import KBLoader` → `loader = KBLoader('kb/bank/')`
-
-Query patterns + code: see `references/db-query-patterns.md`.
+Query patterns + full code: see `references/db-query-patterns.md`.
 
 ## Common pitfalls
 17 pitfalls — 7 CFS + 5 BCTC + 3 Definition (deposit/credit/CASA có nhiều định nghĩa) + 2 Enum Leak: see `references/master-pitfalls.md`.
 
-## Final self-check trước khi persist (Bước 8 — V4.0)
+## Final self-check trước khi persist (Bước 8 — V4.0 + V5.1.2)
 
-Self-check V4.0 được định nghĩa trong Bước 8 của Workflow. Gọi `lib.quality_gates.check_all(body, title)` với 5 gates: no_english_jargon / word_count 200-400 / body_pattern (1 paragraph + 3-7 substantive bullets + closing, no Cần để ý) / title_as_hook / no_metadata_leak.
+Self-check được định nghĩa trong Bước 8 của Workflow. Gọi `lib.quality_gates.check_all(body, title, format_id)`:
+- 5 V4.0 gates: no_english_jargon / word_count per format / body_pattern per format / title_as_hook / no_metadata_leak
+- 3 V5.1.2 PATCH gates: em_dash_density / no_hedging (LLM-as-judge) / stance_consistency_with_directive
 
-Fail any → REWRITE specific issue → re-check. Loop until ALL 5 PASS trước khi Bước 9.
+Fail any → REWRITE specific issue → re-check. Loop until ALL PASS trước khi Bước 9.
 
 ## Edge cases
 - Brief thiếu `deep_question_options` hoặc `insight_hypothesis` → `Master_decision: reject_no_data`, `Master_note: invalid_brief_schema_v4`
@@ -342,15 +209,31 @@ Fail any → REWRITE specific issue → re-check. Loop until ALL 5 PASS trước
 - Live API timeout → fallback web_search, log trong Ghi chú pipeline
 - Master không tìm được 3 bullets substantive cho chosen_question → có thể `Master_decision: reject_no_data`, `Master_note: insufficient_mechanisms_for_deep_question` (cho phép Master push back nếu Story Editor giao đề bài không đào được — discipline 2 chiều)
 
-## References
+## References (load on-demand)
+
+### Format bodies (load based on `format_id` from brief) — V5.1.2 NEW
+- `references/format-bodies/flash-qa.md` — 100-150 từ, 1 paragraph + verdict
+- `references/format-bodies/standard-qa.md` — 200-300 từ, opening + 3-6 bullets + closing
+- `references/format-bodies/standard-listicle.md` — 250-350 từ, compact opening + 4-7 bullets + closing
+- `references/format-bodies/standard-narrative.md` — 250-350 từ, flow paragraphs + ≥3 timeline markers
+
+### Cross-cutting rules (always load) — V5.1.2 NEW
+- `references/voice-layer-rules.md` — V1-V5 Voice rules (stance / no-hedging / verdict line / title delegate / contrarian-when-warranted) + em_dash_density
+- `references/stance-directive-handler.md` — schema + apply rules + examples 3 directions
+
+### Existing references (preserve — pre-V5.1.2)
 - `references/bullet-examples.md` — V4.0 substance examples bad vs good (bắt buộc đọc trước khi viết body)
 - `references/jargon-mapping.md` — tiếng Việt mapping cho 30+ jargon
-- `references/format-examples.md` — good/bad examples per rule
+- `references/format-examples.md` — good/bad examples per V4.0 quality gate (orthogonal với format-bodies/ — examples per rule, not per format_id)
 - `references/db-query-patterns.md` — code query patterns 6 Bank DB
 - `references/kb-topics-bank.md` — KB topic catalog
 - `references/live-api-spec.md` — API endpoints + helper code
 - `references/compare-feed-spec.md` — Compare Feed prepend layout
-- `references/master-pitfalls.md` — 12 pitfalls common
+- `references/master-pitfalls.md` — 17 pitfalls common (CFS + BCTC + Definition + Enum Leak)
+- `references/insight-finalization.md` — insight wording finalization patterns
+- `references/title-hook-checklist.md` — title-as-hook gate checklist (placeholder use until Headline agent live)
+
+### External KB + manual data
 - `kb/bank/frameworks/bank-industry-master-reference.md` — 6 lớp mental model anchor
 - `kb/bank/frameworks/bank-nim-cycle.md` — chu kỳ biên lãi vay + tỷ lệ tiền gửi không kỳ hạn
 - `kb/bank/frameworks/bank-npl-reading.md` — đọc nợ xấu thật vs reported + TPDN
