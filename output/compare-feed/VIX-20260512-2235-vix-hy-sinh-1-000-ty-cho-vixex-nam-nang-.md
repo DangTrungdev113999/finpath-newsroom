@@ -1,5 +1,5 @@
 ---
-title: VIX hy sinh 1.000 tỷ cho VIXEX năm nâng hạng
+title: VIX đặt cược 1.000 tỷ vào VIXEX năm nâng hạng?
 ticker: VIX
 sector: CK
 sector_icon: 📈
