@@ -20,14 +20,18 @@ User: /tin-hot 4
 Pipeline:
   1. Call Finpath API /api/stocks/v2/overview
   2. Apply default filters: marketCap top 100, avgDay5Value ≥ 10 tỷ, secType=S, price > 0
-  3. Compute 4 lists per stockDataUtils.ts logic
-  4. Top 4 from each list → 16 ticker candidates
-  5. Intersect with FULL_UNIVERSE (61 mã Bank/CK/BĐS)
-  6. Dedup overlap
-  7. Report: "Found {X} unique mã trong universe — dispatching pipeline cho từng mã"
-  8. Dispatch existing /tin pipeline V5.1 per ticker (sequential, NOT parallel)
+  3. INTERSECT FULL_UNIVERSE (61 mã Bank/CK/BĐS) — narrow to universe BEFORE compute top N
+  4. Compute 4 lists per stockDataUtils.ts logic — top N from universe-only
+  5. Dedup overlap (mã ở nhiều bên)
+  6. Report: "Found {X} unique mã từ top {N} mỗi bên — dispatching pipeline cho từng mã"
+  7. Dispatch existing /tin pipeline V5.1 per ticker (sequential, NOT parallel)
+  8. Per-ticker progress emission (advisor-suggested UX)
   9. Final summary: N bài generated, link to feed viewer
 ```
+
+**Advisor blocker resolved**: Intersect đặt TRƯỚC compute top N (was AFTER). Lý do: nếu intersect SAU, top 4 globally toàn mã ngoài universe (vd FOX/GEX/NLG/BSR) → `/tin-hot 4` trả 0-1 mã từ "Tăng giá". Chuyển intersect lên trước → `/tin-hot N` reliably trả N mã từ mỗi bên trong universe (~10-15 mã universe thường nằm trong top 100 marketCap, đủ fill 4-10 per category).
+
+Command nghĩa rõ: **"top N movers OF Newsroom 61 universe per category"** — không phải top globally rồi filter.
 
 ## 3. Out of scope (defer)
 
@@ -71,17 +75,19 @@ Pipeline:
 
 ### `/tin-hot N`
 
-- `N` (optional, default 4, max 10) — số top từ mỗi bên
+- `N` (optional, default 4, max 10) — số top từ mỗi bên (universe-only)
 - Hoặc `/tin-hot` (không arg) — default N=4
 
-### Examples
+### Examples (yield reliable sau khi intersect TRƯỚC compute)
 
 ```
-/tin-hot              → N=4, 16 candidates, ~3-5 unique trong universe
+/tin-hot              → N=4, 16 candidates universe-only, ~8-14 unique (sau dedup)
 /tin-hot 4            → same as above
-/tin-hot 10           → N=10, 40 candidates, ~10-15 unique
+/tin-hot 10           → N=10, 40 candidates, ~20-30 unique
 /tin-hot 20           → ERROR: N must be 1-10
 ```
+
+Yield realistic vì có 61 mã universe / 4 lists → universe-coverage thường 10-15 mã có dayChangePercent ≠ 0 → fill top N dễ.
 
 ### Pre-flight output (BEFORE dispatch)
 
@@ -164,7 +170,13 @@ def top_volume_explosion(stocks: list[dict]) -> list[dict]:
     return sorted(filtered, key=lambda s: -s["dayVolPercent"])
 
 def top_depleted_supply(stocks: list[dict]) -> list[dict]:
-    """Filter dayVolPercent >= 0, sort asc (lowest volume % first)."""
+    """Filter dayVolPercent >= 0, sort asc (lowest volume % first).
+
+    ⚠️ Note (advisor): Source `stockDataUtils.ts:83` uses `dayVolPercent >= 0`
+    (not `<= 0`) — replicates Finpath logic verbatim. Tức là "cổ phiếu có
+    volume_change DƯƠNG nhỏ nhất" thay vì "volume cạn cung thực sự âm".
+    Em không sửa logic — replicate source-of-truth.
+    """
     filtered = [s for s in stocks if s.get("dayVolPercent", 0) >= 0]
     return sorted(filtered, key=lambda s: s["dayVolPercent"])
 ```
@@ -173,18 +185,38 @@ def top_depleted_supply(stocks: list[dict]) -> list[dict]:
 
 ### 7.1 `lib/finpath_top_movers.py` (NEW)
 
-```python
-"""Hot Ticker fetcher — calls Finpath public API + computes 4 top lists.
+**Advisor concern 2 resolution**: Existing `lib/finpath_api.py:FinpathAPI` class wraps Finpath public API với caching + timeout. Em chọn EXTEND `FinpathAPI.get_overview()` method (consistency với existing pattern) + thêm compute logic riêng trong `finpath_top_movers.py`.
 
-Source: /Users/trungdt/Desktop/finpath-web/src/Modules/stock-real-time/utils/stockDataUtils.ts
-Default filters from: /Users/trungdt/Desktop/finpath-web/src/Modules/top-stocks/constants/index.ts
+```python
+# lib/finpath_api.py — ADD method to existing FinpathAPI class
+class FinpathAPI:
+    # ... existing methods ...
+
+    def get_overview(self) -> dict:
+        """V5.1: full HOSE stock overview for top-movers compute.
+
+        Returns: {"stocks": [{c, dcp, dvp, mc, a5v, p, st, ...}, ...]} (raw API shape).
+        Uses inherited _get() caching + raise_for_status + timeout.
+        """
+        return self._get("/api/stocks/v2/overview")
+```
+
+```python
+# lib/finpath_top_movers.py — standalone compute module
+"""Hot Ticker compute — uses FinpathAPI.get_overview() for fetch, applies
+compute logic mirroring finpath-web stockDataUtils.ts.
+
+Source-of-truth for 4 compute functions:
+  /Users/trungdt/Desktop/finpath-web/src/Modules/stock-real-time/utils/stockDataUtils.ts
+Default filters:
+  /Users/trungdt/Desktop/finpath-web/src/Modules/top-stocks/constants/index.ts
 """
 from __future__ import annotations
-import requests
 from dataclasses import dataclass, asdict
 from typing import Any
 
-FINPATH_OVERVIEW_URL = "https://api.finpath.vn/api/stocks/v2/overview"
+from lib.finpath_api import FinpathAPI
+
 LIQUIDITY_THRESHOLD_BILLION = 10  # 10 tỷ VND (DEFAULT_FILTERS.liquidity)
 MARKET_CAP_TOP = 100  # DEFAULT_FILTERS.marketCap
 
@@ -210,12 +242,13 @@ class HotTicker:
         return asdict(self)
 
 
-def fetch_stocks_overview() -> list[dict]:
-    """Call Finpath public API. Returns normalized list. Raises on network error."""
-    r = requests.get(FINPATH_OVERVIEW_URL, timeout=15)
-    r.raise_for_status()
-    body = r.json()
-    raw_stocks = body.get("data", {}).get("stocks", [])
+def fetch_stocks_overview(api: FinpathAPI | None = None) -> list[dict]:
+    """Use FinpathAPI.get_overview() then normalize fields. Reuses existing
+    caching + timeout + error handling. Raises on network/parse error.
+    """
+    api = api or FinpathAPI()
+    raw = api.get_overview()
+    raw_stocks = raw.get("stocks", []) if isinstance(raw, dict) else []
     return [_normalize(s) for s in raw_stocks]
 
 
@@ -332,13 +365,17 @@ from lib.stages.run_crawler import FULL_UNIVERSE
 N = <N from user arg>
 stocks = fetch_stocks_overview()
 filtered = apply_default_filters(stocks)
-lists = compute_top_lists(filtered, N)
-intersected = intersect_universe(lists, FULL_UNIVERSE)
-deduped = dedup_tickers(intersected)
+
+# V5.1 FIX: intersect TRƯỚC compute (advisor blocker resolved).
+# Filter universe-only → compute top N per category trên universe-restricted set.
+universe_stocks = [s for s in filtered if s.get('code') in FULL_UNIVERSE]
+lists = compute_top_lists(universe_stocks, N)
+deduped = dedup_tickers(lists)
+
 output = {
-    'all_lists_pre_intersect': {cat: [t.to_dict() for t in items] for cat, items in lists.items()},
-    'lists_in_universe': {cat: [t.to_dict() for t in items] for cat, items in intersected.items()},
+    'lists_in_universe': {cat: [t.to_dict() for t in items] for cat, items in lists.items()},
     'unique_tickers': [{'ticker': t, 'categories': cats} for t, cats in deduped],
+    'total_universe_in_top100': len(universe_stocks),
 }
 print(json.dumps(output, ensure_ascii=False, indent=2))
 " > /tmp/tin-hot-result.json
@@ -375,16 +412,31 @@ Top cạn cung KL: <similar>
 → {M} mã unique sẽ dispatch pipeline V5.1.
 ```
 
-## Step 3 — Dispatch pipeline per ticker (sequential)
+## Step 3 — Dispatch pipeline per ticker (sequential + progress emission)
 
-For each `unique_ticker`:
+For each `unique_ticker` in `deduped`, emit progress BEFORE dispatch + AFTER each completes:
+
+```
+[1/4] Dispatching /tin DXG... (categories: price_increment + volume_explosion)
+  → ✅ done in 2m18s, 2 articles generated
+[2/4] Dispatching /tin TCB... (categories: price_increment)
+  → ✅ done in 3m42s, 3 articles generated
+[3/4] Dispatching /tin VND... (categories: volume_explosion)
+  → ⚠️ failed: Master gates 0 briefs accepted
+[4/4] Dispatching /tin EIB... (categories: depleted_supply)
+  → ✅ done in 2m51s, 1 article generated
+```
+
+Dispatch via Task tool (sequential, NOT parallel — DB write safety):
 
 ```
 Task: newsroom-pipeline
 prompt: <TICKER>
 ```
 
-Wait for completion (sequential, KHÔNG parallel). Collect article counts.
+Wait for completion. Parse return → count articles + duration. Emit per-ticker status line.
+
+**Why progress emission (advisor UX fix)**: `/tin-hot 10` worst case = 10 × ~3-5 min = 30-50 min blocking. Without progress emission, user watches frozen prompt. Per-ticker line gives heartbeat — user knows pipeline is running, not stuck.
 
 ## Step 4 — Final summary
 
@@ -536,6 +588,10 @@ if recent and _within_60_min(recent[0]["published_at"]):
 
 → Tránh dispatch double-write nếu user run `/tin-hot` 2 lần gần nhau.
 
+**Advisor edge case note**: `recent_generated_news` queries `generated_news WHERE status='published'`. Nếu pipeline V5.1 chạy nhưng Story Editor uncapped picks 0 briefs → KHÔNG persist row vào `generated_news` → `recent` empty → idempotency check pass → re-dispatch allowed. Đây là behavior MONG MUỐN (0-article runs không block retries). Em verified qua `lib/pipeline_db.py:recent_generated_news`.
+
+Nếu sau này thay đổi pipeline để persist row "0-article run marker" → idempotency window sẽ block re-dispatch sai logic. Hiện tại safe.
+
 ### Failure handling
 
 Pipeline V5.1 fail (vd Master gates reject) → log error vào `/tmp/tin-hot-errors.json` + continue next ticker. KHÔNG halt batch.
@@ -628,3 +684,4 @@ Estimated: ~2-3 days. Smallest subsystem.
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-05-12 | Initial draft. `/tin-hot N` command (default 4, max 10). 4 lists from Finpath public API (`/api/stocks/v2/overview`) → default filters (top 100 marketCap, ≥10 tỷ liquidity, secType S, price > 0) → top N per category → intersect FULL_UNIVERSE → dedup → sequential dispatch pipeline V5.1 per ticker. Idempotency 60-min window. No conflicts with Spec B/C. |
+| 1.1 | 2026-05-12 | Advisor review patches: §2 + §7.2 intersect ORDER reversed (intersect TRƯỚC compute top N — fixes yield 0-1 to reliable 4-10 per category); §7.1 FinpathAPI.get_overview() method instead of standalone requests.get (consistency); §7.2 Step 3 per-ticker progress emission (UX fix for long runs); §6 depleted_supply note explaining replicate-source-of-truth; §8 idempotency edge case verified for 0-article runs. |
