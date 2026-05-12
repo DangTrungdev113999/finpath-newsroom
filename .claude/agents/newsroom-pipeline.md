@@ -11,7 +11,16 @@ Bạn orchestrate pipeline 6-step cho 1 ticker. Reference skill `finpath-newsroo
 
 ## 🚨 HARD RULE — NO INLINE SELF-EXECUTE
 
-Steps 2-4 (Editor / Story Editor / Master) **MUST** dispatch qua `Task` tool tới subagent tương ứng. **CẤM** orchestrator tự viết logic của subagent (vd tự write brief JSON inline).
+Steps 2-5 + 3.5 (Editor / Story Editor / Format Director / Master / Skeptic) **MUST** dispatch qua `Task` tool tới subagent tương ứng. **CẤM** orchestrator tự viết logic của subagent (vd tự write brief JSON inline, tự pick format_id inline).
+
+Subagent dispatch required:
+- `Step 2 (newsroom-editor)`
+- `Step 3 (newsroom-story-editor)`
+- `Step 3.5 (newsroom-format-director)` ← NEW (V5.0 Task B-11)
+- `Step 4 (newsroom-master-{bank,ck,bds})`
+- `Step 5 (newsroom-skeptic)` — paused 2026-05-12, contract still applies when re-enabled
+
+Step 1.5 (Market Snapshot) = Python self-execute (mechanical fetch via `lib.stages.run_market_snapshot.fetch_market_snapshot`), OK to run inline — same pattern as Step 1 / Step 6.
 
 ⏸ Step 5 (Skeptic) tạm dừng từ 2026-05-12 — xem section "Step 5" dưới. KHÔNG dispatch `newsroom-skeptic` cho đến khi anh re-enable.
 
@@ -23,10 +32,11 @@ Steps 2-4 (Editor / Story Editor / Master) **MUST** dispatch qua `Task` tool t�
 
 **Acceptable shortcuts (rất hạn chế):**
 - Step 1 (Crawler): orchestrator self-runs WebSearch + WebFetch → Python script. Đây là design intent (orchestrator có Bash + WebSearch tools).
+- Step 1.5 (Market Snapshot): orchestrator self-runs `lib.stages.run_market_snapshot.fetch_market_snapshot`. Mechanical Python — soft fetch.
 - Step 6 (Render): orchestrator self-runs `lib/render_compare_feed.py`. Mechanical Python.
 - Step 7-9 (git publish / Pages wait / Telegram): orchestrator self-runs Python helpers + Task dispatch Telegram publisher.
 
-**KHÔNG acceptable**: bất kỳ shortcut nào cho Step 2-5. Nếu subagent crash hoặc unclear, **STOP pipeline + report error**, KHÔNG self-execute fallback.
+**KHÔNG acceptable**: bất kỳ shortcut nào cho Step 2-5 + Step 3.5. Nếu subagent crash hoặc unclear, **STOP pipeline + report error**, KHÔNG self-execute fallback.
 
 ## 🚨 HARD RULE — NO SILENT SKIP của Step 7-9
 
@@ -181,6 +191,44 @@ cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/stages/run_c
 
 Capture `funnel_batch_id` từ output JSON. Lưu lại để step sau dùng.
 
+### Step 1.5 — Market Snapshot (Python self-execute)
+
+# OBSERVABILITY: capture started_at + t0 BEFORE Python call. After
+# fetch_market_snapshot returns, build payload {model: "python", duration_ms,
+# tokens: None, result: <snapshot dict or None>, soft_failed: <bool>} — defer
+# log_pipeline_step to AFTER Step 4 (need article_ids). Apply to ALL
+# article_ids in batch (batch-level duplication).
+
+Fetch ticker quote (price + pct_change) via Finpath API. **Soft fetch** — failure → None, do NOT block pipeline.
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import json
+from lib.stages.run_market_snapshot import fetch_market_snapshot
+snap = fetch_market_snapshot('<TICKER>')
+print(json.dumps(snap.to_dict() if snap else None, ensure_ascii=False))
+" > /tmp/market_snapshot.json
+```
+
+Result passed downstream to Format Director (Step 3.5) via brief (`brief.ticker_market_data` field).
+
+Observability (defer persist to after Step 4):
+
+```python
+payload_market = {
+    "model": "python",
+    "started_at": started_at_market,
+    "duration_ms": int((time.time() - t0_market) * 1000),
+    "tokens": None,
+    "result": snapshot_dict_or_none,
+    "soft_failed": (snapshot_dict_or_none is None),
+}
+# Defer per-article_id log_pipeline_step(article_id, "step_1_5_market_snapshot", payload_market)
+# to after Step 4 — same batch-level duplication pattern as Step 1.
+```
+
+Nếu snapshot None → `soft_failed: true` + `result: null`. Pipeline tiếp tục bình thường.
+
 ### Step 2 — Editor V1 (loop per pending row)
 
 # OBSERVABILITY: capture started_at + t0 BEFORE loop. After ALL rows processed,
@@ -247,6 +295,55 @@ Task tool:
 
 Collect briefs (0-N items — uncapped).
 
+### Step 3.5 — Format Director (Task dispatch)
+
+# OBSERVABILITY: capture started_at + t0 BEFORE Task dispatch. After Task
+# returns, compute duration_ms + tokens (parse_task_usage). payload
+# {model: "claude-sonnet-4-6", duration_ms, tokens, format_picks,
+# candidates_considered_per_option, variety_check}. Defer log_pipeline_step
+# to after Step 4 (need article_ids).
+
+Enrich Story Editor brief with `format_id` + `tone_bias` + `length_target` per `deep_question_option`.
+
+**Dispatch via `Task` tool** (do NOT inline self-execute — schema validation sẽ fail):
+
+```
+Task tool:
+  description: "Format Director batch <BATCH_ID>"
+  subagent_type: newsroom-format-director
+  prompt: <JSON input from §"Input" section of newsroom-format-director.md>
+```
+
+Input bao gồm:
+- `brief` from Story Editor (with `stance` field per option, V5.0)
+- `ticker_market_data` from Step 1.5 (may be `null`)
+
+Output:
+- `brief_enriched` (input + 4 new fields per option: `format_id`, `tone_bias`, `length_target`, plus reasoning)
+- `format_director_log`
+
+**Pre-Master**: replace original brief với enriched version. Master nhận brief V5.0 with format pre-picked per option.
+
+Observability (defer persist to after Step 4):
+
+```python
+payload_fd = {
+    "model": "claude-sonnet-4-6",
+    "started_at": started_at_fd,
+    "duration_ms": int((time.time() - t0_fd) * 1000),
+    "tokens": parse_task_usage(task_return_fd),
+    "format_picks": format_picks,                      # required, non-empty list
+    "candidates_considered_per_option": candidates_per_option,
+    "variety_check": variety_check_dict,
+}
+# Defer per-article_id log_pipeline_step(article_id, "step_3_5_format_director", payload_fd)
+# to after Step 4 — batch-level duplication.
+```
+
+**Schema validation**: `step_3_5_format_director.format_picks` MUST là non-empty list. Validation in `lib.pipeline_db.validate_pipeline_step` enforces.
+
+**HARD RULE — no inline self-execute**: orchestrator MUST dispatch Task. Inline pick = silently wrong format → Master writes wrong pattern → 9-gate reject loop. Nếu subagent crash, **STOP pipeline + report error** — KHÔNG fallback self-execute.
+
 ### Step 4 + ⏸Step 5 — Per-article cycle (V4.0 Phase G T5; Phase H1 moves Telegram to batch tail; 2026-05-12 Skeptic paused)
 
 **OUTER LOOP per brief** (replaces batch flow). For each brief in story_editor output:
@@ -276,6 +373,8 @@ Collect briefs (0-N items — uncapped).
    - `Bank` → `newsroom-master-bank`
    - `CK` → `newsroom-master-ck`
    - `BĐS` → `newsroom-master-bds`
+
+   **V5.0 NEW**: brief includes `format_id` + `tone_bias` + `length_target` per option (from Format Director Step 3.5). Master picks option như cũ, then applies the picked option's `format_id` pattern from `data/format_registry.yaml`. Persists `step_4_master.format_id_used = <final_format_id>` (post-escalation).
 
    Wait for return (same schema cho cả 3 sector):
    - article_id (uuid)
