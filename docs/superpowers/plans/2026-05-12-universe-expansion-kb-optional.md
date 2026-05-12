@@ -1053,6 +1053,214 @@ git commit -m "feat(editor): V5.1.3 Finpath sectors-driven routing + crawl_log f
 
 ---
 
+### Task 5.5 (PATCH critical gap 3): Extend COMPANY_NAME_TO_TICKER cho 78 ticker mới
+
+**Files:**
+- Modify: `.claude/skills/finpath-newsroom-editor/scripts/routing.py` — extend COMPANY_NAME_TO_TICKER dict
+- Test: `tests/test_company_name_mapping_v5_1_3.py`
+
+**Rationale**: Universe expand 61 → 139. 78 ticker mới (HPG, FPT, MWG, VNM, etc.) chưa có Vietnamese alias trong COMPANY_NAME_TO_TICKER. Editor V1 detect_ticker fail nếu title chứa tên company thay vì ticker code.
+
+- [ ] **Step 1: Write failing tests**
+
+Create `tests/test_company_name_mapping_v5_1_3.py`:
+
+```python
+"""Test COMPANY_NAME_TO_TICKER covers 78 V5.1.3 new tickers."""
+import pytest
+from importlib import import_module
+
+routing = import_module(".claude.skills.finpath-newsroom-editor.scripts.routing")
+MAPPING = routing.COMPANY_NAME_TO_TICKER
+
+@pytest.mark.parametrize("alias,expected_ticker", [
+    # oilGas sector
+    ("Hòa Phát", "HPG"),  # actually defensive
+    ("Lọc hoá dầu Bình Sơn", "BSR"),
+    ("PV Gas", "GAS"),
+    ("PV Power", "POW"),
+    ("Petrolimex", "PLX"),
+    ("PV Drilling", "PVD"),
+    ("Khí Việt Nam", "GAS"),
+    # logistics
+    ("Gemadept", "GMD"),
+    ("Hải An", "HAH"),
+    ("Cảng Hải Phòng", "PHP"),
+    # fb (tiêu dùng thực phẩm)
+    ("Vinamilk", "VNM"),
+    ("Masan", "MSN"),
+    ("Sabeco", "SAB"),
+    ("Bia Hà Nội", "BHN"),
+    ("Kido", "KDC"),
+    # apparel
+    ("Thành Công Textile", "TCM"),
+    ("May Sông Hồng", "MSH"),
+    ("TNG May", "TNG"),
+    # retail
+    ("Thế Giới Di Động", "MWG"),
+    ("FPT Retail", "FRT"),
+    ("Digiworld", "DGW"),
+    ("Phú Nhuận", "PNJ"),
+    # seafood
+    ("Vĩnh Hoàn", "VHC"),
+    ("Nam Việt", "ANV"),
+    ("Minh Phú", "MPC"),
+    ("Sao Ta", "FMC"),
+    # defensive
+    ("FPT", "FPT"),
+    ("FPT Corp", "FPT"),
+    ("REE", "REE"),
+    ("PC1", "PC1"),
+    ("GEX", "GEX"),
+    ("Traphaco", "TRA"),
+])
+def test_alias_maps_to_ticker(alias, expected_ticker):
+    assert MAPPING.get(alias) == expected_ticker, \
+        f"Alias '{alias}' should map to {expected_ticker}, got {MAPPING.get(alias)}"
+```
+
+- [ ] **Step 2: Run tests (FAIL expected)**
+
+```bash
+uv run pytest tests/test_company_name_mapping_v5_1_3.py -v
+```
+
+Expected: Most tests FAIL — aliases not in mapping yet.
+
+- [ ] **Step 3: Extend routing.py mapping**
+
+Read `.claude/skills/finpath-newsroom-editor/scripts/routing.py`. Find `COMPANY_NAME_TO_TICKER` dict (existing ~80 entries cho 61 universe).
+
+Append new V5.1.3 entries:
+
+```python
+COMPANY_NAME_TO_TICKER.update({
+    # === V5.1.3 NEW — oilGas sector (8 mã) ===
+    "Lọc hoá dầu Bình Sơn": "BSR",
+    "Bình Sơn": "BSR",
+    "PV Services": "PVS",
+    "PetroVietnam Services": "PVS",
+    "PV Gas": "GAS",
+    "Tổng công ty Khí": "GAS",
+    "Khí Việt Nam": "GAS",
+    "PV Power": "POW",
+    "Tổng công ty Điện lực Dầu khí": "POW",
+    "Petrolimex": "PLX",
+    "Tập đoàn Xăng dầu": "PLX",
+    "PV Oil": "OIL",
+    "PV Drilling": "PVD",
+    "Khoan và Dịch vụ khoan dầu khí": "PVD",
+    "PV Trans": "PVT",
+    "Vận tải Dầu khí": "PVT",
+
+    # === V5.1.3 NEW — logistics sector (12 mã) ===
+    "Gemadept": "GMD",
+    "Cảng Gemadept": "GMD",
+    "Hải An": "HAH",
+    "Vận tải Biển Hải An": "HAH",
+    "VOS": "VOS",
+    "Vận tải Biển Việt Nam": "VOS",
+    "VSC": "VSC",
+    "Cảng container Việt Nam": "VSC",
+    "Cảng Hải Phòng": "PHP",
+    "Cảng Đà Nẵng": "CDN",
+    "HAX": "HAX",
+    "Logistics Hàng Xanh": "HAX",
+
+    # === V5.1.3 NEW — fb (Tiêu dùng thực phẩm — 8 mã) ===
+    "Vinamilk": "VNM",
+    "Sữa Việt Nam": "VNM",
+    "Masan": "MSN",
+    "Tập đoàn Masan": "MSN",
+    "Sabeco": "SAB",
+    "Bia Sài Gòn": "SAB",
+    "Bia Hà Nội": "BHN",
+    "Habeco": "BHN",
+    "Kido": "KDC",
+    "Bánh kẹo Kido": "KDC",
+    "Mộc Châu Milk": "MCM",
+    "Sữa Mộc Châu": "MCM",
+    "QNS": "QNS",
+    "Đường Quảng Ngãi": "QNS",
+
+    # === V5.1.3 NEW — apparel (Dệt may — 3 mã) ===
+    "Thành Công Textile": "TCM",
+    "Dệt may Thành Công": "TCM",
+    "TCM": "TCM",
+    "May Sông Hồng": "MSH",
+    "TNG May": "TNG",
+    "May TNG": "TNG",
+    "Thái Nguyên May": "TNG",
+
+    # === V5.1.3 NEW — retail (Bán lẻ — 7 mã) ===
+    "Thế Giới Di Động": "MWG",
+    "MWG": "MWG",
+    "Bách Hóa Xanh": "MWG",
+    "FPT Retail": "FRT",
+    "FPT Shop": "FRT",
+    "Long Châu": "FRT",
+    "Digiworld": "DGW",
+    "PNJ": "PNJ",
+    "Phú Nhuận": "PNJ",
+    "Trang sức Phú Nhuận": "PNJ",
+    "AST": "AST",
+    "Phục vụ Sân bay Quốc tế": "AST",
+
+    # === V5.1.3 NEW — seafood (Thuỷ sản — 6 mã) ===
+    "Vĩnh Hoàn": "VHC",
+    "Thủy sản Vĩnh Hoàn": "VHC",
+    "Nam Việt": "ANV",
+    "Thủy sản Nam Việt": "ANV",
+    "Minh Phú": "MPC",
+    "Thủy sản Minh Phú": "MPC",
+    "Sao Ta": "FMC",
+    "Thực phẩm Sao Ta": "FMC",
+    "IDI": "IDI",
+    "I.D.I": "IDI",
+    "CMX": "CMX",
+    "Camimex": "CMX",
+
+    # === V5.1.3 NEW — defensive (Phòng thủ — 12 mã) ===
+    "FPT": "FPT",
+    "FPT Corp": "FPT",
+    "FPT Software": "FPT",
+    "REE": "REE",
+    "Cơ Điện Lạnh": "REE",
+    "PC1": "PC1",
+    "Xây Lắp Điện 1": "PC1",
+    "GEX": "GEX",
+    "Gelex": "GEX",
+    "ITD": "ITD",
+    "Tin học ITD": "ITD",
+    "Traphaco": "TRA",
+    "Dược Traphaco": "TRA",
+    "DBD": "DBD",
+    "Bidiphar": "DBD",
+    "IMP": "IMP",
+    "Imexpharm": "IMP",
+    "ELC": "ELC",
+    "Elcom": "ELC",
+})
+```
+
+- [ ] **Step 4: Run tests to verify they pass**
+
+```bash
+uv run pytest tests/test_company_name_mapping_v5_1_3.py -v
+```
+
+Expected: All tests PASS.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add .claude/skills/finpath-newsroom-editor/scripts/routing.py \
+        tests/test_company_name_mapping_v5_1_3.py
+git commit -m "feat(editor): extend COMPANY_NAME_TO_TICKER với 78 ticker V5.1.3 (Plan F Task 5.5)"
+```
+
+---
+
 ## Phase 2 — 7 NEW master agents (Tasks 6-12, parallel-safe)
 
 ### Pattern reference (apply to Tasks 6-12)
@@ -1064,10 +1272,24 @@ Each new master agent task creates:
 4. `.claude/skills/finpath-newsroom-master-{sector}/references/voice-layer-rules.md` (duplicate from Bank, ~100 lines)
 5. `.claude/skills/finpath-newsroom-master-{sector}/references/stance-directive-handler.md` (duplicate from Bank, ~80 lines)
 6. `.claude/skills/finpath-newsroom-master-{sector}/references/jargon-mapping.md` (sector-specific, ~50 lines)
+7. **PATCH 2026-05-12**: 4 format-body files via `cp` from Bank V5.1.2 split:
+   - `references/format-bodies/flash-qa.md`
+   - `references/format-bodies/standard-qa.md`
+   - `references/format-bodies/standard-listicle.md`
+   - `references/format-bodies/standard-narrative.md`
 
 **Note Q3 resolution**: KHÔNG tạo `kb/{sector_code}/` folder ở V5.1.3. SKILL.md `kb_path: ""` (empty) signals "web search heavy mode".
 
-Tasks 6-12 are **parallel-safe** — different sectors don't touch same file.
+**Note CRITICAL gap 1 fix (2026-05-12)**: Each task MUST run `cp` step copying 4 format-body files from Bank V5.1.2 split (`.claude/skills/finpath-newsroom-master-bank/references/format-bodies/*.md`). Otherwise master crashes when loading format_id-specific body pattern. Pattern same as voice + stance duplicate.
+
+```bash
+# Per-task pattern (add this step to each Task 6-12 BEFORE final commit):
+mkdir -p .claude/skills/finpath-newsroom-master-{sector}/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/format-bodies/*.md \
+   .claude/skills/finpath-newsroom-master-{sector}/references/format-bodies/
+```
+
+Tasks 6-12 are **parallel-safe** — different sectors don't touch same file. **BUT Plan B V5.1.2 Phase 6 MUST run first** (creates Bank's format-bodies/ to copy from).
 
 ---
 
@@ -1312,6 +1534,23 @@ cp .claude/skills/finpath-newsroom-master-bank/references/voice-layer-rules.md \
 cp .claude/skills/finpath-newsroom-master-bank/references/stance-directive-handler.md \
    .claude/skills/finpath-newsroom-master-oilgas/references/stance-directive-handler.md
 ```
+
+- [ ] **Step 6.5 (PATCH critical gap 1): Copy 4 format-body files from Bank V5.1.2**
+
+```bash
+mkdir -p .claude/skills/finpath-newsroom-master-oilgas/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/format-bodies/*.md \
+   .claude/skills/finpath-newsroom-master-oilgas/references/format-bodies/
+```
+
+Verify 4 files copied:
+
+```bash
+ls .claude/skills/finpath-newsroom-master-oilgas/references/format-bodies/
+# Expected: flash-qa.md  standard-qa.md  standard-listicle.md  standard-narrative.md
+```
+
+**Apply same step to Tasks 7-12** (logistics/fb/apparel/retail/seafood/defensive). Pattern identical, just swap sector name in path.
 
 - [ ] **Step 7: Create sector-specific jargon-mapping.md**
 

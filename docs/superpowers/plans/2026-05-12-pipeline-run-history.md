@@ -229,6 +229,117 @@ def insert_crawl_row(self, data: dict) -> int:
     return cur.lastrowid
 ```
 
+- [ ] **Step 3.5 (PATCH critical gap 2): Modify `lib/stages/run_crawler.py` to accept session CLI args**
+
+Read existing `lib/stages/run_crawler.py`. Find the argparse section (around line 99-105).
+
+Add 3 new args:
+
+```python
+# Existing args:
+# parser.add_argument("ticker", help="Bank ticker (e.g. VCB)")
+# parser.add_argument("--candidates-json", ...)
+# parser.add_argument("--db", ...)
+# parser.add_argument("--schema", ...)
+
+# NEW V5.1.4 Subsystem H — session grouping
+parser.add_argument(
+    "--session-id",
+    type=str,
+    default=None,
+    help="UUID per pipeline run (orchestrator generates, all crawl_log rows share)"
+)
+parser.add_argument(
+    "--trigger-type",
+    type=str,
+    choices=["tin", "tin-hot", "tin-batch"],
+    default="tin",
+    help="Pipeline trigger type"
+)
+parser.add_argument(
+    "--trigger-args",
+    type=str,
+    default=None,
+    help="Trigger args (ticker for tin, N=3 for tin-hot)"
+)
+```
+
+Find `write_candidate_to_db()` function. Update to pass session fields to insert_crawl_row:
+
+```python
+def write_candidate_to_db(
+    db,
+    candidate: dict,
+    funnel_batch_id: str,
+    session_id: str | None = None,
+    trigger_type: str = "tin",
+    trigger_args: str | None = None,
+) -> str | None:
+    """Insert candidate into crawl_log. Returns row_id or None on dup."""
+    # ... existing dup-check logic ...
+    row_id = db.insert_crawl_row({
+        # ... existing fields ...
+        "funnel_batch_id": funnel_batch_id,
+        "session_id": session_id,           # NEW V5.1.4
+        "trigger_type": trigger_type,        # NEW V5.1.4
+        "trigger_args": trigger_args,        # NEW V5.1.4
+    })
+    return row_id
+```
+
+Find `main()` function. Update to read CLI args + pass to write_candidate_to_db:
+
+```python
+def main() -> int:
+    parser = argparse.ArgumentParser(...)
+    # ... existing add_argument calls ...
+    # ... NEW args above ...
+    args = parser.parse_args()
+
+    # ... existing batch_id generation ...
+
+    for candidate in candidates:
+        write_candidate_to_db(
+            db, candidate, funnel_batch_id,
+            session_id=args.session_id,
+            trigger_type=args.trigger_type,
+            trigger_args=args.trigger_args or args.ticker,
+        )
+```
+
+- [ ] **Step 3.6 (PATCH critical gap 2): Update orchestrator Bash invocation pattern**
+
+In `.claude/agents/newsroom-pipeline.md`, find existing Step 1 Crawler dispatch section. Update Bash command to pass session args:
+
+```bash
+# OLD orchestrator invocation:
+# uv run python lib/stages/run_crawler.py <TICKER> --candidates-json /tmp/candidates.json
+
+# NEW V5.1.4 (Subsystem H):
+SESSION_ID=$(uuidgen)
+TRIGGER_TYPE="tin"  # or "tin-hot" if /tin-hot dispatch
+TRIGGER_ARGS="VHM"  # or "N=3" if tin-hot
+
+uv run python lib/stages/run_crawler.py <TICKER> \
+  --candidates-json /tmp/candidates.json \
+  --session-id "$SESSION_ID" \
+  --trigger-type "$TRIGGER_TYPE" \
+  --trigger-args "$TRIGGER_ARGS"
+```
+
+**For /tin-hot N**: Generate SESSION_ID once before dispatching N tickers. ALL N tickers share same SESSION_ID. Orchestrator pseudo-code:
+
+```bash
+SESSION_ID=$(uuidgen)
+for TICKER in "${TOP_TICKERS[@]}"; do
+  uv run python lib/stages/run_crawler.py "$TICKER" \
+    --candidates-json /tmp/candidates-$TICKER.json \
+    --session-id "$SESSION_ID" \
+    --trigger-type "tin-hot" \
+    --trigger-args "N=$N"
+done
+```
+
 - [ ] **Step 4: Add Step 0 to orchestrator prompt**
 
 Read `.claude/agents/newsroom-pipeline.md`. Find pipeline start section (around Step 1 Crawler).
