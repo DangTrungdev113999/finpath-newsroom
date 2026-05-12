@@ -30,36 +30,81 @@ output/compare-feed/             → Markdown bài + manifest.json (1 file/bài)
 web/                             → Vite + React + Tailwind viewer
 ```
 
-## 5 Quality Gates V4.0 (HARD CAP cho bài Master)
+## 8 Quality Gates V5.0 + V5.1 PATCH (HARD CAP cho bài Master)
 
-Bài fail 1/5 gate → tự reject + rewrite, KHÔNG persist:
+Bài fail 1/8 gate → tự reject + rewrite, KHÔNG persist:
 
-1. **0% từ tiếng Anh** trong content (kể cả viết tắt NPL/NIM/CASA/CAR/Basel/IRB/RWA/ESOP, kể cả từ thông dụng trade-off/anchor/momentum/defensive/symbolic/catalyst/breaking/portfolio/buffer/stress test/metric/event/story/scenario/target). Exception: tên riêng (Vietcombank, Techcombank, Q1/Q2, NHNN, ĐHĐCĐ) + Pipeline log internal toggle.
-2. **Word count 200-400 từ HARD CAP** body chính. 401+ → reject + rewrite.
-3. **Body pattern**: 1 opening paragraph (≥30 từ, không bullet) + 3-7 substantive bullets (each ≥20 từ + ≥1 bold highlight `**...**`) + 1 closing sentence (không bullet, không heading). KHÔNG `## Cần để ý` section.
-4. **Title-as-hook**: Title chứa `?` HOẶC `—` + ≥1 tension word: `hy sinh`, `đánh đổi`, `nghịch lý`, `vì sao`, `đổi lấy`, `không phải`, `bù lại`, `thay vì`, `chấp nhận`.
-5. **No metadata leak** — KHÔNG có `strategic-shift` / `risk_highlight` / `insight_type` / `Critique angle` / 5-category enum (paradox/why_now/hidden_mechanism/comparison_deep/early_signal) trong bài đọc.
+### Universal (6 — áp dụng tất cả 4 format)
+1. **no_english_jargon** — 0% từ tiếng Anh trong content (exception: tên riêng + Pipeline log internal).
+2. **no_metadata_leak** — KHÔNG `strategic-shift` / `risk_highlight` / `insight_type` / `Critique angle` / 5-category enum / `format_id` enum / `stance_directive` field name trong bài đọc.
+3. **no_hedging** (V5.0 keyword, V5.1.2 PATCH LLM-as-judge redefine in B-30) — Reject "có thể", "tùy thuộc", "vẫn chờ", "khả năng cao", "đáng theo dõi", "nhiều khả năng", "chưa rõ".
+4. **verdict_line** (V5.0) — Closing có 3 yếu tố: hướng + khung TG + action cho NĐT ĐANG cầm. Hybrid enforce: Layer 1 regex + Layer 2 Skeptic `verdict_weak` angle.
+5. **stance_consistency** (V5.0) — Master tone matches brief.stance_directive.direction. Layer 1 keyword ratio + Layer 2 Skeptic `stance_drift` angle.
+6. **sentence_density** (V5.0) — ≥80% câu trong body có ≥1 specific element (số / tên riêng / comparative / time marker / mechanism word / action verb). Layer 2 Skeptic `lifeless_writing` angle.
+
+### Per-format (2 — V5.1 PATCH: title_pattern dropped to Plan C Headline agent)
+7. **word_count** — Per format range: flash_qa 100-150 / standard_qa 200-300 / standard_listicle 250-350 / standard_narrative 250-350.
+8. **body_pattern** — Per format structure: flash_qa paragraph only / standard_qa opening+bullets+closing / standard_listicle opening ngắn+dense bullets / standard_narrative flow paragraphs.
+
+V5.1.2 NEW Gate (separate): **em_dash_density** — max 1 em dash per 100 words (AI-tell signal, anti-clickbait).
+
+### Title pattern (Plan C — Headline agent Step 4.5)
+Title craft moved to Plan C (Headline Craft agent). Master returns body + insight + data_trail only — title generated post-Master by Headline agent.
 
 Heading hợp lệ DUY NHẤT trong body Master: KHÔNG có heading. Skeptic append `## Góc nhìn ngược` riêng (không tính vào gates Master). KHÔNG dùng "Cần để ý" / "Key takeaway" / "Tóm lại" / "Tin chính" / "Điểm cốt lõi".
 
-## Body pattern V4.0
+## Body pattern V5.0 (per format)
 
+Master nhận `format_id` từ Format Director (step 3.5). Mỗi format có structure riêng — Master MUST follow exactly.
+
+### flash_qa (100-150 từ)
 ```
-[Title hook — question hoặc declarative paradox]
+[Opening paragraph duy nhất 100-150 từ — câu hỏi mở đầu + answer + 1-2 con số + verdict line]
+```
+- KHÔNG bullets, KHÔNG heading, KHÔNG closing tách rời.
+- Một paragraph liền mạch. Verdict line nằm cuối paragraph.
 
-[Opening paragraph 30-60 từ — sự kiện + tension/setup, có thể end với câu hỏi]
+### standard_qa (200-300 từ)
+```
+[Opening paragraph 30-50 từ — câu hỏi + setup]
 
-- **Bold highlight 1**: bullet ≥20 từ với connector + mechanism reasoning
-- **Bold highlight 2**: bullet ≥20 từ
-- **Bold highlight 3**: bullet ≥20 từ
-- ... up to 7 bullets
+- **Bold highlight 1**: bullet ≥20 từ — answer component 1
+- **Bold highlight 2**: bullet ≥20 từ — answer component 2
+- **Bold highlight 3**: bullet ≥20 từ — answer component 3
+(3-5 bullets total)
 
-[Closing — 1 câu phân loại NĐT phù hợp]
+[Closing — verdict line: hướng + khung TG + action holder]
 ```
 
-KHÔNG `## Cần để ý` section. Caveats compress vào closing hoặc inline trong bullets.
+### standard_listicle (250-350 từ)
+```
+[Opening paragraph ngắn 20-40 từ — setup ngắn gọn, đi thẳng vào bullets]
 
-## Multi-article output V4.0
+- **Bold highlight 1**: bullet dense ≥25 từ + ≥1 số/comparative
+- **Bold highlight 2**: bullet dense ≥25 từ
+- **Bold highlight 3**: bullet dense ≥25 từ
+- **Bold highlight 4**: bullet dense ≥25 từ
+(4-7 bullets total — dense, không fluff)
+
+[Closing — verdict line]
+```
+
+### standard_narrative (250-350 từ)
+```
+[Opening paragraph 40-60 từ — sự kiện + tension]
+
+[Paragraph 2 — phát triển story, mechanism 60-100 từ]
+
+[Paragraph 3 — counterpoint / so sánh / hệ quả 60-100 từ]
+
+[Closing paragraph — verdict line + action holder]
+```
+- KHÔNG bullets. Flow paragraphs liền mạch.
+- Mechanism + narrative arc thay vì liệt kê.
+
+KHÔNG `## Cần để ý` section ở bất kỳ format nào. Caveats compress vào closing/bullets/inline.
+
+## Multi-article output V5.0
 
 Story Editor pick 1-3 brief → Master generate 1 article per brief → 1 markdown file per article.
 
@@ -112,6 +157,12 @@ Lý do: nhiều Notion DB Bank trước đây cũng được fill bằng web sea
 - **Dedup URL** trước khi viết tin mới — SQLite check `crawl_log.source_url`
 - **Bold 1-2 số key** mỗi bullet/đoạn — KHÔNG orphan number ("TCB chia 67%" → "TCB chia cổ tức 67%")
 - **Title hook test 5s** — đọc 5 giây phải thấy rõ insight angle, không chỉ tóm tắt sự kiện. Preference: Quote trực tiếp > Câu hỏi tò mò > Nghịch lý > Tóm tắt sự kiện. KHÔNG title PR-friendly / clickbait fake.
+- **V5.0 stance_directive bắt buộc** — Master MUST bám `stance_directive.direction` từ brief picked option. Reject nếu body tone ngược direction.
+- **V5.0 verdict line** — Closing 3 yếu tố mandatory: hướng + khung TG + action holder. Không "Cần theo dõi" chung chung.
+- **V5.0 format_id sticky** — Master nhận format từ Format Director (step 3.5). Chỉ escalate one-shot flash_qa → standard_qa khi data depth justifies.
+- **V5.0 contrarian-OK** — Stance KHÔNG cần khớp mood ngày. Mã đỏ vẫn có thể bullish, mã xanh có thể bearish — khi data justify.
+- **V5.1 title delegate** — Master KHÔNG generate title. Headline agent (Step 4.5) handles via Plan C.
+- **V5.1.2 em dash density** — Max 1 em dash (—) per 100 words trong body. Em dash trong title BANNED (AI-tell signal).
 
 ## 5 deep_question category hợp lệ (Story Editor → Master)
 
@@ -130,9 +181,11 @@ Reject `low_writeability`:
 - Yes/No ("TCB có chuyển hướng không?")
 - Generic ("VCB tăng trưởng tốt không?")
 
-## 6 Critique Angles (Skeptic)
+## 10 Critique Angles (Skeptic) — V5.0 + V5.1 PATCH
 
-Skeptic Pass 1 form FRESH impression (đọc body ONLY, KHÔNG xem insight) → Pass 2 compare. Pick 1 of 6:
+⚠ Skeptic paused 2026-05-12. Skill/agent ready for re-enable when format-specific rule decided.
+
+Skeptic Pass 1 form FRESH impression (đọc body ONLY, KHÔNG xem insight) → Pass 2 compare. Pick 1 of 10:
 
 | Angle | Khi nào dùng |
 |---|---|
@@ -142,6 +195,10 @@ Skeptic Pass 1 form FRESH impression (đọc body ONLY, KHÔNG xem insight) → 
 | `risk_highlight` | Master không raise risk Master nên raise |
 | `insight_wrong` | Insight CONFLICT với data thực tế — Story Editor pick sai |
 | `execution_unfaithful` | Insight đúng nhưng bài execute lệch |
+| `lifeless_writing` (V5.0) | Body có ≥2 fluff sentence — Layer 2 Gate 6 sentence_density |
+| `verdict_weak` (V5.0) | Verdict pass regex nhưng mâu thuẫn nội tại — Layer 2 Gate 4 verdict_line |
+| `stance_drift` (V5.0) | Stance subtle drift even when keyword ratio passes — Layer 2 Gate 5 stance_consistency |
+| `weak_title` (V5.1 PATCH) | Title clickbait / không match body / fail Headline hard criteria — Layer 2 Plan C Headline agent |
 
 3 critique gần nhất KHÔNG dùng cùng angle 3 lần liên tiếp.
 
@@ -238,4 +295,4 @@ Một số message có `<system><functions>` block ở cuối là context leak t
 
 ## Khi user đổi hướng
 
-User là người drive design. Khi họ đổi direction (vd "drop Notion publish", "build viewer trước"), không bảo thủ — update spec + plan ngay, ghi rationale vào commit message + spec changelog. Nếu thay đổi xung đột với 5 quality gates V3.6 → flag rõ trước khi áp dụng.
+User là người drive design. Khi họ đổi direction (vd "drop Notion publish", "build viewer trước"), không bảo thủ — update spec + plan ngay, ghi rationale vào commit message + spec changelog. Nếu thay đổi xung đột với 8 quality gates V5.0 + V5.1 → flag rõ trước khi áp dụng.
