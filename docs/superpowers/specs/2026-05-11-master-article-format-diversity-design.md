@@ -552,6 +552,57 @@ Add field `format_id_used` để Skeptic + render đọc:
 _STEP_4_REQUIRED["format_id_used"] = str  # NEW required in V5.0
 ```
 
+### 10.0 Observability fields enforced in schema (NEW V5.1 patch — addresses "trước có rồi mà chả thấy hoạt động")
+
+**Vấn đề trước V5.1**: `model` + `duration_ms` + `tokens` chỉ là prose-rule trong agent orchestrator, KHÔNG enforce ở schema. Orchestrator (Sonnet) có thể skip observability merge → schema content vẫn pass validation → bài lên DB nhưng viewer hiển thị blank duration/tokens. Silent failure → user thấy "chả thấy hoạt động".
+
+**V5.1 fix**: Add `_OBSERVABILITY_REQUIRED` constant + merge vào tất cả `_STEP_N_REQUIRED`:
+
+```python
+# lib/pipeline_db.py — NEW V5.1
+_OBSERVABILITY_REQUIRED: dict[str, type | tuple] = {
+    "model": str,
+    "duration_ms": int,
+    # tokens vẫn OPTIONAL — Claude Code không guarantee <usage> block trong Task return.
+    # parse_task_usage() returns None khi <usage> missing — acceptable.
+}
+
+# Apply to ALL step schemas (V5.1+):
+_STEP_2_REQUIRED = {**_OBSERVABILITY_REQUIRED, "rows_processed": int, "decisions": list}
+_STEP_3_REQUIRED = {**_OBSERVABILITY_REQUIRED, "briefs_count": int}
+_STEP_3_5_REQUIRED = {**_OBSERVABILITY_REQUIRED, "format_picks": list}
+_STEP_4_REQUIRED_V5 = {**_OBSERVABILITY_REQUIRED, "chosen_question_idx": int, "chosen_pick_reason": str, "skip_reasons": dict, "data_trail": list, "format_id_used": str}
+_STEP_5_REQUIRED = {**_OBSERVABILITY_REQUIRED, "angle": str, "verdict": str, "skeptic_data_trail": list}
+
+# Non-empty enforcement: model + duration_ms must NOT be empty/zero
+_NON_EMPTY_FIELDS["step_4_master"] |= {"model"}
+_NON_EMPTY_FIELDS["step_5_skeptic"] |= {"model"}
+_NON_EMPTY_FIELDS["step_3_5_format_director"] |= {"model"}
+# ... apply same for all steps
+```
+
+**Hậu quả**:
+- Orchestrator MUST emit `model + duration_ms` sau mỗi Task → schema validation fail-loud nếu skip
+- `tokens` vẫn optional (Claude Code không guarantee `<usage>`)
+- Viewer hiển thị duration cho 100% bài V5.1+
+- V3.6/V4.0 legacy rows skip qua version-gate (em đã có logic)
+
+**Validation example**:
+
+```python
+# Orchestrator quên log observability:
+db.log_pipeline_step("a1", "step_4_master", {
+    "chosen_question_idx": 0,
+    "chosen_pick_reason": "ok",
+    "skip_reasons": {},
+    "data_trail": [{"source": "x"}],
+    "format_id_used": "standard_qa",
+    # ❌ Missing model + duration_ms
+})
+# → ValueError: pipeline_log[step_4_master] schema violation — missing keys: ['model', 'duration_ms']
+# → Pipeline halt, developer biết ngay.
+```
+
 ### 10.1 Pipeline version column + migration
 
 Add column `pipeline_version` vào `generated_news` table:
@@ -771,3 +822,4 @@ Total: ~14 modify + 7 new ≈ 1500-1800 new LOC.
 | 1.0 | 2026-05-11 | Initial draft from brainstorming session. |
 | 1.1 | 2026-05-11 | Advisor review patches: §6 mood-sync source (Step 1.5 Market Snapshot), §7.1 hybrid gate enforcement for Gates 7+8, §10.1 pipeline_version column + version-gate validation migration, §11 Master format escalation rule (one-shot length-only), §12 Skeptic 9 angles (+ verdict_weak, stance_drift), §14 frontend graceful degrade, §15 file touch list updates. |
 | 5.1 | 2026-05-12 | **Coupled with Headline Craft spec (Subsystem C)**: §7 gates 9 → 8 (title_pattern removed, Headline owns title); §9 format_registry.yaml — title_* fields removed; `check_all_v5` signature drops title arg; §18 open question 2 (Headline agent) marked RESOLVED. Pipeline V5.0 (11 steps) → V5.1 (12 steps with Step 4.5 Headline). |
+| 5.1.1 | 2026-05-12 | **Observability enforcement patch** (addresses user "trước có rồi mà chả thấy hoạt động"): §10.0 NEW — `_OBSERVABILITY_REQUIRED` constant (model + duration_ms required, tokens optional) merged vào tất cả `_STEP_N_REQUIRED`. Validation fail-loud nếu orchestrator skip observability merge. V3.6/V4.0 legacy rows skip via existing version-gate. |

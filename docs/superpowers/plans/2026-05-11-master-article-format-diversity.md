@@ -633,6 +633,68 @@ validation in validate_pipeline_step (Task 4).
 Append to `tests/test_pipeline_db.py`:
 
 ```python
+def test_validate_v5_step_4_requires_observability():
+    """V5.1: step_4_master MUST emit model + duration_ms (observability)."""
+    from lib.pipeline_db import validate_pipeline_step
+    import pytest
+    # Content fields complete, but observability missing
+    payload = {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "ok",
+        "skip_reasons": {},
+        "data_trail": [{"source": "x", "fetched": "y"}],
+        "format_id_used": "standard_qa",
+        # ❌ Missing: model, duration_ms
+    }
+    with pytest.raises(ValueError, match="model|duration_ms"):
+        validate_pipeline_step("step_4_master", payload, pipeline_version="V5.0")
+
+
+def test_validate_v5_step_4_observability_complete_passes():
+    from lib.pipeline_db import validate_pipeline_step
+    payload = {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "ok",
+        "skip_reasons": {},
+        "data_trail": [{"source": "x", "fetched": "y"}],
+        "format_id_used": "standard_qa",
+        "model": "claude-opus-4-7",
+        "duration_ms": 12500,
+        # tokens optional
+    }
+    validate_pipeline_step("step_4_master", payload, pipeline_version="V5.0")
+
+
+def test_validate_v5_step_4_empty_model_rejects():
+    """model must be non-empty string."""
+    from lib.pipeline_db import validate_pipeline_step
+    import pytest
+    payload = {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "ok",
+        "skip_reasons": {},
+        "data_trail": [{"source": "x"}],
+        "format_id_used": "standard_qa",
+        "model": "",  # ❌ empty
+        "duration_ms": 12500,
+    }
+    with pytest.raises(ValueError, match="empty"):
+        validate_pipeline_step("step_4_master", payload, pipeline_version="V5.0")
+
+
+def test_validate_v4_step_4_no_observability_required():
+    """V4.0 back-compat: observability NOT required (was prose-only)."""
+    from lib.pipeline_db import validate_pipeline_step
+    payload = {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "ok",
+        "skip_reasons": {},
+        "data_trail": [{"source": "x", "fetched": "y"}],
+        # No model, no duration_ms → V4.0 should accept
+    }
+    validate_pipeline_step("step_4_master", payload, pipeline_version="V4.0")
+
+
 def test_validate_v3_skips_step_3_5_check():
     """V3.6 rows: no step_3_5_format_director schema enforcement."""
     from lib.pipeline_db import validate_pipeline_step
@@ -708,7 +770,18 @@ Expected: FAIL — function signature does not accept `pipeline_version` kwarg.
 Replace lines 17-107 (schema constants + `validate_pipeline_step`):
 
 ```python
-# step_4_master required keys — V4.0 baseline.
+# V5.1 — Observability fields required across ALL agent-emitted steps for V5.0+.
+# Fixes "trước có rồi mà chả thấy hoạt động": observability was prose-rule
+# only, orchestrator could skip merge → blank in viewer. Now fail-loud for V5.0+.
+# V4.0/V3.6 rows skip (back-compat — those were prose-rule era).
+_OBSERVABILITY_REQUIRED: dict[str, type | tuple] = {
+    "model": str,
+    "duration_ms": int,
+    # tokens OPTIONAL — Claude Code không guarantee <usage> trong Task return.
+    # parse_task_usage() returns None gracefully khi missing.
+}
+
+# step_4_master V4.0 baseline (NO observability — back-compat).
 _STEP_4_REQUIRED_V4: dict[str, type | tuple] = {
     "chosen_question_idx": int,
     "chosen_pick_reason": str,
@@ -716,30 +789,39 @@ _STEP_4_REQUIRED_V4: dict[str, type | tuple] = {
     "data_trail": list,
 }
 
-# step_4_master V5.0 extension: adds format_id_used.
+# step_4_master V5.0 extension: adds format_id_used + observability.
 _STEP_4_REQUIRED_V5: dict[str, type | tuple] = {
     **_STEP_4_REQUIRED_V4,
+    **_OBSERVABILITY_REQUIRED,
     "format_id_used": str,
 }
 
-# step_5_skeptic — V4.0 baseline (unchanged in V5.0).
-_STEP_5_REQUIRED: dict[str, type | tuple] = {
+# step_5_skeptic V4.0 baseline (NO observability — back-compat).
+_STEP_5_REQUIRED_V4: dict[str, type | tuple] = {
     "angle": str,
     "verdict": str,
     "skeptic_data_trail": list,
 }
 
-# step_3_5_format_director — NEW in V5.0.
+# step_5_skeptic V5.0 (adds observability).
+_STEP_5_REQUIRED_V5: dict[str, type | tuple] = {
+    **_STEP_5_REQUIRED_V4,
+    **_OBSERVABILITY_REQUIRED,
+}
+
+# step_3_5_format_director — NEW in V5.0 (always with observability).
 _STEP_3_5_REQUIRED: dict[str, type | tuple] = {
+    **_OBSERVABILITY_REQUIRED,
     "format_picks": list,
 }
 
-# Non-empty constraint per step+version.
+# Non-empty constraint per step. model MUST not be empty string when present.
 _NON_EMPTY_FIELDS: dict[str, set[str]] = {
     "step_4_master": {"chosen_pick_reason", "data_trail"},
     "step_5_skeptic": {"angle", "verdict", "skeptic_data_trail"},
     "step_3_5_format_director": {"format_picks"},
 }
+# Observability non-empty applies only for V5.0+ — added dynamically in validate_pipeline_step.
 
 
 def _version_ge(a: str, b: str) -> bool:
@@ -759,23 +841,28 @@ def _version_ge(a: str, b: str) -> bool:
 def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str = "V4.0") -> None:
     """Raise ValueError if `payload` missing required fields for `step_key`.
 
-    Version-aware (V5.0 Phase 1.4):
-    - V4.0 and earlier: enforce step_4_master baseline (V4) + step_5_skeptic.
-      step_3_5_format_director skipped (didn't exist).
-    - V5.0+: additionally enforce step_3_5_format_director and step_4_master
-      with format_id_used required.
+    Version-aware (V5.0 Phase 1.4 + V5.1 observability):
+    - V4.0 and earlier: enforce step_4_master + step_5_skeptic baselines
+      (NO observability — was prose-rule era). step_3_5 skipped.
+    - V5.0+: + step_3_5_format_director, step_4_master.format_id_used required,
+      AND observability fields (model + duration_ms) required across step_3_5/4/5.
 
-    Default pipeline_version='V4.0' preserves V4.0 baseline behavior for
-    callers not yet updated.
+    Default pipeline_version='V4.0' preserves baseline for callers not yet updated.
     """
     is_v5_plus = _version_ge(pipeline_version, "V5.0")
 
     required_map: dict[str, dict[str, type | tuple]] = {
         "step_4_master": _STEP_4_REQUIRED_V5 if is_v5_plus else _STEP_4_REQUIRED_V4,
-        "step_5_skeptic": _STEP_5_REQUIRED,
+        "step_5_skeptic": _STEP_5_REQUIRED_V5 if is_v5_plus else _STEP_5_REQUIRED_V4,
     }
     if is_v5_plus:
         required_map["step_3_5_format_director"] = _STEP_3_5_REQUIRED
+
+    # V5.1 — observability non-empty (model) applies only for V5.0+ rows.
+    non_empty_fields = dict(_NON_EMPTY_FIELDS)
+    if is_v5_plus:
+        for step in ("step_4_master", "step_5_skeptic", "step_3_5_format_director"):
+            non_empty_fields[step] = non_empty_fields.get(step, set()) | {"model"}
 
     required = required_map.get(step_key)
     if not required:
@@ -792,7 +879,8 @@ def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str =
         if not isinstance(value, expected_type):
             wrong_type.append(f"{field} (got {type(value).__name__}, expected {expected_type.__name__})")
             continue
-        if field in _NON_EMPTY_FIELDS.get(step_key, set()) and not value:
+        # V5.1: use locally-computed non_empty_fields (observability added dynamically)
+        if field in non_empty_fields.get(step_key, set()) and not value:
             empty.append(field)
 
     # Entry-level checks for data_trail arrays (V4.0 Phase H2).
@@ -866,16 +954,45 @@ Expected: all green (new V5 tests + existing V4 tests via default `pipeline_vers
 
 ```bash
 git add lib/pipeline_db.py tests/test_pipeline_db.py
-git commit -m "feat(pipeline_db): version-gate validation V3.6/V4.0/V5.0 (Phase 1.4)
+git commit -m "feat(pipeline_db): version-gate validation V3.6/V4.0/V5.0/V5.1 (Phase 1.4)
 
 V5.0 migration:
 - Splits _STEP_4_REQUIRED into _V4 (baseline) + _V5 (+ format_id_used)
+- Splits _STEP_5_REQUIRED into _V4 (baseline) + _V5 (+ observability)
 - Adds _STEP_3_5_REQUIRED for new Format Director step
 - validate_pipeline_step takes pipeline_version kwarg
 - log_pipeline_step reads row.pipeline_version automatically
 - V3.6/V4.0 rows skip V5.0 schema checks (back-compat)
+
+V5.1 observability enforcement (fixes 'chả thấy hoạt động'):
+- _OBSERVABILITY_REQUIRED constant (model: str, duration_ms: int)
+- Merged into V5 step_3_5 / step_4 / step_5 schemas
+- Non-empty check for model dynamically added for V5.0+ rows
+- V4.0 rows back-compat (no observability enforcement)
+- tokens stays optional (Claude Code <usage> not guaranteed)
 "
 ```
+
+- [ ] **Step 7: Update agent prompt prose — observability emission required**
+
+After implementing schema enforcement, the orchestrator agent prompt `.claude/agents/newsroom-pipeline.md` MUST emit observability fields in every `db.log_pipeline_step` call. The existing "Observability" section (V4.0 Phase F C2) already documents the pattern but was prose-rule only. V5.1 makes it enforced.
+
+Find existing observability block in newsroom-pipeline.md and add WARNING note:
+
+```markdown
+### Observability — REQUIRED V5.1+ (enforced by schema validation)
+
+⚠️ HARD RULE: Every `db.log_pipeline_step` call cho V5.0+ row MUST include:
+- `model`: agent model string (e.g. "claude-opus-4-7", "claude-sonnet-4-6")
+- `duration_ms`: int — elapsed wall-clock milliseconds since Task dispatch
+- `tokens`: optional — parse_task_usage(task_return), None acceptable
+
+Schema validation fails-loud nếu thiếu model + duration_ms. Pipeline halt. Bug surfaces immediately instead of silent blank in viewer.
+```
+
+Update orchestrator agent prompt accordingly in **separate Task** (Task 11 Pipeline orchestrator update — extend HARD RULE section there).
+
+This Task 4 step focuses on schema enforcement only.
 
 ---
 
