@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import type { ArticleMeta } from '../types';
-import { CrawlFunnel } from './CrawlFunnel';
 import { QuestionOptions } from './QuestionOptions';
 import { DataTrail } from './DataTrail';
 import { InsightCallout } from './InsightCallout';
@@ -23,7 +22,7 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
   return (
     <details open={isDesktop} className="md:block">
       <summary className="cursor-pointer font-semibold mb-4 md:hidden">
-        Mở metadata + nguồn (8 sections)
+        Mở metadata + nguồn (7 sections)
       </summary>
       <div className="space-y-6">
       {/* Section 1: Bài gốc */}
@@ -77,18 +76,13 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
         </section>
       )}
 
-      {/* Section 5: Crawl funnel */}
-      {meta.crawl_funnel && (
-        <CrawlFunnel data={meta.crawl_funnel} funnelBatchId={meta.funnel_batch_id} />
-      )}
-
-      {/* Section 6: Master data trail */}
+      {/* Section 5: Master data trail */}
       <DataTrail
         title="Phóng viên đã tra ở đâu"
         trail={meta.master_data_trail}
       />
 
-      {/* Section 7: Skeptic data trail — ẩn khi Step 5 paused (2026-05-12) */}
+      {/* Section 6: Skeptic data trail — ẩn khi Step 5 paused (2026-05-12) */}
       {meta.skeptic_data_trail && meta.skeptic_data_trail.length > 0 && (
         <DataTrail
           title="Reviewer ngoài đã tra ở đâu"
@@ -96,7 +90,7 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
         />
       )}
 
-      {/* Section 8: Đọc bài gốc — link only, NO embed */}
+      {/* Section 7: Đọc bài gốc — link only, NO embed */}
       <section>
         <h3 className="section-pill">Đọc bài gốc</h3>
         <p>
