@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-05-12T15:53:49.305506+00:00",
+  "built_at": "2026-05-12T16:12:43.241375+00:00",
   "sessions": [
     {
       "session_id": "D066809B-1DD5-4F42-B28A-26AAB4B4548C",
@@ -8,8 +8,8 @@
       "started_at": "2026-05-12T15:39:45.061287+00:00",
       "ended_at": "2026-05-12T15:41:18.588315+00:00",
       "fetched_total": 30,
-      "chosen_total": 2,
-      "rejected_total": 28,
+      "chosen_total": 6,
+      "rejected_total": 24,
       "batches": [
         {
           "funnel_batch_id": "DXG-20260512-1539",
@@ -19,10 +19,23 @@
           "hot_nhom": null,
           "hot_rank": null,
           "fetched_count": 10,
-          "chosen_count": 0,
-          "rejected_count": 10,
+          "chosen_count": 2,
+          "rejected_count": 8,
           "funnel_detail": {
-            "picked": [],
+            "picked": [
+              {
+                "source": "Nhịp sống Kinh tế",
+                "url": "https://danviet.vn/dat-xanh-thanh-bluemarq-group-cuoc-thay-ten-doi-ho-lan-khap-he-sinh-thai-d1424831.html",
+                "published": "2026-05-09",
+                "reason": "OK — accepted_hypothesis: true. Title: DXG lao dốc lợi nhuận mẹ dù doanh thu vọt 46%?"
+              },
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/05/tap-doan-dat-xanh-doi-ten-thanh-bluemarq-group-loat-cong-ty-con-doi-theo-ho-moi-737-1439495.htm",
+                "published": "2026-05-07",
+                "reason": "OK — accepted_hypothesis: true. Title: Nghịch lý DXG: rebrand Bluemarq nhưng đầu tư chỉ 20 tỷ?"
+              }
+            ],
             "rejected": [
               {
                 "source": "VietnamFinance",
@@ -73,25 +86,9 @@
                 "reason": "Master rejected — no article persisted"
               },
               {
-                "source": "Nhịp sống Kinh tế",
-                "url": "https://danviet.vn/dat-xanh-thanh-bluemarq-group-cuoc-thay-ten-doi-ho-lan-khap-he-sinh-thai-d1424831.html",
-                "published": "2026-05-09",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
-              },
-              {
                 "source": "Báo Pháp luật",
                 "url": "https://doanhnhan.baophapluat.vn/bluemarq-group-dxg-muon-phat-hanh-hon-155-trieu-co-phieu-thuong-du-tang-von-len-gan-12-700-ty-dong.html",
                 "published": "2026-05-09",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
-              },
-              {
-                "source": "Vietstock",
-                "url": "https://vietstock.vn/2026/05/tap-doan-dat-xanh-doi-ten-thanh-bluemarq-group-loat-cong-ty-con-doi-theo-ho-moi-737-1439495.htm",
-                "published": "2026-05-07",
                 "reject_agent": "master",
                 "reject_label": "accepted_hypothesis_false",
                 "reason": "Master rejected — no article persisted"
@@ -204,14 +201,27 @@
           "funnel_batch_id": "VHM-20260512-1541",
           "ticker": "VHM",
           "sector_code": null,
-          "sector_name": null,
+          "sector_name": "Bất động sản",
           "hot_nhom": null,
           "hot_rank": null,
           "fetched_count": 10,
-          "chosen_count": 0,
-          "rejected_count": 10,
+          "chosen_count": 2,
+          "rejected_count": 8,
           "funnel_detail": {
-            "picked": [],
+            "picked": [
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/vinhomes.html",
+                "published": "2026-04-21T09:52:00+07:00",
+                "reason": "OK — accepted_hypothesis: true. Title: VHM đánh đổi gì khi vay 11.000 tỷ lúc lợi nhuận đỉnh?"
+              },
+              {
+                "source": "Báo Đầu tư",
+                "url": "https://baodautu.vn/song-loi-nhuan-dang-cao-tu-cac-doanh-nghiep-dan-dau-thuoc-vn30-d587688.html",
+                "published": "2026-05-05T10:00:00+07:00",
+                "reason": "OK — accepted_hypothesis: true. Title: VHM đánh đổi gì để lãi 25.625 tỷ gấp 3 Vietcombank?"
+              }
+            ],
             "rejected": [
               {
                 "source": "Vietstock",
@@ -233,25 +243,17 @@
                 "source": "VnExpress",
                 "url": "https://vnexpress.net/chung-khoan-vuot-dinh-5071073.html",
                 "published": "2026-05-07T13:58:00+07:00",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
-              },
-              {
-                "source": "CafeF",
-                "url": "https://cafef.vn/vinhomes.html",
-                "published": "2026-04-21T09:52:00+07:00",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
+                "reject_agent": "editor_v1",
+                "reject_label": "market_snapshot_only: VN-Index movement, thiếu insight BĐS cty cụ thể",
+                "reason": "market_snapshot_only: VN-Index movement, thiếu insight BĐS cty cụ thể"
               },
               {
                 "source": "VietnamFinance",
                 "url": "https://vietnamfinance.vn/vn-index-lap-dinh-moi-nhieu-nhom-co-phieu-van-o-duoi-mat-dat-d144633.html",
                 "published": "2026-05-10T12:00:00+07:00",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
+                "reject_agent": "editor_v1",
+                "reject_label": "market_snapshot_only: VN-Index record, VHM/VIC chỉ là mục điểm số",
+                "reason": "market_snapshot_only: VN-Index record, VHM/VIC chỉ là mục điểm số"
               },
               {
                 "source": "Diễn đàn Doanh nghiệp",
@@ -270,14 +272,6 @@
                 "reason": "Master rejected — no article persisted"
               },
               {
-                "source": "Báo Đầu tư",
-                "url": "https://baodautu.vn/song-loi-nhuan-dang-cao-tu-cac-doanh-nghiep-dan-dau-thuoc-vn30-d587688.html",
-                "published": "2026-05-05T10:00:00+07:00",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
-              },
-              {
                 "source": "Reatimes",
                 "url": "https://reatimes.vn/buc-tranh-kinh-doanh-cua-doanh-nghiep-dia-oc-quy-i-2026-phan-hoa-sau-sac-co-hoi-di-lien-thach-thuc-202260509004942007.htm",
                 "published": "2026-05-09T00:49:00+07:00",
@@ -289,9 +283,9 @@
                 "source": "CafeF",
                 "url": "https://cafef.vn/vinhomes-du-kien-chao-ban-5000-ty-dong-trai-phieu-rieng-le-188260509075604433.chn",
                 "published": "2026-05-09T08:55:00+07:00",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
+                "reject_agent": "editor_v1",
+                "reject_label": "duplicate_content: trùng sự kiện trái phiếu 5.000 tỷ với row 45d4a21e, nội dung overlap 80%+",
+                "reason": "duplicate_content: trùng sự kiện trái phiếu 5.000 tỷ với row 45d4a21e, nội dung overlap 80%+"
               }
             ]
           }
@@ -541,7 +535,7 @@
           "funnel_batch_id": "NVL-20260512-1540",
           "ticker": "NVL",
           "sector_code": null,
-          "sector_name": null,
+          "sector_name": "BDS nhà ở",
           "hot_nhom": null,
           "hot_rank": null,
           "fetched_count": 8,
@@ -554,65 +548,65 @@
                 "source": "CafeF",
                 "url": "https://cafef.vn/hang-ngan-khach-hang-novaland-don-tin-vui-188260507102113872.chn",
                 "published": "2026-05-07",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
+                "reject_agent": "story_editor",
+                "reject_label": "{\"reject_reason\": \"dup_angle_recent\", \"reject_note\": \"Tin Aqua City cấp sổ tháng 6/2026 đã được Article B (NVL-20260511-0917 'Novaland đặt mục tiêu vượt đỉnh 2018') đề cập trực tiếp ở bullet 1. Góc nghịch lý 'tin tốt khách hàng + giá giảm' lặp lại frame 'lãi tốt + bán tháo' của Article A. Không tạo giá trị bổ sung.\"}",
+                "reason": "{\"reject_reason\": \"dup_angle_recent\", \"reject_note\": \"Tin Aqua City cấp sổ tháng 6/2026 đã được Article B (NVL-20260511-0917 'Novaland đặt mục tiêu vượt đỉnh 2018') đề cập trực tiếp ở bullet 1. Góc nghịch lý 'tin tốt khách hàng + giá giảm' lặp lại frame 'lãi tốt + bán tháo' của Article A. Không tạo giá trị bổ sung.\"}"
               },
               {
                 "source": "VnEconomy",
                 "url": "https://vneconomy.vn/sau-pc1-lai-them-36-trieu-co-phieu-novaland-e-gia-san.htm",
                 "published": "2026-05-05",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
+                "reject_agent": "story_editor",
+                "reject_label": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"36 triệu cổ phiếu chất sàn ngày 5/5/2026. Cùng cụm sự kiện 2 phiên liên tiếp đã đăng. Web tra cứu xác nhận đến 6/5 NVL đã thoát giảm sàn — pattern 'forced sell signal' đã bị bác bỏ bởi giá thực tế, không thể viết góc early_signal.\"}",
+                "reason": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"36 triệu cổ phiếu chất sàn ngày 5/5/2026. Cùng cụm sự kiện 2 phiên liên tiếp đã đăng. Web tra cứu xác nhận đến 6/5 NVL đã thoát giảm sàn — pattern 'forced sell signal' đã bị bác bỏ bởi giá thực tế, không thể viết góc early_signal.\"}"
               },
               {
                 "source": "VnExpress",
                 "url": "https://vnexpress.net/co-phieu-novaland-cham-san-5069747.html",
                 "published": "2026-05-04",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
+                "reject_agent": "story_editor",
+                "reject_label": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"Phiên đầu trong chuỗi giảm sàn ngày 4-5/5/2026. Cụm sự kiện đã được Article A+B xử lý ngày 11/5.\"}",
+                "reason": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"Phiên đầu trong chuỗi giảm sàn ngày 4-5/5/2026. Cụm sự kiện đã được Article A+B xử lý ngày 11/5.\"}"
               },
               {
                 "source": "VietnamBiz",
                 "url": "https://vietnambiz.vn/novaland-du-kien-phat-hanh-rieng-le-800-trieu-co-phieu-loi-nhuan-muc-tieu-tren-1850-ty-dong-202642211254243.htm",
                 "published": "2026-04-22",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
+                "reject_agent": "story_editor",
+                "reject_label": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"Sự kiện phát hành 800 triệu cổ phiếu đã được khai thác trong bài Article A (NVL-20260511-0917 'NVL lãi 860 tỷ nhưng thị trường vẫn bán tháo') — bullet 4 nêu rõ ĐHĐCĐ 23/4/2026 thông qua 800 triệu cổ phần pha loãng. Đăng lại sẽ trùng góc nhìn.\"}",
+                "reason": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"Sự kiện phát hành 800 triệu cổ phiếu đã được khai thác trong bài Article A (NVL-20260511-0917 'NVL lãi 860 tỷ nhưng thị trường vẫn bán tháo') — bullet 4 nêu rõ ĐHĐCĐ 23/4/2026 thông qua 800 triệu cổ phần pha loãng. Đăng lại sẽ trùng góc nhìn.\"}"
               },
               {
                 "source": "Vietstock",
                 "url": "https://vietstock.vn/2026/05/co-phieu-nvl-nam-san-du-ban-hon-136-trieu-cp-830-1436996.htm",
                 "published": "2026-05-04",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
+                "reject_agent": "story_editor",
+                "reject_label": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"Cùng phiên 4/5 hoặc 5/5/2026 (nằm sàn). Dư bán 13,6 triệu nhỏ hơn dư bán 22-36 triệu của các bài khác cùng cụm và đã được Article A đề cập.\"}",
+                "reason": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"Cùng phiên 4/5 hoặc 5/5/2026 (nằm sàn). Dư bán 13,6 triệu nhỏ hơn dư bán 22-36 triệu của các bài khác cùng cụm và đã được Article A đề cập.\"}"
               },
               {
                 "source": "Dantri",
                 "url": "https://dantri.com.vn/kinh-doanh/co-phieu-novaland-tiep-tuc-giam-san-bi-ban-thao-20260505113050796.htm",
                 "published": "2026-05-05",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
+                "reject_agent": "story_editor",
+                "reject_label": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"Sự kiện bán tháo ngày 5/5/2026. Cụm catalyst đã được Article A xử lý qua góc 'lãi tốt nhưng thị trường vẫn bán tháo'. Không có dữ liệu mới so cụm cũ.\"}",
+                "reason": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"Sự kiện bán tháo ngày 5/5/2026. Cụm catalyst đã được Article A xử lý qua góc 'lãi tốt nhưng thị trường vẫn bán tháo'. Không có dữ liệu mới so cụm cũ.\"}"
               },
               {
                 "source": "VietnamBiz",
                 "url": "https://vietnambiz.vn/nvl-tiep-tuc-giam-san-hon-32-trieu-co-phieu-duoc-sang-tay-20265595520900.htm",
                 "published": "2026-05-05",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
+                "reject_agent": "story_editor",
+                "reject_label": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"32 triệu cổ phiếu sang tay ngày 5/5/2026 thuộc cụm bán tháo 2 phiên liên tiếp. Article A đã khai thác bối cảnh giá giảm ~20% trong 4 phiên — cùng câu chuyện.\"}",
+                "reason": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"32 triệu cổ phiếu sang tay ngày 5/5/2026 thuộc cụm bán tháo 2 phiên liên tiếp. Article A đã khai thác bối cảnh giá giảm ~20% trong 4 phiên — cùng câu chuyện.\"}"
               },
               {
                 "source": "CafeF",
                 "url": "https://cafef.vn/novaland-phat-thong-bao-sau-2-phien-co-phieu-giam-san-lien-tiep-188260505154349368.chn",
                 "published": "2026-05-05",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
+                "reject_agent": "story_editor",
+                "reject_label": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"Cùng cụm sự kiện bán tháo 4-5/5/2026 đã xuất bản trong Article A+B+C ngày 11/5. Thông báo Novaland giải thích đợt bán tháo không thêm cơ chế mới so với 3 bài cũ.\"}",
+                "reason": "{\"reject_reason\": \"dup_event\", \"reject_note\": \"Cùng cụm sự kiện bán tháo 4-5/5/2026 đã xuất bản trong Article A+B+C ngày 11/5. Thông báo Novaland giải thích đợt bán tháo không thêm cơ chế mới so với 3 bài cũ.\"}"
               }
             ]
           }

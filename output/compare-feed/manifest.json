@@ -1,6 +1,28 @@
 {
   "articles": [
     {
+      "id": "vhm-co-tuc-60pct-11000-ty-trai-phieu-co-che-tai-chinh-co-chu-dich",
+      "ticker": "VHM",
+      "sector": "bds",
+      "title": "VHM đánh đổi gì khi vay 11.000 tỷ lúc lợi nhuận đỉnh?",
+      "crawled_at": "2026-05-12T15:41:18.588127+00:00",
+      "key_view": "VHM vừa chia cổ tức kỷ lục vừa phát hành 11.000 tỷ đồng trái phiếu không phải mâu thuẫn mà là cơ chế tài chính có chủ đích: trả cổ tức từ lợi nhuận đỉnh chu kỳ, dùng trái phiếu tài trợ mở rộng Điện Biên và Hải Vân Bay. Tổng tài sản tăng 10% trong khi tiền mặt giảm 27% xác nhận VHM đang đầu tư chứ không tiêu tiền.",
+      "word_count": 327,
+      "category": null,
+      "format_id": "standard_narrative"
+    },
+    {
+      "id": "vhm-gap-3-lan-vietcombank-q1-2026-co-che-phan-hoa-bds",
+      "ticker": "VHM",
+      "sector": "bds",
+      "title": "VHM đánh đổi gì để lãi 25.625 tỷ gấp 3 Vietcombank?",
+      "crawled_at": "2026-05-12T15:41:18.587891+00:00",
+      "key_view": "VHM bứt phá trong BĐS phân hóa Q1/2026 nhờ cơ chế bàn giao đại đô thị tích lũy 3-4 năm đổ vào một kỳ. Mô hình này tạo lợi thế cấu trúc không thể san phẳng trong 24 tháng. Pipeline Điện Biên và Hải Vân Bay là chỉ báo sớm cho chu kỳ tăng trưởng 2027-2028.",
+      "word_count": 339,
+      "category": null,
+      "format_id": "standard_listicle"
+    },
+    {
       "id": "HPG-20260512-1540-hpg-cuoc-thep-ray-duong-sat-cao-toc-q2-2027-moi-giao-hang",
       "ticker": "HPG",
       "sector": "BDS",
@@ -21,6 +43,28 @@
       "word_count": 297,
       "category": "paradox",
       "format_id": "standard_qa"
+    },
+    {
+      "id": "DXG-20260512-2311-dxg-doanh-thu-tang-46-phan-co-dong-me-giam-216-q1-2026",
+      "ticker": "DXG",
+      "sector": "bds",
+      "title": "DXG lao dốc lợi nhuận mẹ dù doanh thu vọt 46%?",
+      "crawled_at": "2026-05-12T15:39:45.062011+00:00",
+      "key_view": null,
+      "word_count": 336,
+      "category": null,
+      "format_id": "standard_narrative"
+    },
+    {
+      "id": "DXG-20260512-2311-dxg-bluemarq-group-4-tru-cot-rebrand-co-so-tai-chinh",
+      "ticker": "DXG",
+      "sector": "bds",
+      "title": "Nghịch lý DXG: rebrand Bluemarq nhưng đầu tư chỉ 20 tỷ?",
+      "crawled_at": "2026-05-12T15:39:45.061841+00:00",
+      "key_view": null,
+      "word_count": 298,
+      "category": null,
+      "format_id": "standard_listicle"
     },
     {
       "id": "vnd-20260512-1540-vnd-hy-sinh-ky-quy-doi-phi-73-mo-hinh-nao-thang",
