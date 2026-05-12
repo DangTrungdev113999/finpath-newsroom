@@ -367,6 +367,43 @@ def test_build_right_column_reads_skeptic_data_trail_key():
     assert result["skeptic_data_trail"][0]["source"] == "DB/generated_news"
 
 
+def test_render_includes_format_director_section(tmp_path):
+    """V5.0: right column markdown includes format pick reasoning."""
+    from lib.render_compare_feed import build_right_column
+
+    article = {
+        "article_id": "a1",
+        "ticker": "VCB",
+        "title": "Vì sao to nhất lại đi chậm?",
+        "body": "...",
+        "pipeline_version": "V5.0",
+        "pipeline_log": '{"step_3_5_format_director": {"format_picks": [{"option_idx": 0, "format_id": "standard_qa", "format_reason": "Category=paradox → candidates=[standard_qa]. Picked=standard_qa.", "tone_bias": "neutral", "length_target": 250}], "candidates_considered_per_option": [{"option_idx": 0, "category": "paradox", "candidates": ["standard_qa"]}], "variety_check": {"recent_3_articles_same_ticker_formats": ["standard_qa", "standard_listicle", "standard_qa"], "current_pick_diversity_warning": false}, "model": "claude-sonnet-4-6", "duration_ms": 8400, "tokens": 1240}, "step_4_master": {"chosen_question_idx": 0, "chosen_pick_reason": "test", "skip_reasons": {}, "data_trail": [{"source": "x", "fetched": "y"}], "format_id_used": "standard_qa"}}',
+    }
+    anchor_row = {"row_id": "r1", "ticker": "VCB"}
+    funnel_rows = []
+
+    rc = build_right_column(article, anchor_row, funnel_rows)
+    assert "format_director" in rc
+    assert rc["format_director"]["format_id"] == "standard_qa"
+    assert rc["format_director"]["format_reason"]
+    assert rc["format_director"]["tone_bias"] == "neutral"
+
+
+def test_render_v4_article_no_format_director_section(tmp_path):
+    """V3.6/V4.0 legacy articles: format_director field absent (graceful)."""
+    from lib.render_compare_feed import build_right_column
+    article = {
+        "article_id": "a1",
+        "ticker": "VCB",
+        "title": "Test",
+        "body": "...",
+        "pipeline_version": "V4.0",
+        "pipeline_log": '{"step_4_master": {"chosen_question_idx": 0, "chosen_pick_reason": "x", "skip_reasons": {}, "data_trail": [{"source": "x", "fetched": "y"}]}}',
+    }
+    rc = build_right_column(article, {"row_id": "r1", "ticker": "VCB"}, [])
+    assert rc.get("format_director") in (None, {})
+
+
 def test_update_manifest_atomic_concurrent(tmp_path):
     """3 concurrent update_manifest calls all entries persist (no last-writer-wins).
 

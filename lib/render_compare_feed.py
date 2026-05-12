@@ -34,10 +34,10 @@ def build_right_column(article: dict, anchor_row: dict, funnel_rows: list[dict])
 
     # Section 1: original article info (raw_source)
     right_source = {
-        "name": anchor_row["source_name"],
-        "url": anchor_row["source_url"],
+        "name": anchor_row.get("source_name", ""),
+        "url": anchor_row.get("source_url", ""),
         "published": (anchor_row.get("published_time") or "")[:10],
-        "raw_title": anchor_row["title"],
+        "raw_title": anchor_row.get("title", ""),
     }
 
     # Section 2: why_chosen_narrative (Story Editor)
@@ -65,7 +65,27 @@ def build_right_column(article: dict, anchor_row: dict, funnel_rows: list[dict])
     skeptic_data_trail = step_5.get("skeptic_data_trail") or step_5.get("data_trail", [])
 
     # Section 8: raw article URL (link only, NO embed)
-    raw_article_url = anchor_row["source_url"]
+    raw_article_url = anchor_row.get("source_url", "")
+
+    # V5.0 — Format Director section (graceful degrade if missing).
+    # Read step_3_5_format_director.format_picks[], pick the entry matching
+    # Master's chosen_question_idx (fallback first pick).
+    step_3_5 = pipeline_log.get("step_3_5_format_director")
+    format_director = None
+    if step_3_5 and isinstance(step_3_5, dict):
+        picks = step_3_5.get("format_picks") or []
+        pick = next(
+            (p for p in picks if p.get("option_idx") == chosen_question_idx),
+            picks[0] if picks else None,
+        )
+        if pick:
+            format_director = {
+                "format_id": pick.get("format_id"),
+                "format_reason": pick.get("format_reason"),
+                "tone_bias": pick.get("tone_bias", "neutral"),
+                "length_target": pick.get("length_target"),
+                "variety_check": step_3_5.get("variety_check", {}),
+            }
 
     return {
         "right_source": right_source,
@@ -80,6 +100,7 @@ def build_right_column(article: dict, anchor_row: dict, funnel_rows: list[dict])
         "master_data_trail": master_data_trail,
         "skeptic_data_trail": skeptic_data_trail,
         "raw_article_url": raw_article_url,
+        "format_director": format_director,
     }
 
 
