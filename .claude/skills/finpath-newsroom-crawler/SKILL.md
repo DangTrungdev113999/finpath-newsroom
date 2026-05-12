@@ -1,6 +1,6 @@
 ---
 name: finpath-newsroom-crawler
-description: Crawls 20 Vietnamese financial/general news sources for latest 3 articles per source (sort by publish time desc) about a stock ticker in Bank/CK/BĐS universe — sub-skill in Finpath Newsroom V2.4 pipeline. Use when orchestrator triggers Step 1, or user explicit "crawl tin về [TICKER]". Writes rows to SQLite crawl_log (data/pipeline.db) via lib/pipeline_db.py with published_time + funnel_batch_id (format ticker-YYYYMMDD-HHMM) for downstream Editor V1 + Story Editor + Compare Feed Crawl Funnel section. NEVER use for non-universe tickers. NEVER pull more than 3 articles per source — must be 3 newest only.
+description: V3.0 Tavily-primary crawler. Calls MCP tavily_search per ticker (time_range=week + 20-source domain whitelist + max_results=20 + country=Vietnam) to fetch latest news for stock ticker in 61-mã universe (Bank/CK/BĐS). Auto-fallbacks to built-in WebSearch tool if Tavily fails (out-of-credit / API error / empty), then to legacy 20-source crawler as last resort. Writes rows to SQLite crawl_log via lib/tavily_crawler.crawl(). Pipeline log emits data_trail entry with tier_used (Tavily / WebSearch / Crawler-legacy). NEVER use for non-universe tickers.
 ---
 
 # Finpath Newsroom Crawler
@@ -39,193 +39,66 @@ Crawler agent V2.4 — input đầu pipeline Newsroom. Search + fetch tin từ *
 }
 ```
 
-## Workflow 7 bước
+## Workflow V3.0 (Tavily migration)
 
-### Bước 1 — Validate ticker
-
-```python
-from scripts.source_whitelist import get_sector_for_ticker, BANK_UNIVERSE
-
-ticker = input["ticker"].upper()
-
-if ticker not in BANK_UNIVERSE:  # M1 Bank only
-    return {"error": f"M1 chỉ Bank: {BANK_UNIVERSE}", "ticker": ticker}
-
-sector = "Bank"
-```
-
-### Bước 2 — Build search queries
+### 1. Validate ticker + build batch_id
 
 ```python
-from scripts.search_queries import build_queries
-
-queries = build_queries(ticker, sector)
-# Example for VCB:
-# ["VCB Vietcombank", "VCB kết quả kinh doanh", 
-#  "VCB cổ phiếu tin tức", "VCB ngân hàng"]
+from lib.stages.run_crawler import FULL_UNIVERSE  # 61 mã
+ticker = "TCB"  # from input
+if ticker not in FULL_UNIVERSE:
+    raise ValueError(f"{ticker} not in 61-mã universe")
+batch_id = f"{ticker}-{datetime.now().strftime('%Y%m%d-%H%M')}"
 ```
 
-### Bước 3 — Search per source (V2.4: 20 nguồn, sort by publish time desc, top 3)
+### 2. Call lib/tavily_crawler.crawl() (3-tier orchestrator)
 
-For mỗi nguồn trong whitelist (20 nguồn):
+The orchestrator transparently tries:
+- **Tier 1: Tavily MCP** — `mcp__tavily__tavily_search` với time_range=week, 20 source whitelist, max_results=20, country=Vietnam
+- **Tier 2: Built-in WebSearch** — if Tier 1 returns []
+- **Tier 3: Legacy 20-source crawler** — if Tier 2 returns []
+
 ```python
-from scripts.source_whitelist import SOURCES_WHITELIST
-import datetime as dt
-
-# Generate Funnel_batch_id ONCE per ticker call (link tất cả tin trong batch)
-funnel_batch_id = f"{ticker}-{dt.datetime.now().strftime('%Y%m%d-%H%M')}"
-# vd: "TCB-20260507-1430"
-
-candidates = []
-for source_name, domain in SOURCES_WHITELIST.items():
-    for query in queries:
-        # Use web_search tool
-        full_query = f"{query} site:{domain}"
-        results = web_search(full_query)
-        
-        # V2.4: Sort by publish time DESC + take top 3 NEWEST
-        # web_search results đã có metadata.published_time hoặc parse từ snippet
-        sorted_results = sorted(
-            [r for r in results if has_recent_date(r, days=30)],
-            key=lambda r: r.get("published_time", "1970-01-01"),
-            reverse=True  # newest first
-        )
-        top_3_newest = sorted_results[:3]
-        
-        for r in top_3_newest:
-            candidates.append({
-                "source_name": source_name,
-                "url": r["url"],
-                "title_preview": r["title"],
-                "published_time": r.get("published_time"),  # ISO datetime, may be None
-                "funnel_batch_id": funnel_batch_id
-            })
+from lib.tavily_crawler import crawl
+rows, tier_used = crawl(ticker, batch_id)
+print(f"Crawled {len(rows)} candidates via {tier_used}")
 ```
 
-⚠️ **V2.4 CRITICAL**: Sort by `published_time` desc, take top 3 mới nhất per nguồn. KHÔNG lấy tin cũ. User check 3 bài newest qua field `Published_time` trên DB Crawl Log row.
-
-⚠️ **published_time fallback**: nếu web_search không return published_time field, parse từ:
-1. URL pattern (vd `cafef.vn/2026/05/07/article-slug` → 2026-05-07)
-2. Article snippet "Đăng ngày DD/MM/YYYY"
-3. Nếu không parse được → set Published_time = NULL, ghi chú trong `Ghi chú pipeline`
-
-### Bước 4 — Dedupe candidates
+### 3. Persist rows vào SQLite crawl_log
 
 ```python
 from lib.pipeline_db import PipelineDB
-import sqlite3
-
-db = PipelineDB("data/pipeline.db")
-
-# Query crawl_log for existing URLs (unique index on source_url)
-cur = db.conn.execute(
-    "SELECT source_url FROM crawl_log WHERE source_url IN ({})".format(
-        ",".join("?" for _ in candidates)
-    ),
-    [c["url"] for c in candidates]
-)
-existing_urls = {row["source_url"] for row in cur.fetchall()}
-
-candidates_new = [c for c in candidates if c["url"] not in existing_urls]
-rows_skipped_dedupe = len(candidates) - len(candidates_new)
+db = PipelineDB('data/pipeline.db')
+for row in rows:
+    db.insert_crawl_row(row)
+db.conn.close()
 ```
 
-### Bước 5 — Fetch full content
-
-For mỗi candidate mới:
-```python
-errors = []
-for c in candidates_new:
-    try:
-        # Use web_fetch tool
-        content = web_fetch(c["url"])
-        c["full_content"] = content["text"]
-        c["full_title"] = content["title"]
-    except Exception as e:
-        errors.append({"url": c["url"], "error": str(e)})
-```
-
-### Bước 6 — Write rows vào crawl_log (V2.4: thêm published_time + funnel_batch_id)
+### 4. Emit data_trail entry to pipeline log
 
 ```python
-import uuid
-from lib.pipeline_db import PipelineDB
-
-db = PipelineDB("data/pipeline.db")
-rows_created = []
-for c in candidates_new:
-    if "full_content" not in c:
-        continue  # fetch failed, skip
-    
-    row_id = str(uuid.uuid4())
-    data = {
-        "row_id": row_id,
-        "funnel_batch_id": c["funnel_batch_id"],  # V2.4
-        "ticker": c.get("ticker", ""),
-        "source_name": c["source_name"],
-        "source_url": c["url"],
-        "title": c["full_title"],
-        "raw_content": c["full_content"][:2000],  # cap 2000 chars
-        "crawled_at": now_iso(),
-        "status": "pending",
-        "pipeline_version": "V2",
-    }
-    
-    # V2.4: log published_time nếu có
-    if c.get("published_time"):
-        data["published_time"] = c["published_time"]
-    
-    db.insert_crawl_row(data)
-    
-    rows_created.append({
-        "row_id": row_id,
-        "tieu_de": c["full_title"],
-        "nguon": c["source_name"],
-        "link_goc": c["url"],
-        "published_time": c.get("published_time"),
-        "funnel_batch_id": c["funnel_batch_id"]
-    })
+data_trail.append({
+    "source": f"{tier_used}/{'tavily_search' if tier_used == 'Tavily' else tier_used.lower()}",
+    "fetched": f"{len(rows)} candidates",
+    "purpose": "Step 1 crawler input",
+    "supports_argument": "Editor V1 + Story Editor downstream"
+})
 ```
 
-⚠️ **V2.4 fields mới được set**:
-- `published_time` — thời gian publish bài gốc (có thể NULL nếu không parse được)
-- `funnel_batch_id` — link tất cả tin trong batch để Compare Feed render Crawl Funnel section
+### Tier-specific MCP/tool invocation
 
-### 🚨 NEVER skip candidates — TẤT CẢ phải log vào DB Crawl Log
+Crawler skill (or agent calling this skill) **MUST have access** to:
+- `mcp__tavily__tavily_search` (for Tier 1 — required for primary path)
+- Built-in `WebSearch` tool (for Tier 2 fallback)
 
-Crawler là source of truth cho Compare Feed Crawl Funnel section. Section này render TẤT CẢ candidates trong batch (1 picked + N rejected) với agent reject + reason. Nếu Crawler chỉ log 3/10 candidates, Compare Feed sẽ thiếu data và user thấy funnel "rỗng".
+If running headless (no MCP), Tier 1 + 2 will fail → automatic Tier 3 (legacy crawler) takes over.
 
-**ALWAYS log mọi candidate fetch được, kể cả**:
-- Candidate bị Editor V1 reject sau (out_of_universe / low_quality_source / dup_url)
-- Candidate bị Story Editor reject sau (dup_event / low_writeability / wait_more_data)
-- Candidate fetch fail nội dung (vẫn log row với `Nội dung thô = "[fetch failed]"` + log error)
-- Candidate trùng story angle với candidate khác trong cùng batch
+### Notes
 
-**Mục tiêu**: Sau khi Crawler chạy xong, DB Crawl Log phải có **đủ N row** với cùng `Funnel_batch_id`, để Editor V1 + Story Editor + Compare Feed render đầy đủ funnel.
-
-**Anti-pattern (KHÔNG làm)**:
-- Crawler chỉ search 1-2 query rồi return 3 candidates "tiêu biểu" — sai. Phải search per nguồn từ whitelist.
-- Crawler tự reject candidate nếu thấy "trùng story" — sai. Đó là việc của Story Editor, không phải Crawler.
-- Crawler skip nguồn khi web_search broad query đã có 3 kết quả từ nguồn khác — sai. Mỗi nguồn phải search riêng để có 3 newest từ nguồn đó.
-
-**Pattern đúng — broad search fallback**:
-Nếu loop `for source in WHITELIST` quá tốn token (20 search calls), pattern thay thế OK:
-1. Search broad query: `"[TICKER] [tên cty]"` (1-2 search call)
-2. Map kết quả về whitelist domain (parse URL)
-3. Lấy top 3 newest per domain (group by source domain, sort desc)
-4. **CRITICAL**: log explicit `"broadcast_search_used: true"` vào field `Ghi chú pipeline` của mỗi row, để downstream biết đây là broadcast search (có thể miss tin từ nguồn ít rank cao)
-
-### Bước 7 — Return output
-
-```json
-{
-  "ticker": "VCB",
-  "sector": "Bank",
-  "rows_created": [...],
-  "rows_skipped_dedupe": 5,
-  "errors": []
-}
-```
+- Crawler V3.0 đầu pipeline. Output = rows in crawl_log table với primary_ticker NULL → Editor V1 fills primary_ticker downstream.
+- Pipeline log audit trail: `data_trail.source` field shows which tier was used for transparency.
+- Free tier Tavily limit 1.000 searches/month. Per Q2=A spec: no usage tracking, fail gracefully via fallback.
+- Master Bank/CK/BĐS Step 6 web_search KHÔNG dùng Tavily (per user "tiết kiệm credit").
 
 ## Constraints
 
