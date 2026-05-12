@@ -56,6 +56,28 @@ V3.6 BỎ KB topic check + DB metadata check trong Pass 2.5 — Master toàn quy
 
 Token cost: ~1K total per candidate.
 
+### Pass 2.6 — Pick stance_directive per option (V5.0 + V5.1.2 PATCH)
+
+For each `deep_question_option`, build `stance_directive` OBJECT based on data + insight direction:
+
+- **`direction`** ∈ {bullish, bearish, divergent}:
+  - `bullish`: tích cực, đáng giữ — data + insight argue positive outcome
+  - `bearish`: tiêu cực, cảnh báo — data + insight argue negative outcome
+  - `divergent`: phân hoá rõ — data + insight argue 2 sides (vd `comparison_deep` showing winners + losers)
+
+- **`confidence`** ∈ {high, medium, low}:
+  - `high`: ≥3 corroborating sources / strong primary evidence
+  - `medium`: 1-2 sources + analyst inference
+  - `low`: speculation / weak signal — Master may caveat in closing
+
+- **`reason`**: 1-2 câu narrative tiếng Việt thuần giải thích vì sao chọn direction (KHÔNG enum, KHÔNG English jargon — gate `check_no_english_jargon_narrative` cover field này)
+
+- **`key_evidence`**: array 2-4 evidence points (numbers, facts, comparisons) supporting direction
+
+⚠ Stance độc lập với market mood (V5 Contrarian rule). Pick theo DATA justifies. Format Director picks `tone_bias` riêng (mood-sync).
+
+⚠ Nếu `category=comparison_deep` và ≥1 option KHÔNG pick `divergent` → flag rationale rõ trong `reason`.
+
 ### Pass 3 — Ranking + final pick (uncapped — Phase G T2)
 
 Score per candidate dựa trên 6 questions → rank → pick by merit. KHÔNG default về số nào — chấp nhận 0 brief nếu toàn batch fail, chấp nhận 1 nếu chỉ 1 candidate đáng viết, chấp nhận 5+ nếu ngày nhiều news chất lượng.
@@ -81,12 +103,12 @@ Check briefs picked có cùng `deep_question_category` với 3 bài cũ không:
 - `unverified_rumor` — nguồn không chính thống, claim không verify
 - `stale` — tin từ trước 30 ngày
 
-## Brief schema V4.0
+## Brief schema V5.0 + V5.1.2 PATCH
 
-Story Editor outputs narrative-rich brief với 2-3 deep_question OPTIONS để Master tự chọn.
+Story Editor outputs narrative-rich brief với 2-3 deep_question OPTIONS để Master tự chọn. V5.0 + V5.1.2 PATCH adds `stance_directive` OBJECT + `narrative_setup` + `data_trail_preview` + `key_metric_count` per option.
 
 ```yaml
-brief_v4:
+brief_v5:
   row_id: "<crawl_log row>"
   ticker: "TCB"
   sector: "Bank"
@@ -108,16 +130,69 @@ brief_v4:
   
   source_rationale: "1-2 câu — vì sao chọn nguồn này trong batch"
 
-  # Multi-option questions (V4.0 NEW)
+  # Multi-option questions (V4.0 NEW + V5.0 enriched + V5.1.2 PATCH)
   deep_question_options:
     - question: "Vì sao 2 quyết định ngược chiều xảy ra cùng lúc?"
       category: paradox
+      stance_directive:
+        direction: bullish        # bullish | bearish | divergent
+        confidence: high          # high | medium | low
+        reason: |
+          1-2 câu vì sao chọn direction này. Tiếng Việt thuần.
+          Vd: "Đánh đổi chủ động 5.000 tỷ cho thấy ban điều hành chấp nhận
+          chi phí ngắn hạn cho tái cơ cấu — tín hiệu cải tổ thực, không phải
+          PR mang tính chữa cháy."
+        key_evidence:
+          - "CEO quote công khai trong ĐHĐCĐ 'hy sinh 5.000 tỷ/năm'"
+          - "Tỷ trọng cho vay BĐS giảm từ 35% xuống dưới 30% Q1/2026"
+          - "Lợi nhuận trước thuế Q1 vẫn tăng 18% so cùng kỳ"
+      narrative_setup: |
+        Background 2-4 câu Master sẽ đọc trước khi viết — orient context,
+        KHÔNG bắt Master query trùng. Master tự fetch data thực tế.
+      data_trail_preview:
+        - source: "Finpath_API/bankfinancialratios"
+          fetched: "TCB tỷ trọng cho vay BĐS Q1/2026 = 28%"
+        - source: "KB/Big4-vs-Tunhan"
+          fetched: "Lịch sử chia cổ tức 2020-2025"
+      key_metric_count: 3
       pick_hint: "Có quote CEO mạnh + 2 hành động đối lập rõ"
+
     - question: "Vì sao bây giờ là thời điểm rút BĐS, không phải 2023?"
       category: why_now
+      stance_directive:
+        direction: bearish
+        confidence: medium
+        reason: |
+          Timing rút BĐS muộn cho thấy ban điều hành chấp nhận rủi ro ngắn
+          hạn — chậm 2 năm so chu kỳ điều chỉnh BĐS, có thể đánh giá thấp
+          tốc độ phục hồi.
+        key_evidence:
+          - "Chu kỳ điều chỉnh BĐS bắt đầu 2022, đỉnh khủng hoảng 2023"
+          - "TCB rút BĐS Q1/2026, sau 3 năm so cụm tổn thất ngân hàng"
+      narrative_setup: "Timing với khủng hoảng BĐS 2022-23, dễ liên hệ Vạn Thịnh Phát"
+      data_trail_preview:
+        - source: "KB/Bank-Crisis-Timeline"
+          fetched: "Chu kỳ BĐS 2008/2011-13/2022"
+      key_metric_count: 2
       pick_hint: "Timing với khủng hoảng BĐS 2022-23, dễ liên hệ Vạn Thịnh Phát"
+
     - question: "TCB hy sinh 5.000 tỷ/năm — phép tính nào ra con số đó?"
       category: hidden_mechanism
+      stance_directive:
+        direction: divergent
+        confidence: low
+        reason: |
+          Con số 5.000 tỷ đặt ra câu hỏi 2 chiều — có thể đúng nếu tính chi
+          phí cơ hội cho vay BĐS lợi suất cao, có thể quá lạc quan nếu tính
+          theo biên lãi vay hiện tại.
+        key_evidence:
+          - "Biên lãi vay BĐS năm 2024 cao hơn 1.8% so trung bình"
+          - "Quy mô danh mục BĐS rút khoảng 28.000 tỷ"
+      narrative_setup: "Cần report nội bộ TCB, web search có thể fail — Master verify mechanism"
+      data_trail_preview:
+        - source: "WebSearch/cafef.vn-tcb-q1"
+          fetched: "Snippet preview only"
+      key_metric_count: 1
       pick_hint: "Cần report nội bộ TCB, web search có thể fail"
   
   insight_hypothesis: "1 câu specific Master verify với data"
@@ -126,7 +201,9 @@ brief_v4:
 
 ⚠️ **DROPPED từ V3.6**: `data_spec`, `data_anchor`, `angle_alternatives`, single `deep_question`, single `deep_question_category`. V4.0 dùng `deep_question_options` array.
 
-⚠️ **Narrative fields BẮT BUỘC**: `why_chosen_narrative` + `angle_narrative` + `source_rationale` — viết tiếng Việt thuần, USER-READABLE, KHÔNG enum keywords (paradox/why_now/etc).
+⚠️ **V5.0 + V5.1.2 PATCH NEW per option**: `stance_directive` OBJECT (4 sub-keys: `direction` + `confidence` + `reason` + `key_evidence`) + `narrative_setup` + `data_trail_preview` (≥1 source) + `key_metric_count` (int). Stance độc lập với market mood — picked theo data direction. Format Director picks `tone_bias` riêng.
+
+⚠️ **Narrative fields BẮT BUỘC**: `why_chosen_narrative` + `angle_narrative` + `source_rationale` + mỗi `pick_hint` + mỗi `narrative_setup` + mỗi `stance_directive.reason` — viết tiếng Việt thuần, USER-READABLE, KHÔNG enum keywords (paradox/why_now/etc).
 
 ⚠️ **Master flexibility**: Master quyền free reformulate chosen question để clickable hơn. Master persist `chosen_question_idx` + `chosen_pick_reason` + `skip_reasons[idx]: narrative` cho 2 câu skip.
 
@@ -134,7 +211,7 @@ brief_v4:
 
 ```json
 {
-  "schema_version": "1.2",
+  "schema_version": "1.3",
   "batch_id": "<ticker>-<YYYYMMDD-HHMM>",
   "processed_at": "<ISO datetime>",
   "input_count": <N>,
@@ -148,6 +225,8 @@ brief_v4:
   ]
 }
 ```
+
+`schema_version: "1.3"` — V5.0 + V5.1.2 PATCH bumps from `1.2`. Adds `stance_directive` OBJECT + `narrative_setup` + `data_trail_preview` + `key_metric_count` per option.
 
 ## V2.4 Persist crawl_log
 
@@ -188,7 +267,13 @@ db.update_crawl_row(row_id, {
 - KHÔNG bịa data trong brief — chỉ reference data sẵn có
 - Memory check BẮT BUỘC trước output
 - Output 0 brief nếu batch không đủ chất lượng — KHÔNG pad
-- **Narrative tiếng Việt thuần (Rule 7 — Bug B fix)**: 4 fields `why_chosen_narrative`, `angle_narrative`, `source_rationale`, mỗi `deep_question_options[*].pick_hint` MUST 0% từ tiếng Anh. Banned set narrative = Master body banned list (`ENGLISH_JARGON`) **PLUS** narrative-only extras (`ENGLISH_JARGON_NARRATIVE_EXTRA`): **funding, big4, forward-looking, cross-check**. 4 từ extra này được phép xuất hiện trong Master body khi context warrants (vd "Big4" = shorthand legit cho VCB/BID/CTG/AGR analog ĐHĐCĐ) nhưng KHÔNG được leak vào narrative explanation cho user. Ngoài ra KHÔNG: trade-off, metric, momentum, defensive, paradox, why_now, hidden_mechanism, comparison_deep, early_signal, etc. Mapping cứng ở CLAUDE.md. Self-check trước persist: gọi `check_no_english_jargon_narrative` từ `lib/quality_gates.py` (function tự gộp 2 dict).
+- **Narrative tiếng Việt thuần (Rule 7 — Bug B fix + V5.0 ext)**: narrative fields `why_chosen_narrative`, `angle_narrative`, `source_rationale`, mỗi `deep_question_options[*].pick_hint`, mỗi `deep_question_options[*].narrative_setup`, mỗi `deep_question_options[*].stance_directive.reason` MUST 0% từ tiếng Anh. Banned set narrative = Master body banned list (`ENGLISH_JARGON`) **PLUS** narrative-only extras (`ENGLISH_JARGON_NARRATIVE_EXTRA`): **funding, big4, forward-looking, cross-check**. 4 từ extra này được phép xuất hiện trong Master body khi context warrants (vd "Big4" = shorthand legit cho VCB/BID/CTG/AGR analog ĐHĐCĐ) nhưng KHÔNG được leak vào narrative explanation cho user. Ngoài ra KHÔNG: trade-off, metric, momentum, defensive, paradox, why_now, hidden_mechanism, comparison_deep, early_signal, etc. Mapping cứng ở CLAUDE.md. Self-check trước persist: gọi `check_no_english_jargon_narrative` từ `lib/quality_gates.py` (function tự gộp 2 dict).
+- **V5.0 + V5.1.2: stance_directive required** — every `deep_question_options[*]` MUST có `stance_directive` OBJECT với đủ 4 keys (`direction`, `confidence`, `reason`, `key_evidence`). Reject missing or partial. `direction` ∈ {bullish, bearish, divergent}; `confidence` ∈ {high, medium, low}; `key_evidence` array 2-4 items.
+- **V5.0: data_trail_preview** — list ≥1 source object `{source, fetched}` per option, cho Format Director apply length downgrade heuristic.
+- **V5.0: key_metric_count** — int count of key financial metrics in `narrative_setup`. 0-2+ acceptable (Format Director uses for length tie-break).
+- **V5.0: narrative_setup** — pre-Master context tiếng Việt thuần. Master fetches actual data; `narrative_setup` là orientation only — KHÔNG bắt Master query trùng source.
+- **Stance independent of market mood** — stance pick theo DATA justifies. Format Director picks `tone_bias` riêng (mood-sync). KHÔNG flip stance theo mood.
+- **comparison_deep → divergent check** — nếu `category=comparison_deep`, expect `direction=divergent`. Nếu pick bullish/bearish cho comparison_deep → flag rationale rõ trong `reason`.
 
 ## Edge cases
 - Batch toàn low quality → output 0 brief, log "batch_no_quality" trong rejected[]
