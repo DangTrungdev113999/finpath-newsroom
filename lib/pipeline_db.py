@@ -55,11 +55,25 @@ _STEP_3_5_REQUIRED: dict[str, type | tuple] = {
     "format_picks": list,
 }
 
+# V5.1 — Headline Craft step (Plan C — newsroom-headline-craft agent).
+# `hard_criteria_pass` is V1.1 nested dict structure — payload schema enforces
+# shape only; fail-loud check on `final_title` against check_hard_criteria
+# happens in validate_pipeline_step (V5.1+ gate) so weak titles cannot persist.
+_STEP_4_5_REQUIRED: dict[str, type | tuple] = {
+    **_OBSERVABILITY_REQUIRED,
+    "final_title": str,
+    "final_loi": str,
+    "picked_score": int,
+    "candidates": list,
+    "hard_criteria_pass": dict,
+}
+
 # Non-empty constraint per step (baseline — V5.0 dynamically adds `model`).
 _NON_EMPTY_FIELDS: dict[str, set[str]] = {
     "step_4_master": {"chosen_pick_reason", "data_trail"},
     "step_5_skeptic": {"angle", "verdict", "skeptic_data_trail"},
     "step_3_5_format_director": {"format_picks"},
+    "step_4_5_headline_craft": {"final_title", "final_loi"},
 }
 
 
@@ -89,6 +103,7 @@ def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str =
     schema in the first place.
     """
     is_v5_plus = _version_ge(pipeline_version, "V5.0")
+    is_v5_1_plus = _version_ge(pipeline_version, "V5.1")
 
     required_map: dict[str, dict[str, type | tuple]] = {
         "step_4_master": _STEP_4_REQUIRED_V5 if is_v5_plus else _STEP_4_REQUIRED_V4,
@@ -96,11 +111,17 @@ def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str =
     }
     if is_v5_plus:
         required_map["step_3_5_format_director"] = _STEP_3_5_REQUIRED
+    if is_v5_1_plus:
+        required_map["step_4_5_headline_craft"] = _STEP_4_5_REQUIRED
 
     non_empty_fields = dict(_NON_EMPTY_FIELDS)
     if is_v5_plus:
         for step in ("step_4_master", "step_5_skeptic", "step_3_5_format_director"):
             non_empty_fields[step] = non_empty_fields.get(step, set()) | {"model"}
+    if is_v5_1_plus:
+        non_empty_fields["step_4_5_headline_craft"] = (
+            non_empty_fields.get("step_4_5_headline_craft", set()) | {"model"}
+        )
 
     required = required_map.get(step_key)
     if not required:
@@ -156,6 +177,36 @@ def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str =
             f"V5.0+ requires observability (model + duration_ms). "
             f"MUST dispatch via Task tool to enforce schema."
         )
+
+    # V5.1 — step_4_5_headline_craft fail-loud: final_title MUST pass 5 V1.1
+    # hard criteria (ticker_present + word_count_le_12 + hook_strong{tension,
+    # click_test} + binh_dan_nguy_hiem{plain_language, sharp_edge} + no_em_dash).
+    # Orchestrator cannot silently persist a weak title; Headline agent MUST
+    # regenerate (max 2 retry) before this validate succeeds.
+    if step_key == "step_4_5_headline_craft" and is_v5_1_plus:
+        from lib.headline_scorer import check_hard_criteria
+        title = payload.get("final_title", "")
+        if title:  # basic non-empty already enforced above; defensive
+            hc = check_hard_criteria(title)
+            if not hc.get("passed", False):
+                failed_keys: list[str] = []
+                if not hc.get("ticker_present"):
+                    failed_keys.append("ticker_present")
+                if not hc.get("word_count_le_12"):
+                    failed_keys.append("word_count_le_12")
+                hook = hc.get("hook_strong", {})
+                if not (hook.get("tension_present") and hook.get("click_test_pass")):
+                    failed_keys.append("hook_strong")
+                bd = hc.get("binh_dan_nguy_hiem", {})
+                if not (bd.get("plain_language") and bd.get("sharp_edge")):
+                    failed_keys.append("binh_dan_nguy_hiem")
+                if not hc.get("no_em_dash"):
+                    failed_keys.append("no_em_dash")
+                raise ValueError(
+                    f"pipeline_log[step_4_5_headline_craft].final_title fails hard criteria: "
+                    f"{failed_keys} — title={title!r}. Headline agent emitted weak title; "
+                    f"MUST regenerate (max 2 retry) before persist."
+                )
 
 
 # V5.1.3 (F-5) — crawl_log schema validation after Editor V1 routes a row.
