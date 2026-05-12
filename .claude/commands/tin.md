@@ -1,7 +1,7 @@
 ---
 description: Viết bài tin chuyên sâu về 1 mã cổ phiếu Việt Nam (61 mã: Bank/CK/BĐS)
 argument-hint: <TICKER>
-allowed-tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
+allowed-tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, mcp__tavily__tavily_search
 ---
 
 Trigger pipeline 6-step Newsroom V4.0 cho ticker **$ARGUMENTS**.

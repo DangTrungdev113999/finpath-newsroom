@@ -1,7 +1,7 @@
 ---
 description: Viết bài tin chuyên sâu cho NHIỀU mã cổ phiếu cùng lúc (parallel pipelines, đa sector Bank/CK/BĐS)
 argument-hint: <TICKER1,TICKER2,TICKER3,...>
-allowed-tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
+allowed-tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, mcp__tavily__tavily_search
 ---
 
 Trigger N pipeline 6-step Newsroom V4.0 PARALLEL cho list tickers comma-separated **$ARGUMENTS**.

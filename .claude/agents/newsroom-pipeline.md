@@ -1,7 +1,7 @@
 ---
 name: newsroom-pipeline
 description: Top-level orchestrator cho Finpath Newsroom 6-step pipeline V4.0. Use khi /tin command dispatches với 1 ticker. Chạy Crawler (Python) → Editor V1 (subagent) → Story Editor (subagent) → Master Bank (subagent) → Skeptic (subagent) → Render markdown (Python). Output: N markdown files output/compare-feed/<TICKER>-<DATE>-<HHMM>-<slug>.md + manifest update.
-tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
+tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, mcp__tavily__tavily_search
 model: sonnet
 ---
 
