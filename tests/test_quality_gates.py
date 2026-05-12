@@ -243,7 +243,7 @@ def test_title_question_passes():
 
 
 def test_title_paradox_dash_passes():
-    assert check_title_as_hook("TCB hy sinh 5.000 tỷ — đổi lấy gì?")["pass"] is True
+    assert check_title_as_hook("Q1 BSR ăn 8.265 tỷ — sếp chỉ hứa 2.162 tỷ?")["pass"] is True
 
 
 def test_title_summary_fails():

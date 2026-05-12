@@ -806,11 +806,11 @@ def test_validate_step_4_5_v5_1_enforces_hard_criteria():
 def test_validate_step_4_5_v5_1_valid_title_passes():
     from lib.pipeline_db import validate_pipeline_step
     payload = {
-        "final_title": "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?",
+        "final_title": "Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?",
         "final_loi": "Question",
         "picked_score": 7,
         "candidates": [
-            {"text": "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?", "loi": "Question", "score": 7}
+            {"text": "Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?", "loi": "Question", "score": 7}
         ],
         "hard_criteria_pass": {
             "ticker_present": True,
@@ -837,7 +837,7 @@ def test_validate_step_4_5_v5_1_rejects_em_dash():
     from lib.pipeline_db import validate_pipeline_step
     import pytest
     payload = {
-        "final_title": "TCB hy sinh 5.000 tỷ — đổi lấy gì?",  # em dash present
+        "final_title": "Q1 BSR ăn 8.265 tỷ — sếp chỉ hứa 2.162 tỷ?",  # em dash present
         "final_loi": "Declarative tension",
         "picked_score": 6,
         "candidates": [],

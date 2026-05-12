@@ -70,11 +70,11 @@ def test_step_4_5_valid_payload_persists(db_v5_1):
     payload = {
         "model": "claude-sonnet-4-6",
         "duration_ms": 5000,
-        "final_title": "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?",
+        "final_title": "Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?",
         "final_loi": "Question",
         "picked_score": 7,
         "candidates": [
-            {"text": "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?", "loi": "Question", "score": 7}
+            {"text": "Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?", "loi": "Question", "score": 7}
         ],
         "hard_criteria_pass": {
             "ticker_present": True,
@@ -92,7 +92,7 @@ def test_step_4_5_valid_payload_persists(db_v5_1):
     ).fetchone()
     log = json.loads(row["pipeline_log"])
     assert "step_4_5_headline_craft" in log
-    assert log["step_4_5_headline_craft"]["final_title"] == "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?"
+    assert log["step_4_5_headline_craft"]["final_title"] == "Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?"
 
 
 def test_step_4_5_weak_title_rejected(db_v5_1):
@@ -123,7 +123,7 @@ def test_step_4_5_em_dash_title_rejected(db_v5_1):
     payload = {
         "model": "claude-sonnet-4-6",
         "duration_ms": 5000,
-        "final_title": "TCB hy sinh 5.000 tỷ — đổi lấy gì?",  # em dash present
+        "final_title": "Q1 BSR ăn 8.265 tỷ — sếp chỉ hứa 2.162 tỷ?",  # em dash present
         "final_loi": "Declarative tension",
         "picked_score": 6,
         "candidates": [],
@@ -150,7 +150,7 @@ def test_update_generated_news_title_after_headline(db_v5_1):
     assert "PLACEHOLDER" in row["title"]
 
     # Headline UPDATE
-    final_title = "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?"
+    final_title = "Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?"
     db_v5_1.conn.execute(
         "UPDATE generated_news SET title = ? WHERE article_id = ?",
         (final_title, "a4"),

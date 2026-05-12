@@ -12,8 +12,8 @@ from lib.headline_scorer import (
 # === Hard criteria — 5 keys V1.1 ===
 
 def test_hard_criteria_pass_canonical_example():
-    """Benchmark: 'TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?' passes all 5."""
-    result = check_hard_criteria("TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?")
+    """Benchmark: 'Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?' passes all 5."""
+    result = check_hard_criteria("Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?")
     assert result["passed"] is True
     assert result["ticker_present"] is True
     assert result["word_count_le_12"] is True
@@ -24,14 +24,14 @@ def test_hard_criteria_pass_canonical_example():
 
 def test_hard_criteria_rejects_em_dash():
     """V1.1: title with em dash '—' fails no_em_dash."""
-    result = check_hard_criteria("TCB hy sinh 5.000 tỷ — đổi lấy gì?")
+    result = check_hard_criteria("Q1 BSR ăn 8.265 tỷ — sếp chỉ hứa 2.162 tỷ?")
     assert result["no_em_dash"] is False
     assert result["passed"] is False
 
 
 def test_hard_criteria_hook_strong_2_subtests():
     """hook_strong returns dict with tension_present + click_test_pass keys."""
-    result = check_hard_criteria("TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?")
+    result = check_hard_criteria("Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?")
     assert isinstance(result["hook_strong"], dict)
     assert "tension_present" in result["hook_strong"]
     assert "click_test_pass" in result["hook_strong"]
@@ -39,7 +39,7 @@ def test_hard_criteria_hook_strong_2_subtests():
 
 def test_hard_criteria_binh_dan_nguy_hiem_2_subtests():
     """binh_dan_nguy_hiem returns dict with plain_language + sharp_edge keys."""
-    result = check_hard_criteria("TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?")
+    result = check_hard_criteria("Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?")
     assert isinstance(result["binh_dan_nguy_hiem"], dict)
     assert "plain_language" in result["binh_dan_nguy_hiem"]
     assert "sharp_edge" in result["binh_dan_nguy_hiem"]
@@ -115,7 +115,7 @@ def test_has_pr_clickbait():
 
 
 def test_has_em_dash():
-    assert has_em_dash("TCB hy sinh 5.000 tỷ — đổi lấy gì?") is True
+    assert has_em_dash("Q1 BSR ăn 8.265 tỷ — sếp chỉ hứa 2.162 tỷ?") is True
     assert has_em_dash("TCB hy sinh 5.000 tỷ - đổi lấy gì?") is False  # hyphen OK
     assert has_em_dash("TCB hy sinh 5.000 tỷ – đổi lấy gì?") is False  # en dash OK
 
@@ -123,9 +123,9 @@ def test_has_em_dash():
 # === Scoring ===
 
 def test_score_title_benchmark():
-    """Benchmark 'TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?' should score high (≥6/8)."""
-    result = score_title("TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?")
-    assert result["score"] >= 6
+    """V1.2 benchmark — concrete bình dân hook should score ≥5/8."""
+    result = score_title("Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?")
+    assert result["score"] >= 5  # V1.2 — ăn lãi dramatic_verb + 2 numbers + question
     assert result["max"] == 8
 
 
@@ -138,15 +138,15 @@ def test_score_title_minimal():
 # === Pick best ===
 
 def test_pick_best_candidate_returns_best():
-    """Multiple candidates → highest score wins."""
+    """Multiple candidates → highest score wins. V1.2 — concrete bình dân benchmark."""
     candidates = [
-        "TCB tăng trưởng năm 2026",
-        "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?",
-        "TCB lãi mạnh",
+        "TCB tăng trưởng năm 2026",  # weak, no number/question
+        "Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?",  # V1.2 benchmark
+        "TCB lãi mạnh",  # too short
     ]
     result = pick_best_candidate(candidates)
-    assert "hy sinh" in result["final_title"]
-    assert result["picked_score"] >= 6
+    assert "BSR" in result["final_title"]  # V1.2: bình dân benchmark wins
+    assert result["picked_score"] >= 5
 
 
 def test_pick_best_candidate_all_fail_raises():

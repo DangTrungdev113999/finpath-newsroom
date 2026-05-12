@@ -76,7 +76,7 @@ def populated_db_v4(tmp_path):
 
     # 3 generated_news for 3 anchors (multi-article)
     for i, (aid, rid, title) in enumerate([
-        ("art-1", "anchor-1", "TCB hy sinh 5.000 tỷ — đổi lấy gì?"),
+        ("art-1", "anchor-1", "Q1 BSR ăn 8.265 tỷ — sếp chỉ hứa 2.162 tỷ?"),
         ("art-2", "anchor-2", "TCB đổi giấy lấy ngôi vương — vốn hóa kém tứ trụ?"),
         ("art-3", "anchor-3", "Phí dịch vụ TCB lập đỉnh — rời mô hình cho vay?"),
     ]):
