@@ -1,90 +1,24 @@
 ---
 name: finpath-newsroom-headline-craft
-description: Headline Craft skill V1.1 — 5 hard criteria + 4 lối + 8-point rubric reference for title generation. Use when newsroom-headline-craft agent runs Step 4.5 of pipeline. Covers ticker detection (139 universe + group refs), 4 lối giật tít, dramatic verb pool, specific number regex, paradox pattern, open question, PR clickbait blacklist, English jargon ban, em dash ban (V1.1 PATCH).
+description: Headline Craft skill V1.1 — 5 hard criteria + 4 lối + 8-point rubric for title generation. Use when newsroom-headline-craft agent runs Step 4.5 of pipeline. Em dash banned (V1.1 PATCH).
 ---
 
 # Headline Craft Skill V1.1
 
 Compact reference for Headline Craft agent. Loaded via `Skill: finpath-newsroom-headline-craft`.
 
-## 4 lối giật tít (V1.1)
+## V1.1 PATCH note
 
-| Lối | Definition | Khi nào |
-|---|---|---|
-| Question | Title kết bằng `?` | Body có nghịch lý |
-| Declarative tension | 2 sự kiện đối lập (NO em dash) | Body 2 fact ngược |
-| Quote | Quote CEO/CFO + context | Brief có quote |
-| Contrast verb | 2 chủ thể, verb đối lập | Body so sánh 2 nhóm |
+Em dash `—` (U+2014) BANNED trong title (AI-tell signal). See `references/no-em-dash-policy.md`.
 
-## 5 hard criteria (V1.1)
+## Workflow summary
 
-```python
-# All MUST be true → title accepted
-ticker_present                 # 139-ticker universe or group ref
-word_count_le_12               # ≤12 từ
-hook_strong:                   # 2 sub-tests dict
-  tension_present              # dramatic verb / tension word / paradox
-  click_test_pass              # number / question / dramatic verb
-binh_dan_nguy_hiem:            # 2 sub-tests dict
-  plain_language               # no English + no PR clickbait
-  sharp_edge                   # has tension/specific/dramatic
-no_em_dash                     # '—' U+2014 BANNED (V1.1 PATCH)
-```
-
-Hyphen `-` + en dash `–` acceptable.
-
-## 8-point rubric
-
-Apply only to candidates passing 5 hard criteria.
-
-| Element | Points |
-|---|---|
-| Dramatic verb | +2 |
-| Specific number with units | +2 |
-| Open question (ends `?`) | +1 |
-| Tension word | +1 |
-| Paradox pattern (X mà Y) | +1 |
-| Extra concise (≤10 words) | +1 |
-
-Max 8. Pick highest. Tie-break: shortest.
-
-## Dramatic verb pool
-
-```
-hy sinh · đánh đổi · đặt cược · bỏ phiếu · lội ngược · lao dốc ·
-rút khỏi · vượt mặt · tung đòn · đặt cọc · chấp nhận thua ·
-tự chậm lại · đập cửa · thoát hiểm · chấp nhận hi sinh · đánh cược ·
-đổ vỡ · vực dậy · tiếp đà · phá kỷ lục · soán ngôi · lấn sang · rơi vào
-```
-
-## Tension word pool (lives trong lib/headline_scorer V5.1.3)
-
-```
-hy sinh · đánh đổi · nghịch lý · vì sao · đổi lấy · không phải ·
-bù lại · thay vì · chấp nhận
-```
-
-(Note: "hy sinh" + "đánh đổi" overlap dramatic_verbs — both count cho scoring.)
-
-## PR clickbait blacklist
-
-```
-cú nổ · bí mật · sốc · hot · thông tin nóng · không thể tin nổi ·
-cú twist · kỳ tích · hé lộ · kỷ tích
-```
-
-## Specific number regex
-
-```python
-r"\d+([.,]\d+)?\s*(tỷ|triệu|nghìn|%|đ|/năm|/tháng|/quý|đ/tháng|bps|điểm)"
-```
-
-## Em dash detector (V1.1)
-
-```python
-def has_em_dash(title: str) -> bool:
-    return "—" in title  # U+2014 only — hyphen + en dash OK
-```
+1. Read body + brief + stance_directive
+2. Pick 1 lối (4 options — see `references/4-loi-giat-tit.md`)
+3. Generate 3 candidate titles cùng lối
+4. Apply 5 hard criteria (see `references/criteria-definitions.md`)
+5. Score 8-point rubric (see `references/candidates-scoring.md`)
+6. UPDATE generated_news.title + persist step_4_5_headline_craft
 
 ## Output schema (strict V1.1)
 
@@ -93,11 +27,11 @@ def has_em_dash(title: str) -> bool:
   "model": "claude-sonnet-4-6",
   "duration_ms": int,
   "tokens": int | null,
-  "final_title": "string — passes check_hard_criteria 5 keys",
+  "final_title": "string — passes 5 hard criteria",
   "final_loi": "Question | Declarative tension | Quote | Contrast verb",
   "picked_score": int,
   "candidates": [
-    {"title": "...", "loi": "...", "score": 7, "criteria": {...}}
+    {"title": "...", "loi": "...", "score": int, "criteria": {...}}
   ],
   "hard_criteria_pass": {
     "ticker_present": true,
@@ -109,12 +43,30 @@ def has_em_dash(title: str) -> bool:
 }
 ```
 
-Validation enforced at persist: `lib.pipeline_db.validate_pipeline_step('step_4_5_headline_craft', payload, pipeline_version)`. Title fails 5 criteria → ValueError.
+Validation enforced at persist: `lib.pipeline_db.validate_pipeline_step('step_4_5_headline_craft', payload, pipeline_version="V5.1")`. Fail → ValueError.
 
-## Anti-hallucination
+## Scorer module
 
+Python implementation: `lib/headline_scorer.py`. Pure functions callable via:
+
+```python
+from lib.headline_scorer import check_hard_criteria, score_title, pick_best_candidate
+```
+
+Tests in `tests/test_headline_scorer.py` — 21 tests covering 5 criteria + 8-point rubric + benchmark.
+
+## References (load on-demand)
+
+- `references/4-loi-giat-tit.md` — 4 lối catalog + decision tree + anti-patterns
+- `references/criteria-definitions.md` — 5 hard criteria with sub-tests + examples + reference pools
+- `references/no-em-dash-policy.md` — V1.1 em dash ban policy + substitution patterns
+- `references/candidates-scoring.md` — 8-point rubric + benchmark + anti-gaming
+
+## Hard rules
+
+- KHÔNG sửa body — only replace title
+- KHÔNG cross-format swap — format đã fix
+- KHÔNG sinh title không ticker
+- KHÔNG em dash (V1.1)
+- KHÔNG PR clickbait / English jargon / hedging
 - 3 candidate per lối khác angle, không cùng style
-- NEVER invent PR clickbait
-- Reuse dramatic verb pool (don't sáng tạo verb weak)
-- If body says "VCB rút 12.000 tỷ" — title quote "VCB rút 12.000 tỷ vì sao?"
-- Em dash `—` BANNED — use hyphen `-` if separator needed (but prefer Vietnamese conjunctions)
