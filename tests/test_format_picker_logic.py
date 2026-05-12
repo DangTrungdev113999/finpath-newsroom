@@ -100,3 +100,14 @@ def test_returned_keys():
     """Output shape: 4 fields."""
     result = pick_format_for_option(_option(), market_data=None)
     assert set(result.keys()) == {"format_id", "format_reason", "tone_bias", "length_target"}
+
+
+def test_currency_4digit_not_timeline_marker():
+    """TIMELINE_MARKER_RE must not match bare currency numbers (false positive)."""
+    opt = _option(
+        category="hidden_mechanism",
+        narrative="Doanh thu 5000 tỷ, lợi nhuận 3000 tỷ, vốn 8000 tỷ",
+    )
+    result = pick_format_for_option(opt, market_data=None)
+    # Should default to standard_qa (no real timeline markers, just currency)
+    assert result["format_id"] == "standard_qa"

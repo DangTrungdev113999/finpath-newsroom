@@ -8,11 +8,13 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from lib.format_registry import load_registry, get_candidates_for_category, FORMAT_IDS
+from lib.format_registry import load_registry, get_candidates_for_category
 
 TIMELINE_MARKER_RE = re.compile(
-    r"(Q[1-4]/?\d{0,4}|năm \d{4}|tháng \d{1,2}|cuối năm|đầu năm|"
-    r"\d{4}|hồi \d{4})",
+    r"(Q[1-4]/?\d{0,4}|"
+    r"(?:năm|hồi|từ|đến|cuối|đầu)\s+\d{4}|"
+    r"tháng\s+\d{1,2}|"
+    r"cuối năm|đầu năm)",
     re.IGNORECASE,
 )
 
