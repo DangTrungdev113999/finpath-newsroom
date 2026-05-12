@@ -1,6 +1,17 @@
 {
   "articles": [
     {
+      "id": "bsr-danh-doi-ke-hoach-thap-58-de-doi-lay-dieu-gi",
+      "ticker": "BSR",
+      "sector": "Dầu khí",
+      "title": "BSR đánh đổi kế hoạch thấp 58% để đổi lấy điều gì?",
+      "crawled_at": "2026-05-12T13:50:08.804288+00:00",
+      "key_view": "paradox:BSR ke hoach bao thu 58% vs Q1 vuot 4 lan",
+      "word_count": 286,
+      "category": "paradox",
+      "format_id": "standard_qa"
+    },
+    {
       "id": "q1-2026-vhm-lai-25-600-ty-vi-sao-du-tu-tin-nang-them-10-000",
       "ticker": "VHM",
       "sector": "BĐS",

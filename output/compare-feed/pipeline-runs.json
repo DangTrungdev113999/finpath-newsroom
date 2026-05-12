@@ -1,0 +1,156 @@
+{
+  "built_at": "2026-05-12T14:04:28.629199+00:00",
+  "sessions": [
+    {
+      "session_id": "2A1CD133-6137-4C80-B4A7-7132F1CB36F7",
+      "trigger_type": "tin",
+      "trigger_args": "BSR",
+      "started_at": "2026-05-12T13:50:08.803940+00:00",
+      "ended_at": "2026-05-12T13:50:08.804352+00:00",
+      "fetched_total": 4,
+      "chosen_total": 1,
+      "rejected_total": 3,
+      "batches": [
+        {
+          "funnel_batch_id": "BSR-20260512-1350",
+          "ticker": "BSR",
+          "sector_code": null,
+          "sector_name": "Dầu khí",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 4,
+          "chosen_count": 1,
+          "rejected_count": 3,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "Vietstock",
+                "url": "https://tapchicongthuong.vn/loc-hoa-dau-binh-son--bsr-muc-tieu-top-8-nha-may-loc-dau-co-doanh-thu-lon-nhat-khu-vuc-510036.htm",
+                "published": "2026-04-14T00:00:00+07:00",
+                "reason": "OK — accepted_hypothesis: true. Title: BSR đánh đổi kế hoạch thấp 58% để đổi lấy điều gì?"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "Vietnamnet",
+                "url": "https://vietnamnet.vn/loc-hoa-dau-binh-son-bsr-san-sang-vuot-bao-nam-2026-2473306.html",
+                "published": "2025-12-17T10:30:00+07:00",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_angle_recent: goc nhin vuot bao 2026 tuong tu angle 242d39ae — weaker data foundation, reject de tranh trung lap.",
+                "reason": "dup_angle_recent: goc nhin vuot bao 2026 tuong tu angle 242d39ae — weaker data foundation, reject de tranh trung lap."
+              },
+              {
+                "source": "DNSE",
+                "url": "https://www.dnse.com.vn/senses/tin-tuc/nha-may-loc-dau-3-ty-usd-cua-viet-nam-bat-ngo-thay-ke-toan-truong-35225999",
+                "published": "2026-05-11T15:08:00+07:00",
+                "reject_agent": "story_editor",
+                "reject_label": "low_insight_potential: thay ke toan truong la tin nhan su khong du angle phan tich tai chinh sau.",
+                "reason": "low_insight_potential: thay ke toan truong la tin nhan su khong du angle phan tich tai chinh sau."
+              },
+              {
+                "source": "Petrotimes",
+                "url": "https://petrovietnam.petrotimes.vn/bsr-chinh-thuc-chuyen-doi-thanh-tong-cong-ty-loc-hoa-dau-viet-nam-739814.html",
+                "published": "2026-04-13T15:48:00+07:00",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: chuyen doi ten BSR la su kien kem theo DHDCD, khong du depth rieng. Angle chinh da cover trong brief 242d39ae.",
+                "reason": "sub_event_attached: chuyen doi ten BSR la su kien kem theo DHDCD, khong du depth rieng. Angle chinh da cover trong brief 242d39ae."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "8A3DF22A-7EEB-4480-86F0-FFE31E7E1925",
+      "trigger_type": "tin",
+      "trigger_args": "BSR",
+      "started_at": "2026-05-12T13:30:26.142918+00:00",
+      "ended_at": "2026-05-12T13:30:26.143657+00:00",
+      "fetched_total": 8,
+      "chosen_total": 0,
+      "rejected_total": 8,
+      "batches": [
+        {
+          "funnel_batch_id": "BSR-20260512-1330",
+          "ticker": "BSR",
+          "sector_code": null,
+          "sector_name": null,
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 8,
+          "chosen_count": 0,
+          "rejected_count": 8,
+          "funnel_detail": {
+            "picked": [],
+            "rejected": [
+              {
+                "source": "VnEconomy",
+                "url": "https://vietnambiz.vn/bsr-uoc-lai-quy-i-gap-hon-8-lan-lanh-dao-pvn-yeu-cau-kiem-tien-toi-da-202641314810422.htm",
+                "published": "2026-04-13T14:15:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VietnamFinance",
+                "url": "https://mekongasean.vn/bsr-bat-dau-su-dung-ten-goi-moi-tong-cong-ty-loc-hoa-dau-viet-nam-55108.html",
+                "published": "2026-05-12T15:48:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/bsr-tang-voucher-500000-dong-cho-co-dong-du-dhcd-trinh-phuong-an-doi-ten-va-ke-hoach-loi-nhuan-giam-60-188260413102254693.chn",
+                "published": "2026-04-13T10:22:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Tin nhanh chứng khoán",
+                "url": "https://www.tinnhanhchungkhoan.vn/loc-hoa-dau-binh-son-bsr-quy-i-da-vuot-loi-nhuan-ke-hoach-nam-post388764.html",
+                "published": "2026-04-13T16:50:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/nha-may-loc-dau-3-ty-usd-cua-viet-nam-bat-ngo-thay-ke-toan-truong-188260511150844628.chn",
+                "published": "2026-05-11T15:08:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/loc-hoa-dau-binh-son-doi-ten-thanh-tong-cong-ty-loc-hoa-dau-viet-nam.htm",
+                "published": "2026-05-11T22:27:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/nha-may-loc-dau-3-ty-usd-cua-viet-nam-bao-lai-q1-gap-21-lan-loi-nhuan-ngang-ngua-bidv-techcombank-188260429161624357.chn",
+                "published": "2026-04-29T16:16:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Báo Pháp luật",
+                "url": "https://doanhnhan.baophapluat.vn/loc-hoa-dau-binh-son-bsr-lai-quy-i-2026-dat-8-265-ty-dong-chu-dong-tang-ton-kho-ky-luc.html",
+                "published": "2026-05-05T13:27:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
