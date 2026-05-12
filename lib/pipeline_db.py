@@ -290,12 +290,14 @@ class PipelineDB:
         # any legacy schema load still works. Tables created here are
         # independent of the canonical crawl_log + generated_news schema.
         self._apply_migrations()
-        # V5.1.4 (H-1) — conditional ALTER TABLE for crawl_log session grouping.
-        # Idempotent (PRAGMA table_info check) but `ALTER TABLE ADD COLUMN` is
-        # NOT, so a Python helper is required instead of a .sql migration.
-        # No-op on fresh DBs (crawl_log doesn't exist yet — caller will run
-        # init_schema next, which re-invokes this helper). Safe on reopen.
+        # V5.1.4 (H-1) — conditional ALTER TABLE for crawl_log session grouping
+        # + V5.1.3 sector fields. Idempotent (PRAGMA table_info check) but
+        # `ALTER TABLE ADD COLUMN` is NOT, so a Python helper is required
+        # instead of a .sql migration. No-op on fresh DBs (tables don't exist
+        # yet — caller will run init_schema next, which re-invokes these).
+        # Safe on reopen.
         self._upgrade_crawl_log_schema()
+        self._upgrade_generated_news_schema()
 
     def _apply_migrations(self) -> None:
         """Apply migration SQL files from lib/migrations/ in alphabetical order.
@@ -333,7 +335,11 @@ class PipelineDB:
             return  # crawl_log not bootstrapped yet — init_schema will retry.
         cur = self.conn.execute("PRAGMA table_info(crawl_log)")
         existing = {row["name"] for row in cur.fetchall()}
-        for col in ("session_id", "trigger_type", "trigger_args"):
+        # V5.1.4 H-1 (session grouping) + V5.1.3 (Finpath sectors routing)
+        for col in (
+            "session_id", "trigger_type", "trigger_args",
+            "sector_code", "sector_parent", "master_route",
+        ):
             if col not in existing:
                 self.conn.execute(f"ALTER TABLE crawl_log ADD COLUMN {col} TEXT")
         self.conn.execute(
@@ -342,6 +348,30 @@ class PipelineDB:
         self.conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_crawl_log_crawled_desc ON crawl_log(crawled_at DESC)"
         )
+        self.conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_crawl_log_master_route ON crawl_log(master_route)"
+        )
+        self.conn.commit()
+
+    def _upgrade_generated_news_schema(self) -> None:
+        """Conditional ALTER TABLE for generated_news V1.1 Headline Craft +
+        V5.1.3 sector fields. Same idempotency pattern as crawl_log upgrade.
+        """
+        cur = self.conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='generated_news'"
+        )
+        if cur.fetchone() is None:
+            return
+        cur = self.conn.execute("PRAGMA table_info(generated_news)")
+        existing = {row["name"] for row in cur.fetchall()}
+        # V1.1 Headline Craft (Plan C C-6) — final crafted title from Step 4.5
+        # V5.1.3 sector fields — denormalized from crawl_log for downstream consumers
+        for col in (
+            "headline_final",
+            "sector_code", "master_route",
+        ):
+            if col not in existing:
+                self.conn.execute(f"ALTER TABLE generated_news ADD COLUMN {col} TEXT")
         self.conn.commit()
 
     def init_schema(self, schema_path: str | Path) -> None:
@@ -350,9 +380,10 @@ class PipelineDB:
         self.conn.commit()
         # V5.1.4 (H-1) — re-run crawl_log upgrade so fresh-bootstrap callers
         # (canonical pattern: PipelineDB() + init_schema()) get the session
-        # grouping columns + indexes. On reopen the __init__ call already
-        # handled it and this is a no-op via per-column existence check.
+        # grouping columns + V5.1.3 sector fields. On reopen the __init__ call
+        # already handled it and this is a no-op via per-column existence check.
         self._upgrade_crawl_log_schema()
+        self._upgrade_generated_news_schema()
 
     def list_tables(self) -> list[str]:
         cur = self.conn.execute(
