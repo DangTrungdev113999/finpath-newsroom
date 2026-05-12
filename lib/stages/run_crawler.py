@@ -149,9 +149,10 @@ def main() -> int:
         args.trigger_args = args.ticker.upper()
 
     ticker = args.ticker.upper()
-    if ticker not in FULL_UNIVERSE:
-        print(json.dumps({"error": f"{ticker} not in 61-mã FULL_UNIVERSE (Bank/CK/BĐS)", "universe_count": len(FULL_UNIVERSE)}))
-        return 1
+    # V5.1.3: Universe validation deferred to Editor V1 (Step 2 V5.1.3 — Finpath
+    # sectors cache, ~139 mã). Crawler accepts ALL tickers; Editor V1 rejects
+    # with editor_v1_note="ticker_outside_finpath_139" if not in cache.
+    # FULL_UNIVERSE constant kept for migration audit reference only.
 
     from lib.pipeline_db import PipelineDB
 

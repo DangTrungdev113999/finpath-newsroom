@@ -24,8 +24,9 @@ def test_loader_finds_bds_master_reference():
     assert any("industry-master-reference" in r["path"] for r in results)
 
 
-def test_loader_returns_all_21_files():
+def test_loader_returns_all_22_files():
+    # Post-merge: 21 → 22 (remote added bds-res-cycle-indicators.md framework).
     loader = KBLoader(Path("kb/bds"))
     all_files = loader._all_files()
     md_files = [f for f in all_files if f.suffix == ".md"]
-    assert len(md_files) == 21
+    assert len(md_files) == 22

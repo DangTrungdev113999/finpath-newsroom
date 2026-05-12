@@ -222,8 +222,9 @@ def parse_tavily_response(response: dict[str, Any], ticker: str, batch_id: str) 
     Raises:
         ValueError if ticker not in 61-mã universe.
     """
-    if ticker.upper() not in FULL_UNIVERSE:
-        raise ValueError(f"Ticker {ticker!r} not in 61-mã universe (Bank/CK/BĐS)")
+    # V5.1.3: Universe validation deferred to Editor V1 (Step 2 V5.1.3 — Finpath
+    # sectors cache, ~139 mã). Tavily crawler accepts ALL tickers; Editor V1
+    # rejects with editor_v1_note="ticker_outside_finpath_139" if not in cache.
     raw_results = response.get("results", [])
     if not raw_results:
         return []

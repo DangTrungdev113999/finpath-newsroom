@@ -145,8 +145,8 @@ def test_quan_doi_alias_present():
 
 
 def test_short_form_table_complete():
-    """SHORT_FORM_TO_TICKER cover toàn bộ 61 mã universe (Bank 27 + CK 30 + BĐS 4)
-    + legacy alias "MB" → MBB. Total 62 keys."""
+    """SHORT_FORM_TO_TICKER cover toàn bộ 71 mã universe (Bank 27 + CK 30 + BĐS 4
+    + Oil-Gas 10) + legacy alias "MB" → MBB. Total 72 keys post-merge with remote."""
     expected = {
         # Special legacy alias
         "MB",
@@ -166,6 +166,8 @@ def test_short_form_table_complete():
         "DSC", "FTS", "CSI", "SBS", "PHS", "ART", "APS", "BMS", "AAS", "VTS",
         # BĐS (4)
         "VHM", "NVL", "KDH", "DXG",
+        # Oil-Gas (10) — added by remote merge
+        "GAS", "PVD", "PVS", "PVT", "BSR", "PLX", "OIL", "DPM", "DCM", "PVC",
     }
     assert set(SHORT_FORM_TO_TICKER.keys()) == expected
 

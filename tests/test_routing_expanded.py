@@ -24,8 +24,11 @@ def test_bds_universe_unchanged():
     assert BDS_UNIVERSE == ["VHM", "NVL", "KDH", "DXG"]
 
 
-def test_full_universe_61_tickers():
-    assert len(FULL_UNIVERSE) == 61
+def test_full_universe_71_tickers():
+    # 61 (Bank 27 + CK 30 + BĐS 4) + 10 (Oil-Gas) = 71 post-merge with remote.
+    # V5.1.3 runtime uses Finpath sectors cache (~139 mã) via lib/sector_router.py;
+    # FULL_UNIVERSE preserved for migration audit reference only.
+    assert len(FULL_UNIVERSE) == 71
 
 
 # === Bank universe membership ===

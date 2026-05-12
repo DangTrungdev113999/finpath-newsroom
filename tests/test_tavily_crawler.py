@@ -152,11 +152,14 @@ def test_parse_tavily_response_empty():
     assert rows == []
 
 
-def test_parse_tavily_response_invalid_ticker():
-    """Invalid ticker → ValueError."""
+def test_parse_tavily_response_accepts_all_tickers_v5_1_3():
+    """V5.1.3: Universe validation deferred to Editor V1 (Finpath sectors cache).
+    Tavily crawler accepts ALL tickers — does not pre-gate. Editor V1 Step 2
+    V5.1.3 rejects with editor_v1_note='ticker_outside_finpath_139' if needed.
+    """
     from lib.tavily_crawler import parse_tavily_response
-    with pytest.raises(ValueError, match="not in 61-mã universe"):
-        parse_tavily_response({"results": []}, "XYZ", "XYZ-20260512-1500")
+    rows = parse_tavily_response({"results": []}, "XYZ", "XYZ-20260512-1500")
+    assert rows == []
 
 
 def test_persist_rows_inserts_to_db(tmp_path):
