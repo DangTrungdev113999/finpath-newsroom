@@ -41,17 +41,33 @@ For mỗi ticker trong list:
 
 Nếu sau validation 0 ticker hợp lệ → reply "Không có ticker hợp lệ trong 61 mã FULL_UNIVERSE" + stop.
 
+## Step 0 (V5.1.4 / Subsystem H) — Generate parent SESSION_ID once
+
+Trước khi spawn N parallel pipelines, generate ONE `SESSION_ID` cho cả batch để `/pipeline-runs` viewer group N tickers thành 1 session × N batches:
+
+```bash
+SESSION_ID=$(uuidgen)
+TRIGGER_TYPE="tin-batch"
+TRIGGER_ARGS="$ARGUMENTS"   # original comma list, vd "VCB,SSI,VHM"
+echo "Batch session: $SESSION_ID ($TRIGGER_TYPE $TRIGGER_ARGS)"
+```
+
+**CRITICAL** — sinh `SESSION_ID` ĐÚNG 1 LẦN cho cả batch. KHÔNG sinh 1 SESSION_ID per ticker (sẽ tạo N session thay vì N batches trong 1 session).
+
 ## Spawn parallel pipelines
 
-Single message với N Task tool calls — Claude Code runs parallel:
+Single message với N Task tool calls — Claude Code runs parallel. Pass shared session metadata vào prompt cho mỗi child `newsroom-pipeline`:
 
 ```
-Task tool call 1: subagent_type=newsroom-pipeline, prompt="ticker=VCB ..."
-Task tool call 2: subagent_type=newsroom-pipeline, prompt="ticker=SSI ..."
-Task tool call 3: subagent_type=newsroom-pipeline, prompt="ticker=VHM ..."
+Task tool call 1: subagent_type=newsroom-pipeline,
+  prompt="ticker=VCB session_id=$SESSION_ID trigger_type=tin-batch trigger_args=$TRIGGER_ARGS ..."
+Task tool call 2: subagent_type=newsroom-pipeline,
+  prompt="ticker=SSI session_id=$SESSION_ID trigger_type=tin-batch trigger_args=$TRIGGER_ARGS ..."
+Task tool call 3: subagent_type=newsroom-pipeline,
+  prompt="ticker=VHM session_id=$SESSION_ID trigger_type=tin-batch trigger_args=$TRIGGER_ARGS ..."
 ```
 
-Mỗi pipeline có own `funnel_batch_id` (timestamp + ticker) → no row collision.
+Mỗi pipeline có own `funnel_batch_id` (timestamp + ticker) → no row collision. Child `newsroom-pipeline` Step 0 phát hiện `session_id` đã inherit từ parent prompt → KHÔNG sinh thêm UUID (xem `.claude/agents/newsroom-pipeline.md` Step 0).
 
 Pipeline orchestrator tự route master theo sector (Editor V1 set sector field từ routing.get_sector(ticker)):
 - VCB → sector=Bank → Master Bank

@@ -32,9 +32,18 @@ describe('loadPipelineRuns', () => {
     expect(result.sessions[0].session_id).toBe('abc');
   });
 
-  it('throws when manifest fetch fails', async () => {
+  it('returns empty manifest when 404 (first deploy, no pipeline runs yet)', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(
       new Response('Not found', { status: 404 }),
+    );
+    const result = await loadPipelineRuns();
+    expect(result.sessions).toEqual([]);
+    expect(result.built_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it('throws when manifest fetch fails (non-404)', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(
+      new Response('Server error', { status: 500 }),
     );
     await expect(loadPipelineRuns()).rejects.toThrow();
   });

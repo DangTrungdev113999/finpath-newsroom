@@ -7,6 +7,9 @@ const MANIFEST_URL = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/articles/pi
 
 export async function loadPipelineRuns(): Promise<PipelineRunsManifest> {
   const response = await fetch(MANIFEST_URL, { cache: 'no-store' });
+  if (response.status === 404) {
+    return { built_at: new Date().toISOString(), sessions: [] };
+  }
   if (!response.ok) {
     throw new Error(
       `Lỗi load pipeline-runs.json: ${response.status} ${response.statusText}`,

@@ -45,23 +45,30 @@ Map full names via `ticker_detection.COMPANY_NAME_TO_TICKER` for normalization o
 
 ### Step 0 (V5.1.4 / Subsystem H) — Session initialization
 
-Trước khi dispatch Crawler, orchestrator generate session metadata MỘT LẦN per pipeline trigger. ALL crawl_log rows downstream MUST stamp the same `session_id` so `/pipeline-runs` viewer groups them as one run.
+Trước khi dispatch Crawler, orchestrator establish session metadata MỘT LẦN per pipeline trigger. ALL crawl_log rows downstream MUST stamp the same `session_id` so `/pipeline-runs` viewer groups them as one run.
+
+**Inheritance rule (V5.1.4 critical)**: Check input prompt FIRST. Nếu parent dispatcher truyền `session_id=<UUID>` + `trigger_type=<...>` + `trigger_args=<...>` (vd `/tin-batch` truyền shared SESSION_ID cho N tickers), USE values đó — KHÔNG sinh UUID mới. Chỉ sinh UUID khi parent KHÔNG truyền (single `/tin <TICKER>` invocation).
 
 ```bash
-SESSION_ID=$(uuidgen)
-TRIGGER_TYPE="tin"        # 'tin' | 'tin-hot' | 'tin-batch'
-TRIGGER_ARGS="<TICKER>"   # ticker for /tin, "N=3" for /tin-hot 3, batch id for /tin-batch
+# Check inherited session metadata first
+if [ -z "$SESSION_ID" ]; then
+  # Parent did not provide — single /tin <TICKER> case, generate own
+  SESSION_ID=$(uuidgen)
+  TRIGGER_TYPE="tin"
+  TRIGGER_ARGS="<TICKER>"
+fi
+# Else: SESSION_ID + TRIGGER_TYPE + TRIGGER_ARGS already set by parent dispatcher
 ```
 
-Determine `TRIGGER_TYPE` + `TRIGGER_ARGS` based on invoking command:
+Determine `TRIGGER_TYPE` + `TRIGGER_ARGS` for the standalone case (when not inherited):
 
-| Command | TRIGGER_TYPE | TRIGGER_ARGS |
-|---|---|---|
-| `/tin VHM` | `tin` | `VHM` (the ticker) |
-| `/tin-hot 3` | `tin-hot` | `N=3` |
-| `/tin-batch VHM,NVL,VCB` | `tin-batch` | batch identifier |
+| Command | TRIGGER_TYPE | TRIGGER_ARGS | Who generates SESSION_ID |
+|---|---|---|---|
+| `/tin VHM` | `tin` | `VHM` | This Step 0 (newsroom-pipeline) |
+| `/tin-hot 3` | `tin-hot` | `N=3` | Parent dispatcher (future) |
+| `/tin-batch VHM,NVL,VCB` | `tin-batch` | comma list | Parent `.claude/commands/tin-batch.md` Step 0 |
 
-**CRITICAL — single SESSION_ID per pipeline run**: For `/tin <TICKER>` this Step 0 generates ONE `SESSION_ID` that flows into Step 1 only. For `/tin-hot N` the *parent dispatcher* (not this single-ticker orchestrator) MUST generate `SESSION_ID` once and pass it via `--session-id` into each of N child pipeline calls so all N tickers × multiple crawl rows share the same session — see `.claude/commands/tin-hot.md` (Subsystem H follow-up). `uuidgen` invoked here is for the single-ticker case; do NOT re-run `uuidgen` between steps of one pipeline.
+**CRITICAL — never double-generate SESSION_ID**: If input prompt contains `session_id=<UUID>` substring, child pipeline MUST honor it (no `uuidgen` here). Multi-ticker batch with N children re-rolling UUID = N sessions in viewer instead of 1 → spec violation.
 
 Pass `$SESSION_ID`, `$TRIGGER_TYPE`, `$TRIGGER_ARGS` through to Step 1 Crawler invocation below.
 
