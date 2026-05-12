@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import type { Article } from '../types';
 import { LeftColumn } from './LeftColumn';
 import { RightColumn } from './RightColumn';
@@ -19,7 +20,13 @@ export function CompareFeedLayout({
           {meta.sector_icon} {meta.title}
         </h1>
         <p className="text-sm text-fg-3 italic mt-2">
-          🕐 Crawled {formatCrawledAt(meta.crawled_at)} · Funnel batch: {meta.funnel_batch_id}
+          🕐 Crawled {formatCrawledAt(meta.crawled_at)} · Funnel batch:{' '}
+          <Link
+            to={`/pipeline-runs?batch_id=${meta.funnel_batch_id}`}
+            className="text-brand hover:underline"
+          >
+            {meta.funnel_batch_id}
+          </Link>
         </p>
       </header>
 
