@@ -3,6 +3,7 @@ import { IndexPage } from './pages/IndexPage';
 import { ArticlePage } from './pages/ArticlePage';
 import { FeedPage } from './pages/FeedPage';
 import { KbPage } from './pages/KbPage';
+import { PipelineRunsPage } from './pages/PipelineRunsPage';
 import { Header } from './components/Header';
 
 // Phase G GitHub Pages: BASE_URL = '/finpath-newsroom/' (build) hoặc '/' (dev).
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/article/:id" element={<ArticlePage />} />
         <Route path="/tai-lieu" element={<KbPage />} />
         <Route path="/tai-lieu/:slug" element={<KbPage />} />
+        <Route path="/pipeline-runs" element={<PipelineRunsPage />} />
       </Routes>
     </BrowserRouter>
   );
