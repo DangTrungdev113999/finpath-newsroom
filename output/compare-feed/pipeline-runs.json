@@ -1,16 +1,705 @@
 {
-  "built_at": "2026-05-12T15:20:59.978954+00:00",
+  "built_at": "2026-05-12T15:45:54.945841+00:00",
   "sessions": [
+    {
+      "session_id": "D066809B-1DD5-4F42-B28A-26AAB4B4548C",
+      "trigger_type": "tin-batch",
+      "trigger_args": "VHM,DXG,HPG",
+      "started_at": "2026-05-12T15:39:45.061287+00:00",
+      "ended_at": "2026-05-12T15:41:18.588315+00:00",
+      "fetched_total": 30,
+      "chosen_total": 0,
+      "rejected_total": 30,
+      "batches": [
+        {
+          "funnel_batch_id": "DXG-20260512-1539",
+          "ticker": "DXG",
+          "sector_code": null,
+          "sector_name": "BDS nhà ở",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 10,
+          "chosen_count": 0,
+          "rejected_count": 10,
+          "funnel_detail": {
+            "picked": [],
+            "rejected": [
+              {
+                "source": "VietnamFinance",
+                "url": "https://vietnambiz.vn/dat-xanh-doi-ten-thanh-bluemarq-group-202657153352318.htm",
+                "published": "2026-05-07",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VietnamFinance",
+                "url": "https://mekongasean.vn/ten-moi-cu-a-tap-doa-n-dat-xanh-54940.html",
+                "published": "2026-05-08",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/tap-doan-dat-xanh-doi-ten-188260507160315604.chn",
+                "published": "2026-05-07",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VietnamFinance",
+                "url": "https://24hmoney.vn/news/dxg-q1-2026-van-trong-giai-doan-ban-le-c30a2781063.html",
+                "published": "2026-05-09",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VietnamFinance",
+                "url": "https://mekongasean.vn/dxg-trien-khai-phuong-an-phat-hanh-co-phieu-thuong-55015.html",
+                "published": "2026-05-09",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Báo Pháp luật",
+                "url": "https://baomoi.com/dat-xanh-thay-ten-co-phieu-dxg-co-doi-van-c55137476.epi",
+                "published": "2026-05-12",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Nhịp sống Kinh tế",
+                "url": "https://danviet.vn/dat-xanh-thanh-bluemarq-group-cuoc-thay-ten-doi-ho-lan-khap-he-sinh-thai-d1424831.html",
+                "published": "2026-05-09",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Báo Pháp luật",
+                "url": "https://doanhnhan.baophapluat.vn/bluemarq-group-dxg-muon-phat-hanh-hon-155-trieu-co-phieu-thuong-du-tang-von-len-gan-12-700-ty-dong.html",
+                "published": "2026-05-09",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/05/tap-doan-dat-xanh-doi-ten-thanh-bluemarq-group-loat-cong-ty-con-doi-theo-ho-moi-737-1439495.htm",
+                "published": "2026-05-07",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://m.cafef.vn/dxg-trien-khai-tang-von-hau-doi-ten-188260509080531427.chn",
+                "published": "2026-05-09",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              }
+            ]
+          }
+        },
+        {
+          "funnel_batch_id": "HPG-20260512-1540",
+          "ticker": "HPG",
+          "sector_code": null,
+          "sector_name": "BĐS",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 10,
+          "chosen_count": 0,
+          "rejected_count": 10,
+          "funnel_detail": {
+            "picked": [],
+            "rejected": [
+              {
+                "source": "Tin nhanh chứng khoán",
+                "url": "https://www.tinnhanhchungkhoan.vn/rui-ro-du-cung-trong-trung-han-cua-nganh-thep-dang-xuat-hien-post389580.html",
+                "published": "2026-05-10",
+                "reject_agent": "story_editor",
+                "reject_label": "too_forward_looking - rui ro du cung khong du anchor data",
+                "reason": "too_forward_looking - rui ro du cung khong du anchor data"
+              },
+              {
+                "source": "Thương Trường",
+                "url": "https://thuongtruong.com.vn/news/hoa-phat-hpg-chia-co-tuc-tong-ty-le-15-phat-hanh-them-hon-767-trieu-co-phieu-163858.html",
+                "published": "2026-05-11",
+                "reject_agent": "story_editor",
+                "reject_label": "low_writeability - co tuc/phat hanh them la verify_factual, khong phai deep analysis",
+                "reason": "low_writeability - co tuc/phat hanh them la verify_factual, khong phai deep analysis"
+              },
+              {
+                "source": "StockBiz",
+                "url": "https://stockbiz.vn/tin-tuc/nganh-thep-quy-12026-thi-truong-noi-dia-tiep-suc-nhom-ton-ma-kem-sac/39860062",
+                "published": "2026-05-05",
+                "reject_agent": "story_editor",
+                "reject_label": "nganh thep tong quan - khong HPG-specific cho deep question",
+                "reason": "nganh thep tong quan - khong HPG-specific cho deep question"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://m.cafef.vn/ca-map-om-gan-30000-ty-vua-toi-tham-nha-may-thep-lon-nhat-cua-hoa-phat-188260509171521614.chn",
+                "published": "2026-05-09",
+                "reject_agent": "story_editor",
+                "reject_label": "low_writeability - Pyn Elite tham nha may la signal da absorbed vao brief why_now",
+                "reason": "low_writeability - Pyn Elite tham nha may la signal da absorbed vao brief why_now"
+              },
+              {
+                "source": "Eldian Capital",
+                "url": "https://eldiancapital.substack.com/p/hpg-chu-ky-mo-rong-bien-loi-nhuan",
+                "published": "2026-04-13",
+                "reject_agent": "story_editor",
+                "reject_label": "low_writeability - bien loi nhuan analysis da absorbed vao brief paradox",
+                "reason": "low_writeability - bien loi nhuan analysis da absorbed vao brief paradox"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/ty-phu-tran-dinh-long-khi-biet-co-300000-co-dong-toi-choang-luon-188260421085520807.chn",
+                "published": "2026-04-21",
+                "reject_agent": "story_editor",
+                "reject_label": "duplicate - DHCD content covered by anchor row 7c03c7b3",
+                "reason": "duplicate - DHCD content covered by anchor row 7c03c7b3"
+              },
+              {
+                "source": "Tin nhanh chứng khoán",
+                "url": "https://www.tinnhanhchungkhoan.vn/dhcd-hoa-phat-hpg-quy-i2026-lai-sau-thue-9056-ty-dong-tang-truong-170-post389217.html",
+                "published": "2026-04-21",
+                "reject_agent": "story_editor",
+                "reject_label": "duplicate - DHCD content overlap voi anchor",
+                "reason": "duplicate - DHCD content overlap voi anchor"
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/quy-12026-hpg-lai-hon-9000-ty-dong-va-du-bao-mang-thep-rat-kha-quan.htm",
+                "published": "2026-04-21",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Báo Pháp luật",
+                "url": "https://doanhnhan.baophapluat.vn/dhdcd-hoa-phat-hpg-2026-lai-quy-1-dot-pha-9-000-ty-dong-don-dau-mang-thep-duong-sat-cao-toc-va-don-luc-cho-dung-quat-2.html",
+                "published": "2026-04-21",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Báo Pháp luật",
+                "url": "https://doanhnhan.baophapluat.vn/buc-tranh-loi-nhuan-nganh-thep-quy-i-2026-hoa-phat-but-pha-nhom-ton-ma-doi-mat-ap-luc.html",
+                "published": "2026-05-01",
+                "reject_agent": "story_editor",
+                "reject_label": "absorbed - nganh thep sector view da absorbed vao brief paradox",
+                "reason": "absorbed - nganh thep sector view da absorbed vao brief paradox"
+              }
+            ]
+          }
+        },
+        {
+          "funnel_batch_id": "VHM-20260512-1541",
+          "ticker": "VHM",
+          "sector_code": null,
+          "sector_name": null,
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 10,
+          "chosen_count": 0,
+          "rejected_count": 10,
+          "funnel_detail": {
+            "picked": [],
+            "rejected": [
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/05/vhm-hdqt-phe-duyet-viec-chao-ban-va-phat-hanh-trai-phieu-doanh-nghiep-theo-hinh-thuc-rieng-le-739-1440075.htm",
+                "published": "2026-05-08T15:54:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/nhin-lai-so-co-dong-khi-co-phieu-ho-vingroup-tang-bang-lan-trong-khi-fpt-mon-moi-cho-tai-sinh-188260506001247325.chn",
+                "published": "2026-05-06T00:12:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VnExpress",
+                "url": "https://vnexpress.net/chung-khoan-vuot-dinh-5071073.html",
+                "published": "2026-05-07T13:58:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/vinhomes.html",
+                "published": "2026-04-21T09:52:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VietnamFinance",
+                "url": "https://vietnamfinance.vn/vn-index-lap-dinh-moi-nhieu-nhom-co-phieu-van-o-duoi-mat-dat-d144633.html",
+                "published": "2026-05-10T12:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Diễn đàn Doanh nghiệp",
+                "url": "https://diendandoanhnghiep.vn/co-phieu-bat-dong-san-dan-cu-chon-loc-theo-chat-luong-10178630.html",
+                "published": "2026-05-08T09:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/chua-day-1-ngay-nua-vinhomes-cua-ty-phu-pham-nhat-vuong-se-khoi-cong-sieu-du-an-23600-ty-dong-188260509011701805.chn",
+                "published": "2026-05-09T01:17:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Báo Đầu tư",
+                "url": "https://baodautu.vn/song-loi-nhuan-dang-cao-tu-cac-doanh-nghiep-dan-dau-thuoc-vn30-d587688.html",
+                "published": "2026-05-05T10:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Reatimes",
+                "url": "https://reatimes.vn/buc-tranh-kinh-doanh-cua-doanh-nghiep-dia-oc-quy-i-2026-phan-hoa-sau-sac-co-hoi-di-lien-thach-thuc-202260509004942007.htm",
+                "published": "2026-05-09T00:49:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/vinhomes-du-kien-chao-ban-5000-ty-dong-trai-phieu-rieng-le-188260509075604433.chn",
+                "published": "2026-05-09T08:55:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "9EFF43C5-A870-485F-951B-D1B7947E92DB",
+      "trigger_type": "tin-batch",
+      "trigger_args": "SSI,VND,VIX",
+      "started_at": "2026-05-12T15:35:29.068657+00:00",
+      "ended_at": "2026-05-12T15:36:49.525724+00:00",
+      "fetched_total": 22,
+      "chosen_total": 5,
+      "rejected_total": 17,
+      "batches": [
+        {
+          "funnel_batch_id": "SSI-20260512-1535",
+          "ticker": "SSI",
+          "sector_code": null,
+          "sector_name": "CK",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 7,
+          "chosen_count": 2,
+          "rejected_count": 5,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "Vietstock",
+                "url": "https://finance.vietstock.vn/bao-cao-phan-tich/20127/ssi-bao-cao-cap-nhat-dhcd-2026.htm",
+                "published": "2026-05-05",
+                "reason": "OK — accepted_hypothesis: true. Title: [PLACEHOLDER — Headline agent sẽ override]"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/ssi-du-kien-phat-hanh-10-trieu-co-phieu-esop-cho-295-nguoi-188260509093443431.chn",
+                "published": "2026-05-09",
+                "reason": "OK — accepted_hypothesis: true. Title: [PLACEHOLDER — Headline agent sẽ override]"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "VnEconomy",
+                "url": "https://baomoi.com/quyet-liet-dua-tang-von-trong-khoi-to-chuc-tai-chinh-c55135253.epi",
+                "published": "2026-05-09",
+                "reject_agent": "story_editor",
+                "reject_label": "Góc nhìn đã được gộp vào brief chính hoặc thiếu góc insight sâu riêng biệt",
+                "reason": "Góc nhìn đã được gộp vào brief chính hoặc thiếu góc insight sâu riêng biệt"
+              },
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/05/ssi-cong-bo-cac-nghi-quyet-hoi-dong-quan-tri-ve-viec-trien-khai-phat-hanh-co-phieu-theo-chuong-trinh-lua-chon-cho-nguoi-lao-dong-737-1440099.htm",
+                "published": "2026-05-08",
+                "reject_agent": "story_editor",
+                "reject_label": "Góc nhìn đã được gộp vào brief chính hoặc thiếu góc insight sâu riêng biệt",
+                "reason": "Góc nhìn đã được gộp vào brief chính hoặc thiếu góc insight sâu riêng biệt"
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://theleader.vn/cuoc-dua-tang-von-tao-ra-cac-mega-brokers-cua-nganh-chung-khoan-d45855.html",
+                "published": "2026-05-08",
+                "reject_agent": "story_editor",
+                "reject_label": "Góc nhìn đã được gộp vào brief chính hoặc thiếu góc insight sâu riêng biệt",
+                "reason": "Góc nhìn đã được gộp vào brief chính hoặc thiếu góc insight sâu riêng biệt"
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://baomoi.com/thuong-vu-esop-tai-ssi-ai-la-nguoi-huong-loi-nhat-tu-10-trieu-co-phieu-gia-hoi-c55131367.epi",
+                "published": "2026-05-09",
+                "reject_agent": "story_editor",
+                "reject_label": "Góc nhìn đã được gộp vào brief chính hoặc thiếu góc insight sâu riêng biệt",
+                "reason": "Góc nhìn đã được gộp vào brief chính hoặc thiếu góc insight sâu riêng biệt"
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/295-nhan-su-cua-ssi-sap-duoc-mua-co-phieu-esop-voi-gia-10000-dong.htm",
+                "published": "2026-05-09",
+                "reject_agent": "story_editor",
+                "reject_label": "Góc nhìn đã được gộp vào brief chính hoặc thiếu góc insight sâu riêng biệt",
+                "reason": "Góc nhìn đã được gộp vào brief chính hoặc thiếu góc insight sâu riêng biệt"
+              }
+            ]
+          }
+        },
+        {
+          "funnel_batch_id": "VIX-20260512-1535",
+          "ticker": "VIX",
+          "sector_code": null,
+          "sector_name": "Chứng khoán",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 7,
+          "chosen_count": 2,
+          "rejected_count": 5,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/chung-khoan-vix-trieu-tap-dhdcd-thuong-nien-nam-2026-188260510214351235.chn",
+                "published": "2026-05-10",
+                "reason": "OK — accepted_hypothesis: true. Title: PLACEHOLDER — Headline agent fills"
+              },
+              {
+                "source": "VietnamFinance",
+                "url": "https://vietnamfinance.vn/khoi-dau-chat-vat-loi-nhuan-cua-vix-nhu-tau-luon-d143591.html",
+                "published": "2026-05-08",
+                "reason": "OK — accepted_hypothesis: true. Title: PLACEHOLDER — Headline agent fills"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "VnExpress",
+                "url": "https://vnexpress.net/vn-index-quay-lai-moc-1-900-diem-5073096.html",
+                "published": "2026-05-12",
+                "reject_agent": "story_editor",
+                "reject_label": "low_insight_potential: VN-Index market update — VIX mentioned peripherally, không đủ insight riêng",
+                "reason": "low_insight_potential: VN-Index market update — VIX mentioned peripherally, không đủ insight riêng"
+              },
+              {
+                "source": "NguoiQuanSat",
+                "url": "https://nguoiquansat.vn/margin-quy-i-2026-lap-dinh-mot-luong-von-lon-dich-chuyen-ngoai-kenh-co-phieu-288259.html",
+                "published": "2026-05-01",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Margin comparison data — đã tích hợp vào Brief A comparison_deep option",
+                "reason": "sub_event_attached: Margin comparison data — đã tích hợp vào Brief A comparison_deep option"
+              },
+              {
+                "source": "VietnamFinance",
+                "url": "https://vietnamfinance.vn/co-phieu-tang-manh-nhom-gelex-bung-no-mot-ma-dau-khi-bat-ngo-pha-dinh-d144599.html",
+                "published": "2026-05-10",
+                "reject_agent": "story_editor",
+                "reject_label": "low_insight_potential: Price rally news — không có dữ liệu cốt lõi mới về VIX",
+                "reason": "low_insight_potential: Price rally news — không có dữ liệu cốt lõi mới về VIX"
+              },
+              {
+                "source": "Vietstock",
+                "url": "https://finance.vietstock.vn/VIX-ctcp-chung-khoan-vix.htm",
+                "published": "2026-04-29",
+                "reject_agent": "story_editor",
+                "reject_label": "low_insight_potential: Vietstock data card — raw market data, không có narrative angle",
+                "reason": "low_insight_potential: Vietstock data card — raw market data, không có narrative angle"
+              },
+              {
+                "source": "Fili",
+                "url": "https://fili.vn/2026/04/loi-nhuan-thap-nhat-5-quy-vix-noi-do-thi-truong-chung-khoan-giam-737-1429560.htm",
+                "published": "2026-04-30",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Fili Q1 analysis — cùng story với VietnamFinance row, dữ liệu đã tích hợp vào Brief A",
+                "reason": "sub_event_attached: Fili Q1 analysis — cùng story với VietnamFinance row, dữ liệu đã tích hợp vào Brief A"
+              }
+            ]
+          }
+        },
+        {
+          "funnel_batch_id": "VND-20260512-1536",
+          "ticker": "VND",
+          "sector_code": null,
+          "sector_name": "Chứng khoán",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 8,
+          "chosen_count": 1,
+          "rejected_count": 7,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "VietnamBiz",
+                "url": "https://vietnambiz.vn/vndirect-bao-lai-quy-i-tang-43-2026420235159887.htm",
+                "published": "2026-04-20T00:00:00+00:00",
+                "reason": "OK — accepted_hypothesis: true. Title: VND hy sinh ký quỹ đổi phí 73%: mô hình nào thắng?"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/04/vnd-bao-cao-tai-chinh-rieng-le-q1-2026-737-1430860.htm",
+                "published": "2026-04-21T00:00:00+00:00",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event - Vietstock BCTC Q1, same numbers",
+                "reason": "dup_event - Vietstock BCTC Q1, same numbers"
+              },
+              {
+                "source": "VietnamBiz",
+                "url": "https://vietnambiz.vn/kqkd-nganh-chung-khoan-quy-i2026-gan-80-don-vi-cong-bo-vndirect-vietcap-hsc-tang-loi-nhuan-2026420143650543.htm",
+                "published": "2026-04-20T00:00:00+00:00",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event - same Q1/2026 ngành data, VietnamBiz already covered",
+                "reason": "dup_event - same Q1/2026 ngành data, VietnamBiz already covered"
+              },
+              {
+                "source": "VNDirect IR",
+                "url": "https://www.vndirect.com.vn/4.-Bao-cao-ban-dieu-hanh-VNDIRECT-2026.pdf",
+                "published": "2026-04-15T00:00:00+00:00",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached - VNDirect IR doc, FTSE data incorporated",
+                "reason": "sub_event_attached - VNDirect IR doc, FTSE data incorporated"
+              },
+              {
+                "source": "VNDirect IR",
+                "url": "https://www.vndirect.com.vn/3.-Bao-cao-hoat-dong-cua-HDQT.DTc-1.pdf",
+                "published": "2026-04-15T00:00:00+00:00",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached - VNDirect IR doc, chiến lược dùng làm context",
+                "reason": "sub_event_attached - VNDirect IR doc, chiến lược dùng làm context"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/cac-cong-ty-chung-khoan-lai-truoc-thue-gan-10000-ty-dong-trong-quy-dau-nam-ngoi-vuong-doi-chu-mot-ten-tuoi-boc-hoi-gan-60-loi-nhuan-18826042823360575.chn",
+                "published": "2026-04-28T00:00:00+00:00",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached - ngành toàn cục CafeF, dùng làm data source",
+                "reason": "sub_event_attached - ngành toàn cục CafeF, dùng làm data source"
+              },
+              {
+                "source": "Mekong ASEAN",
+                "url": "https://mekongasean.vn/nganh-chung-khoan-quy-12026-ngoi-vuong-loi-nhuan-doi-chu-nhieu-cong-ty-bao-lo-54738.html",
+                "published": "2026-05-03T00:00:00+00:00",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached - ngành toàn cục, không tập trung VND",
+                "reason": "sub_event_attached - ngành toàn cục, không tập trung VND"
+              },
+              {
+                "source": "Thời báo Tài chính",
+                "url": "https://thoibaotaichinhvietnam.vn/chung-khoan-vndirect-ghi-nhan-loi-nhuan-hon-500-ty-dong-trong-quy-i2026-196070.html",
+                "published": "2026-04-21T00:00:00+00:00",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event - same Q1/2026 numbers from Thoi bao Tai chinh",
+                "reason": "dup_event - same Q1/2026 numbers from Thoi bao Tai chinh"
+              }
+            ]
+          }
+        }
+      ]
+    },
     {
       "session_id": "288AFA32-EC80-4D36-8447-CE68423AFBAC",
       "trigger_type": "tin-hot",
       "trigger_args": "N=1",
       "started_at": "2026-05-12T15:12:21.593998+00:00",
-      "ended_at": "2026-05-12T15:12:21.595227+00:00",
-      "fetched_total": 7,
+      "ended_at": "2026-05-12T15:40:45.501176+00:00",
+      "fetched_total": 23,
       "chosen_total": 1,
-      "rejected_total": 6,
+      "rejected_total": 22,
       "batches": [
+        {
+          "funnel_batch_id": "NVL-20260512-1540",
+          "ticker": "NVL",
+          "sector_code": null,
+          "sector_name": null,
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 8,
+          "chosen_count": 0,
+          "rejected_count": 8,
+          "funnel_detail": {
+            "picked": [],
+            "rejected": [
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/hang-ngan-khach-hang-novaland-don-tin-vui-188260507102113872.chn",
+                "published": "2026-05-07",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/sau-pc1-lai-them-36-trieu-co-phieu-novaland-e-gia-san.htm",
+                "published": "2026-05-05",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VnExpress",
+                "url": "https://vnexpress.net/co-phieu-novaland-cham-san-5069747.html",
+                "published": "2026-05-04",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VietnamBiz",
+                "url": "https://vietnambiz.vn/novaland-du-kien-phat-hanh-rieng-le-800-trieu-co-phieu-loi-nhuan-muc-tieu-tren-1850-ty-dong-202642211254243.htm",
+                "published": "2026-04-22",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/05/co-phieu-nvl-nam-san-du-ban-hon-136-trieu-cp-830-1436996.htm",
+                "published": "2026-05-04",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Dantri",
+                "url": "https://dantri.com.vn/kinh-doanh/co-phieu-novaland-tiep-tuc-giam-san-bi-ban-thao-20260505113050796.htm",
+                "published": "2026-05-05",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VietnamBiz",
+                "url": "https://vietnambiz.vn/nvl-tiep-tuc-giam-san-hon-32-trieu-co-phieu-duoc-sang-tay-20265595520900.htm",
+                "published": "2026-05-05",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/novaland-phat-thong-bao-sau-2-phien-co-phieu-giam-san-lien-tiep-188260505154349368.chn",
+                "published": "2026-05-05",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              }
+            ]
+          }
+        },
+        {
+          "funnel_batch_id": "NVL-20260512-1528",
+          "ticker": "NVL",
+          "sector_code": null,
+          "sector_name": "BDS nhà ở",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 8,
+          "chosen_count": 0,
+          "rejected_count": 8,
+          "funnel_detail": {
+            "picked": [],
+            "rejected": [
+              {
+                "source": "Thanh Niên",
+                "url": "https://thanhnien.vn/sau-giai-doan-tai-cau-truc-novaland-dat-muc-tieu-doanh-thu-gap-3-lan-185260414150656504.htm",
+                "published": "2026-04-14T00:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/nvl-dat-muc-tieu-lai-hon-1850-ty-dong-trong-nam-2026.htm",
+                "published": "2026-04-14T00:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "24HMoney",
+                "url": "https://24hmoney.vn/news/nvl-bat-ngo-giam-san-khi-thay-chu-tich-tin-hieu-gi-tu-novaland-c1a2779227.html",
+                "published": "2026-05-12T00:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Tuổi Trẻ",
+                "url": "https://tuoitre.vn/novaland-phat-hanh-hon-2-4-trieu-co-phieu-hoan-doi-trai-phieu-cho-chu-no-nuoc-ngoai-20260401172401851.htm",
+                "published": "2026-04-01T00:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/novaland-hoan-tat-tai-cau-truc-con-quy-dat-hon-2400-ha-chua-trien-khai-188260414153750599.chn",
+                "published": "2026-04-14T00:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Tuổi Trẻ",
+                "url": "https://tuoitre.vn/novaland-co-chu-tich-moi-co-dong-ban-khoan-ke-hoach-2026-20260423181951854.htm",
+                "published": "2026-04-23T00:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/sau-5-nam-tac-phap-ly-sieu-du-an-1000ha-cua-novaland-sap-cap-so-188260408162309274.chn",
+                "published": "2026-04-08T00:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/04/loi-nhuan-rong-quy-1-hon-900-ty-tong-giam-doc-novaland-nhan-luong-400-trieuthang-737-1436364.htm",
+                "published": "2026-04-30T00:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              }
+            ]
+          }
+        },
         {
           "funnel_batch_id": "STB-20260512-1512",
           "ticker": "STB",

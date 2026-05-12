@@ -1,6 +1,17 @@
 {
   "articles": [
     {
+      "id": "vnd-20260512-1540-vnd-hy-sinh-ky-quy-doi-phi-73-mo-hinh-nao-thang",
+      "ticker": "VND",
+      "sector": "CK",
+      "title": "VND hy sinh ký quỹ đổi phí 73%: mô hình nào thắng?",
+      "crawled_at": "2026-05-12T15:36:49.525013+00:00",
+      "key_view": "trung lập",
+      "word_count": 281,
+      "category": "paradox",
+      "format_id": "standard_qa"
+    },
+    {
       "id": "STB-20260512-1512-stb-hy-sinh-loi-nhuan-quy-1-de-doi-lay-dieu-gi",
       "ticker": "STB",
       "sector": "Bank",
