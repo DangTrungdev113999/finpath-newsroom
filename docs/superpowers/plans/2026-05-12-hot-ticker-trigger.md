@@ -12,6 +12,37 @@
 
 ---
 
+## 🚨 V1.2 PATCH NOTICE (2026-05-12 PM)
+
+**Trigger**: Spec F V1.0.1 (universe-expansion-kb-optional) ships → universe 61 → 139 (Finpath cache only).
+
+### Required changes:
+
+1. **`/tin-hot N` intersect set** — replace `FULL_UNIVERSE` list constant with dynamic query:
+
+```python
+# OLD V1.1 (Plan A Task 4 area)
+from .claude.skills.finpath_newsroom_editor.scripts.routing import FULL_UNIVERSE
+universe_set = set(FULL_UNIVERSE)  # 61 mã hardcoded
+
+# NEW V1.2 (Spec F V5.1.3 integration)
+from lib.finpath_sectors import FinpathSectors
+fs = FinpathSectors(db)
+universe_set = set(fs.get_all_cached_tickers())  # ~139 mã from cache
+```
+
+2. **Auto-refresh cache** if empty — `/tin-hot` triggers `fs.refresh_cache()` before compute top.
+
+3. **NO foreign flow enrichment** — Spec G V1.1 PATCH reverted this. `/tin-hot` only computes 4 top groups (tăng/giảm/bùng nổ/cạn cung), no foreign auto-enrich. Master/Story Editor call foreign flow API on-demand via `references/foreign-flow-when-to-call.md`.
+
+### Apply to existing Plan A tasks:
+
+- Task 4 (intersect): use `FinpathSectors.get_all_cached_tickers()` instead of `FULL_UNIVERSE`
+- All other Plan A tasks unchanged.
+- ❌ NO new task added for foreign flow auto-enrichment (Spec G simplified to on-demand only).
+
+---
+
 ## Critical context for executor
 
 ### Findings from codebase exploration
