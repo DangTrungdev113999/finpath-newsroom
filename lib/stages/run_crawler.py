@@ -75,7 +75,21 @@ def make_funnel_batch_id(ticker: str) -> str:
     return f"{ticker}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M')}"
 
 
-def write_candidate_to_db(db, candidate: dict, funnel_batch_id: str) -> str | None:
+def write_candidate_to_db(
+    db,
+    candidate: dict,
+    funnel_batch_id: str,
+    session_id: str | None = None,
+    trigger_type: str | None = None,
+    trigger_args: str | None = None,
+) -> str | None:
+    """Insert candidate into crawl_log. Returns row_id or None on dup/error.
+
+    V5.1.4 / Plan H Task 2 — session_id, trigger_type, trigger_args are
+    nullable. Orchestrator generates session_id once per pipeline trigger
+    (uuidgen) and passes it through so every crawl_log row from one /tin
+    (or /tin-hot batch) shares the same session_id for run-history grouping.
+    """
     row_id = str(uuid.uuid4())
     now_iso = datetime.now(timezone.utc).isoformat()
     try:
@@ -89,6 +103,9 @@ def write_candidate_to_db(db, candidate: dict, funnel_batch_id: str) -> str | No
             "raw_content": (candidate.get("content") or "")[:2000],
             "published_time": candidate.get("published_time"),
             "crawled_at": now_iso,
+            "session_id": session_id,
+            "trigger_type": trigger_type,
+            "trigger_args": trigger_args,
         })
         return row_id
     except Exception:
@@ -102,7 +119,34 @@ def main() -> int:
                         help="Path to JSON file with array of candidate dicts")
     parser.add_argument("--db", type=Path, default=Path("data/pipeline.db"))
     parser.add_argument("--schema", type=Path, default=Path("data/pipeline.schema.sql"))
+    # V5.1.4 / Plan H Task 2 — session grouping fields. Orchestrator generates
+    # session_id once per pipeline trigger (uuidgen) so all crawl_log rows
+    # from one /tin or /tin-hot batch share the same session_id for the
+    # /pipeline-runs viewer to group them as a single "run".
+    parser.add_argument(
+        "--session-id",
+        type=str,
+        default=None,
+        help="UUID per pipeline run (orchestrator generates once; all crawl_log rows share)",
+    )
+    parser.add_argument(
+        "--trigger-type",
+        type=str,
+        choices=["tin", "tin-hot", "tin-batch"],
+        default="tin",
+        help="Pipeline trigger type",
+    )
+    parser.add_argument(
+        "--trigger-args",
+        type=str,
+        default=None,
+        help="Trigger args (defaults to ticker when --trigger-type=tin)",
+    )
     args = parser.parse_args()
+
+    # Default --trigger-args to ticker when --trigger-type=tin (single ticker)
+    if args.trigger_args is None and args.trigger_type == "tin":
+        args.trigger_args = args.ticker.upper()
 
     ticker = args.ticker.upper()
     if ticker not in FULL_UNIVERSE:
@@ -132,7 +176,12 @@ def main() -> int:
         if "url" not in c or "source_name" not in c:
             errors.append({"candidate": c, "error": "missing url or source_name"})
             continue
-        rid = write_candidate_to_db(db, c, funnel_batch_id)
+        rid = write_candidate_to_db(
+            db, c, funnel_batch_id,
+            session_id=args.session_id,
+            trigger_type=args.trigger_type,
+            trigger_args=args.trigger_args,
+        )
         if rid:
             rows_written.append({"row_id": rid, "url": c["url"], "source_name": c["source_name"]})
         else:

@@ -43,17 +43,43 @@ For observability emit pattern (capture started_at + t0, build payload, `db.log_
 
 Map full names via `ticker_detection.COMPANY_NAME_TO_TICKER` for normalization only ("Vietcombank" → VCB, "Techcombank" → TCB, etc.). Universe gate NO LONGER applied at orchestrator level — proceed to Step 1 (Crawler) for ALL tickers regardless of pre-V5.1.3 61-mã universe. Editor V1 Step 2 V5.1.3 looks up sector via Finpath cache + `data/sector_routing.yaml` và set `editor_v1_decision = reject` + note = `ticker_outside_finpath_139` nếu ticker ngoài Finpath ~139. Pipeline surfaces reject in final reply.
 
+### Step 0 (V5.1.4 / Subsystem H) — Session initialization
+
+Trước khi dispatch Crawler, orchestrator generate session metadata MỘT LẦN per pipeline trigger. ALL crawl_log rows downstream MUST stamp the same `session_id` so `/pipeline-runs` viewer groups them as one run.
+
+```bash
+SESSION_ID=$(uuidgen)
+TRIGGER_TYPE="tin"        # 'tin' | 'tin-hot' | 'tin-batch'
+TRIGGER_ARGS="<TICKER>"   # ticker for /tin, "N=3" for /tin-hot 3, batch id for /tin-batch
+```
+
+Determine `TRIGGER_TYPE` + `TRIGGER_ARGS` based on invoking command:
+
+| Command | TRIGGER_TYPE | TRIGGER_ARGS |
+|---|---|---|
+| `/tin VHM` | `tin` | `VHM` (the ticker) |
+| `/tin-hot 3` | `tin-hot` | `N=3` |
+| `/tin-batch VHM,NVL,VCB` | `tin-batch` | batch identifier |
+
+**CRITICAL — single SESSION_ID per pipeline run**: For `/tin <TICKER>` this Step 0 generates ONE `SESSION_ID` that flows into Step 1 only. For `/tin-hot N` the *parent dispatcher* (not this single-ticker orchestrator) MUST generate `SESSION_ID` once and pass it via `--session-id` into each of N child pipeline calls so all N tickers × multiple crawl rows share the same session — see `.claude/commands/tin-hot.md` (Subsystem H follow-up). `uuidgen` invoked here is for the single-ticker case; do NOT re-run `uuidgen` between steps of one pipeline.
+
+Pass `$SESSION_ID`, `$TRIGGER_TYPE`, `$TRIGGER_ARGS` through to Step 1 Crawler invocation below.
+
 ### Step 1 — Crawler (orchestrator self-execute)
 
 WebSearch (3-4 query) + WebFetch (top 5-10 results) tìm news ≤30 ngày. Whitelist priority: CafeF, VnEconomy, Vietstock, Báo Pháp luật, Tin nhanh chứng khoán, VietnamFinance, Bizlive.
 
-Build JSON candidates (max 10 items) → save `/tmp/crawler-input-<ticker>.json` → run:
+Build JSON candidates (max 10 items) → save `/tmp/crawler-input-<ticker>.json` → run with `$SESSION_ID`/`$TRIGGER_TYPE`/`$TRIGGER_ARGS` from Step 0:
 
 ```bash
-cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/stages/run_crawler.py <TICKER> --candidates-json /tmp/crawler-input-<ticker>.json
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/stages/run_crawler.py <TICKER> \
+  --candidates-json /tmp/crawler-input-<ticker>.json \
+  --session-id "$SESSION_ID" \
+  --trigger-type "$TRIGGER_TYPE" \
+  --trigger-args "$TRIGGER_ARGS"
 ```
 
-Capture `funnel_batch_id` từ output. Observability: defer emit (batch-level) until Step 4 article_ids land. Payload `{model: "sonnet", duration_ms, tokens: null, candidates_count, funnel_batch_id}`.
+Capture `funnel_batch_id` từ output. The 3 session args stamp every crawl_log row written by this run; `/pipeline-runs` viewer groups rows by `session_id`. Observability: defer emit (batch-level) until Step 4 article_ids land. Payload `{model: "sonnet", duration_ms, tokens: null, candidates_count, funnel_batch_id, session_id}`.
 
 ### Step 1.5 — Market Snapshot (Python self-execute, soft-fetch)
 

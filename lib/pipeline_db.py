@@ -361,6 +361,21 @@ class PipelineDB:
         return [r["name"] for r in cur.fetchall()]
 
     def insert_crawl_row(self, data: dict[str, Any]) -> str:
+        """Insert a crawl_log row. Generic dict-driven INSERT — any subset of
+        existing columns is accepted (column names must match schema).
+
+        V5.1.4 / Plan H Task 2 — session grouping fields are optional:
+            session_id (TEXT, nullable)   — UUID shared across all crawl_log
+                                            rows in one pipeline trigger.
+            trigger_type (TEXT, nullable) — 'tin' | 'tin-hot' | 'tin-batch'.
+            trigger_args (TEXT, nullable) — ticker for 'tin', 'N=3' for
+                                            'tin-hot', etc.
+        Legacy callers omitting these keys still work — columns default to
+        NULL by the H-1 ALTER TABLE migration.
+
+        Returns the row_id supplied by the caller (caller manages UUID
+        generation — see lib/stages/run_crawler.py::write_candidate_to_db).
+        """
         cols = ", ".join(data.keys())
         placeholders = ", ".join("?" for _ in data)
         sql = f"INSERT INTO crawl_log ({cols}) VALUES ({placeholders})"
