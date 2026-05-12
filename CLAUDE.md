@@ -53,6 +53,54 @@ Title craft moved to Plan C (Headline Craft agent). Master returns body + insigh
 
 Heading hợp lệ DUY NHẤT trong body Master: KHÔNG có heading. Skeptic append `## Góc nhìn ngược` riêng (không tính vào gates Master). KHÔNG dùng "Cần để ý" / "Key takeaway" / "Tóm lại" / "Tin chính" / "Điểm cốt lõi".
 
+## Headline Craft V1.1 (Step 4.5 — title agent dedicated)
+
+Title craft tách dedicated agent vì sếp chê title. V5.1.2 PATCH: Master KHÔNG còn enforce title gate. V1.1: em dash `—` BANNED trong title.
+
+### 5 hard criteria (V1.1)
+
+1. **Ticker present** (any position) — 139 mã Finpath universe + group refs (Big4, tư nhân)
+2. **Compact ≤12 từ**
+3. **Hook strong** — 2 sub-tests:
+   - tension_present: dramatic verb / tension word / paradox pattern
+   - click_test_pass: number / question / dramatic verb
+4. **Bình dân nguy hiểm** — 2 sub-tests:
+   - plain_language: no English jargon + no PR clickbait
+   - sharp_edge: dramatic / specific / tension / paradox
+5. **No em dash** (V1.1) — `—` U+2014 BANNED. Hyphen `-` + en dash `–` OK.
+
+### 4 lối giật tít (V1.1)
+
+| Lối | Definition | Khi nào |
+|---|---|---|
+| Question | Title kết bằng `?` | Body có nghịch lý hoặc câu hỏi sắc |
+| Declarative tension | 2 sự kiện đối lập (KHÔNG em dash) | Body 2 fact ngược chiều |
+| Quote | Quote ngắn CEO/CFO + context | Brief có quote ấn tượng |
+| Contrast verb | 2 chủ thể cạnh nhau với verb đối lập | Body so sánh 2 nhóm |
+
+### 8-point scoring
+
+| Element | Points |
+|---|---|
+| Dramatic verb (hy sinh, đánh đổi, lao dốc) | +2 |
+| Specific number với units (5.000 tỷ, 67%, /năm) | +2 |
+| Open question ending `?` | +1 |
+| Tension word (vì sao, đánh đổi, nghịch lý) | +1 |
+| Paradox pattern (X mà Y, thật ra) | +1 |
+| Extra concise (≤10 từ) | +1 |
+
+### Benchmark vàng
+
+> **"TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?"** — score 7/8 (Lối: Question)
+
+### Workflow
+
+Master writes body + placeholder title → Headline agent (Sonnet, Step 4.5) picks 1 lối → generate 3 candidates cùng lối → score 5 hard criteria + 8-point rubric → pick best → UPDATE generated_news.title.
+
+Validation V5.1: `final_title` MUST pass `check_hard_criteria()` (5 keys + nested dicts) ELSE ValueError + halt pipeline.
+
+Skeptic ⏸ PAUSED 2026-05-12 — `weak_title` angle deferred.
+
 ## Body pattern V5.0 (per format)
 
 Master nhận `format_id` từ Format Director (step 3.5). Mỗi format có structure riêng — Master MUST follow exactly.
@@ -165,8 +213,8 @@ Lý do: nhiều Notion DB Bank trước đây cũng được fill bằng web sea
 - **V5.0 verdict line** — Closing 3 yếu tố mandatory: hướng + khung TG + action holder. Không "Cần theo dõi" chung chung.
 - **V5.0 format_id sticky** — Master nhận format từ Format Director (step 3.5). Chỉ escalate one-shot flash_qa → standard_qa khi data depth justifies.
 - **V5.0 contrarian-OK** — Stance KHÔNG cần khớp mood ngày. Mã đỏ vẫn có thể bullish, mã xanh có thể bearish — khi data justify.
-- **V5.1 title delegate** — Master KHÔNG generate title. Headline agent (Step 4.5) handles via Plan C.
-- **V5.1.2 em dash density** — Max 1 em dash (—) per 100 words trong body. Em dash trong title BANNED (AI-tell signal).
+- **V5.1 title delegate** — Master KHÔNG còn enforce title gate (moved to Step 4.5 Headline). Master returns body + placeholder title; Headline overrides via UPDATE generated_news. 5 hard criteria + 4 lối + 8-point rubric.
+- **V1.1 em dash ban** — Em dash `—` (U+2014) BANNED trong title (AI-tell signal). Body em_dash_density ≤ 1 per 100 words.
 
 ## 5 deep_question category hợp lệ (Story Editor → Master)
 
