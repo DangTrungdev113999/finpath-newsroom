@@ -19,3 +19,7 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+markers = [
+    "integration: live API tests, opt-in via -m integration",
+]
+addopts = "-m 'not integration'"
