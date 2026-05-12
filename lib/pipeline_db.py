@@ -158,6 +158,50 @@ def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str =
         )
 
 
+# V5.1.3 (F-5) — crawl_log schema validation after Editor V1 routes a row.
+# Routed rows (editor_v1_decision = "route_to_story_editor") MUST carry the
+# 4 Finpath-driven fields: sector_code, sector_name, sector_parent, master_route.
+# sector_parent may be empty string (top-level sectors like oilGas have pn="").
+# master_route MUST belong to _MASTER_ROUTE_VALID — fail-loud if Finpath returns
+# a sector_code not in data/sector_routing.yaml or if Editor V1 forgets to
+# call get_master_route(). Rejected rows skip validation entirely.
+_CRAWL_LOG_V5_1_3_FIELDS: dict[str, type] = {
+    "sector_code": str,
+    "sector_name": str,
+    "sector_parent": str,
+    "master_route": str,
+}
+
+_MASTER_ROUTE_VALID: set[str] = {
+    "bank", "ck", "bds",
+    "oilgas", "logistics", "fb", "apparel", "retail", "seafood", "defensive",
+}
+
+
+def validate_crawl_log_v5_1_3(row: dict) -> None:
+    """Validate V5.1.3 crawl_log fields after Editor V1.
+
+    Routed rows MUST have 4 fields: sector_code, sector_name, sector_parent,
+    master_route. sector_parent may be empty string. master_route MUST belong
+    to _MASTER_ROUTE_VALID. Rejected rows skip validation.
+    """
+    if row.get("editor_v1_decision") != "route_to_story_editor":
+        return
+    for field, expected_type in _CRAWL_LOG_V5_1_3_FIELDS.items():
+        if field not in row or row[field] is None:
+            raise ValueError(f"crawl_log V5.1.3 missing field: {field}")
+        if not isinstance(row[field], expected_type):
+            raise ValueError(
+                f"crawl_log {field} must be {expected_type.__name__}, "
+                f"got {type(row[field]).__name__}"
+            )
+    if row["master_route"] not in _MASTER_ROUTE_VALID:
+        raise ValueError(
+            f"master_route '{row['master_route']}' invalid. "
+            f"Valid: {sorted(_MASTER_ROUTE_VALID)}"
+        )
+
+
 def parse_task_usage(task_return: str | None) -> int | None:
     """Defensive parse of '<usage>total_tokens: N ...</usage>' block.
 

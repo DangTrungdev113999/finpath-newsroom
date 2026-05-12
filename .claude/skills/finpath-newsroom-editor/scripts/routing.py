@@ -1,11 +1,20 @@
 """
-Routing logic cho Finpath Newsroom Editor (M2).
+Routing logic cho Finpath Newsroom Editor (M2 → V5.1.3).
 
-4 chức năng:
-1. filter_universe — giữ ticker thuộc universe (M2: full 16 mã)
+Chức năng:
+1. filter_universe — giữ ticker thuộc universe (V4.0: 61 mã)
 2. identify_primary_ticker — rule 4 bước
 3. worth_writing — simple heuristic check
-4. get_sector — lookup ticker → sector (Bank/CK/BĐS)
+4. get_sector — lookup ticker → sector (Bank/CK/BĐS) [V4.0 legacy]
+5. get_sector_v5_1_3 — Finpath API + sector_router (V5.1.3, ~139 mã)
+
+V5.1.3 transition note: FULL_UNIVERSE + COMPANY_NAME_TO_TICKER + get_sector()
+preserved during transition window. Editor V1 prompt now routes via
+get_sector_v5_1_3() — queries Finpath sectors cache + sector_routing.yaml so
+universe expands from 61 hardcoded mã to ~139 Finpath-managed tickers.
+Hardcoded FULL_UNIVERSE will be fully deprecated once downstream agents
+(Story Editor, Master) consume sector_code/master_route fields from crawl_log
+without falling back to TICKER_TO_SECTOR.
 """
 
 from .ticker_detection import detect_tickers_with_position, count_ticker_mentions
@@ -47,6 +56,52 @@ for t in BDS_UNIVERSE:
 def get_sector(ticker: str) -> str | None:
     """Return sector của ticker (Bank/CK/BĐS), hoặc None nếu không trong universe."""
     return TICKER_TO_SECTOR.get(ticker.upper())
+
+
+def get_sector_v5_1_3(ticker: str, db) -> dict | None:
+    """V5.1.3 sector detection via Finpath API + sector_routing.yaml.
+
+    Queries Finpath sectors cache (TTL 365 days, ~139 tickers) and maps
+    the returned sector_code → master_route via lib.sector_router.
+
+    Args:
+        ticker: ticker symbol (case-sensitive; Finpath cache stores uppercase)
+        db: PipelineDB instance
+
+    Returns:
+        dict with keys:
+            - sector_code (str): Finpath sector_code (e.g. "soe3", "oilGas")
+            - sector_name (str): Vietnamese sector label (e.g. "Bank nhà nước")
+            - sector_parent (str): parent sector or "" for top-level
+            - master_route (str): one of bank/ck/bds/oilgas/logistics/fb/
+              apparel/retail/seafood/defensive
+            - sector (str): backward-compat alias = sector_name
+        None nếu ticker không có trong Finpath cache (ticker outside Finpath 139).
+
+    Raises:
+        lib.sector_router.MasterRouteError: nếu Finpath returns sector_code
+            chưa map trong data/sector_routing.yaml — fail-loud để admin
+            promote sector mới.
+    """
+    from lib.finpath_sectors import FinpathSectors
+    from lib.sector_router import get_master_route, MasterRouteError
+
+    fs = FinpathSectors(db)
+    info = fs.get_ticker_sector(ticker)
+    if not info:
+        return None
+
+    try:
+        master_route = get_master_route(info["sector_code"])
+    except MasterRouteError:
+        raise
+    return {
+        "sector_code": info["sector_code"],
+        "sector_name": info["sector_name"],
+        "sector_parent": info["sector_parent"],
+        "master_route": master_route,
+        "sector": info["sector_name"],  # backward-compat field
+    }
 
 
 def filter_universe(tickers: list[str], universe: list[str] = None) -> list[str]:

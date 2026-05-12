@@ -62,6 +62,28 @@ Aliases coverage trong `scripts/ticker_detection.py`:
 - Pass 2 short-form ticker: regex auto-derived từ `SHORT_FORM_TO_TICKER` dict (61 ticker codes + "MB" legacy alias, sorted longest-first)
 - See `tests/test_routing_expanded.py` cho expected detection cases
 
+### Step 2 (V5.1.3 UPDATE): Sector detection via Finpath API
+
+Replace hardcoded BANK/CK/BDS universe lookup with Finpath API + sector_routing.yaml.
+
+For each detected ticker:
+
+1. Open SQLite: `db = PipelineDB("data/pipeline.db")`
+2. Import: `from .claude.skills.finpath_newsroom_editor.scripts.routing import get_sector_v5_1_3`
+3. `info = get_sector_v5_1_3(ticker, db)`
+4. If `info is None`:
+   - Set `editor_v1_decision = "reject"`
+   - Set `editor_v1_note = "ticker_outside_finpath_139"`
+5. If `info is not None`:
+   - Set `editor_v1_decision = "route_to_story_editor"`
+   - Set `sector_code = info["sector_code"]`
+   - Set `sector_name = info["sector_name"]`
+   - Set `sector_parent = info["sector_parent"]`
+   - Set `master_route = info["master_route"]`
+   - Set `sector = info["sector"]` (backward-compat alias for sector_name)
+
+Persist all 5 fields to crawl_log row via UPDATE. Validate via `validate_crawl_log_v5_1_3` before persist.
+
 ### Step 3 — Identify primary
 
 - 1 ticker → primary
