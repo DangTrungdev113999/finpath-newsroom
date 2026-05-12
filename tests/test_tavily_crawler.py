@@ -166,3 +166,31 @@ def test_crawl_with_tavily_exception_returns_empty(monkeypatch):
     monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", mock_fail)
     rows = tavily_crawler.crawl_with_tavily("TCB", "TCB-20260512-1500")
     assert rows == []
+
+
+def test_crawl_with_websearch_happy(monkeypatch):
+    """Tier 2: WebSearch returns 3 results → 3 rows."""
+    from lib import tavily_crawler
+
+    def mock_websearch(query):
+        return [
+            {"url": "https://cafef.vn/x.chn", "title": "T1", "content": "B1"},
+            {"url": "https://vietstock.vn/y.htm", "title": "T2", "content": "B2"},
+            {"url": "https://tuoitre.vn/z.htm", "title": "T3", "content": "B3"},
+        ]
+
+    monkeypatch.setattr(tavily_crawler, "_call_websearch", mock_websearch)
+    rows = tavily_crawler.crawl_with_websearch("TCB", "TCB-20260512-1500")
+    assert len(rows) == 3
+    assert rows[0]["ticker"] == "TCB"
+    assert rows[0]["source_name"] == "CafeF"
+
+
+def test_crawl_with_websearch_failure_returns_empty(monkeypatch):
+    """Tier 2: WebSearch raises → return empty (signal Tier 3)."""
+    from lib import tavily_crawler
+    def mock_fail(q):
+        raise RuntimeError("WebSearch failed")
+    monkeypatch.setattr(tavily_crawler, "_call_websearch", mock_fail)
+    rows = tavily_crawler.crawl_with_websearch("TCB", "TCB-20260512-1500")
+    assert rows == []

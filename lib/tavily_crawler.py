@@ -235,3 +235,36 @@ def crawl_with_tavily(ticker: str, batch_id: str) -> list[dict[str, Any]]:
         # Log to stderr for visibility; return empty for fallback
         print(f"[tavily_crawler] Tier 1 failed: {type(e).__name__}: {e}", file=sys.stderr)
         return []
+
+
+def _call_websearch(query: str) -> list[dict[str, Any]]:
+    """Call built-in WebSearch tool.
+
+    Real implementation: invoked by agent context which has WebSearch tool.
+    For testing: monkeypatched.
+
+    Returns:
+        List of result dicts with at least 'url', 'title', optional 'content'.
+    """
+    raise NotImplementedError(
+        "_call_websearch must be invoked from agent context with WebSearch tool. "
+        "For unit tests, monkeypatch this function."
+    )
+
+
+def crawl_with_websearch(ticker: str, batch_id: str) -> list[dict[str, Any]]:
+    """Tier 2: Call built-in WebSearch tool with VN-focused query.
+
+    Returns empty list on failure (signal Tier 3 fallback).
+    """
+    try:
+        full_name = get_full_name(ticker)
+        query = f"{ticker.upper()} {full_name} tin tức 2026"
+        raw_results = _call_websearch(query)
+        if not raw_results:
+            return []
+        filtered = filter_results(raw_results, ticker)
+        return [parse_tavily_result(r, ticker, batch_id) for r in filtered]
+    except Exception as e:
+        print(f"[tavily_crawler] Tier 2 failed: {type(e).__name__}: {e}", file=sys.stderr)
+        return []
