@@ -320,4 +320,16 @@ Sau Commit 6 smoke checks pass, **HAND OFF** user:
 
 ## Changelog
 
-- **v1.0 (2026-05-12):** Initial spec, drafted via brainstorming với user. Architecture: Tavily MCP primary + WebSearch + legacy crawler fallback chain. Scope: Step 1 crawler only, Master Step 6 unchanged. Per user Q1=A (3-tier), Q2=A (no tracking), Q3=A (hard switch).
+- **v1.1 (2026-05-12) — ARCHITECTURE FIX**: Advisor review phát hiện v1.0 design có architectural mismatch — MCP tools là **agent-context tools** (KHÔNG Python-callable từ module). v1.0 placeholder `_call_tavily_mcp` raises NotImplementedError → production sẽ return empty pipeline.
+
+  **Fix v1.1**: restructure theo pattern existing crawler (`lib/stages/run_crawler.py` line 3-4: "script writes candidates already fetched by Claude. Does NOT make HTTP calls itself"). Agent fetches via MCP/WebSearch tool → Bash invoke Python script to parse + persist.
+
+  Changes:
+  - REMOVE 3 placeholder + 3 wrapper functions (`_call_tavily_mcp`, `_call_websearch`, `_call_legacy_crawler`, `crawl_with_tavily`, `crawl_with_websearch`, `crawl_with_legacy`, `crawl()`).
+  - REMOVE 10 tests using monkeypatch on those placeholders.
+  - ADD `parse_tavily_response(response, ticker, batch_id) -> list[rows]` (pure function, input MCP response dict).
+  - ADD `persist_rows(rows, db) -> count` (INSERT batch into crawl_log).
+  - ADD CLI entry `__main__` reading JSON từ stdin → persist (allows `agent fetches | python -m lib.tavily_crawler ...` pipe).
+  - REWRITE SKILL.md workflow: explicit MCP tool call by agent (Tier 1) → fallback WebSearch (Tier 2) → fallback existing legacy crawler script (Tier 3) → all 3 tiers feed parsed JSON to `parse_and_persist` script.
+
+- **v1.0 (2026-05-12):** Initial spec, drafted via brainstorming với user. Architecture: Tavily MCP primary + WebSearch + legacy crawler fallback chain. Scope: Step 1 crawler only, Master Step 6 unchanged. Per user Q1=A (3-tier), Q2=A (no tracking), Q3=A (hard switch). **Architectural flaw fixed in v1.1.**
