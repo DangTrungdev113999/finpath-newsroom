@@ -34,7 +34,11 @@ print(json.dumps(row, ensure_ascii=False, indent=2))
 
 Replace `<ROW_ID>` literally.
 
-### Step 2 — Detect tickers
+## Step 2 (DEPRECATED V5.1.3 — see V5.1.3 UPDATE below)
+
+> ⚠ DEPRECATED 2026-05-12: Hardcoded FULL_UNIVERSE lookup replaced by Finpath sectors-driven routing. See "Step 2 (V5.1.3 UPDATE)" below for the active path. Original content kept for migration audit — DO NOT execute this path at runtime.
+
+### Step 2 — Detect tickers (deprecated body)
 
 FULL_UNIVERSE 61 mã (3 sector):
 - **Bank** (27): HOSE 16 + HNX 4 + UPCOM 7 — see routing.BANK_UNIVERSE
@@ -89,7 +93,9 @@ Persist all 5 fields to crawl_log row via UPDATE. Validate via `validate_crawl_l
 - 1 ticker → primary
 - 2+ tickers → primary = first ticker mentioned in title (if any), else first in body
 
-### Step 4 — Decide
+### Step 4 — Decide (DEPRECATED V5.1.3 — superseded by Step 2 V5.1.3 UPDATE above)
+
+> ⚠ DEPRECATED 2026-05-12: Step 4 hardcoded `FULL_UNIVERSE` decision below is superseded by Step 2 V5.1.3 UPDATE block (Finpath sectors-driven). Active runtime persists via `validate_crawl_log_v5_1_3` after Step 2 V5.1.3. Content kept for migration audit — DO NOT execute this path.
 
 If primary in FULL_UNIVERSE:
 - Look up sector via `routing.get_sector(primary_ticker)` — returns `Bank` | `CK` | `BĐS`
