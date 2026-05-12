@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
-import { SECTORS, SECTOR_LABELS, type Sector } from '../../lib/kbTypes';
+import { SECTOR_LABELS, type Sector } from '../../lib/kbTypes';
 import { docsForSector } from '../../lib/kbLoader';
 
 // Group sectors by category for better UX
@@ -25,7 +25,6 @@ export function KbTabs({ active }: { active: Sector }) {
     setParams(next, { replace: true });
   };
 
-  const activeLabel = SECTOR_LABELS[active];
   const activeDocs = docsForSector(active);
 
   return (

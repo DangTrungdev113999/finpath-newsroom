@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
 import type { KbDoc, Sector } from '../../lib/kbTypes';
 import { groupsForSector, groupForSlug, titleForSlug } from '../../lib/kbTree';
@@ -25,7 +25,6 @@ const ROW_HEIGHT = 'py-1.5 leading-tight';
 
 export function KbTree({ docs, expanded, onExpandedChange, sector }: Props) {
   const { slug: activeSlug } = useParams<{ slug?: string }>();
-  const [params] = useSearchParams();
 
   const groups = useMemo(() => groupsForSector(sector), [sector]);
 
