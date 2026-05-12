@@ -399,3 +399,122 @@ def check_em_dash_density(body: str) -> dict[str, Any]:
             "reason": f"Em dash overused: {em_dash_count} em dashes in {word_count} words (max {threshold:.1f})",
         }
     return {"pass": True, "reason": ""}
+
+
+# === V5.0 Phase 1.6 — per-format gates ===
+# Note: check_title_per_format dropped per V5.1 PATCH — title decisions
+# belong to Plan C Headline agent (lib/headline_scorer.py).
+
+from lib.format_registry import get_format
+
+
+def check_word_count_per_format(body: str, format_id: str) -> dict[str, Any]:
+    """V5.0 Gate 2 — word count must be within format's length_range."""
+    cleaned = _clean(body).strip()
+    n = len(cleaned.split())
+    fmt = get_format(format_id)
+    lo, hi = fmt["length_range"]
+    if n < lo:
+        return {"pass": False, "reason": f"Too short: {n} words (need {lo}-{hi} for {format_id})"}
+    if n > hi:
+        return {"pass": False, "reason": f"Too long: {n} words (need {lo}-{hi} for {format_id})"}
+    return {"pass": True, "reason": ""}
+
+
+def check_body_pattern_per_format(body: str, format_id: str) -> dict[str, Any]:
+    """V5.0 Gate 3 — body structure per format spec."""
+    cleaned = _clean(body).strip()
+    fmt = get_format(format_id)
+    structure = fmt["structure"]
+    blocks = [b.strip() for b in re.split(r"\n\s*\n", cleaned) if b.strip()]
+
+    # No '## Cần để ý' allowed in any format
+    if re.search(r"^#{2,3}\s+C[ầa]n\s+đ[ểe]?\s+ý", cleaned, flags=re.MULTILINE):
+        return {"pass": False, "reason": "Contains '## Cần để ý' section — banned"}
+
+    if structure == "paragraph_only":
+        for line in cleaned.split("\n"):
+            if line.lstrip().startswith(("- ", "* ")):
+                return {"pass": False, "reason": "flash_qa: bullet found, format requires paragraph only"}
+        return {"pass": True, "reason": ""}
+
+    if structure in ("opening_bullets_closing", "short_opening_dense_bullets"):
+        if len(blocks) < 3:
+            return {"pass": False, "reason": f"Need ≥3 blocks (opening + bullets + closing), got {len(blocks)}"}
+        opening = blocks[0]
+        closing = blocks[-1]
+        middle = blocks[1:-1]
+        if opening.startswith(("- ", "* ")):
+            return {"pass": False, "reason": "Opening must be paragraph, not bullet"}
+
+        opening_words = len(opening.split())
+        opening_min = fmt.get("opening_min", 0)
+        opening_max = fmt.get("opening_max")
+        if opening_words < opening_min:
+            return {"pass": False, "reason": f"Opening too short: {opening_words} words (need ≥{opening_min} for {format_id})"}
+        if opening_max is not None and opening_words > opening_max:
+            return {"pass": False, "reason": f"Opening too long: {opening_words} words (need ≤{opening_max} for {format_id})"}
+
+        if closing.startswith(("- ", "* ")) or closing.startswith("#"):
+            return {"pass": False, "reason": "Closing must be sentence, not bullet/heading"}
+
+        bullets: list[str] = []
+        for block in middle:
+            for line in block.split("\n"):
+                line = line.strip()
+                if line.startswith(("- ", "* ")):
+                    bullets.append(line[2:].strip())
+                elif line and bullets:
+                    bullets[-1] += " " + line
+                elif line:
+                    return {"pass": False, "reason": f"Non-bullet text in middle: '{line[:60]}'"}
+
+        b_lo, b_hi = fmt["bullets_count"]
+        if not (b_lo <= len(bullets) <= b_hi):
+            return {"pass": False, "reason": f"Need {b_lo}-{b_hi} bullets, got {len(bullets)}"}
+        bullet_min = fmt["bullet_min_length"]
+        for i, b in enumerate(bullets, 1):
+            words = len(b.split())
+            if words < bullet_min:
+                return {"pass": False, "reason": f"Bullet {i} too short: {words} words (need ≥{bullet_min} for {format_id})"}
+            if "**" not in b:
+                return {"pass": False, "reason": f"Bullet {i} missing bold highlight"}
+        return {"pass": True, "reason": ""}
+
+    if structure == "flow_paragraphs":
+        if len(blocks) < 2:
+            return {"pass": False, "reason": "narrative: need ≥2 paragraphs"}
+        opening = blocks[0]
+        if opening.startswith(("- ", "* ")):
+            return {"pass": False, "reason": "Opening must be paragraph"}
+        opening_words = len(opening.split())
+        if opening_words < fmt.get("opening_min", 40):
+            return {"pass": False, "reason": f"Opening too short: {opening_words} words (need ≥40)"}
+        bullet_count = sum(1 for line in cleaned.split("\n") if line.lstrip().startswith(("- ", "* ")))
+        b_lo, b_hi = fmt["bullets_count"]
+        if bullet_count > b_hi:
+            return {"pass": False, "reason": f"narrative: {bullet_count} bullets, max {b_hi} highlights allowed"}
+        return {"pass": True, "reason": ""}
+
+    return {"pass": False, "reason": f"Unknown structure: {structure}"}
+
+
+def check_all_v5(body: str, format_id: str, stance: str) -> dict[str, dict[str, Any]]:
+    """Run all 8 V5.0 gates: 6 universal + 2 per-format.
+
+    V5.1 PATCH: title_pattern dropped (moved to Plan C lib/headline_scorer.py).
+
+    Universal: no_english_jargon, no_metadata_leak, no_hedging, verdict_line,
+               stance_consistency, sentence_density.
+    Per-format: word_count, body_pattern.
+    """
+    return {
+        "no_english_jargon": check_no_english_jargon(body),
+        "no_metadata_leak": check_no_metadata_leak(body),
+        "no_hedging": check_no_hedging(body),
+        "verdict_line": check_verdict_line(body),
+        "stance_consistency": check_stance_consistency(body, stance),
+        "sentence_density": check_sentence_density(body),
+        "word_count": check_word_count_per_format(body, format_id),
+        "body_pattern": check_body_pattern_per_format(body, format_id),
+    }

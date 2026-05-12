@@ -486,3 +486,84 @@ def test_em_dash_density_too_many_rejects():
 def test_em_dash_density_no_em_dash_in_empty_body():
     from lib.quality_gates import check_em_dash_density
     assert check_em_dash_density("")["pass"] is True
+
+
+# === V5.0 Phase 1.6 — per-format gates + dispatch (V5.1 PATCH: title gates removed) ===
+
+def test_per_format_flash_qa_word_count():
+    from lib.quality_gates import check_word_count_per_format
+    body_100w = " ".join(["word"] * 100)
+    assert check_word_count_per_format(body_100w, "flash_qa")["pass"] is True
+    body_200w = " ".join(["word"] * 200)
+    assert check_word_count_per_format(body_200w, "flash_qa")["pass"] is False
+
+
+def test_per_format_standard_qa_word_count_unchanged():
+    from lib.quality_gates import check_word_count_per_format
+    body_250w = " ".join(["word"] * 250)
+    assert check_word_count_per_format(body_250w, "standard_qa")["pass"] is True
+    body_100w = " ".join(["word"] * 100)
+    assert check_word_count_per_format(body_100w, "standard_qa")["pass"] is False
+
+
+def test_per_format_flash_qa_body_pattern_no_bullets():
+    from lib.quality_gates import check_body_pattern_per_format
+    body_with_bullet = (
+        "Opening paragraph of about thirty words flash qa minimum length minimum "
+        "test test test test test test test test test.\n\n- bullet violation here\n\nClosing."
+    )
+    result = check_body_pattern_per_format(body_with_bullet, "flash_qa")
+    assert result["pass"] is False
+    assert "bullet" in result["reason"].lower()
+
+
+def test_per_format_flash_qa_body_paragraph_only_passes():
+    from lib.quality_gates import check_body_pattern_per_format
+    body = (
+        "VCB chia cổ tức 21% bằng cổ phiếu chốt phương án phát hành 21:1 vốn điều "
+        "lệ tăng từ 83.557 lên 101.124 tỷ pha loãng EPS giấy tờ khoảng 17% nhưng "
+        "P/E forward thực tế không đổi vì cổ tức cổ phiếu chuyển hạch toán LNCPS "
+        "vốn cổ phần không đổi giá trị doanh nghiệp NĐT giữ dài hạn theo cốt lõi."
+    )
+    assert check_body_pattern_per_format(body, "flash_qa")["pass"] is True
+
+
+def test_per_format_standard_listicle_min_4_bullets():
+    """Listicle requires 4-7 bullets, each ≥25 words."""
+    from lib.quality_gates import check_body_pattern_per_format
+    body_3bullets = (
+        "Opening ngắn 20 từ test test test test test test test test test test test "
+        "test test test test test test test.\n\n"
+        "- **Bullet 1**: " + " ".join(["word"] * 25) + "\n"
+        "- **Bullet 2**: " + " ".join(["word"] * 25) + "\n"
+        "- **Bullet 3**: " + " ".join(["word"] * 25) + "\n\n"
+        "Closing."
+    )
+    result = check_body_pattern_per_format(body_3bullets, "standard_listicle")
+    assert result["pass"] is False
+    assert "4" in result["reason"] or "bullet" in result["reason"].lower()
+
+
+def test_check_all_v5_dispatches_per_format():
+    """check_all_v5 runs universal + per-format. 8 gates total (V5.1: title dropped)."""
+    from lib.quality_gates import check_all_v5
+    body = (
+        "VCB Q1/2026 LNTT đạt 11.218 tỷ đồng chỉ tăng 1,3% so cùng kỳ "
+        "trong khi CTG tăng 11,4% và BID 8,2% nhờ tăng tín dụng nhanh hơn — "
+        "VCB to nhất sàn lại đi chậm nhất Q1/2026 do chiến lược ngược chiều thị trường.\n\n"
+        "- **Chi phí dự phòng VCB tăng 38% so cùng kỳ**: ngân hàng tích lũy vùng đệm trước rủi ro nợ xấu nhóm BĐS lấn từ 0,82% lên 1,03% nhờ tiếp tục đặt cược dài hạn vào tăng trưởng ổn định.\n"
+        "- **Biên lãi vay VCB co từ 3,06% xuống 2,71%**: nhờ ưu tiên giữ khách hàng tốt thay vì đẩy lãi suất cho vay lên cao, chiến lược phòng thủ dài hạn đáng chú ý cho tăng trưởng ổn định.\n"
+        "- **Tăng trưởng tín dụng VCB chỉ 1,8% lũy kế từ đầu năm**: trong khi CTG đạt 4,3% và BID 3,8% so cùng kỳ, VCB tự chậm có chủ đích nhờ ưu tiên chất lượng tài sản tích lũy lợi thế dài hạn.\n\n"
+        "Tích cực dài hạn cho VCB nhờ chiến lược ổn định nhờ kỷ luật rủi ro. NĐT đang cầm nên giữ 12 tháng vì chiến lược phòng thủ Q1 sẽ thành lợi thế tăng trưởng."
+    )
+    results = check_all_v5(body, format_id="standard_qa", stance="bullish")
+    # 8 gates expected
+    assert set(results.keys()) == {
+        "no_english_jargon", "no_metadata_leak", "no_hedging",
+        "verdict_line", "stance_consistency", "sentence_density",
+        "word_count", "body_pattern",
+    }
+    # title_pattern NOT in results
+    assert "title_pattern" not in results
+    failed = [(k, v) for k, v in results.items() if not v["pass"]]
+    assert not failed, f"Unexpected failures: {failed}"
