@@ -335,10 +335,12 @@ class PipelineDB:
             return  # crawl_log not bootstrapped yet — init_schema will retry.
         cur = self.conn.execute("PRAGMA table_info(crawl_log)")
         existing = {row["name"] for row in cur.fetchall()}
-        # V5.1.4 H-1 (session grouping) + V5.1.3 (Finpath sectors routing)
+        # V5.1.4 H-1 (session grouping) + V5.1.3 (Finpath sectors routing).
+        # NOTE: legacy `sector` column (kept as alias for sector_name) already
+        # exists in canonical schema.sql, so it's NOT in this list.
         for col in (
             "session_id", "trigger_type", "trigger_args",
-            "sector_code", "sector_parent", "master_route",
+            "sector_code", "sector_name", "sector_parent", "master_route",
         ):
             if col not in existing:
                 self.conn.execute(f"ALTER TABLE crawl_log ADD COLUMN {col} TEXT")
