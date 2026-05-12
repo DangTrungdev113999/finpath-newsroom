@@ -831,7 +831,7 @@ Per master: copy Bank V5.1.2 split structure, swap sector-specific content.
 
 **Estimated effort**: 82 file mới + 5 file modify = ~3-4 ngày với subagent-driven-development parallel.
 
-## 17. Open questions / deferred
+## 17. Open questions / deferred — RESOLVED
 
 ### Deferred to V5.1.4+
 
@@ -840,13 +840,19 @@ Per master: copy Bank V5.1.2 split structure, swap sector-specific content.
 - **Sector-specific quality gates** (vd "oilGas mention crack spread") — V5.1.4.
 - **Real-time sector_code change detection** (Finpath schema update) — alerting via manual refresh diff.
 
-### Open questions
+### Resolved (2026-05-12 PM user review)
 
-- **Q1**: Master-BDS KB-optional behavior — load `kb/bds/` cho TẤT CẢ 54 mã hay chỉ 4 anchor? Em propose load full kb/bds/ (sector-level context) + per-ticker KB anchor cho 4 mã (depth). Web search fallback cho 50 mã không có per-ticker KB.
+- **Q1 (RESOLVED — option A)**: Master-BDS load `kb/bds/` cho TẤT CẢ 54 mã (sector-level context) + per-ticker KB anchor cho 4 mã (depth). Web search fallback cho 50 mã không có per-ticker KB. Graceful degradation pattern.
 
-- **Q2**: 7 NEW master agents có duplicate `voice-layer-rules.md` + `stance-directive-handler.md` từ Bank (per CLAUDE.md cấm shared-references/). Acceptable hay anh muốn ngoại lệ cho V5.1.3?
+- **Q2 (RESOLVED — option A)**: 7 NEW master agents DUPLICATE `voice-layer-rules.md` + `stance-directive-handler.md` từ Bank. Consistent với V5.1.2 split decision (CLAUDE.md cấm `shared-references/`). ~80 lines × 7 master = 560 lines duplicate — acceptable trade-off cho isolation.
 
-- **Q3**: `kb/oilGas/` vs `kb/oilgas/` naming — em propose match Finpath code chính xác (`oilGas` camelCase). Filesystem case-sensitive — anh OK?
+- **Q3 (RESOLVED — no KB scaffolding)**: KHÔNG tạo `kb/{sector_code}/` folder cho 7 sector mới ở V5.1.3 ship. 7 master agents mới launch với note **"chưa có KB, tự search web"** trong SKILL.md. KB folder naming convention (camelCase `kb/oilGas/`) chỉ apply khi user build KB sau này. Web search heavy mode cho 7 master mới + 50 BDS non-anchor mã.
+
+### Impact của Q3 resolution
+
+- §14 File touch list: REMOVE `kb/{sector_code}/` folder creation từ Phase 2 tasks. Save ~7 folder bootstrap.
+- §8 KB-optional pattern: V5.1.3 ship state = `kb_dir.exists() == False` cho 7 sector mới → 100% Priority 4 (web search). Future user build KB → automatic pickup.
+- §7 master skill SKILL.md frontmatter: 7 master mới có note "kb_path: '' # not yet built — use web search heavy" để dispatcher biết.
 
 ## 18. Spec changelog
 
@@ -861,4 +867,9 @@ Per master: copy Bank V5.1.2 split structure, swap sector-specific content.
   - Migration path: build kb/{sector_code}/ → master tự pick up (no code change)
   - Address advisor concerns: Spec A V1.2 PATCH + Story Editor stance examples per sector + auto-refresh on unknown ticker + wrapper sector skip + YAML fail-loud
   - Rationale: User feedback "mã nào cũng viết được, KB có thì dùng, không thì web search" + "build hết master 1 lượt vì có pattern sẵn"
+
+- V1.0.1 (2026-05-12 PM) — 3 open question resolutions
+  - Q1 RESOLVED option A: Master-BDS load kb/bds/ cho 54 mã + per-ticker KB anchor cho 4 mã
+  - Q2 RESOLVED option A: Accept duplicate voice/stance refs trong 7 master mới (CLAUDE.md no-shared-refs)
+  - Q3 RESOLVED: KHÔNG tạo kb/{sector_code}/ folder ở V5.1.3 ship. 7 master mới web search heavy. KB folder naming convention defer cho future user-driven build.
 ```
