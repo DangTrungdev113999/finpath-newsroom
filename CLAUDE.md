@@ -196,6 +196,17 @@ Pre-V5.1.3 (Bank/CK/BĐS 61 mã) listed below for transition reference — super
 - Header nav "Lịch sử pipeline" → `/pipeline-runs`.
 - Legacy crawl_log rows trước V5.1.4 (`session_id IS NULL`) SKIPPED from manifest (Q2 resolution).
 
+## Commands (entry-points)
+
+- `/tin <TICKER>` — single ticker pipeline V5.1.4 (1 session, 1 batch). Editor V1 validate universe (~139 mã Finpath cache), pre-V5.1.3 61/71 mã gate đã remove ở Crawler.
+- `/tin-batch TICKER1,TICKER2,...` — multi-ticker parallel pipelines (1 session × N batches). Parent generates SESSION_ID once, children inherit qua prompt.
+- `/tin-hot N` — top N mã hot (Plan A V1.0, V1.2 PATCH integrated). 4 categories (Tăng giá / Giảm giá / Bùng nổ / Cạn cung) từ Finpath `/api/stocks/v2/overview` → filter top 100 marketCap + avgDay5Value ≥ 10 tỷ → intersect Finpath ~139 universe → compute → dedup → 60-min idempotency → sequential dispatch với shared SESSION_ID. Default N=4, max N=10.
+  - Universe gate: `FinpathSectors.get_all_cached_tickers()` (auto-refresh nếu empty). NOT hardcoded `FULL_UNIVERSE`.
+  - NO foreign flow auto-enrich (Spec G V1.1 PATCH — on-demand only).
+  - Each child pipeline run inherit `session_id` + `trigger_type=tin-hot` + `trigger_args=N=<n>` + `hot_category=<cats>`.
+
+All 3 commands respect `newsroom-pipeline` Step 0 inheritance check — children KHÔNG re-roll `uuidgen` khi parent đã truyền `session_id`.
+
 ## Data sourcing rule — KHÔNG restrict
 
 Agent (Master Bank, Story Editor, Skeptic) tra data theo thứ tự:
