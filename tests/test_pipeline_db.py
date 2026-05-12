@@ -715,3 +715,66 @@ def test_validate_v5_step_4_valid_passes():
         "duration_ms": 12500,
     }
     validate_pipeline_step("step_4_master", payload, pipeline_version="V5.0")
+
+
+def test_log_pipeline_step_3_5_format_director(tmp_path):
+    """Logging step_3_5_format_director with valid payload persists."""
+    from lib.pipeline_db import PipelineDB
+    db_path = tmp_path / "test.db"
+    db = PipelineDB(str(db_path))
+    db.init_schema("data/pipeline.schema.sql")
+    db.insert_crawl_row({
+        "row_id": "r1", "funnel_batch_id": "b1", "ticker": "VCB",
+        "source_name": "CafeF", "source_url": "http://x.com/1",
+        "title": "T", "crawled_at": "2026-05-11T00:00:00Z",
+    })
+    db.insert_generated_news({
+        "article_id": "a1", "row_id": "r1", "ticker": "VCB", "sector": "Bank",
+        "title": "T", "body": "...", "accepted_hypothesis": 1, "status": "draft",
+        # pipeline_version defaults to V5.0 via B-3
+    })
+    payload = {
+        "format_picks": [
+            {"option_idx": 0, "format_id": "standard_qa", "format_reason": "test", "tone_bias": "neutral", "length_target": 250},
+        ],
+        "candidates_considered_per_option": [],
+        "variety_check": {},
+        "model": "claude-sonnet-4-6",
+        "duration_ms": 8400,
+        "tokens": 1240,
+    }
+    db.log_pipeline_step("a1", "step_3_5_format_director", payload)
+    # Verify persisted
+    row = db.conn.execute("SELECT pipeline_log FROM generated_news WHERE article_id='a1'").fetchone()
+    import json
+    log = json.loads(row["pipeline_log"])
+    assert "step_3_5_format_director" in log
+    assert log["step_3_5_format_director"]["format_picks"][0]["format_id"] == "standard_qa"
+    db.close()
+
+
+def test_log_pipeline_step_3_5_empty_format_picks_rejects(tmp_path):
+    """Empty format_picks → ValueError (non-empty constraint per V5.0)."""
+    from lib.pipeline_db import PipelineDB
+    import pytest
+    db_path = tmp_path / "test.db"
+    db = PipelineDB(str(db_path))
+    db.init_schema("data/pipeline.schema.sql")
+    db.insert_crawl_row({
+        "row_id": "r1", "funnel_batch_id": "b1", "ticker": "VCB",
+        "source_name": "CafeF", "source_url": "http://x.com/1",
+        "title": "T", "crawled_at": "2026-05-11T00:00:00Z",
+    })
+    db.insert_generated_news({
+        "article_id": "a1", "row_id": "r1", "ticker": "VCB", "sector": "Bank",
+        "title": "T", "body": "...", "accepted_hypothesis": 1, "status": "draft",
+    })
+    with pytest.raises(ValueError, match="format_picks"):
+        # Payload missing model/duration_ms (will also fail those) — but
+        # match on format_picks specifically as the test name suggests.
+        db.log_pipeline_step("a1", "step_3_5_format_director", {
+            "format_picks": [],
+            "model": "claude-sonnet-4-6",
+            "duration_ms": 100,
+        })
+    db.close()
