@@ -1,7 +1,7 @@
 ---
 category: frameworks
 title: "BDS-Macro-Cycle-Credit"
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 notion_page_id: "35d273c7-a9a1-81cd-94f7-d4a41d830898"
 source_url: "https://notion.so/35d273c7a9a181cd94f7d4a41d830898"
 applies_to: ["all"]
@@ -23,6 +23,33 @@ Bốn biến vĩ mô chính:
 Cơ chế lãi suất truyền dẫn xuống bất động sản qua bốn bước. Bước 1: Ngân hàng Nhà nước hạ lãi suất điều hành → ngân hàng thương mại hạ lãi suất huy động (trễ 1-2 tháng). Bước 2: lãi suất huy động giảm → tiền gửi tiết kiệm kém hấp dẫn, dòng tiền tìm kênh khác, ngân hàng thương mại hạ lãi suất cho vay (trễ 2-3 tháng). Bước 3: lãi suất cho vay bất động sản giảm → khả năng vay của nhà đầu tư tăng, một người với thu nhập trước đây vay 50% giá căn hộ nay có thể vay 65% cùng mức trả nợ hàng tháng. Bước 4: nhu cầu tăng → doanh số bán doanh nghiệp tăng → doanh thu tăng (trễ 12-18 tháng vì phải bàn giao). Cổ phiếu bất động sản thường chạy trước 3-6 tháng so với doanh thu vì thị trường định giá kỳ vọng. Tổng độ trễ từ Ngân hàng Nhà nước hạ lãi suất đến cổ phiếu bất động sản tăng: 2-4 tháng (chạy trước); đến doanh thu bất động sản tăng: 6-12 tháng.
 
 ## Threshold benchmark dài hạn
+
+### Timeline 30 năm bất động sản Việt Nam
+
+```
+1995-2000: Khởi đầu (Luật Đất đai 1993, sốt đất 95-96, đóng băng 97-00)
+2001-2006: Tăng trưởng (sốt 01-03, điều chỉnh 04-06)
+2007-2009: Bùng nổ→Sụp (WTO 07, lạm phát 22% 08, giảm 30-40%)
+2010-2013: KHỦNG HOẢNG LỚN (tồn kho >100.000 tỷ, hàng trăm doanh nghiệp phá sản)
+2014-2021: Hồi phục (luật mới 14-15, VHM IPO 18, trái phiếu doanh nghiệp kỷ lục 20-21)
+2022-2026: KHỦNG HOẢNG TPDN (Tân Hoàng Minh 4/22, Vạn Thịnh Phát 10/22, luật mới 8/24)
+```
+
+### Bài học khủng hoảng so sánh
+
+| Yếu tố | 2011-2013 | 2022-2024 |
+|---|---|---|
+| Trigger | Ngân hàng Nhà nước siết tín dụng | Scandal trái phiếu doanh nghiệp |
+| Thời gian đáy | 2-3 năm | 2-3 năm |
+| Giảm cổ phiếu | 50-70% | 50-90% |
+| Catalyst hồi phục | Luật mới 14-15 | Luật mới 8/24 |
+
+**Bài học:**
+- Đòn bẩy cao = chết khi siết tín dụng
+- Cổ phiếu giảm/tăng TRƯỚC bất động sản thực 6-12 tháng
+- Doanh nghiệp khoẻ (VHM, KDH) sống sót, doanh nghiệp yếu phá sản
+
+### Chu kỳ 7-10 năm
 
 Chu kỳ bất động sản Việt Nam có chu kỳ khoảng 7-10 năm, ngắn hơn chu kỳ bất động sản Mỹ 15-18 năm. Lý do: thị trường mới nổi, đòn bẩy cao, chính sách phản ứng nhanh.
 
@@ -58,6 +85,19 @@ Lãi suất điều hành ngưỡng quan trọng cho bất động sản:
 > Trigger ngày 8/10/2022 bắt Trương Mỹ Lan kéo theo Ngân hàng Nhà nước siết tín dụng bất động sản. Ngân hàng thương mại "giữ lại tiền mặt của doanh nghiệp" (trường hợp Novaland mất hàng nghìn tỷ tiền mặt bị đóng băng). Nghị định 65 năm 2022 siết trái phiếu doanh nghiệp riêng lẻ — doanh nghiệp bất động sản mất kênh huy động vốn chính. Hệ quả dây chuyền: Novaland, FLC, Tân Hoàng Minh, Đất Xanh chậm thanh toán một số lô trái phiếu.
 >
 > **Không analogize sang**: chu kỳ siết tín dụng bán lẻ (xem `bds-retail-footfall-mechanism.md`) — Vincom Retail không chịu ảnh hưởng vì dòng tiền cho thuê định kỳ ổn định, không phụ thuộc trái phiếu.
+
+## Affordability Crisis — khả năng chi trả nhà ở
+
+```
+Thành phố Hồ Chí Minh: 32,5 lần thu nhập (cực cao)
+Hà Nội: 18,3 lần thu nhập (rất cao)
+→ Nhu cầu thật TẬP TRUNG phân khúc bình dân (dưới 2 tỷ)
+→ Cao cấp chủ yếu đầu cơ, rủi ro cao
+```
+
+**Liên hệ bất động sản ↔ ngân hàng ↔ vật liệu xây dựng:**
+- Bất động sản hồi phục → ngân hàng nợ xấu giảm → vật liệu xây dựng bán chạy → nhà thầu có việc
+- Bất động sản đóng băng → cả chuỗi bị ảnh hưởng (30-40% kinh tế Việt Nam)
 
 ## Regulatory
 

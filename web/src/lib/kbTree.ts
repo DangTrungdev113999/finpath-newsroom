@@ -1,67 +1,118 @@
-import type { KbGroupConfig } from './kbTypes';
+import type { KbGroupConfig, Sector } from './kbTypes';
 
-// BĐS group config. Match order = display order in sidebar. First match wins.
-// Last entry "other" is a catch-all so new KB files never disappear from the tree.
+// BĐS group config
 export const BDS_GROUPS: KbGroupConfig[] = [
-  { id: 'master',  icon: '🏛', label: 'Tham chiếu ngành',
+  { id: 'master', icon: '🏛', label: 'Tham chiếu ngành',
     match: (slug) => slug === 'bds-industry-master-reference' },
   { id: 'general', icon: '📊', label: 'Khái niệm chung',
     match: (slug) => /^bds-(macro|legal|debt|revenue|hybrid)-/.test(slug) },
-  { id: 'res',     icon: '🏘', label: 'Phát triển dân cư',
+  { id: 'res', icon: '🏘', label: 'Phát triển dân cư',
     match: (slug) => /^bds-res-/.test(slug) },
-  { id: 'kcn',     icon: '🏭', label: 'Khu công nghiệp',
+  { id: 'kcn', icon: '🏭', label: 'Khu công nghiệp',
     match: (slug) => /^bds-kcn-/.test(slug) },
-  { id: 'retail',  icon: '🛍', label: 'Bán lẻ trung tâm',
+  { id: 'retail', icon: '🛍', label: 'Bán lẻ trung tâm',
     match: (slug) => /^bds-retail-/.test(slug) },
-  { id: 'office',  icon: '🏢', label: 'Văn phòng cho thuê',
+  { id: 'office', icon: '🏢', label: 'Văn phòng cho thuê',
     match: (slug) => /^bds-office-/.test(slug) },
-  { id: 'resort',  icon: '🏖', label: 'Nghỉ dưỡng',
+  { id: 'resort', icon: '🏖', label: 'Nghỉ dưỡng',
     match: (slug) => /^bds-resort-/.test(slug) },
-  { id: 'dc',      icon: '🖥', label: 'Trung tâm dữ liệu',
+  { id: 'dc', icon: '🖥', label: 'Trung tâm dữ liệu',
     match: (slug) => /^bds-dc-/.test(slug) },
-  { id: 'other',   icon: '📎', label: 'Khác',
+  { id: 'other', icon: '📎', label: 'Khác',
     match: () => true },
 ];
 
-export const BDS_TITLES: Record<string, string> = {
-  'bds-industry-master-reference': 'Tham chiếu ngành',
-  'bds-macro-cycle-credit': 'Chu kỳ vĩ mô & tín dụng',
-  'bds-legal-framework': 'Khung pháp lý',
-  'bds-debt-leverage': 'Đòn bẩy nợ',
-  'bds-revenue-recognition-vas': 'Ghi nhận doanh thu (VAS)',
-  'bds-hybrid-business-models': 'Mô hình kinh doanh lai',
-  'bds-res-land-bank-nav': 'Quỹ đất & NAV',
-  'bds-res-project-lifecycle': 'Vòng đời dự án',
-  'bds-res-presales-backlog': 'Bán trước & backlog',
-  'bds-kcn-fdi-demand-mechanism': 'Cơ chế cầu FDI',
-  'bds-kcn-lease-structure': 'Cấu trúc thuê đất',
-  'bds-kcn-inventory-pricing': 'Tồn kho & giá thuê',
-  'bds-retail-footfall-mechanism': 'Lưu lượng khách',
-  'bds-retail-anchor-vs-sme-tenants': 'Anchor & khách thuê SME',
-  'bds-retail-tenant-mix-quality': 'Chất lượng tenant mix',
-  'bds-office-class-tiering': 'Phân hạng văn phòng',
-  'bds-office-hybrid-work-impact': 'Tác động làm việc kết hợp',
-  'bds-resort-tourism-cycle': 'Chu kỳ du lịch',
-  'bds-resort-condotel-legal-pitfalls': 'Cạm bẫy pháp lý condotel',
-  'bds-resort-hybrid-model': 'Mô hình lai nghỉ dưỡng',
-  'bds-dc-hyperscaler-power': 'Điện cho hyperscaler',
+// Default groups for sectors that don't have custom config
+function defaultGroups(prefix: string): KbGroupConfig[] {
+  return [
+    { id: 'master', icon: '🏛', label: 'Tham chiếu ngành',
+      match: (slug) => slug.includes('master-reference') || slug.includes('industry-master') },
+    { id: 'frameworks', icon: '📊', label: 'Frameworks',
+      match: (slug) => slug.startsWith(prefix) },
+    { id: 'other', icon: '📎', label: 'Khác',
+      match: () => true },
+  ];
+}
+
+// Sector-specific group configs
+const SECTOR_GROUPS: Partial<Record<Sector, KbGroupConfig[]>> = {
+  bds: BDS_GROUPS,
+  bank: [
+    { id: 'master', icon: '🏛', label: 'Tham chiếu ngành',
+      match: (slug) => slug === 'bank-industry-master-reference' },
+    { id: 'deep-dive', icon: '📊', label: 'Deep dive',
+      match: (slug) => /^bank-(nim|npl|target)-/.test(slug) },
+    { id: 'other', icon: '📎', label: 'Khác',
+      match: () => true },
+  ],
+  ck: [
+    { id: 'master', icon: '🏛', label: 'Tham chiếu ngành',
+      match: (slug) => slug === 'ck-industry-master-reference' },
+    { id: 'deep-dive', icon: '📊', label: 'Deep dive',
+      match: (slug) => /^ck-(margin|brokerage|liquidity|proprietary|ib)-/.test(slug) },
+    { id: 'other', icon: '📎', label: 'Khác',
+      match: () => true },
+  ],
+  aviation: [
+    { id: 'master', icon: '🏛', label: 'Tham chiếu ngành',
+      match: (slug) => slug.includes('master-reference') },
+    { id: 'deep-dive', icon: '📊', label: 'Deep dive',
+      match: (slug) => /aviation-(operating|fuel)-/.test(slug) },
+    { id: 'other', icon: '📎', label: 'Khác',
+      match: () => true },
+  ],
+  food: [
+    { id: 'master', icon: '🏛', label: 'Tham chiếu ngành',
+      match: (slug) => slug.includes('master-reference') },
+    { id: 'deep-dive', icon: '📊', label: 'Deep dive',
+      match: (slug) => /food-(nvl|seasonality)-/.test(slug) },
+    { id: 'other', icon: '📎', label: 'Khác',
+      match: () => true },
+  ],
+  retail: [
+    { id: 'master', icon: '🏛', label: 'Tham chiếu ngành',
+      match: (slug) => slug.includes('master-reference') },
+    { id: 'deep-dive', icon: '📊', label: 'Deep dive',
+      match: (slug) => /retail-(sssg|inventory)-/.test(slug) },
+    { id: 'other', icon: '📎', label: 'Khác',
+      match: () => true },
+  ],
+  seafood: [
+    { id: 'master', icon: '🏛', label: 'Tham chiếu ngành',
+      match: (slug) => slug.includes('master-reference') },
+    { id: 'deep-dive', icon: '📊', label: 'Deep dive',
+      match: (slug) => /seafood-(vhc|export)-/.test(slug) },
+    { id: 'other', icon: '📎', label: 'Khác',
+      match: () => true },
+  ],
+  textile: [
+    { id: 'master', icon: '🏛', label: 'Tham chiếu ngành',
+      match: (slug) => slug.includes('master-reference') },
+    { id: 'deep-dive', icon: '📊', label: 'Deep dive',
+      match: (slug) => /textile-(cmt|fta)-/.test(slug) },
+    { id: 'other', icon: '📎', label: 'Khác',
+      match: () => true },
+  ],
 };
 
-export function groupForSlug(slug: string): KbGroupConfig {
-  for (const group of BDS_GROUPS) {
+export function groupsForSector(sector: Sector): KbGroupConfig[] {
+  return SECTOR_GROUPS[sector] ?? defaultGroups(sector);
+}
+
+export function groupForSlug(slug: string, sector: Sector = 'bds'): KbGroupConfig {
+  const groups = groupsForSector(sector);
+  for (const group of groups) {
     if (group.match(slug)) return group;
   }
-  return BDS_GROUPS[BDS_GROUPS.length - 1];
+  return groups[groups.length - 1];
 }
 
 // Resolve display title for a KB slug.
-// Order: BDS_TITLES map → first H1 in body → frontmatter title → slug.
 export function titleForSlug(
   slug: string,
   body: string,
   frontmatterTitle: string | undefined,
 ): string {
-  if (BDS_TITLES[slug]) return BDS_TITLES[slug];
   const h1Match = body.match(/^#\s+(.+)$/m);
   if (h1Match) return h1Match[1].trim();
   if (frontmatterTitle) return frontmatterTitle;

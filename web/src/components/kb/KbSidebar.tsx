@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { X } from 'lucide-react';
-import type { KbDoc } from '../../lib/kbTypes';
+import type { KbDoc, Sector } from '../../lib/kbTypes';
 import { cn } from '../../shared/lib/cn';
 import { groupForSlug } from '../../lib/kbTree';
 import { KbSearch } from './KbSearch';
 import { KbTabs } from './KbTabs';
 import { KbTree } from './KbTree';
-
-type Sector = 'bds' | 'bank' | 'ck';
 
 interface Props {
   sector: Sector;
@@ -52,9 +50,9 @@ export function KbSidebar({ sector, docs, isDrawerOpen, onClose }: Props) {
   // Auto-expand active slug's owner group
   useEffect(() => {
     if (!activeSlug) return;
-    const owner = groupForSlug(activeSlug);
+    const owner = groupForSlug(activeSlug, sector);
     setExpanded((prev) => (prev.has(owner.id) ? prev : new Set([...prev, owner.id])));
-  }, [activeSlug]);
+  }, [activeSlug, sector]);
 
   const body = (
     <div className="flex h-full flex-col">
@@ -66,7 +64,7 @@ export function KbSidebar({ sector, docs, isDrawerOpen, onClose }: Props) {
             Sector này chưa có KB. Sắp có.
           </p>
         ) : (
-          <KbTree docs={docs} expanded={expanded} onExpandedChange={setExpanded} />
+          <KbTree docs={docs} expanded={expanded} onExpandedChange={setExpanded} sector={sector} />
         )}
       </div>
     </div>

@@ -1,7 +1,7 @@
 ---
 category: frameworks
 title: "CK-Brokerage-marketshare"
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 ---
 
 Thị phần môi giới HOSE/HNX là chỉ báo dẫn trước cho doanh thu phí giao dịch và quy mô tệp khách hàng — nhưng cần đọc kết hợp với mức phí trên từng giao dịch, vì áp lực bào mòn phí khiến thị phần cao chưa chắc đi kèm lợi nhuận cao.

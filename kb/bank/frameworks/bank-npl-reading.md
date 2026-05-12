@@ -1,7 +1,7 @@
 ---
 category: frameworks
 title: "Bank-NPL-reading"
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 ---
 Framework đọc nợ xấu ngân hàng — decision rules cho Master Bank agent. KHÔNG đọc NPL đơn lẻ, phải combo 4 chỉ số.
 

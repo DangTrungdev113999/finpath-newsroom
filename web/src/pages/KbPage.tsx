@@ -2,14 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import { docsForSector } from '../lib/kbLoader';
+import { isSector, type Sector } from '../lib/kbTypes';
 import { KbContent, KbContentNotFound } from '../components/kb/KbContent';
 import { KbSidebar } from '../components/kb/KbSidebar';
-
-type Sector = 'bds' | 'bank' | 'ck';
-
-function isSector(v: string | null): v is Sector {
-  return v === 'bds' || v === 'bank' || v === 'ck';
-}
 
 export function KbPage() {
   const { slug } = useParams<{ slug?: string }>();
@@ -55,9 +50,9 @@ export function KbPage() {
         </PageShell>
       );
     }
-    const firstSlug =
-      docs.find((d) => d.slug === 'bds-industry-master-reference')?.slug ??
-      docs[0].slug;
+    // Find master reference or first doc
+    const masterDoc = docs.find((d) => d.slug.includes('master-reference') || d.slug.includes('industry-master'));
+    const firstSlug = masterDoc?.slug ?? docs[0].slug;
     const qs = sector === 'bds' ? '' : `?sector=${sector}`;
     return <Navigate to={`/tai-lieu/${firstSlug}${qs}`} replace />;
   }
