@@ -154,21 +154,61 @@ Emit skipped tickers nếu có:
   - VCB: Đã có bài 23 phút trước
 ```
 
-## Step 6 — Sequential dispatch with shared SESSION_ID
+## Step 6 — Sequential dispatch with shared SESSION_ID + HOT CONTEXT
 
 For each `to_dispatch` entry, in order:
 
 ```
-[{i}/{M}] Dispatching /tin {ticker}... (categories: {cats})
+[{i}/{M}] Dispatching /tin {ticker}... (categories: {cats}, dcp={dcp}%, dvp={dvp}%)
 ```
 
-Then dispatch via Task tool (pass shared session metadata via prompt):
+⚠️ CRITICAL — hot context dispatch intent (V1.3 quality patch 2026-05-12):
+
+User trigger `/tin-hot` ngụ ý: **"Tại sao mã này HOT phiên nay?"** — Master/Story
+Editor MUST explain TODAY's price/volume action, KHÔNG được gượng ép paradox
+giữa lịch sử (Q1 fundamentals) và phiên nay nếu thiếu causal link.
+
+Then dispatch via Task tool (pass shared session metadata + hot context + intent
+narrative qua prompt):
 
 ```
 Task tool call:
   description: "Master pipeline hot ticker {ticker}"
   subagent_type: newsroom-pipeline
-  prompt: "ticker={ticker} session_id=$SESSION_ID trigger_type=tin-hot trigger_args=N=$N hot_category={categories joined}. Inherit SESSION_ID from parent — DO NOT generate new uuidgen at Step 0."
+  prompt: |
+    ticker={ticker}
+    session_id=$SESSION_ID
+    trigger_type=tin-hot
+    trigger_args=N=$N
+    hot_category={categories joined}
+    hot_metric_today: dcp={dcp:+.2f}% (price change), dvp={dvp:+.2f}% (volume change)
+
+    INTENT (V1.3 HARD RULE — /tin-hot quality):
+    User wants to know WHY this ticker is HOT TODAY (last 24-48h session).
+    Master + Story Editor MUST find news/event explaining today's move:
+      ✅ Block trade / room ngoại announcement (last 1-3 days)
+      ✅ News event today (regulator action / earnings released / corporate action)
+      ✅ Sector rotation today (peer movement explaining ticker move)
+      ✅ Technical breakout (chart level broken today)
+      ✅ Foreign flow today (NN mua/bán ròng strong)
+
+    AVOID (gây bài gượng ép):
+      ❌ Force-fit paradox giữa Q1/2026 (old) fundamentals và phiên nay
+         unless data shows direct causal chain
+      ❌ Generic angle về fundamentals nếu không có news today
+      ❌ Lead body với LNTT Q1 / ROE / NPL khi user hỏi "tại sao hôm nay tăng/giảm"
+
+    STORY EDITOR specifically:
+      - Prefer angle category=why_now hoặc early_signal khi có catalyst today
+      - Reject low_writeability nếu không có catalyst rõ — KHÔNG ép bài
+      - Cite data trail = today's source (news today + technical today + NN today)
+
+    MASTER specifically:
+      - Open body với today's move + catalyst, KHÔNG generic fundamental intro
+      - Cite số cụ thể của TODAY: giá +X%, volume +Y%, NN mua/bán Z tỷ phiên nay
+      - Old data (Q1/quarterly) chỉ dùng làm CONTEXT supporting today's narrative
+
+    Inherit SESSION_ID from parent — DO NOT generate new uuidgen at Step 0.
 ```
 
 ⚠️ HARD RULE — sequential, NOT parallel. Dispatch tiếp theo CHỈ sau khi current Task return. DB write safety + per-ticker progress emission ưu tiên hơn parallel speedup.
