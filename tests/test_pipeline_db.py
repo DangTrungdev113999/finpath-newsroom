@@ -588,3 +588,127 @@ def test_insert_generated_news_explicit_version_preserved(tmp_path):
     row = db.conn.execute("SELECT pipeline_version FROM generated_news WHERE article_id='a2'").fetchone()
     assert row["pipeline_version"] == "V4.0"
     db.close()
+
+
+# ---------------------------------------------------------------------------
+# V5.0 Phase 1.4 (B-4) — Version-gate validation in validate_pipeline_step
+# ---------------------------------------------------------------------------
+
+
+def test_validate_v5_step_4_requires_observability():
+    """V5.1: step_4_master MUST emit model + duration_ms (observability)."""
+    from lib.pipeline_db import validate_pipeline_step
+    import pytest
+    payload = {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "ok",
+        "skip_reasons": {},
+        "data_trail": [{"source": "x", "fetched": "y"}],
+        "format_id_used": "standard_qa",
+    }
+    with pytest.raises(ValueError, match="model|duration_ms"):
+        validate_pipeline_step("step_4_master", payload, pipeline_version="V5.0")
+
+
+def test_validate_v5_step_4_observability_complete_passes():
+    from lib.pipeline_db import validate_pipeline_step
+    payload = {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "ok",
+        "skip_reasons": {},
+        "data_trail": [{"source": "x", "fetched": "y"}],
+        "format_id_used": "standard_qa",
+        "model": "claude-opus-4-7",
+        "duration_ms": 12500,
+    }
+    validate_pipeline_step("step_4_master", payload, pipeline_version="V5.0")
+
+
+def test_validate_v5_step_4_empty_model_rejects():
+    """model must be non-empty string."""
+    from lib.pipeline_db import validate_pipeline_step
+    import pytest
+    payload = {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "ok",
+        "skip_reasons": {},
+        "data_trail": [{"source": "x"}],
+        "format_id_used": "standard_qa",
+        "model": "",
+        "duration_ms": 12500,
+    }
+    with pytest.raises(ValueError, match="empty"):
+        validate_pipeline_step("step_4_master", payload, pipeline_version="V5.0")
+
+
+def test_validate_v4_step_4_no_observability_required():
+    """V4.0 back-compat: observability NOT required."""
+    from lib.pipeline_db import validate_pipeline_step
+    payload = {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "ok",
+        "skip_reasons": {},
+        "data_trail": [{"source": "x", "fetched": "y"}],
+    }
+    validate_pipeline_step("step_4_master", payload, pipeline_version="V4.0")
+
+
+def test_validate_v3_skips_step_3_5_check():
+    """V3.6 rows: no step_3_5_format_director schema enforcement."""
+    from lib.pipeline_db import validate_pipeline_step
+    validate_pipeline_step("step_3_5_format_director", {}, pipeline_version="V3.6")
+
+
+def test_validate_v4_skips_step_3_5_check():
+    """V4.0 rows: also skip step_3_5."""
+    from lib.pipeline_db import validate_pipeline_step
+    validate_pipeline_step("step_3_5_format_director", {}, pipeline_version="V4.0")
+
+
+def test_validate_v5_enforces_step_3_5():
+    """V5.0 rows: step_3_5_format_director MUST have format_picks."""
+    from lib.pipeline_db import validate_pipeline_step
+    import pytest
+    with pytest.raises(ValueError, match="step_3_5_format_director"):
+        validate_pipeline_step("step_3_5_format_director", {}, pipeline_version="V5.0")
+
+
+def test_validate_v5_step_4_requires_format_id_used():
+    """V5.0 step_4_master gets format_id_used required field added."""
+    from lib.pipeline_db import validate_pipeline_step
+    import pytest
+    payload = {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "Test reason",
+        "skip_reasons": {},
+        "data_trail": [{"source": "Finpath_API/test", "fetched": "data"}],
+    }
+    with pytest.raises(ValueError, match="format_id_used"):
+        validate_pipeline_step("step_4_master", payload, pipeline_version="V5.0")
+
+
+def test_validate_v4_step_4_no_format_id_used_required():
+    """V4.0 step_4_master: format_id_used NOT required (back-compat)."""
+    from lib.pipeline_db import validate_pipeline_step
+    payload = {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "Test reason",
+        "skip_reasons": {},
+        "data_trail": [{"source": "Finpath_API/test", "fetched": "data"}],
+    }
+    validate_pipeline_step("step_4_master", payload, pipeline_version="V4.0")
+
+
+def test_validate_v5_step_4_valid_passes():
+    """V5.0 step_4_master with format_id_used present + observability passes."""
+    from lib.pipeline_db import validate_pipeline_step
+    payload = {
+        "chosen_question_idx": 0,
+        "chosen_pick_reason": "Test reason",
+        "skip_reasons": {},
+        "data_trail": [{"source": "Finpath_API/test", "fetched": "data"}],
+        "format_id_used": "standard_qa",
+        "model": "claude-opus-4-7",
+        "duration_ms": 12500,
+    }
+    validate_pipeline_step("step_4_master", payload, pipeline_version="V5.0")

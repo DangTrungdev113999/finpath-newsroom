@@ -14,44 +14,94 @@ from typing import Any
 #   .claude/agents/newsroom-master-{bank,ck,bds}.md V4.0 Step 9 persist
 #   .claude/agents/newsroom-skeptic.md V4.0 Step 5 persist
 
-# step_4_master required keys (Master sector agent emits canonical schema).
+# V5.1 — Observability fields required across ALL agent-emitted steps for V5.0+.
+_OBSERVABILITY_REQUIRED: dict[str, type | tuple] = {
+    "model": str,
+    "duration_ms": int,
+}
+
+# step_4_master V4.0 baseline (NO observability — back-compat).
 # `skip_reasons` can be empty dict {} (all options chosen) but key MUST exist.
-_STEP_4_REQUIRED: dict[str, type | tuple] = {
+_STEP_4_REQUIRED_V4: dict[str, type | tuple] = {
     "chosen_question_idx": int,
     "chosen_pick_reason": str,
     "skip_reasons": dict,
     "data_trail": list,
 }
 
-# step_5_skeptic required keys (Skeptic agent emits canonical schema). Key is
-# `skeptic_data_trail` (NOT `data_trail` like Master) — V4.0 schema explicit.
-_STEP_5_REQUIRED: dict[str, type | tuple] = {
+# step_4_master V5.0 extension: adds format_id_used + observability.
+_STEP_4_REQUIRED_V5: dict[str, type | tuple] = {
+    **_STEP_4_REQUIRED_V4,
+    **_OBSERVABILITY_REQUIRED,
+    "format_id_used": str,
+}
+
+# step_5_skeptic V4.0 baseline (key is `skeptic_data_trail`, not `data_trail`).
+_STEP_5_REQUIRED_V4: dict[str, type | tuple] = {
     "angle": str,
     "verdict": str,
     "skeptic_data_trail": list,
 }
 
-# Non-empty constraint — these fields must have len > 0 after type check.
+# step_5_skeptic V5.0 (adds observability).
+_STEP_5_REQUIRED_V5: dict[str, type | tuple] = {
+    **_STEP_5_REQUIRED_V4,
+    **_OBSERVABILITY_REQUIRED,
+}
+
+# step_3_5_format_director — NEW in V5.0.
+_STEP_3_5_REQUIRED: dict[str, type | tuple] = {
+    **_OBSERVABILITY_REQUIRED,
+    "format_picks": list,
+}
+
+# Non-empty constraint per step (baseline — V5.0 dynamically adds `model`).
 _NON_EMPTY_FIELDS: dict[str, set[str]] = {
     "step_4_master": {"chosen_pick_reason", "data_trail"},
     "step_5_skeptic": {"angle", "verdict", "skeptic_data_trail"},
+    "step_3_5_format_director": {"format_picks"},
 }
 
 
-def validate_pipeline_step(step_key: str, payload: dict) -> None:
+def _version_ge(a: str, b: str) -> bool:
+    """Compare pipeline_version strings like 'V5.0' >= 'V4.0'."""
+    def _parse(v: str) -> tuple[int, ...]:
+        try:
+            return tuple(int(p) for p in v.lstrip("Vv").split("."))
+        except (ValueError, AttributeError):
+            return (0,)
+    return _parse(a) >= _parse(b)
+
+
+def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str = "V4.0") -> None:
     """Raise ValueError if `payload` missing required fields for `step_key`.
 
-    Only enforced for agent-emitted steps (step_4_master, step_5_skeptic);
-    observability-only steps (step_1_crawler, step_6_render, …) accept any
-    payload shape. Call AFTER merge so partial observability updates from
-    orchestrator are checked against the full merged state — this catches
-    the orchestrator-self-execute regression where agent never persisted
-    the canonical schema in the first place.
+    Version-aware (V5.0 Phase 1.4 + V5.1 observability):
+    - V4.0 and earlier: enforce step_4 + step_5 baselines (no observability).
+    - V5.0+: + step_3_5_format_director, step_4.format_id_used required,
+      AND observability fields across step_3_5/4/5.
+
+    Only enforced for agent-emitted steps; observability-only steps
+    (step_1_crawler, step_6_render, …) accept any payload shape. Call AFTER
+    merge so partial observability updates from orchestrator are checked
+    against the full merged state — this catches the orchestrator-
+    self-execute regression where agent never persisted the canonical
+    schema in the first place.
     """
-    required_map = {
-        "step_4_master": _STEP_4_REQUIRED,
-        "step_5_skeptic": _STEP_5_REQUIRED,
+    is_v5_plus = _version_ge(pipeline_version, "V5.0")
+
+    required_map: dict[str, dict[str, type | tuple]] = {
+        "step_4_master": _STEP_4_REQUIRED_V5 if is_v5_plus else _STEP_4_REQUIRED_V4,
+        "step_5_skeptic": _STEP_5_REQUIRED_V5 if is_v5_plus else _STEP_5_REQUIRED_V4,
     }
+    if is_v5_plus:
+        required_map["step_3_5_format_director"] = _STEP_3_5_REQUIRED
+
+    non_empty_fields = dict(_NON_EMPTY_FIELDS)
+    if is_v5_plus:
+        for step in ("step_4_master", "step_5_skeptic", "step_3_5_format_director"):
+            non_empty_fields[step] = non_empty_fields.get(step, set()) | {"model"}
+
     required = required_map.get(step_key)
     if not required:
         return  # observability-only step — no schema contract
@@ -67,7 +117,7 @@ def validate_pipeline_step(step_key: str, payload: dict) -> None:
         if not isinstance(value, expected_type):
             wrong_type.append(f"{field} (got {type(value).__name__}, expected {expected_type.__name__})")
             continue
-        if field in _NON_EMPTY_FIELDS.get(step_key, set()) and not value:
+        if field in non_empty_fields.get(step_key, set()) and not value:
             empty.append(field)
 
     # Entry-level checks for data_trail arrays — each entry MUST be dict with
@@ -99,10 +149,11 @@ def validate_pipeline_step(step_key: str, payload: dict) -> None:
         if bad_entries:
             errors.append(f"bad entries: {bad_entries}")
         raise ValueError(
-            f"pipeline_log[{step_key!r}] schema violation — {'; '.join(errors)}. "
-            f"This usually means the {step_key} subagent was bypassed (orchestrator "
-            f"self-executed inline) or emitted legacy V3.6 string format. "
+            f"pipeline_log[{step_key!r}] schema violation (version={pipeline_version}) — "
+            f"{'; '.join(errors)}. This usually means the {step_key} subagent was bypassed "
+            f"(orchestrator self-executed inline) or emitted legacy schema. "
             f"V4.0 canonical: data_trail entries MUST be dicts with `source` key. "
+            f"V5.0+ requires observability (model + duration_ms). "
             f"MUST dispatch via Task tool to enforce schema."
         )
 
@@ -200,8 +251,9 @@ class PipelineDB:
         # the payload is missing required fields (skip_reasons / data_trail /
         # chosen_pick_reason / chosen_question_idx), refuse the write so
         # the bug surfaces immediately instead of polluting DB + viewer.
-        # NOTE: pipeline_version kwarg passing to validate_pipeline_step
-        # deferred to B-4 (signature update).
+        # V5.0 Phase 1.4 (B-4) — passes pipeline_version from data so
+        # version-gated checks (V5.0 observability + format_id_used + step_3_5)
+        # only apply to V5.0+ rows.
         raw_log = data.get("pipeline_log")
         if raw_log:
             try:
@@ -210,7 +262,9 @@ class PipelineDB:
                 log = {}
             for step_key in ("step_3_5_format_director", "step_4_master", "step_5_skeptic"):
                 if step_key in log:
-                    validate_pipeline_step(step_key, log[step_key])
+                    validate_pipeline_step(
+                        step_key, log[step_key], pipeline_version=data["pipeline_version"]
+                    )
 
         cols = ", ".join(data.keys())
         placeholders = ", ".join("?" for _ in data)
@@ -250,12 +304,18 @@ class PipelineDB:
         No-op if article_id does not exist (graceful — agent retry safe).
         """
         cur = self.conn.execute(
-            "SELECT pipeline_log FROM generated_news WHERE article_id = ?",
+            "SELECT pipeline_log, pipeline_version FROM generated_news WHERE article_id = ?",
             (article_id,),
         )
         row = cur.fetchone()
         if not row:
             return
+        # V5.0 Phase 1.4 (B-4) — read row's pipeline_version to apply
+        # version-aware schema validation. V3.6/V4.0 rows skip V5.0-only
+        # checks (format_id_used, observability, step_3_5_format_director).
+        pipeline_version = (
+            row["pipeline_version"] if "pipeline_version" in row.keys() else "V4.0"
+        )
         log = json.loads(row["pipeline_log"]) if row["pipeline_log"] else {}
         # Phase G hotfix: shallow merge preserves agent-persisted fields
         log[step_key] = {**log.get(step_key, {}), **payload}
@@ -264,7 +324,7 @@ class PipelineDB:
         # if agent never persisted the canonical schema first, orchestrator
         # observability merge (model + duration_ms) leaves step_4/step_5
         # missing required fields → ValueError → cannot silently proceed.
-        validate_pipeline_step(step_key, log[step_key])
+        validate_pipeline_step(step_key, log[step_key], pipeline_version=pipeline_version)
         self.conn.execute(
             "UPDATE generated_news SET pipeline_log = ? WHERE article_id = ?",
             (json.dumps(log, ensure_ascii=False), article_id),
