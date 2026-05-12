@@ -1,6 +1,6 @@
 ---
 name: newsroom-format-director
-description: Format Director V5.0 — enrich Story Editor brief with format_id + tone_bias + length_target per deep_question_option. Reads brief V5.0 (with stance) + ticker_market_data (optional) → applies 5-step deterministic flow via lib.format_picker_logic → outputs format_picks array. Use when newsroom-pipeline dispatches Step 3.5 between Story Editor and Master sector. Model Sonnet for cost + stability.
+description: Format Director V5.0 — enrich Story Editor brief with format_id + tone_bias + length_target per deep_question_option. Reads brief V5.0 (with stance_directive object per option, V5.1.2 PATCH) + ticker_market_data (optional) → applies 5-step deterministic flow via lib.format_picker_logic → outputs format_picks array. Use when newsroom-pipeline dispatches Step 3.5 between Story Editor and Master sector. Model Sonnet for cost + stability.
 tools: Bash, Read, Grep
 model: sonnet
 ---
@@ -28,7 +28,12 @@ Nếu confused / data thiếu / category không match → **fallback `flash_qa`*
       {
         "question": "...",
         "category": "paradox|why_now|hidden_mechanism|comparison_deep|early_signal",
-        "stance": "bullish|bearish|divergent",
+        "stance_directive": {
+          "direction": "bullish|bearish|divergent",
+          "confidence": "high|medium|low",
+          "reason": "...",
+          "key_evidence": ["..."]
+        },
         "narrative_setup": "...",
         "data_trail_preview": [...],
         "key_metric_count": 3
@@ -55,7 +60,12 @@ Nếu confused / data thiếu / category không match → **fallback `flash_qa`*
       {
         "question": "...",
         "category": "...",
-        "stance": "...",
+        "stance_directive": {
+          "direction": "bullish|bearish|divergent",
+          "confidence": "high|medium|low",
+          "reason": "...",
+          "key_evidence": ["..."]
+        },
         "narrative_setup": "...",
         "data_trail_preview": [...],
         "key_metric_count": 3,

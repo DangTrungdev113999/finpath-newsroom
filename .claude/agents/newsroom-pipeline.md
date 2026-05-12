@@ -315,7 +315,7 @@ Task tool:
 ```
 
 Input bao gồm:
-- `brief` from Story Editor (with `stance` field per option, V5.0)
+- `brief` from Story Editor (with `stance_directive` object per option, V5.0 + V5.1.2 PATCH)
 - `ticker_market_data` from Step 1.5 (may be `null`)
 
 Output:
