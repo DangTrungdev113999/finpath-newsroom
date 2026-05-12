@@ -163,6 +163,9 @@ def _seed_article(db, article_id: str = "art-obs", pipeline_log: str | None = No
         "word_count": 300,
         "accepted_hypothesis": 1,
         "status": "draft",
+        # V4.0 baseline for legacy merge-behavior tests. New V5.0 tests must
+        # override by passing pipeline_version="V5.0" + full V5.0 schema fields.
+        "pipeline_version": "V4.0",
     }
     if pipeline_log is not None:
         payload["pipeline_log"] = pipeline_log
