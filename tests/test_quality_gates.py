@@ -276,3 +276,213 @@ def test_check_all_returns_5_gates():
         "no_english_jargon", "word_count", "body_pattern",
         "title_as_hook", "no_metadata_leak"
     }
+
+
+# === V5.0 Phase 1.5 — no_hedging gate (keyword-based, LLM redefine in B-30) ===
+
+def test_no_hedging_pass():
+    from lib.quality_gates import check_no_hedging
+    body = "VCB sẽ tăng trưởng. NĐT nên giữ. Q1 đang mạnh."
+    assert check_no_hedging(body)["pass"] is True
+
+
+def test_no_hedging_rejects_co_the():
+    from lib.quality_gates import check_no_hedging
+    body = "VCB có thể tăng trưởng. NĐT nên giữ."
+    result = check_no_hedging(body)
+    assert result["pass"] is False
+    assert "có thể" in result["reason"]
+
+
+def test_no_hedging_rejects_tuy_thuoc():
+    from lib.quality_gates import check_no_hedging
+    body = "Tăng trưởng tùy thuộc thị trường."
+    assert check_no_hedging(body)["pass"] is False
+
+
+def test_no_hedging_rejects_dang_theo_doi():
+    from lib.quality_gates import check_no_hedging
+    body = "Đây là sự kiện đáng theo dõi trong tương lai."
+    assert check_no_hedging(body)["pass"] is False
+
+
+def test_no_hedging_rejects_kha_nang_cao():
+    from lib.quality_gates import check_no_hedging
+    body = "Khả năng cao sẽ tăng. Nhưng chưa rõ."
+    result = check_no_hedging(body)
+    assert result["pass"] is False
+
+
+# === V5.0 Phase 1.5 — verdict_line gate ===
+
+VERDICT_OK = """
+Tích cực dài hạn cho VCB. NĐT đang cầm nên giữ 12 tháng — chiến lược phòng thủ Q1 sẽ thành lợi thế.
+"""
+
+VERDICT_MISSING_DIRECTION = """
+NĐT đang cầm nên giữ 12 tháng — chiến lược phòng thủ Q1 sẽ thành lợi thế.
+"""
+
+VERDICT_MISSING_TIMEFRAME = """
+Tích cực cho VCB. NĐT đang cầm nên giữ — chiến lược phòng thủ sẽ thành lợi thế.
+"""
+
+VERDICT_MISSING_HOLDER_ACTION = """
+Tích cực dài hạn cho VCB trong 12 tháng tới.
+"""
+
+
+def test_verdict_line_pass():
+    from lib.quality_gates import check_verdict_line
+    body = "Opening paragraph here.\n\n- bullet\n\n" + VERDICT_OK
+    assert check_verdict_line(body)["pass"] is True
+
+
+def test_verdict_line_rejects_missing_direction():
+    from lib.quality_gates import check_verdict_line
+    body = "Opening here.\n\n- bullet\n\n" + VERDICT_MISSING_DIRECTION
+    result = check_verdict_line(body)
+    assert result["pass"] is False
+    assert "direction" in result["reason"]
+
+
+def test_verdict_line_rejects_missing_timeframe():
+    from lib.quality_gates import check_verdict_line
+    body = "Opening here.\n\n- bullet\n\n" + VERDICT_MISSING_TIMEFRAME
+    result = check_verdict_line(body)
+    assert result["pass"] is False
+    assert "timeframe" in result["reason"]
+
+
+def test_verdict_line_rejects_missing_holder_action():
+    from lib.quality_gates import check_verdict_line
+    body = "Opening here.\n\n- bullet\n\n" + VERDICT_MISSING_HOLDER_ACTION
+    result = check_verdict_line(body)
+    assert result["pass"] is False
+    assert "action_for_holder" in result["reason"]
+
+
+# === V5.0 Phase 1.5 — stance_consistency gate ===
+
+BULLISH_BODY = "VCB tăng trưởng tích cực, đáng giữ. Cơ hội mạnh, ổn định lợi thế."
+BEARISH_BODY = "VCB có rủi ro yếu. Cảnh báo căng thẳng. Đỉnh ngắn hạn đáng lo."
+MIXED_BODY = "VCB tăng trưởng tích cực nhưng rủi ro cũng cao. Cảnh báo cần lưu ý."
+
+
+def test_stance_bullish_matches():
+    from lib.quality_gates import check_stance_consistency
+    assert check_stance_consistency(BULLISH_BODY, "bullish")["pass"] is True
+
+
+def test_stance_bearish_matches():
+    from lib.quality_gates import check_stance_consistency
+    assert check_stance_consistency(BEARISH_BODY, "bearish")["pass"] is True
+
+
+def test_stance_bullish_brief_bearish_body_rejects():
+    from lib.quality_gates import check_stance_consistency
+    result = check_stance_consistency(BEARISH_BODY, "bullish")
+    assert result["pass"] is False
+    assert "tone bearish" in result["reason"]
+
+
+def test_stance_bearish_brief_bullish_body_rejects():
+    from lib.quality_gates import check_stance_consistency
+    result = check_stance_consistency(BULLISH_BODY, "bearish")
+    assert result["pass"] is False
+
+
+def test_stance_divergent_balanced_passes():
+    from lib.quality_gates import check_stance_consistency
+    assert check_stance_consistency(MIXED_BODY, "divergent")["pass"] is True
+
+
+def test_stance_no_keywords_rejects():
+    from lib.quality_gates import check_stance_consistency
+    body = "VCB là ngân hàng. Q1 ra báo cáo."  # No stance words
+    result = check_stance_consistency(body, "bullish")
+    assert result["pass"] is False
+    assert "lifeless" in result["reason"].lower()
+
+
+# === V5.0 Phase 1.5 — sentence_density gate ===
+
+DENSE_BODY = (
+    "VCB Q1/2026 LNTT đạt 11.218 tỷ — chỉ tăng 1,3% so cùng kỳ. "
+    "Chi phí dự phòng tăng 38% do tích lũy buffer. "
+    "Tăng trưởng tín dụng VCB 1,8% YTD thấp hơn CTG. "
+    "Đây là chiến lược phòng thủ cho 2027. "
+    "NĐT giữ VCB 12 tháng nhờ ổn định."
+)
+
+FLUFF_BODY = (
+    "Đây là điều cần lưu ý. "
+    "Cần theo dõi sát sao xu hướng này. "
+    "Tình hình có nhiều biến động trong thời gian tới. "
+    "Diễn biến đang theo chiều hướng tích cực. "
+    "Điều này rất quan trọng với nhà đầu tư."
+)
+
+
+def test_sentence_density_dense_body_passes():
+    from lib.quality_gates import check_sentence_density
+    assert check_sentence_density(DENSE_BODY)["pass"] is True
+
+
+def test_sentence_density_fluff_body_rejects():
+    from lib.quality_gates import check_sentence_density
+    result = check_sentence_density(FLUFF_BODY)
+    assert result["pass"] is False
+    assert "density" in result["reason"].lower()
+
+
+def test_sentence_density_mixed_at_threshold():
+    """80% threshold: 4/5 sentences dense → pass."""
+    from lib.quality_gates import check_sentence_density
+    body = (
+        "VCB Q1 LNTT 11.218 tỷ. "
+        "Chi phí dự phòng tăng 38% YoY. "
+        "CTG tăng 11,4% so cùng kỳ. "
+        "Tín dụng 1,8% YTD. "
+        "Điều này cần lưu ý."  # only fluff (1 of 5)
+    )
+    assert check_sentence_density(body)["pass"] is True
+
+
+def test_sentence_density_bullet_labels_excluded():
+    """Bullet labels like '**X:**' not counted as sentences."""
+    from lib.quality_gates import check_sentence_density
+    body = (
+        "VCB tăng 11,4% so cùng kỳ Q1/2026. "
+        "**Chi phí dự phòng tăng 38%:** buffer tích lũy do rủi ro BĐS."
+    )
+    assert check_sentence_density(body)["pass"] is True
+
+
+# === V5.1.2 PATCH — em_dash_density gate (max 1 per 100 words) ===
+
+def test_em_dash_density_clean_body_passes():
+    from lib.quality_gates import check_em_dash_density
+    body = "VCB tăng 1,3% Q1. " * 30  # 120 words, 0 em dash
+    assert check_em_dash_density(body)["pass"] is True
+
+
+def test_em_dash_density_one_per_hundred_passes():
+    from lib.quality_gates import check_em_dash_density
+    # 100 words, 1 em dash → ratio 1.0% = exactly at threshold (pass)
+    body = "VCB tăng — đáng chú ý. " + ("Q1 manh. " * 95)  # ~100 words, 1 em dash
+    assert check_em_dash_density(body)["pass"] is True
+
+
+def test_em_dash_density_too_many_rejects():
+    from lib.quality_gates import check_em_dash_density
+    # 50 words, 3 em dashes → ratio 6%, fails
+    body = "VCB — đáng — chú — ý. Q1 manh. " * 5
+    result = check_em_dash_density(body)
+    assert result["pass"] is False
+    assert "em dash" in result["reason"].lower()
+
+
+def test_em_dash_density_no_em_dash_in_empty_body():
+    from lib.quality_gates import check_em_dash_density
+    assert check_em_dash_density("")["pass"] is True
