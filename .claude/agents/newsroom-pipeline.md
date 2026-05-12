@@ -143,31 +143,39 @@ Observability: payload requires `format_picks` (non-empty list), `candidates_con
 
 **OUTER LOOP per brief**. For each brief in story_editor output:
 
-Read `sector` field from brief's crawl_log row → dispatch correct master agent:
+Read `master_route` field (set by Editor V1 Step 2 V5.1.3) from crawl_log row → dispatch correct master agent. V5.1.3 covers 10 master routes:
 
-| Sector | subagent_type | KB path | Finpath endpoints |
+| master_route | subagent_type | KB path | Notes |
 |---|---|---|---|
-| Bank | `newsroom-master-bank` | `kb/bank/` | `get_bank_ratios` + bank-specific |
-| CK | `newsroom-master-ck` | `kb/ck/` | general endpoints |
-| BĐS | `newsroom-master-bds` | `kb/bds/` | general endpoints + web_search primary |
+| `bank` | `newsroom-master-bank` | `kb/bank/` | `get_bank_ratios` + bank-specific |
+| `ck` | `newsroom-master-ck` | `kb/ck/` | general endpoints |
+| `bds` | `newsroom-master-bds` | `kb/bds/` | general endpoints + web_search primary |
+| `oilgas` | `newsroom-master-oilgas` | `kb/oil-gas/` (V5.1.4 merge) | web search heavy |
+| `logistics` | `newsroom-master-logistics` | none (web search) | V5.1.3 KB-optional |
+| `fb` | `newsroom-master-fb` | none (web search) | V5.1.3 KB-optional |
+| `apparel` | `newsroom-master-apparel` | none (web search) | V5.1.3 KB-optional |
+| `retail` | `newsroom-master-retail` | none (web search) | V5.1.3 KB-optional |
+| `seafood` | `newsroom-master-seafood` | none (web search) | V5.1.3 KB-optional |
+| `defensive` | `newsroom-master-defensive` | none (web search) | V5.1.3 KB-optional, MIXED subsectors |
 
 ```bash
-sector=$(uv run python -c "
+master_route=$(uv run python -c "
 from lib.pipeline_db import PipelineDB
 db = PipelineDB('data/pipeline.db')
 row = db.get_crawl_row('<ROW_ID>')
-print(row.get('sector', 'Bank'))
+# V5.1.3 dispatch reads master_route (set by Editor V1 via get_master_route)
+print(row.get('master_route') or 'bank')
 db.close()
 ")
 ```
 
-Task dispatch (sector-specific):
+Task dispatch (master_route → subagent_type):
 
 ```
 Task tool:
-  description: "Master <sector> brief <ticker>"
-  subagent_type: newsroom-master-<sector_lowercase>  # bank | ck | bds
-  prompt: "Write article for brief <brief_json>, row_id=<row_id>. Sector=<sector>. Follow newsroom-master-<sector> skill workflow (9-step V4.0, 5 quality gates V4.0, persist generated_news + pipeline_log with step_4_master required schema)."
+  description: "Master <master_route> brief <ticker>"
+  subagent_type: newsroom-master-<master_route>  # bank | ck | bds | oilgas | logistics | fb | apparel | retail | seafood | defensive
+  prompt: "Write article for brief <brief_json>, row_id=<row_id>. master_route=<master_route>. sector_name=<sector_name>. Follow newsroom-master-<master_route> skill workflow (V5.1.2 — 4 format catalog, 8 quality gates, persist generated_news + pipeline_log with step_4_master required schema)."
 ```
 
 Wait for return: `article_id`, `title`, `body`, `insight_final`, `data_trail`, `quality_gates`, `accepted_hypothesis`. Skip iteration nếu `accepted_hypothesis=false`.

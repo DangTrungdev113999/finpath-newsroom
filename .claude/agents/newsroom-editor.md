@@ -66,27 +66,67 @@ Aliases coverage trong `scripts/ticker_detection.py`:
 - Pass 2 short-form ticker: regex auto-derived từ `SHORT_FORM_TO_TICKER` dict (61 ticker codes + "MB" legacy alias, sorted longest-first)
 - See `tests/test_routing_expanded.py` cho expected detection cases
 
-### Step 2 (V5.1.3 UPDATE): Sector detection via Finpath API
+### Step 2 (V5.1.3 UPDATE): Sector detection via Finpath sectors cache
 
-Replace hardcoded BANK/CK/BDS universe lookup with Finpath API + sector_routing.yaml.
+Replace hardcoded BANK/CK/BDS universe lookup with `lib/finpath_sectors.py` (Finpath API cache) + `lib/sector_router.py` (sector_routing.yaml). V5.1.3 covers ~139 mã Finpath universe across 10 master sectors (bank/ck/bds/oilgas/logistics/fb/apparel/retail/seafood/defensive).
 
-For each detected ticker:
+For each detected ticker, run via Bash:
 
-1. Open SQLite: `db = PipelineDB("data/pipeline.db")`
-2. Import: `from .claude.skills.finpath_newsroom_editor.scripts.routing import get_sector_v5_1_3`
-3. `info = get_sector_v5_1_3(ticker, db)`
-4. If `info is None`:
-   - Set `editor_v1_decision = "reject"`
-   - Set `editor_v1_note = "ticker_outside_finpath_139"`
-5. If `info is not None`:
-   - Set `editor_v1_decision = "route_to_story_editor"`
-   - Set `sector_code = info["sector_code"]`
-   - Set `sector_name = info["sector_name"]`
-   - Set `sector_parent = info["sector_parent"]`
-   - Set `master_route = info["master_route"]`
-   - Set `sector = info["sector"]` (backward-compat alias for sector_name)
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import json
+from lib.pipeline_db import PipelineDB, validate_crawl_log_v5_1_3
+from lib.finpath_sectors import FinpathSectors
+from lib.sector_router import get_master_route, MasterRouteError
 
-Persist all 5 fields to crawl_log row via UPDATE. Validate via `validate_crawl_log_v5_1_3` before persist.
+db = PipelineDB('data/pipeline.db')
+fs = FinpathSectors(db)
+info = fs.get_ticker_sector('<TICKER>', allow_refresh=True)
+
+if info is None:
+    payload = {
+        'editor_v1_decision': 'reject',
+        'editor_v1_note': 'ticker_outside_finpath_139',
+    }
+else:
+    try:
+        master_route = get_master_route(info['sector_code'])
+    except MasterRouteError as e:
+        payload = {
+            'editor_v1_decision': 'reject',
+            'editor_v1_note': f'sector_code_unmapped:{info[\"sector_code\"]}',
+        }
+    else:
+        payload = {
+            'editor_v1_decision': 'route_to_story_editor',
+            'sector_code': info['sector_code'],
+            'sector_name': info['sector_name'],
+            'sector_parent': info['sector_parent'] or '',
+            'master_route': master_route,
+            # Backward-compat alias for downstream consumers reading 'sector' field
+            'sector': info['sector_name'],
+        }
+
+# Validate payload before persist (raises ValueError if missing/invalid)
+validate_crawl_log_v5_1_3(payload)
+
+# update_crawl_row(row_id, updates_dict) — updates_dict is the payload itself
+db.update_crawl_row('<ROW_ID>', payload)
+print(json.dumps(payload))
+db.close()
+"
+```
+
+Output fields (5 when routed, 2 when rejected):
+- `editor_v1_decision`: `route_to_story_editor` | `reject`
+- `editor_v1_note`: only when rejected (`ticker_outside_finpath_139` or `sector_code_unmapped:<code>`)
+- `sector_code`: Finpath sector code (e.g. `soe3`, `stock`, `oilGas`)
+- `sector_name`: Finpath display name (e.g. "Bank nhà nước", "Chứng khoán", "Dầu khí")
+- `sector_parent`: parent group (may be empty)
+- `master_route`: dispatch key for Step 4 — must be 1 of 10 values bank/ck/bds/oilgas/logistics/fb/apparel/retail/seafood/defensive
+- `sector`: backward-compat alias = sector_name (for legacy consumers)
+
+⚠️ Downstream Step 4 master dispatch reads `master_route` field, NOT `sector` field — orchestrator routes to `newsroom-master-<master_route>` (lowercase). `sector` field preserved only for legacy display.
 
 ### Step 3 — Identify primary
 
