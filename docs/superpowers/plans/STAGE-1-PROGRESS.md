@@ -1,100 +1,156 @@
 # Stage 1 Progress — Foundation (Plan B + Plan F Phase 1)
 
-> **Last updated**: 2026-05-12 session 1 PM (paused at B-6 done).
+> **Last updated**: 2026-05-12 evening (Stage 1 COMPLETE).
 > **Master sequence**: `docs/superpowers/plans/2026-05-12-MASTER-EXECUTION-SEQUENCE.md`
 
-## Status
+## Status: ✅ COMPLETE — 36/36 task done
 
-**6/36 task complete** (Phase 1 Foundation almost done — only B-7 remaining for Phase 1).
+**Gate 1 verification PASSED**: 57/57 foundation tests pass. Full suite 361/361 pass.
 
-| # | Task | Subject | Commits | Status |
-|---|---|---|---|---|
-| 1 | B-1 | Format Registry yaml + loader | `58e4b80` | ✅ DONE |
-| 2 | B-2 | Step 1.5 Market Snapshot soft-fetch | `40fa064` | ✅ DONE |
-| 3 | B-3 | pipeline_version V5.0 default | `0ec5254` | ✅ DONE |
-| 4 | B-4 | Version-gate validation + observability | `f771fbf` + `35a908b` + `d0b0457` | ✅ DONE |
-| 5 | B-5 | 5 V5.0 quality gates (no_hedging/verdict/stance/density/em_dash) | `099247b` + `0612c83` | ✅ DONE |
-| 6 | B-6 | Per-format gates + check_all_v5 dispatch | `7ea7cb7` | ✅ DONE |
-| 7 | B-7 | step_3_5_format_director schema integration test | — | ⏳ NEXT |
-| 8-22 | B-8 → B-22 | Phase 2-5 (Format Director agent + Master + Frontend + V5.0 bump) | — | pending |
-| 23-30 | B-23 → B-30 | Phase 6 V5.1.2 SPLIT (skill split + stance + no-hedging LLM + em dash) | — | pending |
-| 31-36 | F-1 → F-5.5 | Plan F Phase 1 (Universe expansion 61→139) | — | pending |
+63 commits ahead of origin/main (Stage 1 work).
 
-## Test status (last verified)
+## Task summary
 
-- `tests/test_quality_gates.py`: **70/70 pass**
-- `tests/test_pipeline_db.py`: **41/41 pass**
-- `tests/test_format_registry.py`: **8 pass**
-- `tests/test_run_market_snapshot.py`: **5 pass**
-- `tests/test_render_compare_feed.py`: **14 pass** (fixtures default V4.0 baseline)
-- **Full suite**: 283/283 pass
+### Plan B (Master Article Format Diversity V5.0 + V5.1 + V5.1.2)
 
-## Architecture state after 6 tasks
+#### Phase 1 — Foundation modules (B-1 to B-7)
+| Task | Subject | Commits |
+|---|---|---|
+| ✅ B-1 | Format Registry yaml + loader | `58e4b80` |
+| ✅ B-2 | Market Snapshot soft-fetch | `40fa064` |
+| ✅ B-3 | pipeline_version V5.0 default | `0ec5254` |
+| ✅ B-4 | Version-gate validation + observability | `f771fbf` + `35a908b` + `d0b0457` |
+| ✅ B-5 | 5 V5.0 quality gates + em_dash_density | `099247b` + `0612c83` |
+| ✅ B-6 | Per-format gates + check_all_v5 dispatch | `7ea7cb7` |
+| ✅ B-7 | step_3_5_format_director integration test | `c9182df` |
 
-### Foundation modules built
-- `data/format_registry.yaml` + `lib/format_registry.py` — 4-format catalog (V5.1.2: title fields stripped)
-- `lib/stages/run_market_snapshot.py` — soft-fetch Finpath quote (no quote endpoint exists currently, returns None gracefully)
-- `lib/pipeline_db.py` — version-aware validation:
-  - `_OBSERVABILITY_REQUIRED` = `{model, duration_ms}`
-  - `_STEP_4_REQUIRED_V4/V5` + `_STEP_5_REQUIRED_V4/V5` + `_STEP_3_5_REQUIRED`
-  - `_version_ge` helper
-  - `validate_pipeline_step(..., pipeline_version="V4.0")` kwarg
-  - `log_pipeline_step` reads pipeline_version from row
-  - `insert_generated_news` default V5.0, passes kwarg
-- `lib/quality_gates.py` — extended with:
-  - `check_no_hedging` (keyword — LLM redefine deferred to B-30)
-  - `check_verdict_line` (direction + timeframe + holder action)
-  - `check_stance_consistency` (bullish/bearish/divergent vs body tone)
-  - `check_sentence_density` (≥80% sentences have specific element)
-  - `check_em_dash_density` (V5.1.2 — max 1 per 100 words)
-  - `check_word_count_per_format` (per-format range)
-  - `check_body_pattern_per_format` (4 structures)
-  - `check_all_v5(body, format_id, stance)` — 8 gates (V5.1: title dropped to Plan C)
+#### Phase 2 — Format Director (B-8 to B-11)
+| Task | Subject | Commits |
+|---|---|---|
+| ✅ B-8 | format_picker_logic 5-step helper | `fe5c32a` + `998bde2` |
+| ✅ B-9 | Format Director agent prompt | `1ad099b` + `d63de4b` |
+| ✅ B-10 | Format Director skill | `6979f48` |
+| ✅ B-11 | Pipeline orchestrator Step 1.5 + 3.5 | `d6f538f` |
 
-### Deferred to later tasks
-- `check_no_hedging` LLM-as-judge redefine → **B-30** (Voice Rule 2)
-- `check_title_per_format` → **Plan C** (Headline Craft agent, `lib/headline_scorer.py`)
-- `step_3_5_format_director` schema integration test → **B-7** (next)
-- Master no-title contract → **B-13/14/15** + Plan C wire
-- Skeptic 10 angles → **B-16**
-- Format Director agent + skill → **B-9/B-10**
-- Pipeline orchestrator Step 1.5+3.5 wire → **B-11**
+#### Phase 3 — Story Editor + Master + Skeptic (B-12 to B-17)
+| Task | Subject | Commits |
+|---|---|---|
+| ✅ B-12 | Story Editor stance_directive object | `9948e98` + `6a7e770` |
+| ✅ B-13 | Master Bank format-aware | `cd28395` |
+| ✅ B-14 | Master CK format-aware | `a3be563` |
+| ✅ B-15 | Master BĐS format-aware | `2d733af` |
+| ✅ B-16 | Skeptic 10 critique angles | `7b018cf` |
+| ✅ B-17 | Pipeline Step 5 input contract | `6614e39` |
 
-## How to resume next session
+#### Phase 4 — Frontend + render (B-18 to B-20)
+| Task | Subject | Commits |
+|---|---|---|
+| ✅ B-18 | render_compare_feed format_director section | `49142ae` |
+| ✅ B-19 | Frontend FormatPickPanel | `90496f6` |
+| ✅ B-20 | ArticleLoader surface format_director | `7894a41` |
 
-### Prerequisites
-1. Read this file: `docs/superpowers/plans/STAGE-1-PROGRESS.md`
-2. Read master sequence: `docs/superpowers/plans/2026-05-12-MASTER-EXECUTION-SEQUENCE.md`
-3. Read plan B: `docs/superpowers/plans/2026-05-11-master-article-format-diversity.md` (164KB — read just-in-time per task)
+#### Phase 5 — CLAUDE.md + V5.0 bump (B-21 to B-22)
+| Task | Subject | Commits |
+|---|---|---|
+| ✅ B-21 | CLAUDE.md V5.0 + V5.1 PATCH | `c34e152` |
+| ✅ B-22 | pipeline_version frontmatter V5.0 default | `04d0aea` |
 
-### Resume command for next session
-> "Continue Stage 1 từ B-7. Read STAGE-1-PROGRESS.md để biết status. Dùng superpowers:subagent-driven-development."
+#### Phase 6 — V5.1.2 SPLIT (B-23 to B-30)
+| Task | Subject | Commits |
+|---|---|---|
+| ✅ B-23 | Split orchestrator into 7 references | `7a8b7e8` |
+| ✅ B-24 | Split master-bank skill (creates format-bodies template) | `d658549` |
+| ✅ B-25 | Split master-ck skill | `ef16236` |
+| ✅ B-26 | Split master-bds skill | `41a43d7` |
+| ✅ B-27 | Master prompts dỡ title (folded into B-13/14/15) | — |
+| ✅ B-28 | Story Editor stance_directive (folded into B-12) | — |
+| ✅ B-29 | Master apply stance_directive (folded into B-24/25/26) | — |
+| ✅ B-30 | Voice Rule 2 LLM-as-judge + em_dash wiring | `b3c1316` |
 
-### Working method (per superpowers strict)
-- Fresh subagent per task (general-purpose)
-- 2-stage review per task: spec compliance reviewer FIRST, then code quality reviewer
-- Apply V5.1 + V5.1.2 PATCH amendments per plan top
-- TDD: test → fail → impl → pass → commit
-- Commit per task (small atomic commits)
+### Plan F Phase 1 (Universe Expansion 61→139)
 
-### Branch & state
-- Branch: `main` (user consented commits direct to main)
-- Ahead origin/main: 32 commits (Stage 1 work + prior WIP commits)
-- Clean working tree (apart from 1 unrelated WIP `worker/wrangler.toml` + 4 untracked broken/data files — IGNORE)
+| Task | Subject | Commits |
+|---|---|---|
+| ✅ F-1 | SQLite finpath_sectors_cache + _apply_migrations | `97a9a82` |
+| ✅ F-2 | lib/finpath_sectors.py FinpathSectors client | `f0fef67` |
+| ✅ F-3 | lib/sector_router.py + sector_routing.yaml | `98be21e` |
+| ✅ F-4 | lib/refresh_sector_cache.py CLI | `7389b78` |
+| ✅ F-5 | Editor V1 Finpath-driven routing | `70a3ed1` |
+| ✅ F-5.5 | COMPANY_NAME_TO_TICKER ~95 aliases for 78 tickers | `915b90f` |
 
-### Pace estimate
-- 6 task / session (10 mins/task avg = ~1 hour)
-- Stage 1 remaining 30 task = **6 sessions** × ~1 hour
-- Gates verify after each batch (auto via pytest)
-- After Stage 1 done → Gate 1 verification per MASTER doc § Gate 1
-- After Gate 1 → Stage 2 (7 new master agents parallel)
+## Test count
 
-## Known issues & follow-ups (deferred)
+- Full suite: **361 passed**
+- Foundation Gate 1: **57 passed**
+- New tests added during Stage 1: ~110+
 
-### From B-5 code quality review
-- Magic numbers (0.5, 0.8, 100) not extracted to constants — polish task
-- `SPECIFIC_ELEMENT_RE` ticker list incomplete (only 16/27 banks) — defer fix
-- `check_verdict_line` closing detection heuristic fragile for unusual body shapes — defer
+## Architecture state after Stage 1
 
-### From B-4 collateral
-- Future tests using `_seed_article` for V5.0 row testing must override `pipeline_version="V5.0"` + include observability/format_id_used. Pattern documented inline.
+### Foundation modules ready
+- `data/format_registry.yaml` + `lib/format_registry.py` — 4-format catalog
+- `lib/stages/run_market_snapshot.py` — Step 1.5 soft-fetch helper
+- `lib/format_picker_logic.py` — 5-step format selection (Python helper)
+- `lib/quality_gates.py` — 8 gates check_all_v5 + check_em_dash_density + LLM-as-judge no_hedging
+- `lib/pipeline_db.py` — V5.0 default, version-aware validation, _apply_migrations loader
+- `lib/finpath_sectors.py` — Finpath API client + 365-day TTL cache
+- `lib/sector_router.py` + `data/sector_routing.yaml` — 15 sector → master routing
+- `lib/refresh_sector_cache.py` — CLI
+
+### Agents + skills V5.1.2 ready
+- `.claude/agents/newsroom-pipeline.md` — Step 1.5 + 3.5 wired
+- `.claude/agents/newsroom-format-director.md` — V5.1 PATCH applied
+- `.claude/agents/newsroom-story-editor.md` — stance_directive schema
+- `.claude/agents/newsroom-master-{bank,ck,bds}.md` — format-aware, stance_directive
+- `.claude/agents/newsroom-skeptic.md` — 10 angles V5.0+V5.1
+- `.claude/agents/newsroom-editor.md` — V5.1.3 Finpath routing
+
+### Skills split V5.1.2 (Stage 2 template ready)
+- `master-bank/references/format-bodies/{flash-qa,standard-qa,standard-listicle,standard-narrative}.md`
+- `master-bank/references/voice-layer-rules.md` + `stance-directive-handler.md`
+- Same structure for master-ck + master-bds
+- `format-director/SKILL.md` + new skill
+
+### CLAUDE.md updated
+- 8 Quality Gates V5.0 + V5.1.2 (was 5)
+- 10 Critique Angles V5.0 + V5.1 (was 6)
+- Body pattern V5.0 (per-format)
+- Hard rules: stance_directive, format_id sticky, title delegate, em_dash density
+
+## Gate 1 verification (per MASTER-EXECUTION-SEQUENCE)
+
+```bash
+uv run pytest tests/test_finpath_sectors.py \
+              tests/test_sector_router.py \
+              tests/test_pipeline_db_finpath_cache.py \
+              tests/test_company_name_mapping_v5_1_3.py \
+              tests/test_editor_v1_v5_1_3.py \
+              tests/test_refresh_sector_cache.py -v
+```
+
+Result: **57 passed** ✅
+
+## Next: Stage 2 — 7 new master agents (parallel-safe)
+
+Per MASTER-EXECUTION-SEQUENCE.md Stage 2:
+
+```
+Plan F Task 6 (master-oilgas)
+Plan F Task 7 (master-logistics)
+Plan F Task 8 (master-fb)
+Plan F Task 9 (master-apparel)
+Plan F Task 10 (master-retail)
+Plan F Task 11 (master-seafood)
+Plan F Task 12 (master-defensive)
+```
+
+Each cp from Bank V5.1.2 split template (`master-bank/references/format-bodies/`).
+Estimated effort: ~1-1.5 hours with 7 subagents parallel.
+
+After Stage 2: Gate 2 verification (verify 10 master skill folders exist + format-bodies).
+
+## Known deferred items
+
+- `kb/{sector_code}/` folders NOT scaffolded (per Q3 resolution — 7 new masters web-search heavy)
+- HPG ticker omitted from V5.1.3 aliases (sector unverified, defer V5.2)
+- Initial production cache populate `uv run python lib/refresh_sector_cache.py --force` (defer until production-ready)
+- CLAUDE.md universe section preserves 61 mã universe (Stage 6 aggregate updates 61→139)
