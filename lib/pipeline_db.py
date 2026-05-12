@@ -290,6 +290,12 @@ class PipelineDB:
         # any legacy schema load still works. Tables created here are
         # independent of the canonical crawl_log + generated_news schema.
         self._apply_migrations()
+        # V5.1.4 (H-1) — conditional ALTER TABLE for crawl_log session grouping.
+        # Idempotent (PRAGMA table_info check) but `ALTER TABLE ADD COLUMN` is
+        # NOT, so a Python helper is required instead of a .sql migration.
+        # No-op on fresh DBs (crawl_log doesn't exist yet — caller will run
+        # init_schema next, which re-invokes this helper). Safe on reopen.
+        self._upgrade_crawl_log_schema()
 
     def _apply_migrations(self) -> None:
         """Apply migration SQL files from lib/migrations/ in alphabetical order.
@@ -306,10 +312,47 @@ class PipelineDB:
             self.conn.executescript(sql)
         self.conn.commit()
 
+    def _upgrade_crawl_log_schema(self) -> None:
+        """Conditional ALTER TABLE for non-idempotent column additions (V5.1.4 H-1).
+
+        SQLite doesn't support `ADD COLUMN IF NOT EXISTS`, so we check
+        PRAGMA table_info first. Indexes use IF NOT EXISTS so they're
+        safe to re-run.
+
+        Plan H session grouping fields: session_id, trigger_type, trigger_args.
+
+        No-op when `crawl_log` table doesn't exist yet (fresh DB before
+        init_schema has run). Called from both __init__ (handles reopens)
+        AND init_schema (handles fresh bootstrap). Both call sites are
+        idempotent thanks to the table-exists guard + per-column check.
+        """
+        cur = self.conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='crawl_log'"
+        )
+        if cur.fetchone() is None:
+            return  # crawl_log not bootstrapped yet — init_schema will retry.
+        cur = self.conn.execute("PRAGMA table_info(crawl_log)")
+        existing = {row["name"] for row in cur.fetchall()}
+        for col in ("session_id", "trigger_type", "trigger_args"):
+            if col not in existing:
+                self.conn.execute(f"ALTER TABLE crawl_log ADD COLUMN {col} TEXT")
+        self.conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_crawl_log_session ON crawl_log(session_id)"
+        )
+        self.conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_crawl_log_crawled_desc ON crawl_log(crawled_at DESC)"
+        )
+        self.conn.commit()
+
     def init_schema(self, schema_path: str | Path) -> None:
         sql = Path(schema_path).read_text(encoding="utf-8")
         self.conn.executescript(sql)
         self.conn.commit()
+        # V5.1.4 (H-1) — re-run crawl_log upgrade so fresh-bootstrap callers
+        # (canonical pattern: PipelineDB() + init_schema()) get the session
+        # grouping columns + indexes. On reopen the __init__ call already
+        # handled it and this is a no-op via per-column existence check.
+        self._upgrade_crawl_log_schema()
 
     def list_tables(self) -> list[str]:
         cur = self.conn.execute(
