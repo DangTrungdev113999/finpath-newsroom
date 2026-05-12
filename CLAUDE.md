@@ -26,8 +26,8 @@ data/manual/*.yaml               → Curated DB (targets, credit_room, nhnn_circ
 kb/bank/                         → Markdown KB Bank (27 mã: Big4 + tư nhân top/mid/small + cooperative)
 kb/ck/                           → Markdown KB CK (30 mã: HOSE 5 + HNX 15 + UPCOM 10)
 kb/bds/                          → Markdown KB BĐS (21 file, 7 category — residential/KCN/retail/office/resort/DC + framework chung)
-output/compare-feed/             → Markdown bài + manifest.json (1 file/bài)
-web/                             → Vite + React + Tailwind viewer
+output/compare-feed/             → Markdown bài + manifest.json + pipeline-runs.json (Subsystem H V1.0)
+web/                             → Vite + React + Tailwind viewer + /pipeline-runs page (V5.1.4)
 ```
 
 ## 8 Quality Gates V5.0 + V5.1 PATCH (HARD CAP cho bài Master)
@@ -170,6 +170,7 @@ Story Editor pick 1-3 brief → Master generate 1 article per brief → 1 markdo
 
 - Ticker validation deferred to Editor V1 step (V5.1.3 — Finpath sectors cache). Orchestrator routes ALL tickers through Editor V1 regardless of 61-mã prior universe. Editor V1 rejects tickers outside Finpath ~139 with `ticker_outside_finpath_139` note.
 - Tên đầy đủ "Vietcombank" → map về VCB; "Techcombank" → TCB; etc.
+- 10 master sector V5.1.3 routing (`data/sector_routing.yaml`): bank · ck · bds · oilgas · logistics · fb · apparel · retail · seafood · defensive.
 
 Pre-V5.1.3 (Bank/CK/BĐS 61 mã) listed below for transition reference — superseded by Finpath cache at runtime:
 
@@ -181,14 +182,30 @@ Pre-V5.1.3 (Bank/CK/BĐS 61 mã) listed below for transition reference — super
 
 **Total: 61 mã (pre-V5.1.3).** Historical source of truth: `.claude/skills/finpath-newsroom-editor/scripts/routing.py::FULL_UNIVERSE` (preserved for migration audit — runtime now uses Finpath cache).
 
+## Pipeline Run History (Subsystem H V1.0 — V5.1.4)
+
+- `/pipeline-runs` page hiển thị lịch sử pipeline runs từ V1.0 trở đi (rows có `session_id NOT NULL`).
+- 3-level browse: Session (group by `session_id`) → Batch (per `funnel_batch_id`) → Funnel detail (picked + rejected với reason).
+- Backend builder: `lib/render_compare_feed.py::build_pipeline_runs_manifest()`.
+- Output: `output/compare-feed/pipeline-runs.json` (atomic write via `.tmp` rename).
+- Schema extension: `crawl_log.session_id` (UUID) + `trigger_type` (`tin` / `tin-hot` / `tin-batch`) + `trigger_args` (ticker hoặc `N=3`).
+- Orchestrator Step 0 (`.claude/agents/newsroom-pipeline.md`) generate `SESSION_ID=$(uuidgen)` ONCE per pipeline trigger; all crawl_log rows share same session_id.
+- `/tin-hot N`: 1 session, N batches (mỗi ticker = 1 batch).
+- Article view (RightColumn) KHÔNG còn show crawl funnel section. Funnel data đọc tại `/pipeline-runs` page (filter date range / status / batch_id).
+- Article header `funnel_batch_id` is hyperlink → `/pipeline-runs?batch_id=<id>` (auto-expand session+batch).
+- Header nav "Lịch sử pipeline" → `/pipeline-runs`.
+- Legacy crawl_log rows trước V5.1.4 (`session_id IS NULL`) SKIPPED from manifest (Q2 resolution).
+
 ## Data sourcing rule — KHÔNG restrict
 
 Agent (Master Bank, Story Editor, Skeptic) tra data theo thứ tự:
 
 1. **Finpath API** (`lib/finpath_api.py`) — BCTC, ratios, ownership, events
+   - V5.1.3: thêm 3 method foreign flow (`get_foreign_rooms` / `get_foreign_roomstatistics` / `get_foreign_roombars`) cached SQLite hybrid TTL (15min/1h/6h)
+   - Foreign flow = on-demand tool. Master/Story Editor tự judge khi nào call (xem `references/foreign-flow-when-to-call.md`)
 2. **Local YAML** (`data/manual/*.yaml`) — Targets / Credit Room / NHNN circulars
 3. **Local KB** (`kb/bank/` markdown) — frameworks, history, per-ticker
-4. **SQLite memory** (`data/pipeline.db`) — variety guard 3 bài cũ
+4. **SQLite memory** (`data/pipeline.db`) — variety guard 3 bài cũ + foreign flow cache (`finpath_foreign_cache`) + session grouping (`crawl_log.session_id`)
 5. **Web search BẮT BUỘC** — fallback khi 1-4 thiếu data
 
 Quy tắc:
