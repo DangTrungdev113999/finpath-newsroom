@@ -422,16 +422,18 @@ payload_fd = {
    <!-- DISABLED — uncomment khi quyết định format nào có Skeptic
    Task dispatch `newsroom-skeptic` với article_id. Wait for return:
    - skeptic_critique (NO embedded heading — Skeptic skill V4.0 fix)
-   - skeptic_angle (1 of 6)
+   - skeptic_angle (1 of 10 — V5.0 + V5.1 PATCH)
    - skeptic_verdict (pass/pass_with_caveats/fail)
    - skeptic_data_trail (V4.0 schema — see SKILL.md V4.0 schema explicit T4)
 
    Skeptic auto-persist via skill workflow.
 
+   **V5.0 NEW input**: pass `format_id_used` from `step_4_master.format_id_used` to Skeptic so it can adjust critique expectations per format. Skeptic also reads from DB independently for redundancy.
+
    Task tool:
      description: "Skeptic critique <ticker>"
      subagent_type: newsroom-skeptic
-     prompt: "Critique Master article V4.0. article_id=<id>, row_id=<row_id>, master_output=<dict>, brief_context=<from brief>. Step 0: ECHO verification — load article from DB, quote title + body[:30] before proceeding. Pass 1 fresh impression (body only, NOT insight). Pass 2 compare insight. Pick 1 of 6 angles. Write 100-300 từ critique. Persist skeptic_critique + skeptic_angle + skeptic_verdict + status='published' + published_at + skeptic_data_trail in pipeline_log."
+     prompt: "Critique Master article V5.0. article_id=<id>, row_id=<row_id>, master_output=<dict>, brief_context=<from brief>, format_id_used=<from step_4_master.format_id_used>. Step 0: ECHO verification — load article from DB, quote title + body[:30] before proceeding. Pass 1 fresh impression (body only, NOT insight). Pass 2 compare insight. Pick 1 of 10 angles (V5.1 — includes lifeless_writing/verdict_weak/stance_drift/weak_title). Write 100-300 từ critique. Persist skeptic_critique + skeptic_angle + skeptic_verdict + status='published' + published_at + skeptic_data_trail in pipeline_log."
 
    Observability:
    payload_skeptic = {
