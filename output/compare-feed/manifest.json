@@ -1,6 +1,28 @@
 {
   "articles": [
     {
+      "id": "HPG-20260512-1540-hpg-cuoc-thep-ray-duong-sat-cao-toc-q2-2027-moi-giao-hang",
+      "ticker": "HPG",
+      "sector": "BDS",
+      "title": "HPG đặt cược thép ray đường sắt: hy sinh cổ tức 20%?",
+      "crawled_at": "2026-05-12T15:40:34.121150+00:00",
+      "key_view": null,
+      "word_count": 294,
+      "category": "why_now",
+      "format_id": "standard_qa"
+    },
+    {
+      "id": "HPG-20260512-1540-hpg-lai-gap-2-7-lan-nhung-42-phan-tram-tu-bat-dong-san",
+      "ticker": "HPG",
+      "sector": "BDS",
+      "title": "Vì sao HPG lãi 170% nhưng thép cốt lõi chỉ đóng 57%?",
+      "crawled_at": "2026-05-12T15:40:34.121047+00:00",
+      "key_view": null,
+      "word_count": 297,
+      "category": "paradox",
+      "format_id": "standard_qa"
+    },
+    {
       "id": "vnd-20260512-1540-vnd-hy-sinh-ky-quy-doi-phi-73-mo-hinh-nao-thang",
       "ticker": "VND",
       "sector": "CK",

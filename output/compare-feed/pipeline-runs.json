@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-05-12T15:53:20.766452+00:00",
+  "built_at": "2026-05-12T15:53:49.305506+00:00",
   "sessions": [
     {
       "session_id": "D066809B-1DD5-4F42-B28A-26AAB4B4548C",
@@ -123,13 +123,13 @@
                 "source": "VnEconomy",
                 "url": "https://vneconomy.vn/quy-12026-hpg-lai-hon-9000-ty-dong-va-du-bao-mang-thep-rat-kha-quan.htm",
                 "published": "2026-04-21",
-                "reason": "OK — accepted_hypothesis: true. Title: [PLACEHOLDER HPG A2]"
+                "reason": "OK — accepted_hypothesis: true. Title: HPG đặt cược thép ray đường sắt: hy sinh cổ tức 20%?"
               },
               {
                 "source": "Báo Pháp luật",
                 "url": "https://doanhnhan.baophapluat.vn/dhdcd-hoa-phat-hpg-2026-lai-quy-1-dot-pha-9-000-ty-dong-don-dau-mang-thep-duong-sat-cao-toc-va-don-luc-cho-dung-quat-2.html",
                 "published": "2026-04-21",
-                "reason": "OK — accepted_hypothesis: true. Title: [PLACEHOLDER HPG A1]"
+                "reason": "OK — accepted_hypothesis: true. Title: Vì sao HPG lãi 170% nhưng thép cốt lõi chỉ đóng 57%?"
               }
             ],
             "rejected": [
