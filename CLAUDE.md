@@ -116,7 +116,14 @@ Story Editor pick 1-3 brief → Master generate 1 article per brief → 1 markdo
 
 3 briefs = 3 separate articles, each = 1 card on IndexPage.
 
-## Universe — 3 sector (61 mã)
+## Universe — V5.1.3 expansion (61 → ~139)
+
+(V5.1.3) Universe gate moved from hardcoded 61 mã to Finpath sectors cache + sector_routing.yaml. See `lib/finpath_sectors.py` + `data/sector_routing.yaml` + Editor V1 routing (Step 2 V5.1.3 UPDATE).
+
+- Ticker validation deferred to Editor V1 step (V5.1.3 — Finpath sectors cache). Orchestrator routes ALL tickers through Editor V1 regardless of 61-mã prior universe. Editor V1 rejects tickers outside Finpath ~139 with `ticker_outside_finpath_139` note.
+- Tên đầy đủ "Vietcombank" → map về VCB; "Techcombank" → TCB; etc.
+
+Pre-V5.1.3 (Bank/CK/BĐS 61 mã) listed below for transition reference — superseded by Finpath cache at runtime:
 
 **Bank (27)**: HOSE 16 (VCB/CTG/BID/TCB/MBB/ACB/VPB/HDB/STB/SHB/EIB/TPB/MSB/LPB/OCB/VIB) + HNX 4 (NAB/BAB/NVB/SGB) + UPCOM 7 (VAB/BVB/ABB/KLB/VBB/PGB/HDF).
 
@@ -124,10 +131,7 @@ Story Editor pick 1-3 brief → Master generate 1 article per brief → 1 markdo
 
 **BĐS (4)**: VHM · NVL · KDH · DXG (KBC defer — KCN pattern khác).
 
-**Total: 61 mã universe.** Source of truth: `.claude/skills/finpath-newsroom-editor/scripts/routing.py::FULL_UNIVERSE`.
-
-- Ticker ngoài universe → reply "Ticker [X] không thuộc 61 mã FULL_UNIVERSE."
-- Tên đầy đủ "Vietcombank" → map về VCB; "Techcombank" → TCB; etc.
+**Total: 61 mã (pre-V5.1.3).** Historical source of truth: `.claude/skills/finpath-newsroom-editor/scripts/routing.py::FULL_UNIVERSE` (preserved for migration audit — runtime now uses Finpath cache).
 
 ## Data sourcing rule — KHÔNG restrict
 

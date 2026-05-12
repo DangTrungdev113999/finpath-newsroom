@@ -1,6 +1,6 @@
 ---
 name: finpath-newsroom-orchestrator
-description: Top-level orchestrator V2.4 cho Finpath Newsroom — viết bài tin chuyên sâu về cổ phiếu Việt Nam (61 mã thuộc 3 sector Bank/CK/BĐS). Use khi user gõ "tin về [TICKER]", "viết tin [TICKER]", hoặc bất cứ yêu cầu nào về tạo bài tin/phân tích chuyên gia/news report về 1 mã cổ phiếu trong 61 mã universe (27 Bank + 30 CK + 4 BĐS — see routing.FULL_UNIVERSE). Pipeline 6 step: Crawler → Editor V1 → Story Editor V2.4 → Master sector → Skeptic V2.4 → Publish + Compare Feed prepend. ALWAYS use this skill when ticker xuất hiện, kể cả không nói "viết tin" rõ ràng. NEVER use cho ticker ngoài 61 mã universe.
+description: Top-level orchestrator V2.4 cho Finpath Newsroom — viết bài tin chuyên sâu về cổ phiếu Việt Nam (V5.1.3 — ~139 mã Finpath universe, sector routing qua Finpath cache + sector_routing.yaml). Use khi user gõ "tin về [TICKER]", "viết tin [TICKER]", hoặc bất cứ yêu cầu nào về tạo bài tin/phân tích chuyên gia/news report về 1 mã cổ phiếu. Pipeline 6 step: Crawler → Editor V1 → Story Editor V2.4 → Master sector → Skeptic V2.4 → Publish + Compare Feed prepend. ALWAYS use this skill when ticker xuất hiện, kể cả không nói "viết tin" rõ ràng. ALWAYS dispatch ticker to Editor V1 (Step 2 V5.1.3 — Finpath sectors-driven). Editor V1 validates ticker against ~139 Finpath universe + routes to appropriate master. NEVER pre-gate at orchestrator level — let Editor V1 reject if outside Finpath.
 ---
 
 # Orchestrator V2.4 — Pipeline 6 step
@@ -9,18 +9,20 @@ Top-level coordinator gọi 5 sub-skills tuần tự + persist + render Compare 
 
 ## Trigger
 - User gõ "tin về [TICKER]" / "viết tin [TICKER]" / "phân tích [TICKER]"
-- Bất cứ message nào có ticker 61 mã universe + intent tạo content
-- KHÔNG trigger cho ticker ngoài universe → reply "Ticker [X] không thuộc 61 mã universe Finpath Newsroom."
+- Bất cứ message nào có ticker + intent tạo content
+- ALWAYS dispatch ticker to Editor V1 (Step 2 V5.1.3) — Editor V1 validates against Finpath ~139 universe và reject với note `ticker_outside_finpath_139` nếu không thuộc. KHÔNG pre-gate at orchestrator level.
 
-## Universe 61 mã
+## Universe — V5.1.3 (~139 mã Finpath)
 
-| Sector | Count | Source of truth | Master skill |
-|---|---|---|---|
-| Bank | 27 (HOSE 16 + HNX 4 + UPCOM 7) | `routing.BANK_UNIVERSE` | `finpath-newsroom-master-bank` |
-| CK | 30 (HOSE 5 + HNX 15 + UPCOM 10) | `routing.CK_UNIVERSE` | `finpath-newsroom-master-ck` |
-| BĐS | 4 (VHM, NVL, KDH, DXG) | `routing.BDS_UNIVERSE` | `finpath-newsroom-master-bds` |
+Universe gate now lives in Editor V1 Step 2 V5.1.3 (Finpath sectors-driven). Orchestrator KHÔNG hard-code enumeration. Sector routing flows:
 
-Routing module: `.claude/skills/finpath-newsroom-editor/scripts/routing.py::FULL_UNIVERSE` (single source of truth — KHÔNG hard-code enumeration trong skill/agent file).
+| Sector parent (Finpath) | Master skill |
+|---|---|
+| Tài chính (Bank/CK) | route via `sector_code` → `data/sector_routing.yaml` → `finpath-newsroom-master-bank` hoặc `finpath-newsroom-master-ck` |
+| Bất động sản (residential subset) | `finpath-newsroom-master-bds` |
+| Khác (industrial/consumer/...) | Editor V1 reject hoặc route generic — see `data/sector_routing.yaml` |
+
+Source of truth: `lib/finpath_sectors.py` (API client + cache) + `data/sector_routing.yaml` (sector_code → master_route mapping). Pre-V5.1.3 hardcoded `FULL_UNIVERSE` preserved cho transition reference only — KHÔNG dùng runtime.
 
 ⚠️ KBC defer (BĐS KCN, pattern khác).
 
@@ -79,7 +81,7 @@ Layout 2 cột (cột trái = bài AI viết lại với 💡 Insight callout, c
 
 ## Edge cases
 
-- User gõ ticker không trong 16 → reply universe limitation
+- User gõ ticker ngoài Finpath ~139 → Editor V1 reject với note `ticker_outside_finpath_139`; orchestrator surfaces reject message (KHÔNG pre-gate at orchestrator level — V5.1.3)
 - Ticker = KBC → reply "KBC defer trong V2.4 (BĐS KCN khác pattern)"
 - 2 ticker trong message (vd "VCB vs TCB") → trigger pipeline cho mỗi ticker (2 separate runs)
 - User gõ tên đầy đủ "Vietcombank" → map về VCB

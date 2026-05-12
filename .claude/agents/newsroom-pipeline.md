@@ -25,7 +25,7 @@ Step 7-9 (git publish / Pages wait / Telegram) phải attempt every run. Nếu s
 
 ## Input
 
-Ticker (string, vd `"VCB"`). Validate against FULL_UNIVERSE 61 mã = Bank 27 + CK 30 + BĐS 4 (VHM/NVL/KDH/DXG, KBC defer). Source of truth: `.claude/skills/finpath-newsroom-editor/scripts/routing.py::FULL_UNIVERSE`. Reject ticker ngoài universe.
+Ticker (string, vd `"VCB"`). V5.1.3: Universe validation deferred to Editor V1 (Step 2 V5.1.3 — Finpath sectors-driven via `lib/finpath_sectors.py` + `data/sector_routing.yaml`, ~139 Finpath universe). Orchestrator NO LONGER pre-gates ticker — dispatch crawler then let Editor V1 reject với `ticker_outside_finpath_139` nếu cần. Pre-V5.1.3 `FULL_UNIVERSE` (61 mã) preserved in `.claude/skills/finpath-newsroom-editor/scripts/routing.py` cho transition reference only.
 
 ## Project context
 
@@ -39,9 +39,9 @@ Subagents: `newsroom-editor` (Step 2), `newsroom-story-editor` (Step 3), `newsro
 
 For observability emit pattern (capture started_at + t0, build payload, `db.log_pipeline_step`), see `references/observability-emit.md`. For SQLite write patterns, see `references/db-persist-patterns.md`. For failure handling per step, see `references/failure-recovery.md`.
 
-### Validate ticker
+### Validate ticker (V5.1.3 — defer to Editor V1)
 
-Map full names via `ticker_detection.COMPANY_NAME_TO_TICKER`. Sector via `routing.get_sector(ticker)`. Không thuộc 61 mã → reply "Ticker [X] không thuộc 61 mã universe Finpath Newsroom (Bank/CK/BĐS)." và stop pipeline.
+Map full names via `ticker_detection.COMPANY_NAME_TO_TICKER` for normalization only ("Vietcombank" → VCB, "Techcombank" → TCB, etc.). Universe gate NO LONGER applied at orchestrator level — proceed to Step 1 (Crawler) for ALL tickers regardless of pre-V5.1.3 61-mã universe. Editor V1 Step 2 V5.1.3 looks up sector via Finpath cache + `data/sector_routing.yaml` và set `editor_v1_decision = reject` + note = `ticker_outside_finpath_139` nếu ticker ngoài Finpath ~139. Pipeline surfaces reject in final reply.
 
 ### Step 1 — Crawler (orchestrator self-execute)
 
@@ -263,7 +263,7 @@ Xem viewer: cd web && npm run dev → http://localhost:5173/
 
 ## Hard rules
 
-- Validate ticker FIRST, reject nếu không universe (KHÔNG chạy crawler cho ticker invalid)
+- V5.1.3: Universe gate moved to Editor V1 Step 2 (Finpath sectors-driven). Orchestrator runs crawler for ALL tickers; Editor V1 rejects với `ticker_outside_finpath_139` if outside Finpath. KHÔNG pre-gate at orchestrator level.
 - Mọi step persist SQLite trước khi sang step tiếp (idempotent — restart pipeline được)
 - WebSearch + WebFetch BẮT BUỘC khi local sources thiếu data (per CLAUDE.md)
 - KHÔNG fabricate pipeline log — log THẬT
