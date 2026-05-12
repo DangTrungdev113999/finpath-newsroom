@@ -104,7 +104,17 @@ class FinpathAPI:
     def get_company_profile(self, ticker: str) -> dict:
         return self._get(f"/api/stocks/companyprofile/{ticker}")
 
-    # === Group F: Foreign flow (V5.1.3 — Plan G Task 2) ===
+    # === Group F: Top movers (V5.1 — Subsystem A, Plan A Task 1) ===
+
+    def get_overview(self) -> dict:
+        """Full HOSE stock overview for top-movers compute.
+
+        Returns: {"stocks": [{c, dcp, dvp, mc, a5v, p, st, ...}, ...]} (raw API shape).
+        Uses inherited _get() caching + timeout. Public endpoint, no auth.
+        """
+        return self._get("/api/stocks/v2/overview")
+
+    # === Group G: Foreign flow (V5.1.3 — Plan G Task 2) ===
 
     _VALID_FOREIGN_PERIODS = {"1D", "1W", "1M", "3M", "6M", "1Y"}
 
