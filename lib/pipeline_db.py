@@ -190,6 +190,26 @@ class PipelineDB:
         if self.path != ":memory:":
             self.conn.execute("PRAGMA journal_mode=WAL")
             self.conn.execute("PRAGMA synchronous=NORMAL")
+        # V5.1.3 (F-1) — apply additive migrations from lib/migrations/*.sql.
+        # Idempotent via CREATE TABLE IF NOT EXISTS; runs before init_schema so
+        # any legacy schema load still works. Tables created here are
+        # independent of the canonical crawl_log + generated_news schema.
+        self._apply_migrations()
+
+    def _apply_migrations(self) -> None:
+        """Apply migration SQL files from lib/migrations/ in alphabetical order.
+
+        Idempotent — each migration MUST use CREATE TABLE IF NOT EXISTS /
+        CREATE INDEX IF NOT EXISTS so re-running on an existing DB is safe.
+        Naming convention: YYYY-MM-DD-<slug>.sql so sorted() = chronological.
+        """
+        migrations_dir = Path(__file__).parent / "migrations"
+        if not migrations_dir.exists():
+            return
+        for migration_file in sorted(migrations_dir.glob("*.sql")):
+            sql = migration_file.read_text(encoding="utf-8")
+            self.conn.executescript(sql)
+        self.conn.commit()
 
     def init_schema(self, schema_path: str | Path) -> None:
         sql = Path(schema_path).read_text(encoding="utf-8")
