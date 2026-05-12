@@ -1,158 +1,216 @@
 """V5.1 Subsystem A — Top movers compute for /tin-hot N command.
 
+Compute 4 categories (price_increment / price_decrement / volume_explosion /
+depleted_supply) mirroring finpath-web stockDataUtils.ts.
+
+Source-of-truth references (Plan A spec lines 340+):
+  /Users/trungdt/Desktop/finpath-web/src/Modules/stock-real-time/utils/stockDataUtils.ts
+  /Users/trungdt/Desktop/finpath-web/src/Modules/top-stocks/constants/index.ts
+
 Pipeline:
-  1. fetch_stocks_overview(api) — wrapper around FinpathAPI.get_overview
-  2. normalize(raw_stock_list) → list[NormalizedStock] (extract fields)
-  3. apply_default_filters(stocks) — exclude low liquidity / zero price /
-     non-S secType / take top 100 by marketcap
-  4. compute_top_lists(filtered, n) → 4 categories of length n each:
-       - tang (gainers, sorted by change_pct desc)
-       - giam (losers, sorted by change_pct asc)
-       - bung_no (volume spike, sorted by volume_ratio desc — vol/avg_5d_vol)
-       - can_cung (low supply, sorted by some metric — see spec)
-  5. dedup(lists) — keep first-seen order across all 4 lists
-  6. intersect_universe(tickers, universe_set) — filter to universe membership
-  7. fetch_top_hot_tickers(api, n, universe_set) — top-level helper combining
-     all steps. Returns list[HotTicker] with category origin tagged.
+  1. fetch_stocks_overview(api) → list[normalized dict] via FinpathAPI.get_overview
+  2. apply_default_filters(stocks) → top 100 marketCap + avgDay5Value ≥ 10 tỷ
+     + price > 0 + secType=='S'
+  3. compute_top_lists(filtered, n) → 4 categories of up to n HotTicker each
+  4. dedup_tickers(lists) → [(ticker, categories_present)] first-seen order
+
+V1.2 PATCH (Spec F V5.1.3 integration): orchestrator (`tin-hot.md` command)
+intersects with `FinpathSectors.get_all_cached_tickers()` (~139 mã) BEFORE
+calling `compute_top_lists`. This module accepts `intersect_universe`
+helper for that step.
 """
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import Optional, Protocol
+from dataclasses import dataclass, asdict
+from typing import Any, Optional
+
+
+LIQUIDITY_THRESHOLD_BILLION = 10  # 10 tỷ VND (DEFAULT_FILTERS.liquidity)
+MARKET_CAP_TOP = 100  # DEFAULT_FILTERS.marketCap
+
+# Field name mapping API raw → normalized (per convertDataOverViewStock)
+FIELD_MAP = {
+    "c": "code", "dcp": "dayChangePercent", "dc": "dayChange",
+    "dvp": "dayVolPercent", "dv": "dayVolume",
+    "mc": "marketCap", "a5v": "avgDay5Value",
+    "p": "price", "st": "secType",
+}
+
+
+CATEGORIES = (
+    "price_increment",
+    "price_decrement",
+    "volume_explosion",
+    "depleted_supply",
+)
 
 
 @dataclass
 class HotTicker:
-    ticker: str
-    category: str  # "tang" | "giam" | "bung_no" | "can_cung"
-    rank: int  # 1-based within category
+    """Top-mover ticker with category tag + rank within category."""
+    code: str
     price: float
-    change_pct: float
-    volume: int
-    volume_ratio: float
-    marketcap: int
+    day_change_percent: float
+    day_vol_percent: float
+    category: str  # one of CATEGORIES
+    rank: int  # 1 = top of category
 
-    def to_dict(self) -> dict:
-        return {
-            "ticker": self.ticker,
-            "category": self.category,
-            "rank": self.rank,
-            "price": self.price,
-            "change_pct": self.change_pct,
-            "volume": self.volume,
-            "volume_ratio": self.volume_ratio,
-            "marketcap": self.marketcap,
-        }
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
-def normalize(raw: list[dict]) -> list[dict]:
-    """Extract relevant fields from raw API shape."""
-    out = []
-    for s in raw:
-        try:
-            out.append({
-                "ticker": s["c"],
-                "price": s.get("p", 0),
-                "change_pct": s.get("dcp", 0),
-                "volume": s.get("dv", 0),
-                "avg_5d_volume": s.get("a5v", 1),
-                "marketcap": s.get("mc", 0),
-                "sec_type": s.get("st", ""),
-                "volume_ratio": (s.get("dv", 0) / s["a5v"]) if s.get("a5v") else 0,
-            })
-        except (KeyError, ZeroDivisionError):
-            continue
-    return out
+def _normalize(raw: dict) -> dict:
+    """Map API field shortcuts → normalized names per FIELD_MAP."""
+    return {FIELD_MAP.get(k, k): v for k, v in raw.items()}
 
 
-def apply_default_filters(stocks: list[dict]) -> list[dict]:
-    """Exclude low liquidity / non-S secType / zero price / take top 100 by mc."""
-    filtered = [
-        s for s in stocks
-        if s["price"] > 0
-        and s["sec_type"] == "S"
-        and s["volume"] > 0
-        and s["avg_5d_volume"] > 0
-    ]
-    filtered.sort(key=lambda s: s["marketcap"], reverse=True)
-    return filtered[:100]
+def fetch_stocks_overview(api=None) -> list[dict]:
+    """Use FinpathAPI.get_overview() then normalize fields.
 
+    Reuses existing caching + timeout + error handling. Defensive:
+    missing 'stocks' key → [].
 
-def compute_top_lists(filtered: list[dict], n: int) -> dict[str, list[dict]]:
-    """Compute 4 top lists. n ∈ [1, 25] (validation lift)."""
-    if not (1 <= n <= 25):
-        raise ValueError(f"n={n} out of range [1, 25]")
-    tang = sorted(filtered, key=lambda s: s["change_pct"], reverse=True)[:n]
-    giam = sorted(filtered, key=lambda s: s["change_pct"])[:n]
-    bung_no = sorted(filtered, key=lambda s: s["volume_ratio"], reverse=True)[:n]
-    # can_cung: low supply = high price * low volume relative to history.
-    # Simpler heuristic: lowest volume_ratio among gainers (price up, vol thin).
-    gainers = [s for s in filtered if s["change_pct"] > 0]
-    can_cung = sorted(gainers, key=lambda s: s["volume_ratio"])[:n]
-    return {"tang": tang, "giam": giam, "bung_no": bung_no, "can_cung": can_cung}
+    Args:
+        api: Optional injected FinpathAPI instance for testing. Defaults
+            to new FinpathAPI().
 
-
-def dedup(category_lists: dict[str, list[dict]]) -> list[HotTicker]:
-    """Flatten 4 lists into a single deduped list (first-seen wins)."""
-    seen: set[str] = set()
-    result: list[HotTicker] = []
-    for category, stocks in category_lists.items():
-        for rank, s in enumerate(stocks, 1):
-            t = s["ticker"]
-            if t in seen:
-                continue
-            seen.add(t)
-            result.append(HotTicker(
-                ticker=t,
-                category=category,
-                rank=rank,
-                price=s["price"],
-                change_pct=s["change_pct"],
-                volume=s["volume"],
-                volume_ratio=s["volume_ratio"],
-                marketcap=s["marketcap"],
-            ))
-    return result
-
-
-def intersect_universe(hot_tickers: list[HotTicker], universe_set: set[str]) -> list[HotTicker]:
-    """Keep only tickers in V5.1.3 Finpath universe (~139 mã)."""
-    return [h for h in hot_tickers if h.ticker in universe_set]
-
-
-class _APILike(Protocol):
-    def get_overview(self) -> dict: ...
-
-
-def fetch_stocks_overview(api: Optional[_APILike] = None) -> list[dict]:
-    """Wrapper: fetch raw stocks list from Finpath API."""
+    Returns: list of normalized stock dicts.
+    """
     if api is None:
         from lib.finpath_api import FinpathAPI
         api = FinpathAPI()
-    response = api.get_overview()
-    return response.get("stocks", [])
+    raw = api.get_overview()
+    raw_stocks = raw.get("stocks", []) if isinstance(raw, dict) else []
+    return [_normalize(s) for s in raw_stocks]
+
+
+def apply_default_filters(stocks: list[dict]) -> list[dict]:
+    """Top 100 marketCap + avgDay5Value ≥ 10 tỷ + price > 0 + secType S.
+
+    Mirrors filter-helpers.ts:applyFilters with DEFAULT_FILTERS.
+    """
+    sorted_by_mc = sorted(stocks, key=lambda s: -(s.get("marketCap") or 0))
+    top_n = sorted_by_mc[:MARKET_CAP_TOP]
+    threshold = LIQUIDITY_THRESHOLD_BILLION * 1_000_000_000
+    return [
+        s for s in top_n
+        if s.get("avgDay5Value", 0) >= threshold
+        and s.get("price", 0) > 0
+        and s.get("secType") == "S"
+    ]
+
+
+def intersect_universe(stocks: list[dict], universe_set: set[str]) -> list[dict]:
+    """Keep only stocks whose code is in the V5.1.3 Finpath universe (~139)."""
+    return [s for s in stocks if s.get("code") in universe_set]
+
+
+def compute_top_lists(filtered: list[dict], n: int) -> dict[str, list[HotTicker]]:
+    """Compute 4 categories, take top N from each.
+
+    Mirrors stockDataUtils.ts:
+    - topPriceIncrement: dayChangePercent >= 0, sort desc
+    - topPriceDecrement: dayChangePercent <= 0, sort asc
+    - topVolumeExplosion: dayVolPercent >= 0, sort desc
+    - topDepletedSupply: dayVolPercent >= 0, sort asc
+
+    Note: depleted_supply uses dvp >= 0 (not <= 0) — verbatim from source.
+
+    Args:
+        filtered: stocks post default-filter (and post intersect universe
+            per V1.2 PATCH if caller wants universe constraint)
+        n: top N per category (1-10)
+
+    Returns:
+        {"price_increment": [HotTicker, ...], "price_decrement": [...], ...}
+
+    Raises:
+        ValueError if n out of [1, 10] range.
+    """
+    if n < 1 or n > 10:
+        raise ValueError(f"N must be 1-10, got {n}")
+
+    pi_raw = sorted(
+        [s for s in filtered if s.get("dayChangePercent", 0) >= 0],
+        key=lambda s: -s["dayChangePercent"],
+    )[:n]
+    pd_raw = sorted(
+        [s for s in filtered if s.get("dayChangePercent", 0) <= 0],
+        key=lambda s: s["dayChangePercent"],
+    )[:n]
+    ve_raw = sorted(
+        [s for s in filtered if s.get("dayVolPercent", 0) >= 0],
+        key=lambda s: -s["dayVolPercent"],
+    )[:n]
+    ds_raw = sorted(
+        [s for s in filtered if s.get("dayVolPercent", 0) >= 0],
+        key=lambda s: s["dayVolPercent"],
+    )[:n]
+
+    def _wrap(items: list[dict], cat: str) -> list[HotTicker]:
+        return [
+            HotTicker(
+                code=s["code"],
+                price=s.get("price", 0),
+                day_change_percent=s.get("dayChangePercent", 0),
+                day_vol_percent=s.get("dayVolPercent", 0),
+                category=cat,
+                rank=i + 1,
+            )
+            for i, s in enumerate(items)
+        ]
+
+    return {
+        "price_increment": _wrap(pi_raw, "price_increment"),
+        "price_decrement": _wrap(pd_raw, "price_decrement"),
+        "volume_explosion": _wrap(ve_raw, "volume_explosion"),
+        "depleted_supply": _wrap(ds_raw, "depleted_supply"),
+    }
+
+
+def dedup_tickers(
+    lists: dict[str, list[HotTicker]],
+) -> list[tuple[str, list[str]]]:
+    """Flatten + dedup. Returns [(ticker, [categories_present]), ...] in
+    first-seen order.
+
+    Order convention: price_increment first, then decrement, volume_explosion,
+    depleted_supply. Duplicates merged with categories list (a ticker that
+    appears in 2 categories is reported once with both category names).
+    """
+    seen: dict[str, list[str]] = {}
+    order: list[str] = []
+    for cat in CATEGORIES:
+        for ticker in lists.get(cat, []):
+            if ticker.code not in seen:
+                seen[ticker.code] = []
+                order.append(ticker.code)
+            seen[ticker.code].append(cat)
+    return [(t, seen[t]) for t in order]
 
 
 def fetch_top_hot_tickers(
     n: int = 4,
     universe_set: Optional[set[str]] = None,
-    api: Optional[_APILike] = None,
-) -> list[HotTicker]:
-    """Top-level: fetch + normalize + filter + compute + dedup + intersect.
+    api=None,
+) -> list[tuple[str, list[str]]]:
+    """Top-level helper: fetch → filter → (intersect) → compute → dedup.
+
+    V1.2 PATCH: when universe_set is provided (canonical use), intersect
+    happens AFTER default filters but BEFORE compute_top_lists, so the
+    top-N candidates are drawn from universe-only stocks.
 
     Args:
-        n: Number per category (1-25). After dedup the total returned may be
-           ≤ 4n.
-        universe_set: V5.1.3 Finpath cache tickers (~139). If None, no intersect
-           — for testing.
+        n: N per category (1-10). After dedup the total returned may be ≤ 4n.
+        universe_set: V5.1.3 Finpath cache tickers (~139). If None, no
+            intersect — for testing or full-HOSE use.
+        api: Optional injected FinpathAPI instance for testing.
 
     Returns:
-        list[HotTicker] deduped, intersected to universe (if provided).
+        list[(ticker, [categories_present])] deduped, first-seen order.
     """
-    raw = fetch_stocks_overview(api)
-    normalized = normalize(raw)
-    filtered = apply_default_filters(normalized)
-    categories = compute_top_lists(filtered, n)
-    deduped = dedup(categories)
+    stocks = fetch_stocks_overview(api)
+    filtered = apply_default_filters(stocks)
     if universe_set is not None:
-        return intersect_universe(deduped, universe_set)
-    return deduped
+        filtered = intersect_universe(filtered, universe_set)
+    categories = compute_top_lists(filtered, n)
+    return dedup_tickers(categories)
