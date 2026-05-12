@@ -1,7 +1,7 @@
 ---
 category: frameworks
 title: "CK-Liquidity-sensitivity"
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 ---
 
 Lợi nhuận công ty chứng khoán Việt có **hệ số nhạy cao** với thanh khoản thị trường — cao hơn hầu hết các ngành khác, kể cả ngân hàng. Đây là chủ đề xuyên suốt vì thanh khoản ảnh hưởng đồng thời cả 4 dòng doanh thu: môi giới, cho vay ký quỹ, ngân hàng đầu tư và tự doanh — nhưng mỗi kênh có độ nhạy, tốc độ và mức độ trễ khác nhau.
@@ -92,6 +92,41 @@ GTGD bq tăng dần từ ~12.000 → ~18.000 tỷ trong năm. Tâm lý thận tr
 ### 2024-2026 — Mức mới: Thanh khoản ổn định 20.000-30.000 tỷ+/phiên
 
 GTGD bq toàn thị trường ổn định quanh 20.000-25.000 tỷ năm 2024, tăng tốc lên 23.627 tỷ bq cả năm 2025 (với Q3 bq 30.000+ tỷ). Năm 2026 tiếp tục duy trì 30.000+ tỷ/phiên tháng 3. Hệ thống KRX vận hành 5/2025 cải thiện năng lực xử lý lệnh; FTSE nâng hạng thị trường chứng khoán Việt Nam 10/2025 thu hút dòng vốn ngoại mới. Toàn khối công ty chứng khoán Q1/2026 doanh thu đạt 31.500 tỷ (+62% so cùng kỳ), dẫn đầu SSI (+33% lên 1.593 tỷ lợi nhuận) và VPS (+68% lên 1.547 tỷ).
+
+## Chu kỳ cổ phiếu chứng khoán (bổ sung)
+
+Cổ phiếu chứng khoán là **leading indicator** — tăng/giảm trước VN-Index 2-4 tuần:
+
+```
+1. ĐÁY: VNI giảm mạnh, GTGD cạn → cổ phiếu CK tăng TRƯỚC VNI (smart money vào)
+2. HỒI PHỤC: GTGD tăng nhanh, margin tăng → cổ phiếu CK tăng mạnh nhất (50-100%)
+3. SÔI ĐỘNG: VNI tăng đều → cổ phiếu CK tăng cùng VNI
+4. ĐỈNH: GTGD đỉnh, margin kỷ lục → cổ phiếu CK giảm TRƯỚC VNI
+```
+
+**Bằng chứng SSI**: Q1/22 đỉnh (VNI 1.500, SSI 48k) → Q4/22 đáy (VNI 870 -42%, SSI 16k -67%) → Q2/23 hồi (VNI 1.100 +26%, SSI 28k +75%)
+
+## Tín hiệu VÀO (cần 2-3/9)
+
+1. NHNN hạ lãi suất
+2. GTGD chạm đáy + bắt đầu tăng
+3. Margin thấp (NĐT đã trả nợ)
+4. TK mở mới tăng
+5. VNI phá kháng cự
+6. Nâng hạng tiến triển
+7. Insider CTCK mua cổ phiếu
+8. CTCK mua cổ phiếu quỹ (treasury stock)
+9. Khối ngoại đảo chiều mua ròng sau bán ròng kéo dài
+
+## Tín hiệu THOÁT (cần 2-3/7)
+
+1. NHNN tăng lãi suất
+2. Margin kỷ lục
+3. GTGD bắt đầu giảm
+4. TK mở mới đạt đỉnh
+5. CTCK tăng vốn ồ ạt
+6. Nâng hạng thất bại
+7. Insider CTCK bán cổ phiếu
 
 ## Bẫy khi đọc số thanh khoản
 

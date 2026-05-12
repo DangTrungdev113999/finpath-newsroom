@@ -1,7 +1,7 @@
 ---
 category: frameworks
 title: "CK-Industry-Master-Reference"
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 ---
 
 # Công ty chứng khoán Việt Nam — Tham chiếu ngành (6 lớp mental model)
@@ -80,11 +80,72 @@ Công ty chứng khoán Việt Nam sinh lợi nhuận từ bốn nguồn chính:
 | AAS | UPCOM nhỏ | Smart Invest; fintech retail focus |
 | VTS | UPCOM nhỏ | Việt Tín CK; quy mô nhỏ |
 
-### 1.3 Đặc thù thị trường Việt Nam cần nhớ
+### 1.3 Phân loại CTCK theo nhóm (Q1/2026)
 
+| Nhóm | Mã tiêu biểu | Đặc điểm |
+|---|---|---|
+| **Top 5** | VPS 15,3%, SSI 11,1%, TCBS 8,9%, VCI 7,4%, HCM 7,3% | Thống trị thị phần môi giới |
+| **Tier 2** | MBS 5,3%, VND 4,8%, SHS, BSI | 3-7% thị phần |
+| **Ngoại** | Mirae, KIS, Shinhan | Lãi suất margin 8-10% (vốn mẹ nước ngoài) |
+| **Liên kết NH** | TCBS, VPBankS, VCBS, MBKE | Lãi suất margin 9-11% |
+| **Fintech** | DNSE, Pinetree | Phí 0, app-first |
+
+**Mốc 2025-2026**: VPS IPO (VCSH ~29.000 tỷ) | TCBS VCSH #1 (~45.000 tỷ) | Top 10 thị phần môi giới ~69% | **FTSE nâng hạng 21/09/2026** | VN đạt **11,8 triệu tài khoản** cuối 2025
+
+### 1.4 Cơ cấu doanh thu theo CTCK (structural)
+
+```
+VPS: MG 35% + Margin 30% + TD 20% + IB 10%
+SSI: Cân bằng — MG 30% + Margin 25% + TD 25% + IB 10%
+TCBS: IB 25% + Margin 30% + TP 20% + MG 20%
+VND: TD 35% + Margin 25% + MG 25% + IB 15%
+MAS: Margin 45% + MG 30% + TD 15%
+```
+
+### 1.5 Nguồn vốn cho vay ký quỹ
+
+| Nguồn | Chi phí | Ghi chú |
+|---|---|---|
+| VCSH | Thấp nhất | Spread cao nhất |
+| Vay ngân hàng | 6-8%/năm | Cho vay 9-14%, ăn chênh 3-6% |
+| Phát hành trái phiếu | 7-9%/năm | Chi phí cao hơn vay NH |
+
+| Nhóm CTCK | Lãi suất margin | Lý do |
+|---|---|---|
+| Ngoại | 8-10% | Vốn mẹ nước ngoài |
+| Liên kết NH | 9-11% | Vay NH mẹ |
+| Lớn độc lập | 9-12% | Vay ngoài |
+| Nhỏ | 11-14% | Vốn ít |
+
+### 1.6 Đặc thù thị trường Việt Nam cần nhớ
+
+- **Beta cực cao**: cổ phiếu CK biến động gấp 1,5-2,5 lần VN-Index
 - **Bào mòn phí (fee compression)**: TCBS miễn phí 2023, DNSE miễn phí trọn đời 2024 → phí điển hình 2026 còn 0,07–0,10%. Áp lực này không đảo chiều.
 - **Liên kết ngân hàng mẹ**: TCBS–Techcombank, VPBankS–VPBank, VCBS–Vietcombank tạo lợi thế huy động vốn giá rẻ và phân phối sản phẩm IB. Công ty chứng khoán độc lập (SSI, VCI, HCM) phải tự tạo dòng khách hàng IB.
 - **FTSE nâng hạng thị trường mới nổi (10/2025, có hiệu lực 9/2026)**: vốn ngoại thụ động đổ vào; VCI/SSI/HCM hưởng lợi trực tiếp qua IB và bảo lãnh phát hành; VND/SHS hưởng gián tiếp qua thanh khoản tăng.
+- **Margin toàn ngành**: ~370-400 nghìn tỷ (Q3/2025). Margin/VCSH >2x = rủi ro hệ thống
+
+### 1.7 Cạnh tranh & Xu hướng ngành
+
+**NH-backed vs Indie:**
+- **Liên kết NH** (TCBS, VPBankS, MBS): funding ~3-4% → ép indie phải huy động TP/CP cost 7-9%
+- Game chuyển từ "brokerage commission" sang "interest rate spread" — ai vốn rẻ hơn thắng
+- TCBS lãi suất margin 9,5-10,5% vs SSI 12-13%
+
+**Fintech — DNSE, Pinetree:**
+- Zero-commission loss leader, monetize qua margin + data
+- KHÁC Robinhood vì VN không có PFOF (payment for order flow)
+- Fintech-only (không NH mẹ) thua 3-5 năm tới trừ khi M&A
+
+**Race to zero — bẫy biên lợi nhuận:**
+- Phí môi giới 2015: 0,35% → 2025: 0,1-0,15%, fintech 0%
+- Top 10 chiếm >75% thị phần (~80 CTCK)
+- **Dự báo**: 2026-2028: 3-5 CTCK nhỏ sáp nhập/rút giấy phép
+
+**M&A consolidation 2026-2030:**
+- VN vào chu kỳ consolidation như Hàn Quốc 2000s và Thái Lan 2010s. Dự báo 80 → 30-40 CTCK 2030
+- **Targets tiềm năng**: BOS, APG, PHS, FTS. Định giá 1,5-2,5x book
+- **Watch**: CTCK tăng vốn bất thường, đổi cổ đông lớn, C-level Hàn/Nhật/Đài
 
 ---
 
@@ -265,16 +326,271 @@ Khi phân tích bài viết mới, tra theo thứ tự:
 
 ---
 
+---
+
+## LỚP 7 — Microstructure & Regulatory
+
+### 7.1 T+2 & NPS (Non Pre-funding Settlement)
+
+- **T+2**: Bán cổ phiếu hôm T → tiền về T+2 (~11:30)
+- **Thông tư 68/2024 (02/11/2024)**: Bỏ pre-funding cho tổ chức nước ngoài (NPS)
+- **Winners**: SSI, HCM, VCI, VND, Mirae (broker tổ chức)
+- **Losers**: VPS, DNSE (retail-focused)
+
+### 7.2 Margin Rules (Thông tư 120/2020)
+
+- Tổng dư nợ ≤ 200% VCSH | 1 khách ≤ 3% | 1 mã ≤ 10%
+- Ký quỹ: ban đầu ≥50%, duy trì ≥30% (dưới = call margin)
+- Haircut: VN30 30-50%, mid 40-60%, small 50-70%
+
+### 7.3 Force Sell & Reflexivity
+
+- Tỷ lệ <30% → call (1-3 phiên nộp thêm) | <20-25% → force sell ngay
+- **Reflexivity**: VNI giảm → call → force → giá giảm thêm → call mới
+- VN30 giảm mạnh hơn mid-cap trong panic (force sell bluechip vì còn khớp lệnh)
+
+### 7.4 Room ngoại & KRX
+
+- **Room**: 100% CK, sản xuất | 49% logistics, dịch vụ | 30% NH | NVDR: đang nghiên cứu
+- **KRX**: Thay SET cũ (~3M lệnh) → ~20M lệnh. Hỗ trợ T+0, short-selling
+- **Go-live**: từng module 2026; full dự kiến 09/2026. Impact: GTGD +30-50%
+
+### 7.5 Timeline Regulatory
+
+| Năm | Sự kiện |
+|---|---|
+| 2015 | NĐ 60 — room CTCK 100% |
+| 2021 | TT 120 margin cap 200% |
+| 08/2022 | T+2 + bán cổ phiếu chờ về |
+| 09/2022 | NĐ 65 siết TPDN |
+| 10/2022 | Vạn Thịnh Phát, VNI -42% |
+| 11/2024 | TT 68 bỏ pre-funding |
+| 09/2026 | FTSE nâng hạng |
+
+---
+
+## LỚP 8 — Vĩ mô & Catalyst
+
+### 8.1 Ma trận ảnh hưởng
+
+| Yếu tố | MG | Margin | Tự doanh | IB |
+|---|---|---|---|---|
+| VNI tăng | ++ | ++ | +++ | + |
+| VNI giảm | -- | -- | --- | - |
+| LS giảm | + | + | + | + |
+| Nâng hạng | +++ | ++ | ++ | ++ |
+
+### 8.2 Nâng hạng Timeline
+
+| Mốc | Sự kiện |
+|---|---|
+| 08/10/2025 | FTSE công bố nâng hạng |
+| 21/09/2026 | FTSE chính thức nâng hạng (Secondary EM) |
+| 2026-2027 | Rebalance 4 pha |
+| 2027-2028 | MSCI upgrade (dự kiến) |
+
+**Impact**: Passive 1-8 tỷ USD | Active 2-3x passive | P/B CTCK re-rate 2,5-3,0x
+
+**Sell-the-news risk**: 2-4 tuần trước ngày hiệu lực có thể -5-10%
+
+### 8.3 Độ trễ Catalyst (Lag Effect)
+
+| Loại catalyst | Ví dụ | Độ trễ | Ghi chú |
+|---|---|---|---|
+| **Vĩ mô** | TT 68, Fed cắt LS, NĐ mới | 6-12 tháng | Cần thời gian truyền dẫn qua hệ thống |
+| **Ngành** | KRX go-live, Luật CK sửa đổi | 1-3 tháng | Ảnh hưởng trực tiếp hơn |
+| **Nâng hạng** | FTSE xác nhận | Tức thì | Front-run mạnh, có thể sell-the-news |
+| **Sự kiện hoảng loạn** | Thuế Trump, địa chính trị | 1-4 tuần | Thường là cơ hội mua nếu KHÔNG kèm khủng hoảng tín dụng |
+
+**Rule**: Catalyst vĩ mô → kiên nhẫn 2-3 quý. Catalyst ngành → hành động trong 1-2 tháng.
+
+---
+
+## LỚP 9 — Causal Chains
+
+### 9.1 NHNN cắt lãi suất → cổ phiếu CTCK tăng
+
+1. NHTM hạ lãi suất huy động → chi phí cơ hội NĐT giảm → tiền vào CK
+2. NHTM hạ lãi suất cho vay → CTCK hạ lãi suất margin (14% → 11-12%)
+3. TPCP yield giảm → discount rate giảm → P/E mục tiêu tăng
+4. Thanh khoản tăng → cả 4 mảng CTCK tăng → Beta 1,8-2,5x
+
+- **Lag**: cổ phiếu CTCK phản ứng mạnh 1-3 tháng (front-run)
+- **Breaks when**: Kèm khủng hoảng tín dụng | FED tăng lãi suất mạnh
+
+### 9.2 VNI tăng → 4 mảng đều tăng
+
+1. **MG**: FOMO → TK mở mới → GTGD tăng
+2. **Margin**: Wealth effect → thế chấp cổ phiếu lãi vay thêm
+3. **Tự doanh FVTPL**: Mark-to-market lãi vào P&L
+4. **IB**: IPO pipeline mở (lag 6-12 tháng)
+
+**Magnitude**: VNI +20% trong 2 quý → MG+Margin +40-60%; tự doanh +50-100%
+
+### 9.3 Margin đỉnh → Call margin cascade (Reflexivity)
+
+1. Shock → VNI -5-7% trong 2-3 phiên
+2. TK margin chạm ngưỡng duy trì → CTCK call margin
+3. Không nộp → force sell bluechip (thanh khoản cao)
+4. **Reflexivity**: 1 mã force → kéo mã cùng holder → cascade
+
+**2022**: VNI -43%. Force sell đóng góp ước 15-20% mức giảm
+
+### 9.4 USD tăng → NN bán ròng
+
+- USD/VND +3%/quý hoặc DXY >106 → Passive ETF rút ròng
+- **2024**: NN bán ròng ~94.450 tỷ (~3,7 tỷ USD)
+- **Double-hit**: SSI (30-40% DT từ tổ chức nước ngoài), HSC (25-35%)
+
+---
+
+## LỚP 10 — Quantitative Reference
+
+### 10.1 Correlations
+
+| Metric | Value |
+|---|---|
+| VNI ↔ LN CTCK | 0,75-0,85, lag 0-1 quý |
+| GTGD ↔ DT MG | 0,90-0,95, real-time |
+| LS ↔ Margin demand | -0,65 to -0,75, lag 1-2 quý |
+
+### 10.2 Thresholds
+
+| Metric | Levels |
+|---|---|
+| GTGD/phiên | <10k trầm / 15-20k TB / >25k sôi động / >35k quá nóng |
+| LS margin | <9% demand tăng mạnh / 9-11% ổn / >12% demand giảm / >14% sụt |
+| Margin/VCSH | <1,0x an toàn / 1,0-1,5x tối ưu / 1,5-2,0x cảnh báo / >2,0x nguy hiểm |
+| Thị phần | <2% phải zero-fee / 5-10% giữ 0,15-0,20% / >10% premium |
+| P/B ngành | <0,8x extreme buy / 0,8-1,0x buy / 1,0-1,3x fair / 1,3-1,6x reduce / >1,6x sell |
+
+### 10.3 Leading indicators
+
+1. GTGD bq 20 phiên → DT MG (0-1 quý)
+2. LS liên NH → Margin demand (1-2 quý)
+3. TK mở mới → GTGD (2-3 quý)
+4. Foreign flow → Sentiment (1-2 tháng)
+5. VNM ETF flows → VNI (1-5 ngày)
+
+---
+
+## LỚP 11 — Dữ liệu lịch sử bổ sung
+
+### 11.1 Chu kỳ VNI
+
+| Thời điểm | VNI | Sự kiện |
+|---|---|---|
+| 03/2007 | 1.170 | Đỉnh bong bóng |
+| 02/2009 | 235 | Đáy (-80%) |
+| 01/2022 | 1.528 | Đỉnh chu kỳ 3 |
+| 11/2022 | 873 | Đáy (-43%) |
+| 10/2025 | 1.790 | Đỉnh lịch sử mới |
+
+### 11.2 Thanh khoản GTGD/phiên (bổ sung)
+
+| Năm | GTGD | Ghi chú |
+|---|---|---|
+| 2019 | ~4.100 tỷ | Baseline |
+| 2021 | ~21.600 tỷ | **Đỉnh năm** |
+| 2024 | 15-20k tỷ | Phục hồi |
+| Q3/2025 | ~35k tỷ | KRX launch |
+| 08/2025 | 78.200 tỷ | Kỷ lục 1 phiên |
+
+### 11.3 Dư nợ margin (bổ sung)
+
+| Thời điểm | Margin | Margin/VCSH |
+|---|---|---|
+| Q1/2022 | 200k tỷ | **1,2x (KỶ LỤC)** |
+| Q4/2022 | 118k tỷ | 0,7x (sau call margin) |
+| Q4/2025 | ~400k tỷ | 1,0x |
+
+### 11.4 VCSH top CTCK (04/2026)
+
+| CTCK | VCSH (tỷ) |
+|---|---|
+| TCBS | 45.466 |
+| VPS | 28.835 |
+| SSI | ~26.000 |
+| VPBankS | ~20.000 |
+| VND | ~18.000 |
+
+---
+
+## LỚP 12 — Ngôn ngữ cho NĐT (từ điển)
+
+| Thuật ngữ | Diễn giải |
+|---|---|
+| GTGD tăng | Nhiều người mua bán hơn trên sàn |
+| Margin tăng | NĐT đang vay tiền mua cổ phiếu nhiều hơn |
+| Call margin | Giá giảm quá → phải bán trả nợ |
+| Tự doanh lãi/lỗ | CTCK mua cổ phiếu bằng tiền mình → lãi/lỗ |
+| Beta cao | Lên nhanh, xuống cũng nhanh |
+| Nâng hạng | VN thành thị trường mới nổi → quỹ ngoại đổ tiền vào |
+| P/B 2x | Giá = 2 lần giá trị sổ sách |
+
+---
+
+## LỚP 13 — Quy tắc Agent (35 điều)
+
+### Core Rules (1-12)
+
+1. **VNI quyết định 80%** → Phân tích VNI trước CTCK
+2. **Không tin "LN kỷ lục"** mà không check tự doanh
+3. **Margin dao hai lưỡi** → Kỷ lục = rủi ro kỷ lục
+4. **Thị phần tăng ≠ DT tăng** nếu phí = 0
+5. **Cổ phiếu CK beta cực cao** → Cảnh báo NĐT mới
+6. **Cổ phiếu CK leading indicator** → Tăng/giảm trước VNI 2-4 tuần
+7. **Dịch thuật ngữ** cho NĐT ít kinh nghiệm
+8. **Không bịa data** → Thiếu thì nói thiếu
+9. **LUÔN cross-check LN** vs cơ cấu DT
+10. **LUÔN breakdown TD**: cổ phiếu nhiều = rủi ro, TP+CCTG = ổn
+11. **Pre-funding/NPS** → gắn FTSE 09/2026
+12. **Call margin ≠ force sell** — call là yêu cầu, force là hành động
+
+### Quantitative Rules (13-20)
+
+13. **GTGD correlation 0,85** với LN — quan trọng hơn VNI direction
+14. **Margin rate >12%** → demand giảm; <9% → demand tăng mạnh
+15. **Thị phần >5%** mới có pricing power
+16. **P/B <1,0x buy**, >1,6x sell
+17. **ETF flows** leading 1-5 ngày
+18. **Fed policy** = driver #1 foreign flow
+19. **Margin đỉnh ≠ top** nếu Margin/Mcap <2,8%
+20. **Nâng hạng có thể thất bại**: check P/E <15x, tỷ trọng >0,5%
+
+### Deep Rules (21-35)
+
+21. **Evaluation gain** có thể 50-80% DT tự doanh quý tăng — EPS đẹp nhưng không tiền. Luôn hỏi realized/unrealized
+22. **CIR CTCK** thường KHÔNG gồm lãi vay — tính lại khi so sánh
+23. **(Nợ vay + Repo)/VCSH** mới là đòn bẩy thực
+24. **FVTPL ↔ AFS reclass** là bẫy giấu lỗ lớn nhất — watch AFS tăng đột biến
+25. **NHNN pivot** là leading indicator mạnh nhất CTCK — lead VNI 4-8 tuần
+26. **Beta CTCK 1,5-2,5x** VNI đồng đều qua case 2018/2020/2022/2023
+27. **Margin/VCSH toàn ngành >2,0x** = red zone (2018, cuối 2021 đều đúng trước crash)
+28. **Race to zero** phí MG → monetize qua margin + wealth → risk profile chuyển
+29. **CTCK NH-backed** có moat funding rẻ bền vững hơn indie trong chu kỳ LS cao
+30. **Top 5 không đảm bảo an toàn**: check governance, concentration
+31. **Phát hành >20% vốn** → giảm kỳ vọng giá 20-30%, thanh khoản kỷ lục không cứu được
+32. **Insider buying + mua CP quỹ** = tín hiệu đáy mạnh hơn chỉ số kỹ thuật
+33. **Catalyst vĩ mô lag 6-12 tháng** — đừng kỳ vọng phản ứng ngay
+34. **Sự kiện hoảng loạn ngắn hạn** (địa chính trị, thuế) thường là cơ hội MUA nếu không kèm khủng hoảng tín dụng
+35. **Khối ngoại bán ròng kéo dài** → ảnh hưởng mạnh cổ phiếu room ngoại cao (SSI, HCM, VCI)
+
+---
+
 ## Nguồn tham chiếu
 
 - Thông tư 210/2014/TT-BTC — Bộ Tài chính (phân loại hoạt động công ty chứng khoán)
 - Thông tư 121/2020/TT-BTC — giới hạn an toàn tài chính: https://thuvienphapluat.vn/van-ban/Chung-khoan/Thong-tu-121-2020-TT-BTC
+- Thông tư 120/2020/TT-BTC — quy định margin
+- Thông tư 68/2024 — bỏ pre-funding cho tổ chức nước ngoài (NPS)
 - Quyết định 87/QĐ-UBCK/2017 — hạn mức cho vay ký quỹ: https://ssc.gov.vn
 - Nghị định 65/2022/NĐ-CP — siết phát hành trái phiếu doanh nghiệp riêng lẻ
 - Nghị định 08/2023/NĐ-CP — tháo gỡ khó khăn thị trường trái phiếu doanh nghiệp
 - DNSE miễn phí trọn đời 2024: https://dnse.com.vn
 - Báo cáo thị phần môi giới HNX Q1/2026: https://hnx.vn
 - FTSE Russell nâng hạng 10/2025: https://mekongasean.vn
+- Agent Ngành Chứng Khoán VN Knowledge Base v2.0
 
 ---
 

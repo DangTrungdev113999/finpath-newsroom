@@ -1,7 +1,7 @@
 ---
 category: frameworks
 title: "BDS-Residential-Presales-Backlog"
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 notion_page_id: "35d273c7-a9a1-817d-a2e7-ee0fd8c7335a"
 source_url: "https://notion.so/35d273c7a9a1817da2e7ee0fd8c7335a"
 applies_to: ["residential"]
@@ -66,6 +66,17 @@ Tỷ lệ chuyển đổi doanh số chờ ghi nhận thành doanh thu trong 24 
 > Aqua City Đồng Nai của Novaland có doanh số chờ ghi nhận khoảng 60.000 tỷ trên giấy. Mục tiêu doanh thu năm 2024: 32.500 tỷ. Thực tế đạt khoảng 4.000 tỷ — tỷ lệ chuyển đổi 12%. Tốc độ bàn giao thực tế chỉ vài trăm sổ hồng — rất nhỏ so với 13.000 căn đã đặt cọc, kéo theo nhịp giải phóng doanh số chờ ghi nhận cần 5-7 năm. Bốn cơ chế làm doanh số chờ ghi nhận thành "ảo": pháp lý quy hoạch chi tiết tỷ lệ một phần năm trăm chậm, khách vỡ hợp đồng do lãi suất cao 2022-2023, doanh nghiệp chậm tiến độ xây dựng, và điều chỉnh quy hoạch gây tạm dừng bán hàng.
 >
 > **Không analogize sang**: khu công nghiệp (xem `bds-kcn-inventory-pricing.md`) — không có khái niệm doanh số chờ ghi nhận tương tự vì cho thuê ghi nhận một lần khi ký hợp đồng.
+
+## Checklist BCTC bất động sản dân cư
+
+1. Doanh số bán trước (so kế hoạch + cùng kỳ)
+2. Bàn giao (giải thích doanh thu)
+3. Doanh số chờ ghi nhận (doanh thu lock-in)
+4. Nợ + trái phiếu doanh nghiệp (đủ trả?)
+5. Lợi nhuận từ đâu (bán nhà vs chuyển nhượng)
+6. Pipeline (pháp lý?)
+7. Giá bán bình quân (xu hướng)
+8. Vĩ mô (lãi suất, tín dụng, pháp lý)
 
 ## Regulatory
 

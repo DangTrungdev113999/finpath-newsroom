@@ -1,7 +1,7 @@
 ---
 category: frameworks
 title: "CK-IB-revenue-volatility"
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 ---
 
 Doanh thu ngân hàng đầu tư là mảng biến động nhất trong 5 nguồn thu của công ty chứng khoán Việt — phụ thuộc hoàn toàn vào chu kỳ phát hành vốn và hoạt động mua bán sáp nhập. Tốt trong năm thị trường tăng, sụp trong năm thị trường đóng băng. Master CK cần đọc kỹ framework này để không đánh giá sai cơ cấu lợi nhuận của công ty chứng khoán phụ thuộc nhiều vào mảng này.

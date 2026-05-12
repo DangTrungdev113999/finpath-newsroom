@@ -1,7 +1,7 @@
 ---
 category: frameworks
 title: "Bank-Target-vs-Actual-pattern"
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 ---
 Framework đọc pattern target vs actual — decision rules cho Master Bank agent. Không phải bank nào miss target cũng dở; không phải vượt cũng tốt. Đọc context: bank conservative vs aggressive, NHNN room cycle, reset behavior.
 

@@ -1,7 +1,7 @@
 ---
 category: frameworks
 title: "CK-Margin-cycle"
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 ---
 Framework đọc chu kỳ cho vay ký quỹ — cơ chế mở rộng/co hẹp theo lãi suất + thanh khoản thị trường. Quyết định yếu tố nào thúc đẩy doanh thu cho 5 mã universe.
 

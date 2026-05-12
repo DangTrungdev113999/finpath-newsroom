@@ -1,7 +1,7 @@
 ---
 category: frameworks
 title: "CK-Proprietary-trading"
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 ---
 
 Tự doanh là mảng thu nhập cao nhất nhưng cũng biến động nhất trong cơ cấu lợi nhuận công ty chứng khoán Việt — phụ thuộc trực tiếp vào VN-Index và chu kỳ lãi suất. Cách ghi nhận kế toán (theo giá thị trường hay dồn tích vào vốn chủ) quyết định liệu biến động giá trị tài sản có hiện ra trong lợi nhuận quý hay không — và đây chính là nơi nhà đầu tư hay bị đánh lừa nhất.
@@ -113,6 +113,48 @@ VN-Index ổn định 1.200-1.300 điểm. Tổng tự doanh ngành phục hồi
 ### 2026 — Ổn định, thị trường tích cực
 
 [SUY LUẬN] Thị trường chứng khoán duy trì xu hướng tích cực. Tự doanh thiên giao dịch ngắn hạn hưởng lợi từ nhịp tăng. Tuy nhiên ngưỡng rủi ro của HCM (100% theo giá thị trường cổ phiếu) cần theo dõi khi thị trường có nhịp điều chỉnh.
+
+## Bẫy kế toán BCTC bổ sung
+
+### FVTPL ↔ AFS (Giấu lỗ)
+
+- **Bẫy**: Chuyển cổ phiếu lỗ từ FVTPL (lỗ vào P&L) sang AFS (lỗ vào OCI, không ăn EPS)
+- **Check**: TM 5.1 FVTPL, 5.2 AFS; Bảng biến động VCSH dòng "Chênh lệch đánh giá lại TSTC AFS"
+- **Red flag**: AFS tăng đột biến sau quý thị trường giảm; AFS chứa bluechip thanh khoản cao
+- **VN case**: VND Q4/2022 sau sập HPG/NVL/PDR; SSI với TPDN + cổ phiếu chiến lược
+
+### Evaluation Gain Trap (Lãi chưa hiện thực)
+
+- **Bẫy**: "Lãi đánh giá lại FVTPL" chiếm 50-80% DT tự doanh — không phải tiền thật
+- **Check**: TM "DT hoạt động" tách: Lãi bán (realized) | Lãi đánh giá lại (unrealized)
+- **Red flag**: DT tự doanh tăng mạnh QoQ nhưng tiền từ bán cổ phiếu thấp; Unrealized >40%
+- **VN case**: TCBS 2021 kỷ lục từ evaluation gain TPDN → 2022 sụp; SHS Q1/2022 lãi 200+ tỷ, Q2/2022 lỗ 300+ tỷ
+
+### Repo & Margin ẩn
+
+- **Bẫy**: Repo TPCP không giảm tài sản → đòn bẩy ẩn. "Hợp đồng hợp tác đầu tư" = margin vượt trần 2x
+- **Check**: Mã 319/321 "Phải trả hợp đồng mua lại"; TM 117 "Cho vay margin"
+- **Đòn bẩy thực** = (Nợ vay + Repo)/VCSH, không chỉ nợ vay
+- **VN case**: MBS, VPS 2023-2024 repo TPCP lớn, đòn bẩy thực >5x
+
+### CIR & ROE Inflate
+
+- **Bẫy CIR**: CIR CTCK thường KHÔNG gồm chi phí lãi vay → đẹp giả
+- **Bẫy ROE**: ROE bơm bằng đòn bẩy margin + evaluation gain
+- **Red flag**: CIR <25% (chắc loại lãi vay); ROE biến động >10pp QoQ; TTS/VCSH >5x
+- **VN case**: TCBS ROE 20-30% nhờ TPDN + đòn bẩy 3-4x; VND 2021 ROE 24% → 2022 sụp 5%
+
+### Cơ cấu tài sản (risk map)
+
+| Loại | % TS | Rủi ro | Ghi chú |
+|---|---|---|---|
+| Margin | 30-50% | Thấp | Lãi 9-14%, ổn định |
+| FVTPL | 15-35% | **Cao** | Lãi/lỗ vào P&L ngay |
+| AFS | 5-15% | Trung | Lãi/lỗ vào OCI → BẪY giấu lỗ |
+| HTM | 5-15% | Thấp | Ghi giá gốc, chủ yếu TP |
+| Tiền | 5-15% | Rất thấp | An toàn |
+
+**Đọc**: Margin+HTM nhiều = an toàn. FVTPL lớn = rủi ro. AFS lớn = check giấu lỗ.
 
 ## Bẫy khi đọc số tự doanh
 

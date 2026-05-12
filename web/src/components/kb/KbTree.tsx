@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
-import type { KbDoc } from '../../lib/kbTypes';
-import { BDS_GROUPS, groupForSlug, titleForSlug } from '../../lib/kbTree';
+import type { KbDoc, Sector } from '../../lib/kbTypes';
+import { groupsForSector, groupForSlug, titleForSlug } from '../../lib/kbTree';
 import { cn } from '../../shared/lib/cn';
 
 interface Props {
   docs: KbDoc[];
   expanded: Set<string>;
   onExpandedChange: (next: Set<string>) => void;
+  sector: Sector;
 }
 
 interface GroupedDocs {
@@ -22,29 +23,37 @@ const ROW_BASE =
   'group/row flex w-full items-center gap-2.5 rounded-md px-2 transition-colors duration-fast';
 const ROW_HEIGHT = 'py-1.5 leading-tight';
 
-export function KbTree({ docs, expanded, onExpandedChange }: Props) {
+export function KbTree({ docs, expanded, onExpandedChange, sector }: Props) {
   const { slug: activeSlug } = useParams<{ slug?: string }>();
+  const [params] = useSearchParams();
+
+  const groups = useMemo(() => groupsForSector(sector), [sector]);
 
   const grouped = useMemo<GroupedDocs[]>(() => {
-    const result: GroupedDocs[] = BDS_GROUPS.map((g) => ({
+    const result: GroupedDocs[] = groups.map((g) => ({
       groupId: g.id,
       icon: g.icon,
       label: g.label,
       docs: [] as KbDoc[],
     }));
     for (const doc of docs) {
-      const group = groupForSlug(doc.slug);
+      const group = groupForSlug(doc.slug, sector);
       const bucket = result.find((g) => g.groupId === group.id);
       if (bucket) bucket.docs.push(doc);
     }
     return result.filter((g) => g.docs.length > 0);
-  }, [docs]);
+  }, [docs, groups, sector]);
 
   const toggle = (id: string) => {
     const next = new Set(expanded);
     if (next.has(id)) next.delete(id);
     else next.add(id);
     onExpandedChange(next);
+  };
+
+  const buildLink = (slug: string) => {
+    const qs = sector === 'bds' ? '' : `?sector=${sector}`;
+    return `/tai-lieu/${slug}${qs}`;
   };
 
   return (
@@ -66,7 +75,7 @@ export function KbTree({ docs, expanded, onExpandedChange }: Props) {
           return (
             <Link
               key={group.groupId}
-              to={`/tai-lieu/${doc.slug}`}
+              to={buildLink(doc.slug)}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
                 ROW_BASE,
@@ -123,7 +132,7 @@ export function KbTree({ docs, expanded, onExpandedChange }: Props) {
                   return (
                     <li key={doc.slug}>
                       <Link
-                        to={`/tai-lieu/${doc.slug}`}
+                        to={buildLink(doc.slug)}
                         aria-current={isActive ? 'page' : undefined}
                         className={cn(
                           ROW_BASE,

@@ -1,51 +1,68 @@
 import { extractHeadings, parseFrontmatter } from './kbParse';
-import type { KbDoc } from './kbTypes';
+import type { KbDoc, Sector } from './kbTypes';
+import { SECTORS } from './kbTypes';
 
-// Vite import.meta.glob: at build time, every kb/bds/**/*.md is read as raw
-// text and inlined into the JS bundle. Path resolves relative to this file:
-//   web/src/lib/kbLoader.ts → ../../../kb/bds/**/*.md → repo-root/kb/bds/
+// Vite import.meta.glob: at build time, every kb/**/*.md is read as raw text.
 // Dev mode needs vite.config.ts server.fs.allow ['..', '.'] (set in Task 1).
-//
-// Spike verified 2026-05-11: 21 files inline to 47KB gzipped bundle.
-const bdsRawModules = import.meta.glob('../../../kb/bds/**/*.md', {
+
+const allRawModules = import.meta.glob('../../../kb/**/*.md', {
   query: '?raw',
   import: 'default',
   eager: true,
 }) as Record<string, string>;
 
-function pathToSlug(path: string): string {
-  // '../../../kb/bds/frameworks/bds-res-land-bank-nav.md' → 'bds-res-land-bank-nav'
-  const file = path.split('/').pop() ?? '';
-  return file.replace(/\.md$/, '');
+function pathToSlugAndSector(path: string): { slug: string; sector: Sector } | null {
+  // '../../../kb/bds/frameworks/bds-res-land-bank-nav.md' → sector='bds', slug='bds-res-land-bank-nav'
+  const match = path.match(/\/kb\/([^/]+)\/.*\/([^/]+)\.md$/);
+  if (!match) return null;
+
+  const rawSector = match[1];
+  const slug = match[2];
+
+  // Map folder name to sector ID
+  const sector = rawSector as Sector;
+  if (!SECTORS.includes(sector)) return null;
+
+  return { slug, sector };
 }
 
-function buildDocs(
-  modules: Record<string, string>,
-  sector: 'bds' | 'bank' | 'ck',
-): KbDoc[] {
-  const docs: KbDoc[] = [];
-  for (const [path, raw] of Object.entries(modules)) {
-    const slug = pathToSlug(path);
+function buildAllDocs(): Map<Sector, KbDoc[]> {
+  const map = new Map<Sector, KbDoc[]>();
+  for (const s of SECTORS) map.set(s, []);
+
+  for (const [path, raw] of Object.entries(allRawModules)) {
+    const parsed = pathToSlugAndSector(path);
+    if (!parsed) continue;
+
+    const { slug, sector } = parsed;
     const { meta, body } = parseFrontmatter(raw);
     const headings = extractHeadings(body);
-    docs.push({ slug, sector, meta, body, headings });
+
+    map.get(sector)!.push({ slug, sector, meta, body, headings });
   }
-  docs.sort((a, b) => a.slug.localeCompare(b.slug));
-  return docs;
+
+  // Sort each sector's docs
+  for (const docs of map.values()) {
+    docs.sort((a, b) => a.slug.localeCompare(b.slug));
+  }
+
+  return map;
 }
 
-export const BDS_DOCS: KbDoc[] = buildDocs(bdsRawModules, 'bds');
+const ALL_DOCS = buildAllDocs();
 
-// Bank + CK come later. Empty arrays so UI can show "sắp có" state safely.
-export const BANK_DOCS: KbDoc[] = [];
-export const CK_DOCS: KbDoc[] = [];
-
-export function docsForSector(sector: 'bds' | 'bank' | 'ck'): KbDoc[] {
-  if (sector === 'bds') return BDS_DOCS;
-  if (sector === 'bank') return BANK_DOCS;
-  return CK_DOCS;
+export function docsForSector(sector: Sector): KbDoc[] {
+  return ALL_DOCS.get(sector) ?? [];
 }
 
-export function findDoc(sector: 'bds' | 'bank' | 'ck', slug: string): KbDoc | undefined {
+export function findDoc(sector: Sector, slug: string): KbDoc | undefined {
   return docsForSector(sector).find((d) => d.slug === slug);
+}
+
+export function allDocs(): KbDoc[] {
+  const result: KbDoc[] = [];
+  for (const docs of ALL_DOCS.values()) {
+    result.push(...docs);
+  }
+  return result;
 }

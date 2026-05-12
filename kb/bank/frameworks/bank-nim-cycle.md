@@ -1,7 +1,7 @@
 ---
 category: frameworks
 title: "Bank-NIM-cycle"
-last_updated: 2026-05-11
+last_updated: 2026-05-12
 ---
 Framework đọc chu kỳ biên lãi thuần — decision rules cho Master Bank agent. NIM của bank VN đang trong cycle compression dài hạn; cần đọc theo pha lãi suất NHNN + CASA + loan mix.
 

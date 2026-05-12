@@ -184,6 +184,30 @@ COMPANY_NAME_TO_TICKER = {
     "novaland": "NVL",
     "khang điền": "KDH",
     "đất xanh": "DXG",
+    # Oil-Gas (10 mã)
+    "pv gas": "GAS",
+    "pvgas": "GAS",
+    "khí việt nam": "GAS",
+    "pv drilling": "PVD",
+    "pvdrilling": "PVD",
+    "ptsc": "PVS",
+    "pv tech": "PVS",
+    "dịch vụ kỹ thuật dầu khí": "PVS",
+    "pv trans": "PVT",
+    "vận tải dầu khí": "PVT",
+    "bình sơn": "BSR",
+    "lọc hóa dầu bình sơn": "BSR",
+    "dung quất": "BSR",
+    "petrolimex": "PLX",
+    "xăng dầu việt nam": "PLX",
+    "pv oil": "OIL",
+    "pvoil": "OIL",
+    "đạm phú mỹ": "DPM",
+    "phú mỹ": "DPM",
+    "đạm cà mau": "DCM",
+    "cà mau": "DCM",
+    "pv coating": "PVC",
+    "bọc ống dầu khí": "PVC",
 }
 
 
@@ -318,6 +342,9 @@ SHORT_FORM_TO_TICKER = {
     "ART": "ART", "APS": "APS", "BMS": "BMS", "AAS": "AAS", "VTS": "VTS",
     # BĐS (unchanged)
     "VHM": "VHM", "NVL": "NVL", "KDH": "KDH", "DXG": "DXG",
+    # Oil-Gas (10 mã)
+    "GAS": "GAS", "PVD": "PVD", "PVS": "PVS", "PVT": "PVT", "BSR": "BSR",
+    "PLX": "PLX", "OIL": "OIL", "DPM": "DPM", "DCM": "DCM", "PVC": "PVC",
 }
 
 # Single source of truth: regex derived from dict keys.
