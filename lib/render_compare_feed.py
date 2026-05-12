@@ -6,6 +6,7 @@ Each markdown file has frontmatter with all 8 right-column sections data.
 from __future__ import annotations
 import argparse
 import json
+import os
 import re
 import sys
 from datetime import datetime, timezone
@@ -282,6 +283,168 @@ def update_manifest(manifest_path: Path, summary: dict) -> None:
     raise RuntimeError(f"Failed to atomically update {manifest_path} after {max_retries} retries")
 
 
+def build_pipeline_runs_manifest(db, output_path: Path) -> int:
+    """Build pipeline-runs.json from crawl_log + generated_news.
+
+    Subsystem H V1.0.1 (Plan H Task 3) — aggregates crawl_log rows into a
+    session-centric manifest the frontend consumes for pipeline run history.
+
+    - Skip legacy rows: WHERE session_id IS NOT NULL (Q2 resolution).
+    - One pipeline trigger = 1 session; one ticker within trigger = 1 batch.
+    - Atomic write via .tmp suffix + os.replace (POSIX atomic rename).
+
+    Returns number of sessions written.
+    """
+    sessions = _query_sessions(db)
+    payload = {
+        "built_at": datetime.now(timezone.utc).isoformat(),
+        "sessions": sessions,
+    }
+    tmp_path = output_path.with_suffix(".json.tmp")
+    tmp_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    os.replace(tmp_path, output_path)
+    return len(sessions)
+
+
+def _query_sessions(db) -> list[dict]:
+    """Aggregate sessions from crawl_log LEFT JOIN generated_news.
+
+    Schema-adapted from plan template — real crawl_log uses `published_time`
+    (not `published_at`), has only `story_editor_note` (no separate
+    `_label` / `_reason` columns), and does NOT have `sector_code` /
+    `sector_name` / `hot_nhom` / `hot_rank` (those slots stay None pending
+    a future Plan H task).
+    """
+    cur = db.conn.execute(
+        """
+        SELECT
+            cl.row_id,
+            cl.session_id,
+            cl.trigger_type,
+            cl.trigger_args,
+            cl.funnel_batch_id,
+            cl.ticker,
+            cl.sector,
+            cl.crawled_at,
+            cl.source_name,
+            cl.source_url,
+            cl.published_time,
+            cl.editor_v1_decision,
+            cl.editor_v1_note,
+            cl.story_editor_decision,
+            cl.story_editor_note,
+            gn.article_id,
+            gn.title AS chosen_title,
+            gn.accepted_hypothesis
+        FROM crawl_log cl
+        LEFT JOIN generated_news gn ON gn.row_id = cl.row_id
+        WHERE cl.session_id IS NOT NULL
+        ORDER BY cl.crawled_at DESC, cl.session_id, cl.funnel_batch_id
+        LIMIT 5000
+        """
+    )
+
+    sessions_dict: dict[str, dict] = {}
+
+    for row in cur.fetchall():
+        session_id = row["session_id"]
+        if session_id not in sessions_dict:
+            sessions_dict[session_id] = {
+                "session_id": session_id,
+                "trigger_type": row["trigger_type"] or "tin",
+                "trigger_args": row["trigger_args"] or row["ticker"],
+                "started_at": row["crawled_at"],
+                "ended_at": row["crawled_at"],
+                "fetched_total": 0,
+                "chosen_total": 0,
+                "rejected_total": 0,
+                "_batches": {},
+            }
+        session = sessions_dict[session_id]
+        if row["crawled_at"] > session["ended_at"]:
+            session["ended_at"] = row["crawled_at"]
+        if row["crawled_at"] < session["started_at"]:
+            session["started_at"] = row["crawled_at"]
+
+        batch_id = row["funnel_batch_id"]
+        if batch_id not in session["_batches"]:
+            session["_batches"][batch_id] = {
+                "funnel_batch_id": batch_id,
+                "ticker": row["ticker"],
+                "sector_code": None,  # reserved — Plan H later task
+                "sector_name": row["sector"],
+                "hot_nhom": None,     # reserved — Plan H later task
+                "hot_rank": None,     # reserved — Plan H later task
+                "fetched_count": 0,
+                "chosen_count": 0,
+                "rejected_count": 0,
+                "funnel_detail": {"picked": [], "rejected": []},
+            }
+        batch = session["_batches"][batch_id]
+        batch["fetched_count"] += 1
+        session["fetched_total"] += 1
+
+        is_chosen = bool(row["article_id"]) and (row["accepted_hypothesis"] in (True, 1))
+        if is_chosen:
+            batch["chosen_count"] += 1
+            session["chosen_total"] += 1
+            batch["funnel_detail"]["picked"].append({
+                "source": row["source_name"],
+                "url": row["source_url"],
+                "published": row["published_time"],
+                "reason": f"OK — accepted_hypothesis: true. Title: {row['chosen_title'] or 'N/A'}",
+            })
+        else:
+            batch["rejected_count"] += 1
+            session["rejected_total"] += 1
+            reject_agent, reject_label, reject_reason = _classify_reject(dict(row))
+            batch["funnel_detail"]["rejected"].append({
+                "source": row["source_name"],
+                "url": row["source_url"],
+                "published": row["published_time"],
+                "reject_agent": reject_agent,
+                "reject_label": reject_label,
+                "reason": reject_reason,
+            })
+
+    sessions: list[dict] = []
+    for session in sessions_dict.values():
+        # Sort by ticker only — hot_rank slot is reserved for future Plan H task.
+        session["batches"] = sorted(
+            session["_batches"].values(),
+            key=lambda b: b["ticker"],
+        )
+        del session["_batches"]
+        sessions.append(session)
+    sessions.sort(key=lambda s: s["started_at"], reverse=True)
+    return sessions
+
+
+def _classify_reject(row: dict) -> tuple[str, str, str]:
+    """Return (reject_agent, reject_label, reason) for a non-chosen row.
+
+    Real schema only carries `story_editor_note` for Story Editor rejects —
+    both label and reason map to the same field (frontend can split later
+    if separate columns get added).
+    """
+    if row.get("editor_v1_decision") == "reject":
+        note = row.get("editor_v1_note") or ""
+        return ("editor_v1", note or "unknown", note)
+    if row.get("story_editor_decision") == "reject":
+        note = row.get("story_editor_note") or ""
+        return ("story_editor", note or "unknown", note)
+    if not row.get("article_id"):
+        return (
+            "master",
+            "accepted_hypothesis_false",
+            "Master rejected — no article persisted",
+        )
+    return ("unknown", "unclassified", "")
+
+
 def render_for_funnel_batch(db_path: Path, funnel_batch_id: str, output_dir: Path) -> dict:
     """V4.0: Loop ALL anchor rows in batch, render 1 file per article."""
     from lib.pipeline_db import PipelineDB
@@ -361,6 +524,20 @@ def main() -> int:
     args = parser.parse_args()
     result = render_for_funnel_batch(args.db, args.funnel_batch_id, args.output_dir)
     print(json.dumps(result, ensure_ascii=False, indent=2))
+
+    # Build pipeline runs manifest (Subsystem H V1.0 — Plan H Task 3).
+    # render_for_funnel_batch opens+closes its own DB connection, so reopen
+    # fresh here for the aggregation pass.
+    from lib.pipeline_db import PipelineDB
+
+    runs_path = args.output_dir / "pipeline-runs.json"
+    runs_db = PipelineDB(args.db)
+    try:
+        n_sessions = build_pipeline_runs_manifest(runs_db, runs_path)
+    finally:
+        runs_db.close()
+    print(f"Built {runs_path.name} with {n_sessions} sessions")
+
     return 0 if "error" not in result else 2
 
 
