@@ -654,13 +654,29 @@ CLAUDE.md                                                                (+10 li
 - **Real-time live progress** — V2
 - **Funnel reject pattern heatmap** — V2
 
-### Open questions
+### Resolved (2026-05-12 PM user review)
 
-- **Q1**: Header navigation — em cần check current `web/src/components/Header.tsx` (hoặc IndexPage navigation) để add link "Pipeline runs". Anh OK label tiếng Việt "Lịch sử pipeline" hay tiếng Anh "Pipeline runs"?
+- **Q1 RESOLVED — tiếng Việt**: Header nav label = **"Lịch sử pipeline"** (Vietnamese, consistent với project tone).
 
-- **Q2**: Legacy crawl_log rows pre-V1.0 — em propose fabricate session_id = funnel_batch_id. Anh OK or muốn skip legacy hoàn toàn (chỉ show sessions từ V1.0 trở đi)?
+- **Q2 RESOLVED — skip legacy hoàn toàn**: Backend builder filter `WHERE session_id IS NOT NULL`. Pre-V1.0 crawl_log rows (legacy, no session_id) → KHÔNG show trong pipeline-runs.json. Simpler logic — no fabrication needed.
 
-- **Q3**: Article header batch_id hyperlink format — em propose underline + brand color (giống link existing). Anh muốn icon đặc biệt (vd 🔄 + batch_id)?
+- **Q3 RESOLVED — simple readable style**: Article header `batch_id` hyperlink dùng default link style (underline + brand color). KHÔNG icon đặc biệt.
+
+### Impact của resolutions
+
+- §6 builder SQL update: ADD `WHERE cl.session_id IS NOT NULL` filter (drop legacy fabrication code).
+- §12 edge case "Pre-V1.0 crawl_log" REMOVED — legacy rows simply excluded.
+- §9 hyperlink style simplified — same pattern as existing links.
+- §13 file impact unchanged.
+
+### Other open questions DEFERRED to V1.1+
+
+- **Pagination** (file > 5MB) — V1.1
+- **Filter by reject reason** (vd "low_writeability") — V1.1
+- **Per-source analytics** (VnEconomy reject rate) — V2
+- **Export CSV** — V1.1
+- **Real-time live progress** — V2
+- **Funnel reject pattern heatmap** — V2
 
 ## 17. Spec changelog
 
@@ -676,4 +692,10 @@ CLAUDE.md                                                                (+10 li
   - File impact: 7 NEW + 8 MODIFY = 15 files. ~1.5 ngày.
   - Rationale: User feedback "phần này cho mỗi bài viết không cần nữa,
     nhưng không bỏ — cần xem lịch sử pipeline runs"
+
+- V1.0.1 (2026-05-12 PM) — 3 open question resolutions
+  - Q1: Header nav label = "Lịch sử pipeline" (Vietnamese)
+  - Q2: Skip legacy crawl_log rows hoàn toàn (WHERE session_id IS NOT NULL)
+  - Q3: Article header batch_id hyperlink = default link style (underline + brand color)
+  - Impact: builder SQL simpler, edge case "Pre-V1.0 rows" removed
 ```
