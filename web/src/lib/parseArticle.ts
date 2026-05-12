@@ -47,6 +47,11 @@ export function parseArticle(id: string, raw: string): Article {
     data.crawl_funnel = normalizeCrawlFunnel(data.crawl_funnel as LegacyFunnel)!;
   }
 
+  // V5.0 — Format Director (step_3_5); null for V3.6/V4.0 legacy articles.
+  if (data) {
+    data.format_director = data.format_director ?? null;
+  }
+
   const leftIdx = content.indexOf(LEFT_MARKER);
   const rightIdx = content.indexOf(RIGHT_MARKER);
 
