@@ -11,7 +11,10 @@ export function LeftColumn({ meta, body }: { meta: LeftMeta; body: string }) {
   const splitIdx = headingMatch?.index;
   const masterBody =
     splitIdx != null ? body.slice(0, splitIdx).trim() : body.trim();
-  const skepticSection = splitIdx != null ? body.slice(splitIdx).trim() : "";
+  const skepticBody =
+    splitIdx != null && headingMatch
+      ? body.slice(splitIdx + headingMatch[0].length).trim()
+      : "";
 
   return (
     <section>
@@ -28,7 +31,14 @@ export function LeftColumn({ meta, body }: { meta: LeftMeta; body: string }) {
         Skeptic: <code>{meta.skeptic_verdict}</code> · {meta.pipeline_version}
       </p>
 
-      {skepticSection && <Markdown>{skepticSection}</Markdown>}
+      {skepticBody && (
+        <details className="mt-6">
+          <summary className="section-pill">Góc nhìn ngược</summary>
+          <div className="mt-3">
+            <Markdown>{skepticBody}</Markdown>
+          </div>
+        </details>
+      )}
     </section>
   );
 }

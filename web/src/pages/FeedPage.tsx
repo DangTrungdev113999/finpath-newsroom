@@ -14,7 +14,7 @@ export function FeedPage() {
   const [loaded, setLoaded] = useState<Article[]>([]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [error, setError] = useState<string | null>(null);
-  const [showRight, setShowRight] = useState(true);
+  const [showRight, setShowRight] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const { selected, setSelected } = useSymbolFilter();
   const { selected: angleSelected, setSelected: setAngleSelected } =
