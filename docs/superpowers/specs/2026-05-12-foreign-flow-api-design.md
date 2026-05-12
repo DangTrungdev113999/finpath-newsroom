@@ -1,11 +1,226 @@
-# Foreign Flow API — Design Spec V1.0
+# Foreign Flow API — Design Spec V1.1
 
-**Date**: 2026-05-12 PM
+**Date**: 2026-05-12 PM (V1.0 initial), 2026-05-12 PM (V1.1 — simplify to on-demand tool)
 **Author**: Brainstormed with em (Claude) via /superpowers:brainstorming
 **Status**: Draft — pending user review before plan
 **Subsystem**: G (Foreign Flow API) — from session 2026-05-12 PM feedback
 **Depends on**: Spec F `2026-05-12-universe-expansion-kb-optional-design.md` V1.0.1 (Finpath API integration pattern)
-**Coupled with**: Spec A `2026-05-12-hot-ticker-trigger-design.md` V1.1 — `/tin-hot N` cần V1.2 PATCH cho enrichment
+**Coupled with**: Spec A — NO PATCH NEEDED (V1.1 reverted: foreign flow is on-demand tool, not /tin-hot enrichment)
+
+---
+
+## ⚠ V1.1 PATCH (2026-05-12 PM) — SIMPLIFY to on-demand tool
+
+V1.0 over-designed pipeline enrichment + Editor V1 stamp + dispatcher pre-fetch + Master Step 4.5. User feedback rejected this approach:
+
+> "data realtime, hard code làm gì, cần data thì call api thôi, quan trọng bạn define call khi nào, ai call"
+>
+> "các master phải tự biết khi nào cần call api để lấy data chứ?"
+>
+> "cái api này mục đích chính là giống như các api khác để master call data thôi mà, đâu phải lúc nào cũng call đâu, bài nào cần thì mới call"
+
+### Patch summary
+
+Foreign flow API = **on-demand tool** trong toolbox của Master + Story Editor, giống `get_income_statement` / `get_bank_ratios`. KHÔNG pipeline-level enrichment. KHÔNG auto-fetch trong dispatcher. Agents tự judge khi nào cần call.
+
+### Patch 1 — REMOVE pipeline enrichment (overrides §7)
+
+- ❌ DROP: `/tin-hot N` auto-enrichment top 30
+- ❌ DROP: `lib/foreign_flow.py` (top compute module orphaned)
+- ❌ DROP: Editor V1 stamp `foreign_flow` field in crawl_log
+- ❌ DROP: Dispatcher pre-fetch `enrich_top_movers()`
+- ❌ DROP: Spec A V1.2 PATCH (no /tin-hot change needed)
+- ✅ KEEP: `lib/finpath_api.py` 3 new methods (rooms + roomstatistics + roombars)
+- ✅ KEEP: SQLite cache hybrid TTL (15min / 1h / 6h)
+
+### Patch 2 — REMOVE Master Step 4.5 (overrides §9.3)
+
+- ❌ DROP: Master workflow "Step 4.5 Foreign flow check"
+- ❌ DROP: Editor V1 brief field `enrichment.foreign_flow`
+- ❌ DROP: pipeline_log `step_1_5_market_snapshot.foreign_flow` nested field
+- ✅ NEW: Master + Story Editor **judgment guide** — "khi nào tôi nên call foreign API"
+
+### Patch 3 — Judgment guides replace prescriptive steps
+
+Master + Story Editor skill thêm reference file `references/foreign-flow-when-to-call.md`. KHÔNG prescriptive "must call". Chỉ guide WHEN call would add value, examples + anti-patterns.
+
+Story Editor judgment:
+- Khi nào: stance signal cần institutional confirmation (vd "VHM tăng giá nhưng tin đồn yếu — check NN flow xác nhận"). Stance KHÔNG bắt buộc call.
+- Decision: free-form judgment, không pattern fixed.
+
+Master judgment:
+- Khi nào: body cần cite institutional signal cụ thể HOẶC brief mention NN trend HOẶC angle về money flow.
+- Decision: free-form judgment, không pattern fixed.
+- Cite format: bold số tỷ + period clear ("**NN bán ròng 85,78 tỷ phiên 12/5**").
+
+### Patch 4 — File impact reduction
+
+| Aspect | V1.0 | V1.1 |
+|---|---|---|
+| NEW files | 16 | **8** (drop lib/foreign_flow.py + 7 redundant docs) |
+| MODIFY files | 15 | **3** (only lib/finpath_api.py + 1 SKILL.md per skill that uses) |
+| Total impact | 31 | **11** |
+| Effort | 2-3 ngày | **1 ngày** với subagent parallel |
+
+### Patch 5 — Spec changelog V1.1 entry
+
+```
+- V1.1 (2026-05-12 PM) — SIMPLIFY to on-demand tool (user pivot)
+  - Foreign flow API = tool trong toolbox, not pipeline enrichment
+  - DROP /tin-hot auto-enrichment, Editor V1 stamp, Master Step 4.5
+  - DROP lib/foreign_flow.py top compute (orphaned)
+  - DROP Spec A V1.2 PATCH (no /tin-hot change)
+  - KEEP 3 API methods + SQLite cache hybrid TTL
+  - ADD judgment guides for Master + Story Editor (when to call)
+  - File impact: 31 → 11
+  - Rationale: User feedback "master tự biết khi nào cần call api như các api khác"
+```
+
+### Files actually needed for V1.1 (final list)
+
+**NEW**:
+- `lib/finpath_api.py` extension (3 methods, +120 lines — KEEP)
+- `lib/migrations/2026-05-12-add-finpath-foreign-cache.sql` (+30 lines — KEEP)
+- `.claude/skills/finpath-newsroom-story-editor/references/foreign-flow-when-to-call.md` (~80 lines)
+- `.claude/skills/finpath-newsroom-master-{bank,ck,bds,oilgas,logistics,fb,apparel,retail,seafood,defensive}/references/foreign-flow-when-to-call.md` (~80 lines × 10 = ~800 lines duplicate)
+- `tests/test_finpath_api_foreign.py` (~150 lines)
+- `tests/test_foreign_flow_judgment.py` (~100 lines — agent-level judgment validation, not top compute)
+
+**MODIFY**:
+- `lib/finpath_api.py` (+120 lines extension)
+- `.claude/skills/finpath-newsroom-story-editor/SKILL.md` (+5 lines reference load)
+- 10× `.claude/skills/finpath-newsroom-master-{sector}/SKILL.md` (+5 lines reference load each)
+
+**Total V1.1**: 13 NEW + 11 MODIFY = ~24 file. Reduced from V1.0 31 → 24 actual.
+
+### What V1.0 sections to IGNORE (overridden by V1.1)
+
+When Plan G executor reads spec, IGNORE these V1.0 sections:
+- §6 `lib/foreign_flow.py` module — DROPPED
+- §7 `/tin-hot N` enrichment flow — DROPPED
+- §8.3 Brief schema `enrichment` field — DROPPED
+- §9.3 Master Step 4.5 — DROPPED, replaced with judgment guide
+- §10 Pipeline log observability `step_1_5_market_snapshot.foreign_flow` — DROPPED
+- §11 Spec A V1.2 PATCH — CANCELLED
+
+Read §4, §5, §12 (edge cases), §14 (testing API methods) — these remain valid.
+
+---
+
+## V1.1 Architecture (simplified)
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ Layer 1: API Client (lib/finpath_api.py EXTEND)         │
+│   - get_foreign_rooms()                                 │
+│   - get_foreign_roomstatistics(code, type)              │
+│   - get_foreign_roombars(code)                          │
+│   - SQLite cache hybrid TTL (15min / 1h / 6h)           │
+└─────────────────────────────────────────────────────────┘
+                          ↓
+                  (No middle layer)
+                          ↓
+┌─────────────────────────────────────────────────────────┐
+│ Layer 2: Agent on-demand calls                          │
+│   - Master sectors: call when body needs NN cite        │
+│   - Story Editor: call when stance needs institutional  │
+│     signal confirmation                                 │
+│   - Both: free-form judgment, no prescribed pattern     │
+└─────────────────────────────────────────────────────────┘
+```
+
+Tương tự pattern hiện tại với `get_bank_ratios()` — Master Bank gọi khi cần ratios, không pipeline auto-stamp.
+
+---
+
+## V1.1 Story Editor judgment guide
+
+`references/foreign-flow-when-to-call.md` content draft:
+
+```markdown
+# Foreign Flow — Khi nào Story Editor call API?
+
+> Free-form judgment. KHÔNG prescriptive "must call". Guide WHEN call adds stance signal.
+
+## Call API khi:
+
+1. **Ticker đang Hot (tăng/giảm mạnh)** + stance unclear → call `get_foreign_rooms()` lookup ticker dnva
+   - Confirms institutional direction (top_buy = bullish confirm, top_sell = caution)
+
+2. **Brief candidate "ai đẩy giá"** angle → call để check NN sentiment
+   - Vd "VHM tăng kịch trần — institutional có theo không?"
+
+3. **Sector cycle inflection** + need confirmation → call multiple peers
+   - Vd Bank cluster tăng đồng loạt → check NN flow Bank tổng thể
+
+## KHÔNG call khi:
+
+- Stance đã clear từ 7-layer khác (don't waste API call)
+- Brief về fundamental sự kiện (Q1 report, BCTC) — NN flow không relevant
+- Ticker không Hot + không price action — NN flow signal weak
+
+## Cite format trong stance_directive
+
+Nếu call → add to `key_evidence`:
+- "NN bán ròng 85,78 tỷ phiên 12/5" (cụ thể số + period)
+- "Top 30 NN bán ròng" (rank context)
+- Period tuỳ depth: 1D cho intraday, 1W cho trend
+```
+
+---
+
+## V1.1 Master judgment guide (10 copies, 1 per master)
+
+`references/foreign-flow-when-to-call.md` content draft:
+
+```markdown
+# Foreign Flow — Khi nào Master call API?
+
+> Free-form judgment. Same pattern as get_income_statement / get_bank_ratios — call when body needs the data.
+
+## Call API khi viết bài:
+
+1. **Brief angle mention NN flow** (vd "VHM giảm giá khi NN bán mạnh")
+   - MUST cite số liệu cụ thể trong body
+   - Call: `api.get_foreign_rooms()` → lookup ticker dnva
+
+2. **Body cần institutional context** (vd "ai đẩy giá hôm nay?")
+   - Call để answer question concretely
+
+3. **Cite multi-period trend** (vd "NN bán ròng 5 phiên liên tiếp")
+   - Call: `api.get_foreign_roomstatistics(ticker, period="1W")`
+
+4. **Time series narrative** (vd "30 ngày qua institutional sentiment")
+   - Call: `api.get_foreign_roombars(ticker)` for chart-like trend
+
+## KHÔNG call khi:
+
+- Bài về fundamental (lãi/lỗ/ROE) — NN flow off-topic
+- Format flash_qa (100-150 từ ngắn) — không đủ space cite extra signal
+- Brief KHÔNG mention NN + angle khác — không force fit
+
+## Cite format
+
+- Bold số tỷ: `**NN bán ròng 85,78 tỷ**`
+- Format VN: 85780000000 → "85,78 tỷ"
+- Period clear: "phiên 12/5" / "tuần qua" / "30 ngày"
+
+## Data trail entry
+
+```yaml
+data_trail:
+  - source: "Finpath_API/foreign-rooms"
+    fetched: "dnva = -85780000000 (today net VND)"
+    purpose: "cite NN sell pressure"
+    supports_argument: "Opening question paragraph"
+```
+
+## Anti-patterns
+
+- ❌ Cite NN khi không relevant tới insight ("force fit")
+- ❌ "NN đang có vẻ bán" (vague — phải số cụ thể)
+- ❌ "85.78 billion" (Anh — phải VN "85,78 tỷ")
+```
 
 ---
 
