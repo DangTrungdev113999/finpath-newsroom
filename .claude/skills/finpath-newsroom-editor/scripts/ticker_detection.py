@@ -187,6 +187,110 @@ COMPANY_NAME_TO_TICKER = {
 }
 
 
+# === V5.1.3 NEW — universe expansion 61 → 139 (7 new sectors) ===
+# Keys are lowercase (detect_via_company_name lowercases text before
+# substring matching). Bare 3-char tickers omitted where redundant with
+# TICKER_PATTERN regex. Bare "fpt" deliberately OMITTED to avoid substring
+# collision with existing "fpts" (FTS) alias.
+# HPG explicitly excluded (sector unverified — defer V5.2).
+COMPANY_NAME_TO_TICKER.update({
+    # --- oilGas sector ---
+    "lọc hoá dầu bình sơn": "BSR",
+    "lọc hóa dầu bình sơn": "BSR",
+    "bình sơn": "BSR",
+    "pv services": "PVS",
+    "petrovietnam services": "PVS",
+    "pv gas": "GAS",
+    "tổng công ty khí": "GAS",
+    "khí việt nam": "GAS",
+    "pv power": "POW",
+    "tổng công ty điện lực dầu khí": "POW",
+    "petrolimex": "PLX",
+    "tập đoàn xăng dầu": "PLX",
+    "pv oil": "OIL",
+    "pv drilling": "PVD",
+    "khoan và dịch vụ khoan dầu khí": "PVD",
+    "pv trans": "PVT",
+    "vận tải dầu khí": "PVT",
+
+    # --- logistics sector ---
+    "gemadept": "GMD",
+    "cảng gemadept": "GMD",
+    "hải an": "HAH",
+    "vận tải biển hải an": "HAH",
+    "vận tải biển việt nam": "VOS",
+    "cảng container việt nam": "VSC",
+    "cảng hải phòng": "PHP",
+    "cảng đà nẵng": "CDN",
+    "logistics hàng xanh": "HAX",
+
+    # --- fb (Tiêu dùng thực phẩm) ---
+    "vinamilk": "VNM",
+    "sữa việt nam": "VNM",
+    "masan": "MSN",
+    "tập đoàn masan": "MSN",
+    "sabeco": "SAB",
+    "bia sài gòn": "SAB",
+    "bia hà nội": "BHN",
+    "habeco": "BHN",
+    "kido": "KDC",
+    "bánh kẹo kido": "KDC",
+    "mộc châu milk": "MCM",
+    "sữa mộc châu": "MCM",
+    "đường quảng ngãi": "QNS",
+
+    # --- apparel (Dệt may) ---
+    "thành công textile": "TCM",
+    "dệt may thành công": "TCM",
+    "may sông hồng": "MSH",
+    "tng may": "TNG",
+    "may tng": "TNG",
+    "thái nguyên may": "TNG",
+
+    # --- retail (Bán lẻ) ---
+    "thế giới di động": "MWG",
+    "bách hóa xanh": "MWG",
+    "fpt retail": "FRT",
+    "fpt shop": "FRT",
+    "long châu": "FRT",
+    "digiworld": "DGW",
+    "phú nhuận": "PNJ",
+    "trang sức phú nhuận": "PNJ",
+    "phục vụ sân bay quốc tế": "AST",
+
+    # --- seafood (Thuỷ sản) ---
+    "vĩnh hoàn": "VHC",
+    "thủy sản vĩnh hoàn": "VHC",
+    "nam việt": "ANV",
+    "thủy sản nam việt": "ANV",
+    "minh phú": "MPC",
+    "thủy sản minh phú": "MPC",
+    "sao ta": "FMC",
+    "thực phẩm sao ta": "FMC",
+    "i.d.i": "IDI",
+    "camimex": "CMX",
+
+    # --- defensive (Phòng thủ) ---
+    # NOTE: bare "fpt" OMITTED — would substring-collide with existing "fpts" → FTS.
+    # FPT ticker still detected via 3-char regex + SHORT_FORM_TO_TICKER.
+    "fpt corp": "FPT",
+    "fpt software": "FPT",
+    # NOTE: bare "ree" OMITTED — substring-collides with "wall street ck" (WSS).
+    # REE still detected via 3-char regex.
+    "cơ điện lạnh": "REE",
+    "pc1": "PC1",
+    "xây lắp điện 1": "PC1",
+    "gex": "GEX",
+    "gelex": "GEX",
+    "tin học itd": "ITD",
+    "traphaco": "TRA",
+    "dược traphaco": "TRA",
+    "bidiphar": "DBD",
+    "imexpharm": "IMP",
+    "elcom": "ELC",
+})
+
+
 # Bug A fix — Pass 2 detection: uppercase-only short-form ticker tokens.
 # Chạy trên RAW text (trước lowercase) để bắt "MB" (2 chữ, regex 3-char miss)
 # nhưng tránh false positive với "mb" lowercase trong "miễn bàn", "mb chi".
