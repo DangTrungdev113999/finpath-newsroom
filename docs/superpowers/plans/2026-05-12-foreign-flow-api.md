@@ -848,6 +848,8 @@ git commit -m "feat(masters): register foreign-flow-when-to-call reference × 10
 
 ### Task 7: CLAUDE.md update — note foreign flow data source
 
+> ⚠ **BLOCKED — see MASTER-EXECUTION-SEQUENCE Stage 6.** This task modifies `CLAUDE.md` shared với Plan F Task 15 + Plan H Task 9. Do NOT run independently. Stage 6 aggregates 3 modifications into single subagent commit.
+
 **Files:**
 - Modify: `CLAUDE.md`
 

@@ -1074,8 +1074,7 @@ routing = import_module(".claude.skills.finpath-newsroom-editor.scripts.routing"
 MAPPING = routing.COMPANY_NAME_TO_TICKER
 
 @pytest.mark.parametrize("alias,expected_ticker", [
-    # oilGas sector
-    ("Hòa Phát", "HPG"),  # actually defensive
+    # oilGas sector (HPG removed — sector classification unverified, defer V5.2)
     ("Lọc hoá dầu Bình Sơn", "BSR"),
     ("PV Gas", "GAS"),
     ("PV Power", "POW"),
@@ -1725,6 +1724,21 @@ cp .claude/skills/finpath-newsroom-master-bank/references/stance-directive-handl
    .claude/skills/finpath-newsroom-master-logistics/references/stance-directive-handler.md
 ```
 
+- [ ] **Step 2.5 (PATCH critical gap 1): Copy 4 format-body files from Bank V5.1.2**
+
+```bash
+mkdir -p .claude/skills/finpath-newsroom-master-logistics/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/format-bodies/*.md \
+   .claude/skills/finpath-newsroom-master-logistics/references/format-bodies/
+```
+
+Verify:
+
+```bash
+ls .claude/skills/finpath-newsroom-master-logistics/references/format-bodies/
+# Expected: flash-qa.md  standard-qa.md  standard-listicle.md  standard-narrative.md
+```
+
 - [ ] **Step 3: Commit**
 
 ```bash
@@ -1825,6 +1839,14 @@ cp .claude/skills/finpath-newsroom-master-bank/references/stance-directive-handl
    .claude/skills/finpath-newsroom-master-fb/references/stance-directive-handler.md
 ```
 
+- [ ] **Step 2.5 (PATCH critical gap 1): Copy 4 format-body files from Bank V5.1.2**
+
+```bash
+mkdir -p .claude/skills/finpath-newsroom-master-fb/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/format-bodies/*.md \
+   .claude/skills/finpath-newsroom-master-fb/references/format-bodies/
+```
+
 - [ ] **Step 3: Commit**
 
 ```bash
@@ -1881,9 +1903,22 @@ Bearish: Inventory de-stocking US retailers + thuế cao + labor cost up = order
 TCM (woven) / MSH (knit) / TNG (apparel general)
 ```
 
+- [ ] **Step 1.5 (PATCH critical gap 1): Copy format-bodies + voice + stance from Bank**
+
+```bash
+mkdir -p .claude/skills/finpath-newsroom-master-apparel/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/format-bodies/*.md \
+   .claude/skills/finpath-newsroom-master-apparel/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/voice-layer-rules.md \
+   .claude/skills/finpath-newsroom-master-apparel/references/voice-layer-rules.md
+cp .claude/skills/finpath-newsroom-master-bank/references/stance-directive-handler.md \
+   .claude/skills/finpath-newsroom-master-apparel/references/stance-directive-handler.md
+```
+
 - [ ] **Step 2: Commit**
 
 ```bash
+git add .claude/agents/newsroom-master-apparel.md .claude/skills/finpath-newsroom-master-apparel/
 git commit -m "feat(master-apparel): NEW master Dệt may V5.1.3 (Plan F Task 9)"
 ```
 
@@ -1932,9 +1967,26 @@ Bearish: SSS negative 2 quarters + new store cannibalize old + smartphone segmen
 MWG (di động + Bách hóa Xanh + Erablue) / FRT (FPT Shop + Long Châu) / DGW (distribution) / PNJ (vàng) / PET (xăng) / AST
 ```
 
-- [ ] **Step 1: Create + commit**
+- [ ] **Step 1: Create files**
+
+Create agent + skill + sector-context.md + jargon-mapping.md per Task 6 pattern.
+
+- [ ] **Step 1.5 (PATCH critical gap 1): Copy format-bodies + voice + stance from Bank**
 
 ```bash
+mkdir -p .claude/skills/finpath-newsroom-master-retail/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/format-bodies/*.md \
+   .claude/skills/finpath-newsroom-master-retail/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/voice-layer-rules.md \
+   .claude/skills/finpath-newsroom-master-retail/references/voice-layer-rules.md
+cp .claude/skills/finpath-newsroom-master-bank/references/stance-directive-handler.md \
+   .claude/skills/finpath-newsroom-master-retail/references/stance-directive-handler.md
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add .claude/agents/newsroom-master-retail.md .claude/skills/finpath-newsroom-master-retail/
 git commit -m "feat(master-retail): NEW master Bán lẻ V5.1.3 (Plan F Task 10)"
 ```
 
@@ -1983,9 +2035,26 @@ Bearish: Anti-dumping tăng + Trung Quốc competition + USD weak = margin press
 VHC (cá tra) / ANV (cá tra) / MPC (tôm) / FMC (tôm) / IDI (cá tra) / CMX (cá biển + cá tra)
 ```
 
-- [ ] **Step 1: Create + commit**
+- [ ] **Step 1: Create files**
+
+Create agent + skill + sector-context.md + jargon-mapping.md per Task 6 pattern.
+
+- [ ] **Step 1.5 (PATCH critical gap 1): Copy format-bodies + voice + stance from Bank**
 
 ```bash
+mkdir -p .claude/skills/finpath-newsroom-master-seafood/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/format-bodies/*.md \
+   .claude/skills/finpath-newsroom-master-seafood/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/voice-layer-rules.md \
+   .claude/skills/finpath-newsroom-master-seafood/references/voice-layer-rules.md
+cp .claude/skills/finpath-newsroom-master-bank/references/stance-directive-handler.md \
+   .claude/skills/finpath-newsroom-master-seafood/references/stance-directive-handler.md
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add .claude/agents/newsroom-master-seafood.md .claude/skills/finpath-newsroom-master-seafood/
 git commit -m "feat(master-seafood): NEW master Thuỷ sản V5.1.3 (Plan F Task 11)"
 ```
 
@@ -2034,9 +2103,26 @@ Bearish: rate hike + global tech budget freeze + USD weak = tech vol up
 FPT (IT) / REE (utility) / PC1 (construction utility) / GEX (cable) / ITD (IT) / TRA (pharma)
 ```
 
-- [ ] **Step 1: Create + commit**
+- [ ] **Step 1: Create files**
+
+Create agent + skill + sector-context.md + jargon-mapping.md per Task 6 pattern.
+
+- [ ] **Step 1.5 (PATCH critical gap 1): Copy format-bodies + voice + stance from Bank**
 
 ```bash
+mkdir -p .claude/skills/finpath-newsroom-master-defensive/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/format-bodies/*.md \
+   .claude/skills/finpath-newsroom-master-defensive/references/format-bodies/
+cp .claude/skills/finpath-newsroom-master-bank/references/voice-layer-rules.md \
+   .claude/skills/finpath-newsroom-master-defensive/references/voice-layer-rules.md
+cp .claude/skills/finpath-newsroom-master-bank/references/stance-directive-handler.md \
+   .claude/skills/finpath-newsroom-master-defensive/references/stance-directive-handler.md
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add .claude/agents/newsroom-master-defensive.md .claude/skills/finpath-newsroom-master-defensive/
 git commit -m "feat(master-defensive): NEW master Phòng thủ V5.1.3 (Plan F Task 12)"
 ```
 
@@ -2232,6 +2318,8 @@ git commit -m "feat(story-editor): extend stance-judgment-guide với 7 sector c
 ## Phase 4 — CLAUDE.md + Spec A V1.2 PATCH + verification (Tasks 15-17)
 
 ### Task 15: CLAUDE.md update universe 61 → 139
+
+> ⚠ **BLOCKED — see MASTER-EXECUTION-SEQUENCE Stage 6.** This task modifies `CLAUDE.md` shared với Plan G Task 7 + Plan H Task 9. Do NOT run independently. Stage 6 aggregates 3 modifications into single subagent commit.
 
 **Files:**
 - Modify: `CLAUDE.md`

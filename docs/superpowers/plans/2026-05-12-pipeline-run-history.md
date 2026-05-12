@@ -1644,6 +1644,8 @@ Expected: 3 tests PASS.
 
 - [ ] **Step 3: Update CLAUDE.md**
 
+> ⚠ **BLOCKED — see MASTER-EXECUTION-SEQUENCE Stage 6.** This step modifies `CLAUDE.md` shared với Plan F Task 15 + Plan G Task 7. Stage 6 aggregates 3 modifications into single subagent commit. Apply this step content WHEN Stage 6 runs (don't apply earlier).
+
 Read CLAUDE.md. Find "Architecture map" section. Add line under output:
 
 ```
