@@ -1,5 +1,5 @@
 ---
-title: VIX đặt cược 1.000 tỷ vào VIXEX năm nâng hạng?
+title: VIX dồn 1.000 tỷ vào VIXEX năm nâng hạng. Khôn hay liều?
 ticker: VIX
 sector: CK
 sector_icon: 📈

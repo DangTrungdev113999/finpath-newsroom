@@ -1,5 +1,5 @@
 ---
-title: DXG lao dốc lợi nhuận mẹ dù doanh thu vọt 46%?
+title: DXG bán hàng vọt 46%, lãi mẹ tụt 22%. Tiền chạy đâu?
 ticker: DXG
 sector: bds
 sector_icon: 📰

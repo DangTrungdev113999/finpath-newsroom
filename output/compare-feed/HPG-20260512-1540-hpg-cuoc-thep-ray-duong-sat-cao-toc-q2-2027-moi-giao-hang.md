@@ -1,5 +1,5 @@
 ---
-title: 'HPG đặt cược thép ray đường sắt: hy sinh cổ tức 20%?'
+title: HPG xén cổ tức 20% để xây nhà máy ray đường sắt
 ticker: HPG
 sector: BDS
 sector_icon: 📰

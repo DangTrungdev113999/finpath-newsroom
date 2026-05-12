@@ -1,5 +1,5 @@
 ---
-title: VHM đánh đổi gì để lãi 25.625 tỷ gấp 3 Vietcombank?
+title: VHM Q1 ăn 25.625 tỷ, gấp 3 lần Vietcombank cùng kỳ
 ticker: VHM
 sector: bds
 sector_icon: 📰

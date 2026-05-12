@@ -1,5 +1,5 @@
 ---
-title: 'Nghịch lý DXG: rebrand Bluemarq nhưng đầu tư chỉ 20 tỷ?'
+title: DXG đổi tên Bluemarq, vốn đầu tư mới 20 tỷ?
 ticker: DXG
 sector: bds
 sector_icon: 📰

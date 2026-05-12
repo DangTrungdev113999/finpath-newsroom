@@ -1,5 +1,5 @@
 ---
-title: SSI đánh đổi 510 triệu cổ phiếu mới để lấy gì?
+title: SSI bán ESOP 100 tỷ, nội bộ ăn 180 tỷ ưu đãi
 ticker: SSI
 sector: CK
 sector_icon: 📈

@@ -1,5 +1,5 @@
 ---
-title: VIX hy sinh lợi nhuận Q1 để tăng vốn 60%
+title: VIX gọi vốn to nhất ngành, ngồi trên tiền, lãi Q1 tụt
 ticker: VIX
 sector: CK
 sector_icon: 📈

@@ -1,5 +1,5 @@
 ---
-title: VHM đánh đổi gì khi vay 11.000 tỷ lúc lợi nhuận đỉnh?
+title: VHM chia cổ tức kỷ lục, vẫn vay 11.000 tỷ. Lạ?
 ticker: VHM
 sector: bds
 sector_icon: 📰

@@ -1,5 +1,5 @@
 ---
-title: BSR đánh đổi kế hoạch thấp 58% để đổi lấy điều gì?
+title: Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?
 ticker: BSR
 sector: Dầu khí
 sector_icon: 📰

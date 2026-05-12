@@ -1,5 +1,5 @@
 ---
-title: Vì sao HPG lãi 170% nhưng thép cốt lõi chỉ đóng 57%?
+title: Thép HPG thật ra chỉ tăng 61%, 170% kia BĐS Phố Nối
 ticker: HPG
 sector: BDS
 sector_icon: 📰
