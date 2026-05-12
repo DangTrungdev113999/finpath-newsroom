@@ -1,0 +1,46 @@
+# Format Registry V5.0 — source of truth for Master article formats.
+# Story Editor + Format Director read this; Master applies per-format pattern.
+# Add new formats here without touching agent prose (registry abstraction).
+# V5.1.2: title fields stripped — title decisions belong to Plan C Headline agent.
+formats:
+  flash_qa:
+    length_range: [100, 150]
+    length_target: 130
+    structure: paragraph_only
+    bullets_count: [0, 0]
+    bullet_min_length: 0
+    tags: [factual, short]
+    trigger_categories: []  # fallback for factual single Q, not in 5 deep_question category
+
+  standard_qa:
+    length_range: [200, 300]
+    length_target: 250
+    structure: opening_bullets_closing
+    opening_min: 30
+    opening_max: 80
+    bullets_count: [3, 6]
+    bullet_min_length: 20
+    tags: [insight, paradox]
+    trigger_categories: [paradox, why_now, hidden_mechanism]
+
+  standard_listicle:
+    length_range: [250, 350]
+    length_target: 300
+    structure: short_opening_dense_bullets
+    opening_min: 0
+    opening_max: 30
+    bullets_count: [4, 7]
+    bullet_min_length: 25
+    tags: [comparison, signals]
+    trigger_categories: [comparison_deep, early_signal]
+
+  standard_narrative:
+    length_range: [250, 350]
+    length_target: 300
+    structure: flow_paragraphs
+    opening_min: 40
+    bullets_count: [0, 2]
+    bullet_min_length: 20  # if bullet present
+    tags: [mechanism, time_flow]
+    trigger_categories: [hidden_mechanism]
+    tie_break_signal: narrative_timeline_markers  # ≥3 → pick narrative over qa
