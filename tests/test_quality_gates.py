@@ -278,15 +278,21 @@ def test_check_all_returns_5_gates():
     }
 
 
-# === V5.0 Phase 1.5 — no_hedging gate (keyword-based, LLM redefine in B-30) ===
+# === V5.0 Phase 1.5 / B-30 — no_hedging gate ===
+# B-30 (V5.1.2): primary path = LLM-as-judge. Fallback = keyword (V5.0).
+# These tests force the fallback path via `monkeypatch.delenv` so they remain
+# deterministic + free regardless of whether ANTHROPIC_API_KEY is set in the
+# host environment. LLM-mode coverage lives in the B-30 block at end of file.
 
-def test_no_hedging_pass():
+def test_no_hedging_pass(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     from lib.quality_gates import check_no_hedging
     body = "VCB sẽ tăng trưởng. NĐT nên giữ. Q1 đang mạnh."
     assert check_no_hedging(body)["pass"] is True
 
 
-def test_no_hedging_rejects_co_the():
+def test_no_hedging_rejects_co_the(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     from lib.quality_gates import check_no_hedging
     body = "VCB có thể tăng trưởng. NĐT nên giữ."
     result = check_no_hedging(body)
@@ -294,19 +300,22 @@ def test_no_hedging_rejects_co_the():
     assert "có thể" in result["reason"]
 
 
-def test_no_hedging_rejects_tuy_thuoc():
+def test_no_hedging_rejects_tuy_thuoc(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     from lib.quality_gates import check_no_hedging
     body = "Tăng trưởng tùy thuộc thị trường."
     assert check_no_hedging(body)["pass"] is False
 
 
-def test_no_hedging_rejects_dang_theo_doi():
+def test_no_hedging_rejects_dang_theo_doi(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     from lib.quality_gates import check_no_hedging
     body = "Đây là sự kiện đáng theo dõi trong tương lai."
     assert check_no_hedging(body)["pass"] is False
 
 
-def test_no_hedging_rejects_kha_nang_cao():
+def test_no_hedging_rejects_kha_nang_cao(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     from lib.quality_gates import check_no_hedging
     body = "Khả năng cao sẽ tăng. Nhưng chưa rõ."
     result = check_no_hedging(body)
@@ -544,8 +553,13 @@ def test_per_format_standard_listicle_min_4_bullets():
     assert "4" in result["reason"] or "bullet" in result["reason"].lower()
 
 
-def test_check_all_v5_dispatches_per_format():
-    """check_all_v5 runs universal + per-format. 8 gates total (V5.1: title dropped)."""
+def test_check_all_v5_dispatches_per_format(monkeypatch):
+    """check_all_v5 runs universal + per-format. 9 keys (B-30 wires em_dash_density).
+
+    Forces the no_hedging keyword fallback path via monkeypatch.delenv so the
+    test stays deterministic + free regardless of ANTHROPIC_API_KEY presence.
+    """
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     from lib.quality_gates import check_all_v5
     body = (
         "VCB Q1/2026 LNTT đạt 11.218 tỷ đồng chỉ tăng 1,3% so cùng kỳ "
@@ -557,13 +571,73 @@ def test_check_all_v5_dispatches_per_format():
         "Tích cực dài hạn cho VCB nhờ chiến lược ổn định nhờ kỷ luật rủi ro. NĐT đang cầm nên giữ 12 tháng vì chiến lược phòng thủ Q1 sẽ thành lợi thế tăng trưởng."
     )
     results = check_all_v5(body, format_id="standard_qa", stance="bullish")
-    # 8 gates expected
+    # 9 keys expected (B-30 added em_dash_density)
     assert set(results.keys()) == {
         "no_english_jargon", "no_metadata_leak", "no_hedging",
         "verdict_line", "stance_consistency", "sentence_density",
+        "em_dash_density",
         "word_count", "body_pattern",
     }
     # title_pattern NOT in results
     assert "title_pattern" not in results
+    failed = [(k, v) for k, v in results.items() if not v["pass"]]
+    assert not failed, f"Unexpected failures: {failed}"
+
+
+# === B-30 (V5.1.2 PATCH) — LLM-as-judge no-hedging + em_dash wiring ===
+
+def test_no_hedging_falls_back_when_no_api_key(monkeypatch):
+    """No ANTHROPIC_API_KEY → keyword fallback path catches hedging keyword."""
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    from lib.quality_gates import check_no_hedging
+    body = "Cổ phiếu có thể tăng tùy thuộc thị trường."
+    result = check_no_hedging(body)
+    assert result["pass"] is False
+    # Fallback emits the explicit "keyword fallback" marker.
+    assert "keyword fallback" in result["reason"]
+    assert "có thể" in result["reason"]
+
+
+def test_no_hedging_falls_back_to_keyword_when_sdk_missing(monkeypatch):
+    """API key set but anthropic SDK unimportable → fallback path used.
+
+    Simulates SDK-missing by stubbing `__import__("anthropic")` to raise
+    ImportError. Verifies the LLM branch swallows ImportError and degrades
+    to keyword check (clean body passes).
+    """
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test-fake-key")
+    import builtins
+    real_import = builtins.__import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "anthropic":
+            raise ImportError("anthropic not installed (test)")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    from lib.quality_gates import check_no_hedging
+    # Clean body — keyword fallback should pass it.
+    body = "VCB sẽ tăng. NĐT nên giữ. Q1 đang mạnh."
+    result = check_no_hedging(body)
+    assert result["pass"] is True
+
+
+def test_check_all_v5_includes_em_dash_density(monkeypatch):
+    """check_all_v5 now returns 9 keys including em_dash_density (B-30 wiring)."""
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    from lib.quality_gates import check_all_v5
+    body = (
+        "VCB Q1/2026 LNTT đạt 11.218 tỷ đồng chỉ tăng 1,3% so cùng kỳ "
+        "trong khi CTG tăng 11,4% và BID 8,2% nhờ tăng tín dụng nhanh hơn — "
+        "VCB to nhất sàn lại đi chậm nhất Q1/2026 do chiến lược ngược chiều thị trường.\n\n"
+        "- **Chi phí dự phòng VCB tăng 38% so cùng kỳ**: ngân hàng tích lũy vùng đệm trước rủi ro nợ xấu nhóm BĐS lấn từ 0,82% lên 1,03% nhờ tiếp tục đặt cược dài hạn vào tăng trưởng ổn định.\n"
+        "- **Biên lãi vay VCB co từ 3,06% xuống 2,71%**: nhờ ưu tiên giữ khách hàng tốt thay vì đẩy lãi suất cho vay lên cao, chiến lược phòng thủ dài hạn đáng chú ý cho tăng trưởng ổn định.\n"
+        "- **Tăng trưởng tín dụng VCB chỉ 1,8% lũy kế từ đầu năm**: trong khi CTG đạt 4,3% và BID 3,8% so cùng kỳ, VCB tự chậm có chủ đích nhờ ưu tiên chất lượng tài sản tích lũy lợi thế dài hạn.\n\n"
+        "Tích cực dài hạn cho VCB nhờ chiến lược ổn định nhờ kỷ luật rủi ro. NĐT đang cầm nên giữ 12 tháng vì chiến lược phòng thủ Q1 sẽ thành lợi thế tăng trưởng."
+    )
+    results = check_all_v5(body, format_id="standard_qa", stance="bullish")
+    assert "em_dash_density" in results
+    assert len(results) == 9  # 7 universal + 2 per-format
+    # All gates should pass for a clean body.
     failed = [(k, v) for k, v in results.items() if not v["pass"]]
     assert not failed, f"Unexpected failures: {failed}"

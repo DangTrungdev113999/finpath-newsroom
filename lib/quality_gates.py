@@ -8,6 +8,7 @@ Gates:
   5. no_metadata_leak — không enum tags trong content
 """
 from __future__ import annotations
+import os
 import re
 from typing import Any
 
@@ -247,17 +248,110 @@ HEDGING_TERMS = [
 ]
 
 
-def check_no_hedging(body: str) -> dict[str, Any]:
-    """V5.0 Gate 6 — reject hedging terms in body (no nước đôi).
+def _check_no_hedging_keyword_fallback(body: str) -> dict[str, Any]:
+    """V5.0 keyword-based check (B-5). Used when LLM unavailable.
 
-    Keyword-based initial impl. B-30 will redefine via LLM-as-judge
-    (V5.1.2 patch) to handle nuanced cases keyword regex can't catch.
+    Active path when ANTHROPIC_API_KEY missing OR anthropic SDK not
+    installed OR LLM call raises. Preserves backward compatibility with
+    pre-B-30 callers + keeps CI green without API key.
     """
     cleaned = _clean(body).lower()
     found = [t for t in HEDGING_TERMS if t in cleaned]
     if found:
-        return {"pass": False, "reason": f"Hedging terms: {', '.join(found)}"}
+        return {
+            "pass": False,
+            "reason": f"Hedging terms (keyword fallback): {', '.join(found)}",
+        }
     return {"pass": True, "reason": ""}
+
+
+def _check_no_hedging_llm_judge(body: str) -> dict[str, Any]:
+    """V5.1.2 LLM-as-judge implementation.
+
+    Definition: "Ba phải" = câu khẳng định trung tính không cam kết hướng,
+    có thể đúng dù sự thật ngược lại.
+
+    Two tests per sentence:
+      Test 1 — Reverse-truth: if actual outcome is opposite of what sentence
+        implies, does sentence still hold? Yes = hedging.
+      Test 2 — Direction: does sentence commit to direction (up/down/strong/
+        weak/positive/negative)? No direction = hedging.
+
+    A sentence fails if either test fails.
+
+    Falls back to keyword check on any error (no API key, SDK missing,
+    network error, malformed response).
+    """
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        return _check_no_hedging_keyword_fallback(body)
+
+    try:
+        import anthropic  # type: ignore
+    except ImportError:
+        return _check_no_hedging_keyword_fallback(body)
+
+    cleaned = _clean(body).strip()
+    sentences = _split_sentences(cleaned)
+    countable = [s for s in sentences if not _is_bullet_label(s) and len(s.split()) >= 5]
+    if not countable:
+        return {"pass": True, "reason": ""}
+
+    prompt_lines = [
+        "Apply 2 tests to each Vietnamese stock analysis sentence below.",
+        "",
+        "Test 1 — Reverse-truth: If actual outcome is OPPOSITE of what the "
+        "sentence implies, does the sentence still hold? Yes = hedging.",
+        "Test 2 — Direction: Does the sentence commit to a direction "
+        "(up/down/strong/weak/positive/negative)? No direction = hedging.",
+        "",
+        "A sentence FAILS if it fails EITHER test. Return JSON array only, "
+        "one entry per sentence:",
+        '[{"idx": 0, "fail": true|false, "reason": "..."}]',
+        "",
+        "Sentences:",
+    ]
+    for i, s in enumerate(countable):
+        prompt_lines.append(f"{i}. {s}")
+    prompt = "\n".join(prompt_lines)
+
+    try:
+        client = anthropic.Anthropic()
+        msg = client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=500,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        text = msg.content[0].text if msg.content else "[]"
+        if "```json" in text:
+            text = text.split("```json", 1)[1].split("```", 1)[0].strip()
+        elif "```" in text:
+            text = text.split("```", 1)[1].split("```", 1)[0].strip()
+        import json as _json
+        results = _json.loads(text.strip())
+        failed = [r for r in results if r.get("fail")]
+        if failed:
+            reasons = "; ".join(
+                f"sent[{r.get('idx', '?')}]: {r.get('reason', 'hedging')}"
+                for r in failed[:3]
+            )
+            return {"pass": False, "reason": f"Hedging (LLM judge): {reasons}"}
+        return {"pass": True, "reason": ""}
+    except Exception:
+        # Any LLM failure → fall back to keyword check.
+        return _check_no_hedging_keyword_fallback(body)
+
+
+def check_no_hedging(body: str) -> dict[str, Any]:
+    """V5.1.2 PATCH (B-30) — LLM-as-judge primary, keyword fallback.
+
+    Definition: "Ba phải" = câu khẳng định trung tính không cam kết hướng,
+    có thể đúng dù sự thật ngược lại.
+
+    LLM mode runs 2 tests per sentence (reverse-truth + direction commitment).
+    Falls back to V5.0 keyword check when ANTHROPIC_API_KEY missing, the
+    anthropic SDK is not installed, or the API call fails for any reason.
+    """
+    return _check_no_hedging_llm_judge(body)
 
 
 DIRECTION_KEYWORDS_RE = re.compile(
@@ -500,13 +594,14 @@ def check_body_pattern_per_format(body: str, format_id: str) -> dict[str, Any]:
 
 
 def check_all_v5(body: str, format_id: str, stance: str) -> dict[str, dict[str, Any]]:
-    """Run all 8 V5.0 gates: 6 universal + 2 per-format.
+    """Run V5.0 + V5.1 + V5.1.2 gates: 7 universal + 2 per-format = 9 keys.
 
     V5.1 PATCH: title_pattern dropped (moved to Plan C lib/headline_scorer.py).
+    V5.1.2 PATCH (B-30): em_dash_density wired in (was standalone in B-5).
 
-    Universal: no_english_jargon, no_metadata_leak, no_hedging, verdict_line,
-               stance_consistency, sentence_density.
-    Per-format: word_count, body_pattern.
+    Universal (7): no_english_jargon, no_metadata_leak, no_hedging, verdict_line,
+                   stance_consistency, sentence_density, em_dash_density.
+    Per-format (2): word_count, body_pattern.
     """
     return {
         "no_english_jargon": check_no_english_jargon(body),
@@ -515,6 +610,7 @@ def check_all_v5(body: str, format_id: str, stance: str) -> dict[str, dict[str, 
         "verdict_line": check_verdict_line(body),
         "stance_consistency": check_stance_consistency(body, stance),
         "sentence_density": check_sentence_density(body),
+        "em_dash_density": check_em_dash_density(body),
         "word_count": check_word_count_per_format(body, format_id),
         "body_pattern": check_body_pattern_per_format(body, format_id),
     }
