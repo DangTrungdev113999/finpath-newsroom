@@ -306,6 +306,14 @@ def render_for_funnel_batch(db_path: Path, funnel_batch_id: str, output_dir: Pat
         if isinstance(chosen_idx, int) and 0 <= chosen_idx < len(options):
             chosen_category = options[chosen_idx].get("category")
 
+        # V5.1 format_id — read from pipeline_log.step_4_master.format_id_used
+        # (set by Format Director step 3.5). Fallback default = standard_listicle
+        # vì 100% V4.0 article hiện tại đều dùng pattern listicle.
+        format_id = (
+            pipeline_log.get("step_4_master", {}).get("format_id_used")
+            or "standard_listicle"
+        )
+
         summary = {
             "id": public_slug,
             "ticker": article["ticker"],
@@ -315,6 +323,7 @@ def render_for_funnel_batch(db_path: Path, funnel_batch_id: str, output_dir: Pat
             "key_view": article.get("key_view", "trung lập"),
             "word_count": article.get("word_count", 0),
             "category": chosen_category,
+            "format_id": format_id,
         }
         update_manifest(manifest_path, summary)
         written.append(str(out_path))

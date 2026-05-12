@@ -5,6 +5,7 @@ import { loadManifest, loadArticle } from '../lib/articleLoader';
 import type { Article, ArticleSummary } from '../types';
 import { SymbolFilter, useSymbolFilter } from '../components/SymbolFilter';
 import { AngleFilter, useAngleFilter } from '../components/AngleFilter';
+import { FormatFilter, useFormatFilter } from '../components/FormatFilter';
 import { CompareFeedSkeleton } from '../components/skeletons/CompareFeedSkeleton';
 
 const PAGE_SIZE = 5;
@@ -19,6 +20,8 @@ export function FeedPage() {
   const { selected, setSelected } = useSymbolFilter();
   const { selected: angleSelected, setSelected: setAngleSelected } =
     useAngleFilter();
+  const { selected: formatSelected, setSelected: setFormatSelected } =
+    useFormatFilter();
 
   // Load manifest on mount (already sorted desc by crawled_at in loader)
   useEffect(() => {
@@ -32,13 +35,27 @@ export function FeedPage() {
     if (selected.length > 0) {
       result = result.filter((a) => selected.includes(a.ticker));
     }
+    if (formatSelected.length > 0) {
+      result = result.filter(
+        (a) => a.format_id && formatSelected.includes(a.format_id),
+      );
+    }
     if (angleSelected.length > 0) {
       result = result.filter(
         (a) => a.category && angleSelected.includes(a.category as never),
       );
     }
     return result;
-  }, [manifest, selected, angleSelected]);
+  }, [manifest, selected, angleSelected, formatSelected]);
+
+  // AngleFilter hide rule: ẩn khi user pin chỉ flash_qa (format không dùng
+  // 5-category enum). Hiện khi không filter format hoặc filter format ∈ standard_*.
+  const showAngleFilter = useMemo(() => {
+    if (formatSelected.length === 1 && formatSelected[0] === 'flash_qa') {
+      return false;
+    }
+    return true;
+  }, [formatSelected]);
 
   const loadedById = useMemo(() => {
     const m = new Map<string, Article>();
@@ -50,7 +67,15 @@ export function FeedPage() {
   useEffect(() => {
     setLoaded([]);
     setVisibleCount(PAGE_SIZE);
-  }, [selected, angleSelected]);
+  }, [selected, angleSelected, formatSelected]);
+
+  // Auto-clear angleSelected khi user pin format flash_qa (Angle filter ẩn,
+  // tránh state "ẩn nhưng vẫn filter" gây kết quả 0 bài khó hiểu)
+  useEffect(() => {
+    if (!showAngleFilter && angleSelected.length > 0) {
+      setAngleSelected([]);
+    }
+  }, [showAngleFilter, angleSelected, setAngleSelected]);
 
   // Load articles up to visibleCount — lookup by id so we don't double-fetch
   // after filter resets and we don't depend on array index ordering.
@@ -107,7 +132,9 @@ export function FeedPage() {
       <div className="mb-8 flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <h1 className="text-2xl font-semibold tracking-tight text-fg-0">
-            {selected.length === 0 && angleSelected.length === 0
+            {selected.length === 0 &&
+            angleSelected.length === 0 &&
+            formatSelected.length === 0
               ? `${manifest.length} bài`
               : `${filteredManifest.length}/${manifest.length} bài`}
           </h1>
@@ -118,11 +145,18 @@ export function FeedPage() {
                 selected={selected}
                 onChange={setSelected}
               />
-              <AngleFilter
+              <FormatFilter
                 items={manifest}
-                selected={angleSelected}
-                onChange={setAngleSelected}
+                selected={formatSelected}
+                onChange={setFormatSelected}
               />
+              {showAngleFilter && (
+                <AngleFilter
+                  items={manifest}
+                  selected={angleSelected}
+                  onChange={setAngleSelected}
+                />
+              )}
             </>
           )}
         </div>
@@ -130,7 +164,7 @@ export function FeedPage() {
       </div>
 
       {filteredManifest.length === 0 ? (
-        <p className="py-8 text-fg-3">Không có bài nào cho mã đã chọn.</p>
+        <p className="py-8 text-fg-3">Không có bài nào cho bộ lọc đã chọn.</p>
       ) : (
         filteredManifest.slice(0, visibleCount).map((entry, idx) => {
           const article = loadedById.get(entry.id);

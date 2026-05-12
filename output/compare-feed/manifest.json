@@ -8,7 +8,8 @@
       "crawled_at": "2026-05-11T09:55:10.246259+00:00",
       "key_view": "lạc quan",
       "word_count": 329,
-      "category": "why_now"
+      "category": "why_now",
+      "format_id": "standard_listicle"
     },
     {
       "id": "vhm-chi-24-600-ty-co-tuc-vi-sao-chi-dung-12-loi-nhuan-tich",
@@ -18,7 +19,8 @@
       "crawled_at": "2026-05-11T09:55:10.246114+00:00",
       "key_view": "lạc quan",
       "word_count": 355,
-      "category": "paradox"
+      "category": "paradox",
+      "format_id": "standard_listicle"
     },
     {
       "id": "bidv-vua-co-no-xau-lon-nhat-he-thong-vua-de-xuat-ban-thap",
@@ -28,7 +30,8 @@
       "crawled_at": "2026-05-10T07:05:33.741042+00:00",
       "key_view": "phân tích đa chiều",
       "word_count": 363,
-      "category": "comparison_deep"
+      "category": "comparison_deep",
+      "format_id": "standard_listicle"
     },
     {
       "id": "bidv-tang-von-len-100-000-ty-dong-dung-luc-no-xau-leo-thang",
@@ -38,7 +41,8 @@
       "crawled_at": "2026-05-10T07:05:33.740899+00:00",
       "key_view": "phòng thủ",
       "word_count": 328,
-      "category": "hidden_mechanism"
+      "category": "hidden_mechanism",
+      "format_id": "standard_listicle"
     },
     {
       "id": "bidv-lai-q1-tang-15-6-nhung-no-xau-tang-21-9-noi-len-dieu-gi",
@@ -48,7 +52,8 @@
       "crawled_at": "2026-05-10T07:05:33.740788+00:00",
       "key_view": "thận trọng",
       "word_count": 378,
-      "category": "paradox"
+      "category": "paradox",
+      "format_id": "standard_listicle"
     },
     {
       "id": "CTG-20260510-0707-tin-dung-ctg-chi-tang-1-7-vi-sao-thu-nhap-lai-rong-lai-dan",
@@ -58,7 +63,8 @@
       "crawled_at": "2026-05-10T07:03:46.201013+00:00",
       "key_view": "lạc quan",
       "word_count": 394,
-      "category": "paradox"
+      "category": "paradox",
+      "format_id": "standard_listicle"
     },
     {
       "id": "CTG-20260510-0711-vcb-chon-than-trong-ctg-chon-but-toc-ai-dat-cuoc-dung-hon",
@@ -68,7 +74,8 @@
       "crawled_at": "2026-05-10T07:03:46.200787+00:00",
       "key_view": "lạc quan",
       "word_count": 376,
-      "category": "comparison_deep"
+      "category": "comparison_deep",
+      "format_id": "standard_listicle"
     },
     {
       "id": "gpbank-vua-duoc-cuu-fe-credit-vua-on-dinh-vi-sao-ket-qua-lai",
@@ -78,7 +85,8 @@
       "crawled_at": "2026-05-10T03:31:35.442769+00:00",
       "key_view": "Nghịch lý hệ sinh thái — GPBank vượt FE Credit",
       "word_count": 333,
-      "category": "paradox"
+      "category": "paradox",
+      "format_id": "standard_listicle"
     },
     {
       "id": "chu-tich-gpbank-mua-them-30-trieu-co-phieu-vpb-vi-sao-thoi",
@@ -88,7 +96,8 @@
       "crawled_at": "2026-05-10T03:31:35.440860+00:00",
       "key_view": "Người trong cuộc mua — vì sao thời điểm này?",
       "word_count": 357,
-      "category": "why_now"
+      "category": "why_now",
+      "format_id": "standard_listicle"
     },
     {
       "id": "vpbank-nhan-gpbank-danh-doi-ganh-nang-de-lay-room-tin-dung",
@@ -98,7 +107,8 @@
       "crawled_at": "2026-05-10T03:31:35.438837+00:00",
       "key_view": "Đánh đổi chính sách — room 35% đổi bằng gánh GPBank",
       "word_count": 383,
-      "category": "hidden_mechanism"
+      "category": "hidden_mechanism",
+      "format_id": "standard_listicle"
     },
     {
       "id": "ACB-20260509-1029-acb-cat-co-tuc-xuong-20-trong-khi-techcombank-chia-67-vi-sao",
@@ -108,7 +118,8 @@
       "crawled_at": "2026-05-09T10:29:52.827963+00:00",
       "key_view": "thận trọng",
       "word_count": 398,
-      "category": "why_now"
+      "category": "why_now",
+      "format_id": "standard_listicle"
     },
     {
       "id": "ACB-20260509-1029-thu-chung-khoan-acb-nhan-7-6-lan-mot-quy-chuyen-dich-mo-hinh",
@@ -118,7 +129,8 @@
       "crawled_at": "2026-05-09T10:29:52.827715+00:00",
       "key_view": "trung lập",
       "word_count": 396,
-      "category": "early_signal"
+      "category": "early_signal",
+      "format_id": "standard_listicle"
     },
     {
       "id": "ACB-20260509-1029-acb-lai-quy-1-tang-17-5-nhung-no-nhom-2-gap-doi-3-thang-con",
@@ -128,7 +140,8 @@
       "crawled_at": "2026-05-09T10:29:52.827447+00:00",
       "key_view": "thận trọng",
       "word_count": 395,
-      "category": "paradox"
+      "category": "paradox",
+      "format_id": "standard_listicle"
     },
     {
       "id": "MBB-20260508-1542-tin-dung-mb-vuot-huy-dong-70-000-ty-bu-lai-bang-nguon-von",
@@ -138,7 +151,8 @@
       "crawled_at": "2026-05-08T15:42:30.136231+00:00",
       "key_view": "thận trọng",
       "word_count": 373,
-      "category": "hidden_mechanism"
+      "category": "hidden_mechanism",
+      "format_id": "standard_listicle"
     },
     {
       "id": "MBB-20260508-1542-mb-lai-9-500-ty-vuot-ca-nhom-tu-tru-va-techcombank-chap-nhan",
@@ -148,7 +162,8 @@
       "crawled_at": "2026-05-08T15:42:30.135413+00:00",
       "key_view": "thận trọng",
       "word_count": 383,
-      "category": "comparison_deep"
+      "category": "comparison_deep",
+      "format_id": "standard_listicle"
     },
     {
       "id": "MBB-20260508-1542-vi-sao-mb-vua-hut-22-000-ty-von-moi-van-chia-8-055-ty-tien",
@@ -158,7 +173,8 @@
       "crawled_at": "2026-05-08T15:42:30.132932+00:00",
       "key_view": "lạc quan",
       "word_count": 381,
-      "category": "paradox"
+      "category": "paradox",
+      "format_id": "standard_listicle"
     },
     {
       "id": "VCB-20260508-1530",
@@ -167,7 +183,8 @@
       "title": "VCB quý I: lãi vẫn tăng 9% dù bỏ thêm 1.700 tỷ vào quỹ phòng nợ xấu",
       "crawled_at": "2026-05-08T15:30:00+07:00",
       "key_view": "thận trọng",
-      "word_count": 354
+      "word_count": 354,
+      "format_id": "standard_listicle"
     }
   ]
 }

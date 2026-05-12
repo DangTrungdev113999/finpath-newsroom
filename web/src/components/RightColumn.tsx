@@ -84,11 +84,13 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
         trail={meta.master_data_trail}
       />
 
-      {/* Section 7: Skeptic data trail */}
-      <DataTrail
-        title="Reviewer ngoài đã tra ở đâu"
-        trail={meta.skeptic_data_trail}
-      />
+      {/* Section 7: Skeptic data trail — ẩn khi Step 5 paused (2026-05-12) */}
+      {meta.skeptic_data_trail && meta.skeptic_data_trail.length > 0 && (
+        <DataTrail
+          title="Reviewer ngoài đã tra ở đâu"
+          trail={meta.skeptic_data_trail}
+        />
+      )}
 
       {/* Section 8: Đọc bài gốc — link only, NO embed */}
       <section>

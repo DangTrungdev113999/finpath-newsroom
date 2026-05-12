@@ -27,8 +27,11 @@ export function LeftColumn({ meta, body }: { meta: LeftMeta; body: string }) {
       <Markdown>{masterBody}</Markdown>
 
       <p className="text-sm text-fg-3 italic my-4">
-        — {meta.author} · {meta.word_count} từ · key view: {meta.key_view} ·
-        Skeptic: <code>{meta.skeptic_verdict}</code> · {meta.pipeline_version}
+        — {meta.author} · {meta.word_count} từ · key view: {meta.key_view}
+        {meta.skeptic_verdict && (
+          <> · Skeptic: <code>{meta.skeptic_verdict}</code></>
+        )}
+        {' '}· {meta.pipeline_version}
       </p>
 
       {skepticBody && (

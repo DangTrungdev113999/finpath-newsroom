@@ -119,6 +119,12 @@ export interface Article {
   rightMarkdown: string;
 }
 
+export type FormatId =
+  | 'flash_qa'
+  | 'standard_qa'
+  | 'standard_listicle'
+  | 'standard_narrative';
+
 export interface ArticleSummary {
   id: string;
   ticker: string;
@@ -129,6 +135,9 @@ export interface ArticleSummary {
   word_count: number;
   /** One of 5 deep_question categories (Story Editor). Optional for back-compat. */
   category?: string;
+  /** V5.1 article format (Format Director step 3.5). Optional for back-compat —
+   *  pre-V5.1 articles backfilled as standard_listicle in render_compare_feed.py. */
+  format_id?: FormatId;
 }
 
 export interface Manifest {
