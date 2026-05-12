@@ -170,7 +170,7 @@ def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict
             "word_count": article.get("word_count", 0),
             "key_view": article.get("key_view", "trung lập"),
             "skeptic_verdict": article.get("skeptic_verdict", "pass"),
-            "pipeline_version": article.get("pipeline_version", "V4.0"),
+            "pipeline_version": article.get("pipeline_version") or "V5.0",
         },
         "insight": article.get("insight_final", ""),
         # 8-section right column
