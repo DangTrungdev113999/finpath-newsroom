@@ -11,7 +11,9 @@ Bạn orchestrate pipeline 6-step cho 1 ticker. Reference skill `finpath-newsroo
 
 ## 🚨 HARD RULE — NO INLINE SELF-EXECUTE
 
-Steps 2-5 (Editor / Story Editor / Master / Skeptic) **MUST** dispatch qua `Task` tool tới subagent tương ứng. **CẤM** orchestrator tự viết logic của subagent (vd tự write brief JSON, tự write critique inline).
+Steps 2-4 (Editor / Story Editor / Master) **MUST** dispatch qua `Task` tool tới subagent tương ứng. **CẤM** orchestrator tự viết logic của subagent (vd tự write brief JSON inline).
+
+⏸ Step 5 (Skeptic) tạm dừng từ 2026-05-12 — xem section "Step 5" dưới. KHÔNG dispatch `newsroom-skeptic` cho đến khi anh re-enable.
 
 **Tại sao cấm tuyệt đối:**
 - NVL test run 2026-05-11: orchestrator self-execute → silently persist pipeline_log thiếu `skip_reasons` (Master) + đọc nhầm key `data_trail` thay vì `skeptic_data_trail` (Skeptic) → viewer render "0 nguồn" + "Không có lý do ghi". Đồng thời merge `<details>` block của Skeptic vào body Master → render duplicate.
@@ -245,7 +247,7 @@ Task tool:
 
 Collect briefs (0-N items — uncapped).
 
-### Step 4 + Step 5 — Per-article cycle (V4.0 Phase G T5; Phase H1 moves Telegram to batch tail)
+### Step 4 + ⏸Step 5 — Per-article cycle (V4.0 Phase G T5; Phase H1 moves Telegram to batch tail; 2026-05-12 Skeptic paused)
 
 **OUTER LOOP per brief** (replaces batch flow). For each brief in story_editor output:
 
@@ -310,7 +312,16 @@ Collect briefs (0-N items — uncapped).
    db.log_pipeline_step(article_id, "step_4_master", payload_master)
    ```
 
-2. **Step 5 — Skeptic ECHO + critique**: Task dispatch `newsroom-skeptic` với article_id. Wait for return:
+2. **⏸ Step 5 — Skeptic — TẠM DỪNG (2026-05-12)**
+
+   Lý do tạm dừng: User feedback "cái gì cũng cho góc nhìn ngược vào thì không hợp lý". Đợi quyết định format nào (flash_qa / standard_qa / standard_listicle / standard_narrative) sẽ có Skeptic critique.
+
+   **HÀNH ĐỘNG**: BỎ QUA Step 5 — KHÔNG dispatch `newsroom-skeptic`. Article vẫn được publish bình thường sau Step 4 Master (status='published' tự set bởi Master skill).
+
+   **Re-enable**: Khi anh quyết định format nào cần Skeptic, uncomment block dưới + thêm rule "chỉ dispatch nếu format_id ∈ {allowed_formats}".
+
+   <!-- DISABLED — uncomment khi quyết định format nào có Skeptic
+   Task dispatch `newsroom-skeptic` với article_id. Wait for return:
    - skeptic_critique (NO embedded heading — Skeptic skill V4.0 fix)
    - skeptic_angle (1 of 6)
    - skeptic_verdict (pass/pass_with_caveats/fail)
@@ -318,18 +329,12 @@ Collect briefs (0-N items — uncapped).
 
    Skeptic auto-persist via skill workflow.
 
-   Task dispatch:
-
-   ```
    Task tool:
      description: "Skeptic critique <ticker>"
      subagent_type: newsroom-skeptic
      prompt: "Critique Master article V4.0. article_id=<id>, row_id=<row_id>, master_output=<dict>, brief_context=<from brief>. Step 0: ECHO verification — load article from DB, quote title + body[:30] before proceeding. Pass 1 fresh impression (body only, NOT insight). Pass 2 compare insight. Pick 1 of 6 angles. Write 100-300 từ critique. Persist skeptic_critique + skeptic_angle + skeptic_verdict + status='published' + published_at + skeptic_data_trail in pipeline_log."
-   ```
 
    Observability:
-
-   ```python
    payload_skeptic = {
        "model": "opus",
        "started_at": started_at_skeptic,
@@ -340,7 +345,7 @@ Collect briefs (0-N items — uncapped).
        "data_trail_count": len(skeptic_data_trail),
    }
    db.log_pipeline_step(article_id, "step_5_skeptic", payload_skeptic)
-   ```
+   -->
 
 3. **Continue to next brief** in outer loop. (Phase H1: Telegram push KHÔNG còn ở per-article — moved to batch tail Step 9 sau khi git push + Pages deploy xong, để link tới `/article/<slug>` guaranteed work.)
 
