@@ -1,10 +1,11 @@
 """Tavily-based crawler adapter for Finpath Newsroom Step 1.
 
-Replaces 20-source scrape with single tavily_search call per ticker.
-Falls back to built-in WebSearch if Tavily fails. Falls back to legacy
-20-source crawler if WebSearch also fails (3-tier chain).
+Agent-fetch + script-persist pattern (V1.1):
+- Agent invokes MCP/WebSearch tools and captures raw JSON response.
+- Agent pipes JSON to this script via stdin for parse + persist.
+- Script does NOT make HTTP calls itself (matches lib/stages/run_crawler.py).
 
-Spec: docs/superpowers/specs/2026-05-12-crawler-tavily-migration-design.md
+Spec v1.1: docs/superpowers/specs/2026-05-12-crawler-tavily-migration-design.md
 """
 from __future__ import annotations
 import sys
@@ -203,125 +204,86 @@ def build_tavily_args(ticker: str) -> dict[str, Any]:
     }
 
 
-def _call_tavily_mcp(args: dict[str, Any]) -> dict[str, Any]:
-    """Call mcp__tavily__tavily_search MCP tool.
+def parse_tavily_response(response: dict[str, Any], ticker: str, batch_id: str) -> list[dict[str, Any]]:
+    """Parse Tavily MCP response → list of crawl_log row dicts.
 
-    Real implementation: invoked by orchestrator/agent which has MCP tool access.
-    For testing: monkeypatched.
-
-    Returns:
-        Dict with 'results' key (list of search result dicts).
-    """
-    raise NotImplementedError(
-        "_call_tavily_mcp must be invoked from agent context with MCP access. "
-        "For unit tests, monkeypatch this function."
-    )
-
-
-def crawl_with_tavily(ticker: str, batch_id: str) -> list[dict[str, Any]]:
-    """Tier 1: Call Tavily MCP tavily_search, return parsed + filtered rows.
-
-    Returns empty list on any failure (signal to caller for Tier 2 fallback).
-    """
-    try:
-        args = build_tavily_args(ticker)
-        response = _call_tavily_mcp(args)
-        raw_results = response.get("results", [])
-        if not raw_results:
-            return []
-        filtered = filter_results(raw_results, ticker)
-        return [parse_tavily_result(r, ticker, batch_id) for r in filtered]
-    except Exception as e:
-        # Log to stderr for visibility; return empty for fallback
-        print(f"[tavily_crawler] Tier 1 failed: {type(e).__name__}: {e}", file=sys.stderr)
-        return []
-
-
-def _call_websearch(query: str) -> list[dict[str, Any]]:
-    """Call built-in WebSearch tool.
-
-    Real implementation: invoked by agent context which has WebSearch tool.
-    For testing: monkeypatched.
-
-    Returns:
-        List of result dicts with at least 'url', 'title', optional 'content'.
-    """
-    raise NotImplementedError(
-        "_call_websearch must be invoked from agent context with WebSearch tool. "
-        "For unit tests, monkeypatch this function."
-    )
-
-
-def crawl_with_websearch(ticker: str, batch_id: str) -> list[dict[str, Any]]:
-    """Tier 2: Call built-in WebSearch tool with VN-focused query.
-
-    Returns empty list on failure (signal Tier 3 fallback).
-    """
-    try:
-        full_name = get_full_name(ticker)
-        query = f"{ticker.upper()} {full_name} tin tức 2026"
-        raw_results = _call_websearch(query)
-        if not raw_results:
-            return []
-        filtered = filter_results(raw_results, ticker)
-        return [parse_tavily_result(r, ticker, batch_id) for r in filtered]
-    except Exception as e:
-        print(f"[tavily_crawler] Tier 2 failed: {type(e).__name__}: {e}", file=sys.stderr)
-        return []
-
-
-def _call_legacy_crawler(ticker: str, batch_id: str) -> list[dict[str, Any]]:
-    """Call legacy 20-source crawler — wraps existing scripts.
-
-    Real implementation: invokes lib/stages/run_crawler.py logic directly OR
-    via subprocess. For testing: monkeypatched.
-
-    Returns:
-        List of crawl_log row dicts (already in target schema).
-    """
-    raise NotImplementedError(
-        "_call_legacy_crawler invokes legacy crawler scripts. "
-        "Real implementation TBD by agent or subprocess wrapper. "
-        "For unit tests, monkeypatch this function."
-    )
-
-
-def crawl_with_legacy(ticker: str, batch_id: str) -> list[dict[str, Any]]:
-    """Tier 3: Last-resort fallback via existing 20-source scripts."""
-    try:
-        return _call_legacy_crawler(ticker, batch_id)
-    except Exception as e:
-        print(f"[tavily_crawler] Tier 3 failed: {type(e).__name__}: {e}", file=sys.stderr)
-        return []
-
-
-def crawl(ticker: str, batch_id: str) -> tuple[list[dict[str, Any]], str]:
-    """3-tier crawler orchestrator. Try Tavily → WebSearch → legacy.
+    Pure function. Agent calls mcp__tavily__tavily_search separately and
+    passes response here for parsing + filtering.
 
     Args:
-        ticker: VN stock ticker (must be in 61-mã FULL_UNIVERSE)
+        response: Raw Tavily response dict (with 'results' key)
+        ticker: VN stock ticker (must be in 61-mã universe — caller validates)
         batch_id: format <TICKER>-YYYYMMDD-HHMM
 
     Returns:
-        (rows, tier_used) where tier_used in {"Tavily", "WebSearch", "Crawler-legacy"}.
-        rows may be empty if all 3 tiers fail.
+        List of crawl_log row dicts ready for persist_rows().
+        Empty list if response has no 'results' or all filtered out.
 
     Raises:
         ValueError if ticker not in 61-mã universe.
     """
     if ticker.upper() not in FULL_UNIVERSE:
         raise ValueError(f"Ticker {ticker!r} not in 61-mã universe (Bank/CK/BĐS)")
+    raw_results = response.get("results", [])
+    if not raw_results:
+        return []
+    filtered = filter_results(raw_results, ticker)
+    return [parse_tavily_result(r, ticker, batch_id) for r in filtered]
 
-    # Tier 1: Tavily
-    rows = crawl_with_tavily(ticker, batch_id)
-    if rows:
-        return rows, "Tavily"
 
-    # Tier 2: WebSearch fallback
-    rows = crawl_with_websearch(ticker, batch_id)
-    if rows:
-        return rows, "WebSearch"
+def persist_rows(rows: list[dict[str, Any]], db: Any) -> int:
+    """INSERT rows vào crawl_log table.
 
-    # Tier 3: Legacy crawler last resort
-    rows = crawl_with_legacy(ticker, batch_id)
-    return rows, "Crawler-legacy"
+    Args:
+        rows: list of dicts (output từ parse_tavily_response)
+        db: PipelineDB instance (caller manages connection lifecycle)
+
+    Returns:
+        Count of rows inserted.
+    """
+    count = 0
+    for row in rows:
+        db.insert_crawl_row(row)
+        count += 1
+    return count
+
+
+def main() -> int:
+    """CLI entry. Usage:
+        echo "$TAVILY_JSON" | python -m lib.tavily_crawler <ticker> <batch_id> [--db PATH]
+
+    Reads Tavily MCP response (or WebSearch results array) from stdin,
+    parses into crawl_log rows, INSERT into SQLite, print count.
+
+    Stdin format: JSON dict with 'results' key (Tavily-style) OR JSON array
+    (WebSearch-style — wrapped to {"results": [...]}).
+    """
+    import argparse
+    import json
+    from lib.pipeline_db import PipelineDB
+
+    parser = argparse.ArgumentParser(description="Parse Tavily/WebSearch results + persist to crawl_log")
+    parser.add_argument("ticker", help="VN stock ticker (uppercase)")
+    parser.add_argument("batch_id", help="Format <TICKER>-YYYYMMDD-HHMM")
+    parser.add_argument("--db", default="data/pipeline.db", help="SQLite DB path")
+    args = parser.parse_args()
+
+    raw = json.loads(sys.stdin.read())
+    # Accept both Tavily dict ({"results": [...]}) and WebSearch array ([...])
+    if isinstance(raw, list):
+        response = {"results": raw}
+    else:
+        response = raw
+
+    rows = parse_tavily_response(response, args.ticker, args.batch_id)
+    db = PipelineDB(args.db)
+    try:
+        count = persist_rows(rows, db)
+        print(json.dumps({"inserted": count, "ticker": args.ticker, "batch_id": args.batch_id}))
+        return 0
+    finally:
+        db.conn.close()
+
+
+if __name__ == "__main__":
+    sys.exit(main())

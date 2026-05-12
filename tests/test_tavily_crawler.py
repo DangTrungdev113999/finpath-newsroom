@@ -128,116 +128,66 @@ def test_build_tavily_args_basic():
     assert sorted(args["include_domains"]) == sorted(expected_domains)
 
 
-def test_crawl_with_tavily_happy_path(monkeypatch):
-    """Tier 1: Tavily returns 3 results → 3 rows after parse + filter."""
-    from lib import tavily_crawler
-
-    def mock_call(args):
-        return {
-            "results": [
-                {"url": "https://cafef.vn/a.chn", "title": "TCB news 1", "content": "Body 1"},
-                {"url": "https://vietstock.vn/b.htm", "title": "TCB news 2", "content": "Body 2"},
-                {"url": "https://example.com/x.pdf", "title": "PDF skip", "content": "PDF"},
-            ]
-        }
-
-    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", mock_call)
-    rows = tavily_crawler.crawl_with_tavily("TCB", "TCB-20260512-1500")
-    # PDF filtered → 2 rows
-    assert len(rows) == 2
+def test_parse_tavily_response_happy():
+    """Tavily response → list of rows after filter + parse."""
+    from lib.tavily_crawler import parse_tavily_response
+    response = {
+        "results": [
+            {"url": "https://cafef.vn/x.chn", "title": "T1", "content": "B1"},
+            {"url": "https://example.com/skip.pdf", "title": "PDF", "content": "X"},
+            {"url": "https://vietstock.vn/y.htm", "title": "T2", "content": "B2"},
+        ]
+    }
+    rows = parse_tavily_response(response, ticker="TCB", batch_id="TCB-20260512-1500")
+    assert len(rows) == 2  # PDF filtered
     assert rows[0]["ticker"] == "TCB"
     assert rows[0]["funnel_batch_id"] == "TCB-20260512-1500"
     assert rows[0]["source_name"] == "CafeF"
 
 
-def test_crawl_with_tavily_empty_results(monkeypatch):
-    """Tier 1: Tavily returns 0 results → return empty list."""
-    from lib import tavily_crawler
-    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", lambda args: {"results": []})
-    rows = tavily_crawler.crawl_with_tavily("TCB", "TCB-20260512-1500")
+def test_parse_tavily_response_empty():
+    """Empty results → empty rows."""
+    from lib.tavily_crawler import parse_tavily_response
+    rows = parse_tavily_response({"results": []}, "TCB", "TCB-20260512-1500")
     assert rows == []
 
 
-def test_crawl_with_tavily_exception_returns_empty(monkeypatch):
-    """Tier 1: Tavily raises exception → return empty list (signal fallback)."""
-    from lib import tavily_crawler
-    def mock_fail(args):
-        raise RuntimeError("Tavily API down")
-    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", mock_fail)
-    rows = tavily_crawler.crawl_with_tavily("TCB", "TCB-20260512-1500")
-    assert rows == []
-
-
-def test_crawl_with_websearch_happy(monkeypatch):
-    """Tier 2: WebSearch returns 3 results → 3 rows."""
-    from lib import tavily_crawler
-
-    def mock_websearch(query):
-        return [
-            {"url": "https://cafef.vn/x.chn", "title": "T1", "content": "B1"},
-            {"url": "https://vietstock.vn/y.htm", "title": "T2", "content": "B2"},
-            {"url": "https://tuoitre.vn/z.htm", "title": "T3", "content": "B3"},
-        ]
-
-    monkeypatch.setattr(tavily_crawler, "_call_websearch", mock_websearch)
-    rows = tavily_crawler.crawl_with_websearch("TCB", "TCB-20260512-1500")
-    assert len(rows) == 3
-    assert rows[0]["ticker"] == "TCB"
-    assert rows[0]["source_name"] == "CafeF"
-
-
-def test_crawl_with_websearch_failure_returns_empty(monkeypatch):
-    """Tier 2: WebSearch raises → return empty (signal Tier 3)."""
-    from lib import tavily_crawler
-    def mock_fail(q):
-        raise RuntimeError("WebSearch failed")
-    monkeypatch.setattr(tavily_crawler, "_call_websearch", mock_fail)
-    rows = tavily_crawler.crawl_with_websearch("TCB", "TCB-20260512-1500")
-    assert rows == []
-
-
-def test_crawl_uses_tier1_when_available(monkeypatch):
-    """Tier 1 returns rows → use Tier 1, skip Tier 2+3."""
-    from lib import tavily_crawler
-    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", lambda a: {
-        "results": [{"url": "https://cafef.vn/a.chn", "title": "T", "content": "B"}]
-    })
-    monkeypatch.setattr(tavily_crawler, "_call_websearch", lambda q: pytest.fail("Tier 2 should NOT be called"))
-    rows, tier = tavily_crawler.crawl("TCB", "TCB-20260512-1500")
-    assert tier == "Tavily"
-    assert len(rows) == 1
-
-
-def test_crawl_falls_back_to_tier2_when_tier1_empty(monkeypatch):
-    """Tier 1 returns [] → fallback to Tier 2."""
-    from lib import tavily_crawler
-    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", lambda a: {"results": []})
-    monkeypatch.setattr(tavily_crawler, "_call_websearch", lambda q: [
-        {"url": "https://cafef.vn/x.chn", "title": "WebSearch result", "content": "B"}
-    ])
-    rows, tier = tavily_crawler.crawl("TCB", "TCB-20260512-1500")
-    assert tier == "WebSearch"
-    assert len(rows) == 1
-
-
-def test_crawl_falls_back_to_tier3_when_both_fail(monkeypatch):
-    """Both Tier 1 + 2 return [] → fallback to Tier 3 legacy."""
-    from lib import tavily_crawler
-    monkeypatch.setattr(tavily_crawler, "_call_tavily_mcp", lambda a: {"results": []})
-    monkeypatch.setattr(tavily_crawler, "_call_websearch", lambda q: [])
-    monkeypatch.setattr(tavily_crawler, "_call_legacy_crawler", lambda t, b: [
-        {"row_id": "abc", "ticker": "TCB", "funnel_batch_id": b, "source_name": "Legacy",
-         "source_url": "https://x", "title": "Legacy", "raw_content": "L",
-         "published_time": "2026-01-01", "crawled_at": "2026-01-01", "sector": "Bank"}
-    ])
-    rows, tier = tavily_crawler.crawl("TCB", "TCB-20260512-1500")
-    assert tier == "Crawler-legacy"
-    assert len(rows) == 1
-    assert rows[0]["source_name"] == "Legacy"
-
-
-def test_crawl_invalid_ticker_raises():
-    """Ticker not in 61-mã universe → ValueError."""
-    from lib import tavily_crawler
+def test_parse_tavily_response_invalid_ticker():
+    """Invalid ticker → ValueError."""
+    from lib.tavily_crawler import parse_tavily_response
     with pytest.raises(ValueError, match="not in 61-mã universe"):
-        tavily_crawler.crawl("XYZ", "XYZ-20260512-1500")
+        parse_tavily_response({"results": []}, "XYZ", "XYZ-20260512-1500")
+
+
+def test_persist_rows_inserts_to_db(tmp_path):
+    """persist_rows INSERT rows into crawl_log table."""
+    from lib.tavily_crawler import persist_rows
+    from lib.pipeline_db import PipelineDB
+    db_path = tmp_path / "test.db"
+    db = PipelineDB(str(db_path))
+    db.init_schema("data/pipeline.schema.sql")
+
+    rows = [
+        {
+            "row_id": "test-row-1",
+            "funnel_batch_id": "TCB-20260512-1500",
+            "ticker": "TCB",
+            "source_name": "CafeF",
+            "source_url": "https://cafef.vn/test.chn",
+            "title": "Test article",
+            "raw_content": "Body content",
+            "published_time": "2026-05-12T00:00:00+00:00",
+            "crawled_at": "2026-05-12T15:00:00+00:00",
+            "sector": "Bank",
+        }
+    ]
+    count = persist_rows(rows, db)
+    assert count == 1
+
+    # Verify row in DB
+    cur = db.conn.execute("SELECT row_id, ticker, source_name FROM crawl_log WHERE row_id = ?", ("test-row-1",))
+    row = cur.fetchone()
+    assert row is not None
+    assert row["ticker"] == "TCB"
+    assert row["source_name"] == "CafeF"
+    db.conn.close()

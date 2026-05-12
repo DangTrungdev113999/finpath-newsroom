@@ -1,6 +1,6 @@
 ---
 name: finpath-newsroom-crawler
-description: V3.0 Tavily-primary crawler. Calls MCP tavily_search per ticker (time_range=week + 20-source domain whitelist + max_results=20 + country=Vietnam) to fetch latest news for stock ticker in 61-mã universe (Bank/CK/BĐS). Auto-fallbacks to built-in WebSearch tool if Tavily fails (out-of-credit / API error / empty), then to legacy 20-source crawler as last resort. Writes rows to SQLite crawl_log via lib/tavily_crawler.crawl(). Pipeline log emits data_trail entry with tier_used (Tavily / WebSearch / Crawler-legacy). NEVER use for non-universe tickers.
+description: V3.1 Tavily-primary crawler (agent-fetch + script-persist). Agent invokes mcp__tavily__tavily_search directly (time_range=week + 20-source domain whitelist + max_results=20 + country=Vietnam), captures raw JSON, pipes to lib.tavily_crawler script for parse + persist. Auto-fallback to built-in WebSearch tool if Tavily fails, then to legacy 20-source crawler as last resort. Writes rows to SQLite crawl_log. Pipeline log emits data_trail entry with tier_used (Tavily / WebSearch / Crawler-legacy). NEVER use for non-universe tickers.
 ---
 
 # Finpath Newsroom Crawler
@@ -39,66 +39,71 @@ Crawler agent V2.4 — input đầu pipeline Newsroom. Search + fetch tin từ *
 }
 ```
 
-## Workflow V3.0 (Tavily migration)
+## Workflow V3.1 (agent-fetch + script-persist)
 
-### 1. Validate ticker + build batch_id
+### 1. Validate ticker + build batch_id + Tavily args
 
 ```python
-from lib.stages.run_crawler import FULL_UNIVERSE  # 61 mã
+from lib.tavily_crawler import build_tavily_args
+from lib.stages.run_crawler import FULL_UNIVERSE
 ticker = "TCB"  # from input
 if ticker not in FULL_UNIVERSE:
     raise ValueError(f"{ticker} not in 61-mã universe")
 batch_id = f"{ticker}-{datetime.now().strftime('%Y%m%d-%H%M')}"
+tavily_args = build_tavily_args(ticker)
+# tavily_args = {"query": "TCB Techcombank tin tức", "time_range": "week", ...}
 ```
 
-### 2. Call lib/tavily_crawler.crawl() (3-tier orchestrator)
+### 2. Tier 1 — Agent invoke `mcp__tavily__tavily_search` tool
 
-The orchestrator transparently tries:
-- **Tier 1: Tavily MCP** — `mcp__tavily__tavily_search` với time_range=week, 20 source whitelist, max_results=20, country=Vietnam
-- **Tier 2: Built-in WebSearch** — if Tier 1 returns []
-- **Tier 3: Legacy 20-source crawler** — if Tier 2 returns []
+Agent calls MCP tool directly với `tavily_args`. Capture raw response JSON.
 
-```python
-from lib.tavily_crawler import crawl
-rows, tier_used = crawl(ticker, batch_id)
-print(f"Crawled {len(rows)} candidates via {tier_used}")
+If results ≥1 → skip to Step 5 with `tier_used="Tavily"`.
+
+If response empty / API error / out-of-credit → fallback Step 3.
+
+### 3. Tier 2 fallback — Agent invoke built-in `WebSearch` tool
+
+Agent calls `WebSearch` tool với query: `f"{ticker} {full_name} tin tức 2026"`.
+Capture results array. Wrap thành `{"results": [...]}` để pass tới script.
+
+If results ≥1 → skip to Step 5 with `tier_used="WebSearch"`.
+
+If empty → fallback Step 4.
+
+### 4. Tier 3 fallback — Existing legacy crawler
+
+Agent invokes existing `lib/stages/run_crawler.py` legacy logic (already
+follows agent-fetch pattern).
+
+If empty → all 3 tiers failed, log + return.
+
+### 5. Pipe results to parse+persist script
+
+```bash
+echo "$TAVILY_RESPONSE_JSON" | uv run python -m lib.tavily_crawler $ticker $batch_id
 ```
 
-### 3. Persist rows vào SQLite crawl_log
+Script reads JSON từ stdin, parses + filters + INSERTs vào `crawl_log`,
+prints count.
 
-```python
-from lib.pipeline_db import PipelineDB
-db = PipelineDB('data/pipeline.db')
-for row in rows:
-    db.insert_crawl_row(row)
-db.conn.close()
-```
-
-### 4. Emit data_trail entry to pipeline log
+### 6. Emit data_trail to pipeline log
 
 ```python
 data_trail.append({
     "source": f"{tier_used}/{'tavily_search' if tier_used == 'Tavily' else tier_used.lower()}",
-    "fetched": f"{len(rows)} candidates",
+    "fetched": f"{count} candidates",
     "purpose": "Step 1 crawler input",
     "supports_argument": "Editor V1 + Story Editor downstream"
 })
 ```
 
-### Tier-specific MCP/tool invocation
-
-Crawler skill (or agent calling this skill) **MUST have access** to:
-- `mcp__tavily__tavily_search` (for Tier 1 — required for primary path)
-- Built-in `WebSearch` tool (for Tier 2 fallback)
-
-If running headless (no MCP), Tier 1 + 2 will fail → automatic Tier 3 (legacy crawler) takes over.
-
 ### Notes
 
-- Crawler V3.0 đầu pipeline. Output = rows in crawl_log table với primary_ticker NULL → Editor V1 fills primary_ticker downstream.
-- Pipeline log audit trail: `data_trail.source` field shows which tier was used for transparency.
-- Free tier Tavily limit 1.000 searches/month. Per Q2=A spec: no usage tracking, fail gracefully via fallback.
+- Pattern: agent fetches via MCP/WebSearch tool, Python script persists. Match existing `lib/stages/run_crawler.py` pattern (line 3-4 "script does NOT make HTTP calls itself").
+- Free tier Tavily limit 1.000 searches/month. Per Q2=A spec: no usage tracking, fail gracefully via fallback chain.
 - Master Bank/CK/BĐS Step 6 web_search KHÔNG dùng Tavily (per user "tiết kiệm credit").
+- All 3 tiers feed parsed JSON to same script for consistent persistence.
 
 ## Constraints
 
