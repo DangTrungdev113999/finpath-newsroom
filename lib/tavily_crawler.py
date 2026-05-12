@@ -7,8 +7,8 @@ Falls back to built-in WebSearch if Tavily fails. Falls back to legacy
 Spec: docs/superpowers/specs/2026-05-12-crawler-tavily-migration-design.md
 """
 from __future__ import annotations
-import re
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -19,7 +19,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from lib.stages.run_crawler import SOURCES_WHITELIST, FULL_UNIVERSE, BANK_UNIVERSE, CK_UNIVERSE, BDS_UNIVERSE
+from lib.stages.run_crawler import SOURCES_WHITELIST, BANK_UNIVERSE, CK_UNIVERSE, BDS_UNIVERSE
 
 
 # Reverse map domain → friendly source name
@@ -73,9 +73,6 @@ _TICKER_FULL_NAMES: dict[str, str] = {
 def get_full_name(ticker: str) -> str:
     """Return full company name for ticker. Fallback to ticker itself if unknown."""
     return _TICKER_FULL_NAMES.get(ticker.upper(), ticker.upper())
-
-
-import uuid
 
 
 def _ticker_to_sector(ticker: str) -> str:
@@ -167,11 +164,11 @@ def filter_results(results: list[dict[str, Any]], ticker: str) -> list[dict[str,
         url = r.get("url", "")
         if not url:
             continue
-        # Skip PDFs
-        if url.lower().endswith(".pdf"):
+        # Skip PDFs — parse path (not full URL) to catch ?query=string suffix
+        parsed = urlparse(url)
+        if parsed.path.lower().endswith(".pdf"):
             continue
         # Skip corporate site of this ticker
-        parsed = urlparse(url)
         domain = parsed.netloc.lower()
         if domain.startswith("www."):
             domain = domain[4:]

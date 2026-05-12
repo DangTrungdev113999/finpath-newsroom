@@ -77,10 +77,11 @@ def test_parse_tavily_result_missing_published_falls_back_to_crawled_at():
 
 
 def test_filter_results_skips_pdf():
-    """PDF URLs filtered out."""
+    """PDF URLs filtered out, including with query strings."""
     from lib.tavily_crawler import filter_results
     results = [
         {"url": "https://example.com/report.pdf", "title": "PDF report"},
+        {"url": "https://example.com/download.pdf?ver=2", "title": "PDF with query"},
         {"url": "https://cafef.vn/article.chn", "title": "Real article"},
     ]
     filtered = filter_results(results, ticker="TCB")
