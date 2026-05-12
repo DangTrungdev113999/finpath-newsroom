@@ -1,0 +1,33 @@
+# Finpath sector_code → master agent name routing
+# V5.1.3 — Plan F Task 3
+# Edit để promote sector. Khi sector_code không có trong file này → fail-loud reject.
+
+routing:
+  # Bank cluster → master-bank (existing)
+  private7: bank
+  soe3: bank
+  smallLegacy: bank
+
+  # CK → master-ck (existing)
+  stock: ck
+
+  # BĐS cluster → master-bds (existing, KB-optional cho 50 non-anchor mã)
+  materialContractor: bds
+  vic3: bds
+  industrial: bds
+  exvic: bds
+
+  # NEW V5.1.3 — 7 sectors mới (scaffold cùng đợt, web search heavy)
+  oilGas: oilgas
+  logistics: logistics
+  fb: fb
+  apparel: apparel
+  retail: retail
+  seafood: seafood
+  defensive: defensive
+
+# Wrapper sectors có s=[] — skip explicit (FinpathSectors.refresh_cache đã skip)
+skip_wrappers:
+  - bank
+  - consumer
+  - realEstate
