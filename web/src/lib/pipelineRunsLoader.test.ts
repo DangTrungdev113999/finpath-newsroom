@@ -24,7 +24,10 @@ describe('loadPipelineRuns', () => {
       ],
     };
     vi.spyOn(global, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify(mockManifest), { status: 200 }),
+      new Response(JSON.stringify(mockManifest), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
     );
 
     const result = await loadPipelineRuns();
@@ -39,6 +42,19 @@ describe('loadPipelineRuns', () => {
     const result = await loadPipelineRuns();
     expect(result.sessions).toEqual([]);
     expect(result.built_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it('returns empty manifest when Vite SPA fallback returns index.html', async () => {
+    // Dev/preview without prior pipeline runs: missing JSON file falls through
+    // to SPA index.html with HTTP 200 + text/html content-type.
+    vi.spyOn(global, 'fetch').mockResolvedValue(
+      new Response('<!doctype html><html>...</html>', {
+        status: 200,
+        headers: { 'content-type': 'text/html' },
+      }),
+    );
+    const result = await loadPipelineRuns();
+    expect(result.sessions).toEqual([]);
   });
 
   it('throws when manifest fetch fails (non-404)', async () => {
