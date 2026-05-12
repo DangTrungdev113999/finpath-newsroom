@@ -235,6 +235,11 @@ def check_all(body: str, title: str = "") -> dict[str, dict[str, Any]]:
 
 
 # === V5.0 Phase 1.5 — Voice Layer gates ===
+#
+# These gates extend the V4.0 surface but are NOT yet wired into `check_all`
+# (which still dispatches the V4.0 5-gate set). B-6 (Task 6) creates
+# `check_all_v5(body, format_id, stance)` which wires the new gates +
+# per-format gates. Until then, callers must invoke these gates directly.
 
 HEDGING_TERMS = [
     "có thể", "tùy thuộc", "vẫn chờ", "khả năng cao", "đáng theo dõi",
@@ -305,7 +310,9 @@ BULLISH_TERMS = [
 BEARISH_TERMS = [
     "rủi ro", "cảnh báo", "yếu", "lỗ", "giảm",
     "đỉnh ngắn hạn", "không nên", "đáng lo", "đe dọa", "căng thẳng",
-    "tiêu cực", "bùng phát", "lao dốc", "cẩn thận", "thận trọng",
+    "tiêu cực", "bùng phát", "lao dốc", "cẩn thận",
+    # Note: "thận trọng" removed — overlaps with HOLDER_ACTION_RE which treats
+    # "NĐT thận trọng" as legitimate holder action regardless of stance.
 ]
 
 
