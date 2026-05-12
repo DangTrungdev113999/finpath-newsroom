@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-05-12T15:46:44.276575+00:00",
+  "built_at": "2026-05-12T15:46:56.260854+00:00",
   "sessions": [
     {
       "session_id": "D066809B-1DD5-4F42-B28A-26AAB4B4548C",
@@ -396,13 +396,13 @@
                 "source": "CafeF",
                 "url": "https://cafef.vn/chung-khoan-vix-trieu-tap-dhdcd-thuong-nien-nam-2026-188260510214351235.chn",
                 "published": "2026-05-10",
-                "reason": "OK — accepted_hypothesis: true. Title: PLACEHOLDER — Headline agent fills"
+                "reason": "OK — accepted_hypothesis: true. Title: VIX hy sinh 1.000 tỷ cho VIXEX năm nâng hạng"
               },
               {
                 "source": "VietnamFinance",
                 "url": "https://vietnamfinance.vn/khoi-dau-chat-vat-loi-nhuan-cua-vix-nhu-tau-luon-d143591.html",
                 "published": "2026-05-08",
-                "reason": "OK — accepted_hypothesis: true. Title: PLACEHOLDER — Headline agent fills"
+                "reason": "OK — accepted_hypothesis: true. Title: VIX hy sinh lợi nhuận Q1 để tăng vốn 60%"
               }
             ],
             "rejected": [
