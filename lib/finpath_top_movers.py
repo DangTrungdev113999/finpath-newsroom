@@ -27,12 +27,16 @@ from typing import Any, Optional
 LIQUIDITY_THRESHOLD_BILLION = 10  # 10 tỷ VND (DEFAULT_FILTERS.liquidity)
 MARKET_CAP_TOP = 100  # DEFAULT_FILTERS.marketCap
 
-# Field name mapping API raw → normalized (per convertDataOverViewStock)
+# Field name mapping API raw → normalized.
+# Verified against live /api/stocks/v2/overview response 2026-05-12:
+# - mkc = market cap VND (mc is NOT market cap, value -1000/negative confirms)
+# - ad5v = average day 5-day VALUE VND (a5v field does NOT exist in response)
+# - ste = security type 'S'/'W'/etc (st field does NOT exist in response)
 FIELD_MAP = {
     "c": "code", "dcp": "dayChangePercent", "dc": "dayChange",
     "dvp": "dayVolPercent", "dv": "dayVolume",
-    "mc": "marketCap", "a5v": "avgDay5Value",
-    "p": "price", "st": "secType",
+    "mkc": "marketCap", "ad5v": "avgDay5Value",
+    "p": "price", "ste": "secType",
 }
 
 

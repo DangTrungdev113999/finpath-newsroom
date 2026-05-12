@@ -28,8 +28,12 @@ from lib.finpath_top_movers import (
 
 
 def _raw(c, dcp=0, dvp=0, dv=1000000, a5v=20_000_000_000, mc=10**12, p=10000, st="S"):
-    """Build raw API-shape stock dict (short field names)."""
-    return {"c": c, "dcp": dcp, "dvp": dvp, "dv": dv, "a5v": a5v, "mc": mc, "p": p, "st": st}
+    """Build raw API-shape stock dict (short field names per live API verification).
+
+    Real /v2/overview fields: c / dcp / dvp / dv / ad5v / mkc / p / ste.
+    """
+    return {"c": c, "dcp": dcp, "dvp": dvp, "dv": dv,
+            "ad5v": a5v, "mkc": mc, "p": p, "ste": st}
 
 
 # === Normalization ===
@@ -41,6 +45,7 @@ def test_normalize_maps_short_to_canonical():
     assert n["dayVolPercent"] == 15.0
     assert n["price"] == 92500
     assert n["marketCap"] == 500_000_000_000
+    assert n["secType"] == "S"
 
 
 def test_normalize_unknown_keys_pass_through():
