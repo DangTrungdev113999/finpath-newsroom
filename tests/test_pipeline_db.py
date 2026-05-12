@@ -539,3 +539,52 @@ def test_insert_generated_news_validates_pipeline_log(db):
     })
     with pytest.raises(ValueError, match="step_4_master"):
         db.insert_generated_news(bad_payload)
+
+
+# ---------------------------------------------------------------------------
+# V5.0 Phase 1.3 (B-3) — pipeline_version default bump to V5.0
+# ---------------------------------------------------------------------------
+
+
+def test_insert_generated_news_defaults_pipeline_version_v5(tmp_path):
+    """V5.0: new rows get pipeline_version=V5.0 unless caller specifies."""
+    from lib.pipeline_db import PipelineDB
+    db_path = tmp_path / "test.db"
+    db = PipelineDB(str(db_path))
+    db.init_schema("data/pipeline.schema.sql")
+    # Seed a crawl_log row first (FK)
+    db.insert_crawl_row({
+        "row_id": "r1", "funnel_batch_id": "b1", "ticker": "VCB",
+        "source_name": "CafeF", "source_url": "http://example.com/1",
+        "title": "T", "crawled_at": "2026-05-11T00:00:00Z",
+    })
+    # Insert WITHOUT pipeline_version → should default to V5.0 (not V3.6)
+    article_data = {
+        "article_id": "a1", "row_id": "r1", "ticker": "VCB", "sector": "Bank",
+        "title": "Test", "body": "...", "accepted_hypothesis": 1, "status": "draft",
+    }
+    db.insert_generated_news(article_data)
+    row = db.conn.execute("SELECT pipeline_version FROM generated_news WHERE article_id='a1'").fetchone()
+    assert row["pipeline_version"] == "V5.0"
+    db.close()
+
+
+def test_insert_generated_news_explicit_version_preserved(tmp_path):
+    """Caller can override default (e.g. test fixtures simulating legacy V4.0)."""
+    from lib.pipeline_db import PipelineDB
+    db_path = tmp_path / "test.db"
+    db = PipelineDB(str(db_path))
+    db.init_schema("data/pipeline.schema.sql")
+    db.insert_crawl_row({
+        "row_id": "r2", "funnel_batch_id": "b2", "ticker": "VCB",
+        "source_name": "CafeF", "source_url": "http://example.com/2",
+        "title": "T", "crawled_at": "2026-05-11T00:00:00Z",
+    })
+    db.insert_generated_news({
+        "article_id": "a2", "row_id": "r2", "ticker": "VCB", "sector": "Bank",
+        "title": "Test", "body": "...", "accepted_hypothesis": 1, "status": "draft",
+        "pipeline_version": "V4.0",  # explicit override
+    })
+    row = db.conn.execute("SELECT pipeline_version FROM generated_news WHERE article_id='a2'").fetchone()
+    assert row["pipeline_version"] == "V4.0"
+    db.close()

@@ -186,18 +186,29 @@ class PipelineDB:
         return [dict(r) for r in cur.fetchall()]
 
     def insert_generated_news(self, data: dict[str, Any]) -> str:
+        # V5.0 Phase 1.3 (B-3) — default pipeline_version to V5.0 unless caller
+        # specifies. Existing rows (V3.6/V4.0) preserved via schema DEFAULT;
+        # only NEW inserts via this method get V5.0 → enables version-gate
+        # validation downstream (B-4 adds pipeline_version kwarg to
+        # validate_pipeline_step). Mutation guard: don't mutate caller's dict.
+        data = {**data}
+        if "pipeline_version" not in data:
+            data["pipeline_version"] = "V5.0"
+
         # V4.0 Phase H2 — validate pipeline_log schema BEFORE insert. Master
         # agents persist via this method with full step_4_master payload; if
         # the payload is missing required fields (skip_reasons / data_trail /
         # chosen_pick_reason / chosen_question_idx), refuse the write so
         # the bug surfaces immediately instead of polluting DB + viewer.
+        # NOTE: pipeline_version kwarg passing to validate_pipeline_step
+        # deferred to B-4 (signature update).
         raw_log = data.get("pipeline_log")
         if raw_log:
             try:
                 log = json.loads(raw_log) if isinstance(raw_log, str) else raw_log
             except (json.JSONDecodeError, TypeError):
                 log = {}
-            for step_key in ("step_4_master", "step_5_skeptic"):
+            for step_key in ("step_3_5_format_director", "step_4_master", "step_5_skeptic"):
                 if step_key in log:
                     validate_pipeline_step(step_key, log[step_key])
 
