@@ -1,10 +1,148 @@
-# Headline Craft Agent V1.0 — Implementation Plan
+# Headline Craft Agent V1.1 — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Triển khai dedicated Headline Craft agent (Step 4.5) chuyên giật tít — đọc tiêu đề là muốn click vào bài. 4 hard criteria + 8-point scoring + benchmark "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?".
+**Goal:** Triển khai dedicated Headline Craft agent (Step 4.5) chuyên giật tít — đọc tiêu đề là muốn click vào bài. 5 hard criteria (V1.1 thêm no em dash) + 4 lối flexible + 8-point scoring + benchmark "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?".
 
-**Architecture:** Master writes body + draft_title. Step 4.5 Headline agent (Sonnet) generates 5 title candidates → score 8-point rubric → pick best → replace title in DB. Skeptic critiques full article post-replacement with new `weak_title` angle (10 angles total). Pipeline V5.0 (11 steps) → V5.1 (12 steps).
+**Architecture:** Master writes body ONLY (no title — V5.1.2 Patch 1 Spec B). Step 4.5 Headline agent (Sonnet) reads body + brief + stance_directive → generates 3 candidate per `lối` (4 lối total) → score 8-point rubric → pick best → UPDATE generated_news.title SQL. Skeptic ⏸ PAUSED (2026-05-12), `weak_title` angle deferred. Pipeline V5.0 (11 steps) → V5.1 (12 steps with paused Skeptic = 11 active).
+
+## ⚠ V1.1 PATCH NOTICE (2026-05-12 PM) — apply EVERY task
+
+**Spec reference**: `docs/superpowers/specs/2026-05-12-headline-craft-agent-design.md` V1.1 PATCH at top.
+
+After Spec C V1.1 patches, this plan amends prior tasks + adds Phase 2 (Tasks 10-13) for skill split.
+
+### Amend Task 1 — `lib/headline_scorer.py`
+
+REMOVE function `check_title_em_dash_required` (V1.0 had em dash as REQUIRED for some lối). REPLACE với `check_no_em_dash`:
+
+```python
+def check_no_em_dash(title: str) -> dict:
+    """Em dash (—, U+2014) BANNED in title. En dash (–) + hyphen (-) acceptable."""
+    em_dash = "—"
+    if em_dash in title:
+        return {"passed": False, "reason": f"Em dash '{em_dash}' không cho phép trong title"}
+    return {"passed": True}
+```
+
+`check_hard_criteria` signature unchanged but returns 5 keys (was 4):
+```python
+def check_hard_criteria(title: str) -> dict:
+    return {
+        "ticker_present": ...,
+        "word_count_le_12": ...,
+        "hook_strong": {"tension_present": bool, "click_test_pass": bool},  # was: bool
+        "binh_dan_nguy_hiem": {"plain_language": bool, "sharp_edge": bool},  # was: bool
+        "no_em_dash": ...,
+    }
+```
+
+### Amend Task 1 — tests
+
+ADD tests:
+- `test_hard_criteria_rejects_em_dash`: title with `—` fails.
+- `test_hard_criteria_hook_strong_2_subtests`: hook_strong dict has tension + click test.
+- `test_hard_criteria_binh_dan_nguy_hiem_2_subtests`: binh_dan_nguy_hiem dict has plain + sharp.
+
+REMOVE tests assuming em dash required for any lối.
+
+### Amend Task 2 — Headline agent prompt
+
+REPLACE "4 hard criteria checklist" section với "5 hard criteria + 4 lối flexible" (per Spec C Patch 1 + Patch 3):
+
+```markdown
+## 4 lối giật tít (pick 1 based on body shape, KHÔNG ép tỷ lệ)
+
+| Lối | Definition | Khi nào |
+|---|---|---|
+| Question | Title là câu hỏi mở | Body có nghịch lý hoặc câu hỏi sắc |
+| Declarative tension | 2 sự kiện đối lập trong 1 câu (NO em dash) | Body có 2 fact ngược chiều |
+| Quote | Quote ngắn từ CEO/CFO + context | Brief có quote ấn tượng |
+| Contrast verb | 2 chủ thể cạnh nhau với verb đối lập | Body so sánh 2 nhóm |
+
+## 5 hard criteria (must pass to persist)
+
+1. **Ticker present** (regex `\b[A-Z]{3,4}\b`) — HARD RULE
+2. **≤12 từ** (len(title.split())) — HARD RULE
+3. **Hook strong** — 2 sub-tests:
+   - Tension check: title có >= 1 tension element?
+   - Click test: đọc 5s, reader có muốn biết "vì sao" không?
+4. **Bình dân nguy hiểm** — 2 sub-tests:
+   - Plain language: KHÔNG từ Anh, KHÔNG academic
+   - Sharp edge: có hint tension/risk/surprise
+5. **No em dash** (regex `[—]`) — HARD RULE V1.1
+
+## Workflow
+
+1. Read body + brief + stance_directive.
+2. Pick 1 lối (or mix 2) based on body shape — decide BEFORE generate.
+3. Generate 3 candidate titles cùng lối.
+4. Apply 5 hard criteria to each. Drop fail.
+5. Nếu < 1 passing → retry with different lối (max 2 retry).
+6. Apply 8-point scoring (existing). Pick max.
+7. UPDATE generated_news.title.
+```
+
+### Amend Task 3 — Agent output schema
+
+```json
+{
+  "article_id": "uuid",
+  "final_title": "...",
+  "final_loi": "Question" | "Declarative tension" | "Quote" | "Contrast verb",
+  "picked_score": 7,
+  "candidates": [
+    {"title": "...", "loi": "...", "score": 7, "criteria": {...}},
+    ...
+  ],
+  "hard_criteria_pass": {
+    "ticker_present": true,
+    "word_count_le_12": true,
+    "hook_strong": {"tension_present": true, "click_test_pass": true},
+    "binh_dan_nguy_hiem": {"plain_language": true, "sharp_edge": true},
+    "no_em_dash": true
+  }
+}
+```
+
+### Amend Task 6 — pipeline_db.py
+
+`_STEP_4_5_REQUIRED` schema:
+
+```python
+_STEP_4_5_REQUIRED = {
+    **_OBSERVABILITY_REQUIRED,  # model, duration_ms (tokens optional)
+    "final_title": str,
+    "final_loi": str,
+    "picked_score": int,
+    "candidates": list,         # array of candidate dicts
+    "hard_criteria_pass": dict, # dict of 5 criteria, last 2 are nested dicts
+}
+```
+
+Validation: at persist, call `check_hard_criteria(final_title)` and ensure all 5 pass. Em dash check `—` not in final_title → fail-loud.
+
+### Amend Task 7 — UPDATE generated_news.title
+
+NEW step in agent workflow (NOT just persist pipeline_log, also UPDATE generated_news):
+
+```python
+db.conn.execute(
+    "UPDATE generated_news SET title = ?, headline_final = ?, updated_at = CURRENT_TIMESTAMP WHERE article_id = ?",
+    (final_title, final_loi, article_id)
+)
+db.conn.commit()
+```
+
+### Amend Task 8 — Skeptic integration
+
+Skeptic ⏸ PAUSED 2026-05-12. SKIP `weak_title` angle implementation. KHÔNG dispatch Skeptic for V5.1.2. Re-enable later when user decides which formats need Skeptic.
+
+### Phase 2 (Tasks 10-13) — Headline skill SPLIT
+
+Inserted after Phase 1. See Phase 2 section at end of plan.
+
+---
 
 **Tech Stack:** Python 3.13 (uv), SQLite, Sonnet subagent, pytest, regex for hard criteria detection.
 
@@ -1160,9 +1298,437 @@ Plan C done. Push to origin/main when user approves both Plan B + Plan C E2E res
 
 ---
 
+## Phase 2 — Headline skill SPLIT (Tasks 10-13)
+
+**Trigger**: After Phase 1 done. Apply Patch 6 from Spec C V1.1.
+
+**Why**: New skill `finpath-newsroom-headline-craft` cần structure split từ đầu (KHÔNG let SKILL.md balloon). Pattern follow Plan B Task 24 split style.
+
+### Task 10: Create skill folder + SKILL.md
+
+**Files:**
+- Create: `.claude/skills/finpath-newsroom-headline-craft/SKILL.md` (~150 lines)
+- Create: `.claude/skills/finpath-newsroom-headline-craft/references/` (folder)
+
+- [ ] **Step 1: Create folder**
+
+```bash
+mkdir -p .claude/skills/finpath-newsroom-headline-craft/references
+```
+
+- [ ] **Step 2: Write SKILL.md**
+
+Content (~150 lines):
+
+```markdown
+---
+name: finpath-newsroom-headline-craft
+description: Headline Craft skill — pick 1 of 4 lối + generate 3 candidate + score 8-point + UPDATE generated_news.title
+---
+
+# Finpath Newsroom Headline Craft Skill
+
+## Identity
+
+Bạn là Headline Craft agent. Vai trò: nhận body từ Master + brief từ Story Editor → generate title hấp dẫn → UPDATE generated_news.title.
+
+## Hard rules
+
+1. KHÔNG generate hơn 1 title cho 1 article.
+2. KHÔNG dùng em dash `—` (U+2014) trong final_title — fail-loud.
+3. MUST UPDATE generated_news.title SQL sau khi pass 5 hard criteria.
+4. MUST persist step_4_5_headline_craft pipeline_log payload.
+
+## Input contract
+
+```python
+@dataclass
+class HeadlineInput:
+    article_id: str
+    body: str
+    insight_final: str
+    format_id: str
+    brief_deep_question: str
+    brief_angle_label: str
+    brief_angle_narrative: str
+    stance_directive: dict
+    ticker: str
+    voice_rules_applied: list[str]
+```
+
+## Workflow (5 step)
+
+### Step 1: Parse input + decide lối
+
+Load `references/4-loi-giat-tit.md` → match body shape với 1 of 4 lối. Allowed multi-pick (mix 2 lối).
+
+### Step 2: Generate 3 candidate
+
+Load `references/no-em-dash-policy.md` → ensure no em dash. Generate 3 title cùng lối đã pick.
+
+### Step 3: Apply 5 hard criteria
+
+Load `references/criteria-definitions.md` → check 5 criteria for each candidate.
+
+Drop fail candidates. Nếu < 1 passing → retry with different lối (max 2 retry).
+
+### Step 4: Score 8-point
+
+Load `references/candidates-scoring.md` → score passing candidates. Pick max score.
+
+### Step 5: Persist
+
+UPDATE generated_news.title via SQL. Insert step_4_5_headline_craft pipeline_log.
+
+## References (load on-demand)
+
+- `references/4-loi-giat-tit.md` — 4 lối với definition + ví dụ NO em dash
+- `references/criteria-definitions.md` — 5 criteria (ticker/word/hook/binh-dan/em-dash)
+- `references/no-em-dash-policy.md` — em dash ban + replacement priority
+- `references/candidates-scoring.md` — 8-point scoring rubric
+
+## Output schema
+
+```json
+{
+  "article_id": "uuid",
+  "final_title": "...",
+  "final_loi": "Question",
+  "picked_score": 7,
+  "candidates": [...],
+  "hard_criteria_pass": {...}
+}
+```
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add .claude/skills/finpath-newsroom-headline-craft/SKILL.md
+git commit -m "feat(headline-craft): scaffold skill + SKILL.md (V1.1 Phase 2)"
+```
+
+### Task 11: Create 4-loi-giat-tit.md reference
+
+**Files:**
+- Create: `.claude/skills/finpath-newsroom-headline-craft/references/4-loi-giat-tit.md`
+
+- [ ] **Step 1: Write reference (~100 lines)**
+
+```markdown
+# 4 Lối Giật Tít — Headline Craft Skill
+
+> Loaded from `Skill: finpath-newsroom-headline-craft`. Pick 1 of 4 lối based on body shape. KHÔNG ép tỷ lệ fixed.
+
+## Lối 1: Question
+
+**Definition**: Title là 1 câu hỏi mở. Reader muốn đọc body để biết câu trả lời.
+
+**Khi pick**: Body chứa nghịch lý hoặc câu hỏi sắc (paradox/why_now category).
+
+**Examples** (NO em dash):
+- "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?"
+- "Q1/2026 VHM lãi 25.600 tỷ, vì sao đủ tự tin nâng thêm 10.000 tỷ?"
+- "BIDV vừa tăng vốn 100.000 tỷ, chữa cháy hay phòng xa?"
+- "ACB cắt cổ tức xuống 20% trong khi TCB chia 67%, tại sao?"
+
+## Lối 2: Declarative tension
+
+**Definition**: Title nêu 2 sự kiện đối lập trong 1 câu, KHÔNG dùng em dash. Replacement: `,` (phẩy) hoặc `:` (hai chấm).
+
+**Khi pick**: Body có 2 fact ngược chiều cùng diễn ra (paradox).
+
+**Examples** (NO em dash, use `,` or `:`):
+- "BIDV lãi tăng 15,6%, nợ xấu cũng tăng 21,9%"
+- "BIDV: lãi 15,6%, nợ xấu 21,9%"
+- "MB hút 22.000 tỷ vốn mới, vẫn chia 8.055 tỷ tiền"
+- "VCB giảm sàn hôm nay, Q1 vẫn lãi tăng 17%"
+
+## Lối 3: Quote
+
+**Definition**: Title chứa quote ngắn từ CEO/CFO/sếp + context.
+
+**Khi pick**: Brief có câu nói nhân vật ấn tượng (early_signal/why_now).
+
+**Examples** (NO em dash):
+- '"Chúng tôi tự tin nâng target" VHM phá vỡ kỳ vọng Q1'
+- '"Chúng tôi tự tin": VHM nói gì sau Q1?'
+- '"Không phải tăng vốn để cứu nợ" CEO BIDV nói thế nào?'
+
+## Lối 4: Contrast verb
+
+**Definition**: Title đặt 2 chủ thể cạnh nhau với verb đối lập.
+
+**Khi pick**: Body so sánh 2 nhóm hoặc 2 chiến lược (comparison_deep).
+
+**Examples** (NO em dash, use `,`):
+- "VCB chọn thận trọng, CTG chọn bứt tốc, ai đặt cược đúng hơn?"
+- "Big4 cắt cổ tức, tư nhân chia mạnh, ai chiến thắng 2026?"
+- "MB tăng tốc, VCB đứng yên, thị trường tin ai?"
+
+## Tiebreak khi 2 lối hợp
+
+Nếu body fit 2 lối (vd: paradox + comparison_deep), pick lối tạo TENSION mạnh hơn (Question > Declarative tension > Contrast verb > Quote per shock-factor ranking).
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add .claude/skills/finpath-newsroom-headline-craft/references/4-loi-giat-tit.md
+git commit -m "feat(headline-craft): 4-loi-giat-tit reference (V1.1 Phase 2)"
+```
+
+### Task 12: Create criteria-definitions.md + no-em-dash-policy.md
+
+**Files:**
+- Create: `.claude/skills/finpath-newsroom-headline-craft/references/criteria-definitions.md` (~120 lines)
+- Create: `.claude/skills/finpath-newsroom-headline-craft/references/no-em-dash-policy.md` (~60 lines)
+
+- [ ] **Step 1: Write criteria-definitions.md**
+
+```markdown
+# 5 Hard Criteria — Headline Craft
+
+> Loaded from `Skill: finpath-newsroom-headline-craft`. Apply ALL 5 to each candidate. Fail any → drop.
+
+## Criterion 1: Ticker present (HARD RULE)
+
+Title MUST chứa ticker 3-4 ký tự uppercase. VCB/TCB/VHM acceptable. "Vietcombank" NOT acceptable.
+
+Implementation: `re.search(r'\b[A-Z]{3,4}\b', title)` → match required.
+
+## Criterion 2: Word count ≤ 12 (HARD RULE)
+
+`len(title.split())` ≤ 12.
+
+## Criterion 3: Hook strong (LLM-as-judge, 2 sub-test)
+
+### Định nghĩa
+
+Title tạo CĂNG THẲNG hoặc CÂU HỎI MỞ, khiến reader muốn click. KHÔNG chỉ tóm tắt sự kiện.
+
+### Test 1 — Tension check
+
+Title có >= 1 tension element không?
+- Câu hỏi mở (kết bằng `?`)
+- 2 sự kiện đối lập
+- Quote shock
+- Contrast verb
+
+### Test 2 — Click test
+
+Đọc title 5 giây, reader có muốn biết "vì sao" không? Nếu title đã trả lời hết, fail.
+
+### Examples
+
+- ❌ "VHM lãi Q1 đạt 25.600 tỷ" (chỉ tóm tắt, không tension)
+- ✅ "Q1/2026 VHM lãi 25.600 tỷ, vì sao đủ tự tin nâng thêm 10.000 tỷ?" (tension + click)
+- ❌ "BIDV tăng vốn 100.000 tỷ" (chỉ thông báo)
+- ✅ "BIDV vừa tăng vốn 100.000 tỷ, chữa cháy hay phòng xa?" (tension + click)
+
+### Implementation
+
+LLM-as-judge: gọi Sonnet inline với 2 test → return {tension_present: bool, click_test_pass: bool}. Cả 2 = true mới pass.
+
+## Criterion 4: Bình dân nguy hiểm (LLM-as-judge, 2 sub-test)
+
+### Định nghĩa
+
+Câu nói như nói chuyện thường ngày (bình dân), nhưng ẩn chứa thông tin sắc bén/cảnh báo (nguy hiểm).
+
+### Test 1 — Plain language
+
+Có từ nào người không học tài chính không hiểu không? ("capital allocation", "leverage ratio", "credit stress" → fail)
+
+### Test 2 — Sharp edge
+
+Title có hint về tension/risk/surprise không? (chỉ "thông báo" thuần = fail)
+
+### Examples
+
+- ❌ "BIDV's capital allocation strategy under credit stress" (Anh + academic)
+- ❌ "BIDV tăng vốn để giảm risk NPL" (mix Anh + thiếu sharp)
+- ✅ "BIDV vừa tăng vốn 100.000 tỷ, chữa cháy hay phòng xa?" (bình dân + nguy hiểm)
+- ✅ "VHM nâng target +20% giữa năm, tự tin hay liều?" (bình dân + nguy hiểm)
+
+### Implementation
+
+LLM-as-judge: return {plain_language: bool, sharp_edge: bool}. Cả 2 = true mới pass.
+
+## Criterion 5: No em dash (HARD RULE V1.1)
+
+Regex `[—]` (U+2014) trong title → FAIL.
+
+Replacements ưu tiên: `:` > `,` > `?` > `.` > `""` > `()`.
+
+See `references/no-em-dash-policy.md` for full replacement guide.
+
+## Composite pass
+
+Candidate pass tất cả 5 criteria → eligible for 8-point scoring (`candidates-scoring.md`).
+```
+
+- [ ] **Step 2: Write no-em-dash-policy.md**
+
+```markdown
+# Em Dash Ban Policy — Headline Craft
+
+> Loaded from `Skill: finpath-newsroom-headline-craft`. ABSOLUTE RULE.
+
+## Why
+
+User feedback 2026-05-12: "bỏ cái dấu - , nhìn dấu này là biết AI viết bài rồi, nhìn nó không giống người viết".
+
+Em dash `—` (U+2014) là tín hiệu AI-tell rõ ràng. 17 V4.0 article cũ đều có em dash trong title — đây là pattern AI bị nhận diện. V5.1.2 trở đi, title KHÔNG được có em dash.
+
+## Allowed characters
+
+| Dấu | Acceptable? | Khi dùng |
+|---|---|---|
+| `—` em dash (U+2014) | ❌ BANNED | Never |
+| `–` en dash (U+2013) | ✅ Sometimes | "Big-4", "Q1-2026" (nhưng prefer hyphen) |
+| `-` hyphen (U+002D) | ✅ Yes | Compound (Big-4, Q1-2026) |
+| `,` comma | ✅ Yes | Default separator for tension |
+| `:` colon | ✅ Yes | Setup → punchline pattern |
+| `?` question mark | ✅ Yes | Question lối |
+| `.` period | ✅ Yes | Split into 2 sentences if needed |
+| `""` quote marks | ✅ Yes | Quote lối |
+| `()` parenthesis | ✅ Sparingly | Side context |
+
+## Replacement priority
+
+When converting V4.0 em-dash titles to V5.1.2:
+
+1. **First try `:`** — clean setup → punchline.
+   - V4.0: "VHM lãi 25.600 tỷ — vì sao đủ tự tin?"
+   - V5.1.2: "VHM lãi 25.600 tỷ: vì sao đủ tự tin?"
+
+2. **Try `,`** — flow as single sentence.
+   - V4.0: "BIDV lãi tăng 15,6% — nợ xấu cũng tăng 21,9%"
+   - V5.1.2: "BIDV lãi tăng 15,6%, nợ xấu cũng tăng 21,9%"
+
+3. **Try `?`** — convert to question form.
+   - V4.0: "BIDV tăng vốn 100.000 tỷ — chữa cháy hay phòng xa"
+   - V5.1.2: "BIDV vừa tăng vốn 100.000 tỷ, chữa cháy hay phòng xa?"
+
+4. **Try `.`** — split into 2 sentences (rare in title).
+   - "TCB chia cổ tức 67%. Big4 nói gì?"
+
+## Implementation
+
+Headline scorer check_no_em_dash:
+
+```python
+def check_no_em_dash(title: str) -> dict:
+    if "—" in title:
+        return {"passed": False, "reason": "Em dash '—' không cho phép trong title"}
+    return {"passed": True}
+```
+
+Persist time: validate_pipeline_step for step_4_5 calls this check + raises ValueError if fail.
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add .claude/skills/finpath-newsroom-headline-craft/references/criteria-definitions.md .claude/skills/finpath-newsroom-headline-craft/references/no-em-dash-policy.md
+git commit -m "feat(headline-craft): 5-criteria definitions + em-dash-policy references (V1.1 Phase 2)"
+```
+
+### Task 13: Create candidates-scoring.md
+
+**Files:**
+- Create: `.claude/skills/finpath-newsroom-headline-craft/references/candidates-scoring.md` (~80 lines)
+
+- [ ] **Step 1: Write reference**
+
+```markdown
+# 8-Point Scoring Rubric — Headline Candidates
+
+> Loaded from `Skill: finpath-newsroom-headline-craft`. Apply AFTER 5 hard criteria pass. Higher = better.
+
+## 8 dimension (1 point each)
+
+| # | Dimension | Pass condition |
+|---|---|---|
+| 1 | Specificity | Title có số liệu cụ thể (%, tỷ, triệu) hoặc tên riêng |
+| 2 | Emotion | Title có từ gây cảm xúc (hy sinh, đánh đổi, liều, tự tin, chữa cháy, phòng xa,...) |
+| 3 | Tension | Title có >= 1 nghịch lý hoặc câu hỏi mở |
+| 4 | Direction match | Title cùng hướng stance_directive (positive→hint up; negative→hint down/risk) |
+| 5 | Bình dân | KHÔNG từ Anh, dễ đọc, sentence flow giống ngôn ngữ thường |
+| 6 | Sharp edge | Title hint risk/surprise/nghịch lý, không chỉ thông báo |
+| 7 | Hook quality | Reader đọc 5s muốn click vào? (LLM judge) |
+| 8 | Conciseness | ≤ 12 từ + flow tự nhiên (không gắng) |
+
+## Score formula
+
+```python
+score = sum([
+    dim_1_specificity,
+    dim_2_emotion,
+    dim_3_tension,
+    dim_4_direction_match,
+    dim_5_binh_dan,
+    dim_6_sharp_edge,
+    dim_7_hook_quality,
+    dim_8_conciseness,
+])
+# score 0-8, higher = better
+```
+
+## Picked title
+
+- Pick candidate với max score.
+- Tie-break: ưu tiên lối Question > Declarative tension > Contrast verb > Quote (per shock-factor).
+- Persist `picked_score: int` (max 8).
+
+## Examples
+
+### Title: "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?"
+- Specificity ✓ (5.000 tỷ)
+- Emotion ✓ (hy sinh)
+- Tension ✓ (câu hỏi mở)
+- Direction match ✓ (assume negative stance)
+- Bình dân ✓ (hy sinh / đổi lấy)
+- Sharp edge ✓ (hy sinh implies trade-off pain)
+- Hook quality ✓ (muốn biết đổi lấy gì)
+- Conciseness ✓ (9 từ)
+- **Score: 8/8** → benchmark title.
+
+### Title: "VHM lãi Q1 đạt 25.600 tỷ"
+- Specificity ✓
+- Emotion ❌ (chỉ "lãi đạt")
+- Tension ❌ (chỉ thông báo)
+- Direction match — undecided
+- Bình dân ✓
+- Sharp edge ❌
+- Hook quality ❌ (đã trả lời hết)
+- Conciseness ✓
+- **Score: 4/8** → reject, retry.
+```
+
+- [ ] **Step 2: Commit**
+
+```bash
+git add .claude/skills/finpath-newsroom-headline-craft/references/candidates-scoring.md
+git commit -m "feat(headline-craft): 8-point scoring rubric reference (V1.1 Phase 2)"
+```
+
+---
+
+## Phase 2 — Self-review
+
+- [ ] All 4 reference files exist
+- [ ] SKILL.md references all 4 files at bottom
+- [ ] Total SKILL.md ≤ 150 lines (split working)
+- [ ] No em dash in any examples in references (eat own dogfood)
+- [ ] Criteria definition + ví dụ pattern consistent với Spec C V1.1 Patch 3
+
+---
+
 ## Execution choice (per user batch strategy — DEFERRED)
 
-User strategy: brainstorm all 4 subsystems → plan all 4 → execute batch. Plan C ready; execution deferred until Plan D + Plan A also written.
+User strategy: brainstorm all 4 subsystems → plan all 4 → execute batch. Plan C V1.1 ready với Phase 2 split tasks; execution deferred until all 4 plans done.
 
 After all 4 plans done:
 - **Subagent-Driven** — fresh subagent per task, two-stage review, interleaved B↔C order per "Execution order recommendation" at top.

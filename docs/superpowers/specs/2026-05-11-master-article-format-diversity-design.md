@@ -1,12 +1,153 @@
-# Master Article Format Diversity — Design Spec V5.1
+# Master Article Format Diversity — Design Spec V5.1.2
 
-**Date**: 2026-05-11 (V5.0 initial), 2026-05-12 (V5.1 — title moves to Headline agent)
+**Date**: 2026-05-11 (V5.0 initial), 2026-05-12 (V5.1 — title moves to Headline agent), 2026-05-12 PM (V5.1.2 — stance directive + em dash ban + skill split)
 **Author**: Brainstormed with em (Claude)
 **Status**: Draft — pending user review before plan
 **Supersedes**: V4.0 single-format Master article structure (gates from `2026-05-08-newsroom-v4-redesign.md`)
 **Coupled with**: `docs/superpowers/specs/2026-05-12-headline-craft-agent-design.md` (Subsystem C) — title craft moves out of this spec into dedicated agent. Both specs evolve together.
 
 ---
+
+## ⚠ V1.2 PATCH (2026-05-12 PM) — apply these overrides during implementation
+
+This patch addresses 5 design gaps surfaced after V1.1 spec lock. Apply during V5.1 implementation. Each patch overrides the corresponding section of V1.1 — read the patch first, then read the original section with patch in mind.
+
+### Patch 1 — Master no-title contract (overrides §11)
+
+**Master KHÔNG generate title.** Master prompt phải DỠ HẾT rule liên quan title (`title_pattern` gate đã remove V5.1; nay loại bỏ luôn mọi guideline "Title hook test 5s + tension word" khỏi prompt Master và 3 master skill SKILL.md). Master return: body + insight + data_trail + everything EXCEPT title. Field `generated_news.title` nullable — Headline UPDATE sau.
+
+Lý do: Phân tách responsibility rõ — Master tập trung viết body chất lượng (4 format). Title craft là nghệ thuật riêng, giao Headline (Spec C). Bypass: nếu Master sót quote "title" trong response → orchestrator log warning + Headline overwrite.
+
+### Patch 2 — Stance directive object schema (NEW §3.1, extends §10 brief schema)
+
+**Story Editor brief V5.1 thêm `stance_directive` object** — Master nhận và viết theo hướng (KHÔNG tự quyết stance).
+
+Schema (free-form, không phải enum cứng):
+
+```yaml
+stance_directive:
+  direction: "positive" | "negative" | "neutral"   # 3 hướng, KHÔNG thêm
+  confidence: "high" | "medium" | "low"            # độ tin
+  reason: |
+    Free-form prose 1-3 câu Vietnamese. Giải thích VÌ SAO stance đó dựa trên
+    cross-intersect price_event × internal_strength × context.
+    Ví dụ: "Mã giảm sàn hôm nay nhưng Q1 lãi vẫn tăng 17%, ROA stable,
+    không có scandal pháp lý → tin tích cực: panic temporary."
+  key_evidence:
+    - "Q1 lãi +17%"
+    - "Không có scandal pháp lý"
+    - "Sector cycle vẫn up"
+```
+
+**"Internal strength" (nội lực) — broad definition KHÔNG chỉ chỉ số tài chính**. Bao gồm 7 layer (gợi ý, không exhaustive):
+
+| Layer | Examples |
+|---|---|
+| 1. Tài chính | Chỉ số kinh doanh + dòng tiền + nợ (ROA/ROE/NPL/NIM/CASA chỉ là 1 phần) |
+| 2. Quản trị | HĐQT ổn định, pháp lý sạch, ESG |
+| 3. Chiến lược | Roadmap rõ, M&A đúng hướng, expansion solid |
+| 4. Vận hành | Market share, customer base, hiệu quả |
+| 5. Sản phẩm | Innovation, dẫn dắt thị trường |
+| 6. Sector cycle | Đang đỉnh hay đáy chu kỳ ngành |
+| 7. Vĩ mô | Lãi suất, regulation, sector tailwind |
+
+Story Editor judge stance dựa trên CONTEXT, không phải matrix 2×2 rigid. Ví dụ KHÔNG được dập khuôn:
+
+- "PE/PB cao = negative" ❌ — phải check WHY PE cao (growth phase? sector premium? earnings boost coming?)
+- "Giảm sàn = positive (oversold)" ❌ — phải check WHY giảm (panic? scandal? earnings miss?)
+
+→ Stance = judgment based on REASON narrative, không phải rule cứng theo metric.
+
+Master receive `stance_directive` → write theo `direction` + `key_evidence`. Master ĐƯỢC PHÉP note caveat nếu thấy data conflict — gate vẫn pass miễn caveat không làm bài "ba phải" (xem Patch 3).
+
+### Patch 3 — Voice Rule 2 (No-hedging) redefine definition-based (overrides §6 V2)
+
+**KHÔNG list từ cấm** ("có thể"/"tùy thuộc"/"vẫn chờ"...). Thay bằng **định nghĩa + test logic + ví dụ pair**.
+
+**Định nghĩa "ba phải" (hedging)**:
+> Câu khẳng định trung tính không cam kết hướng nào, có thể đúng dù sự thật ngược lại.
+
+**Test 1 — Đảo sự thật**: Đảo ngược sự thật, câu vẫn đúng → fail (ba phải).
+- ❌ "Cổ phiếu có thể tăng tùy thuộc thị trường" → dù thị trường tăng hay giảm đều đúng → BA PHẢI
+- ✅ "Cổ phiếu sẽ tăng vì Q1 lãi vượt kỳ vọng 30%" → có direction + có lý do → KHÔNG ba phải
+
+**Test 2 — Direction check**: Có cam kết direction không?
+- ❌ "Vẫn còn phải chờ thêm dữ liệu mới biết" → không direction → BA PHẢI
+- ✅ "Đà tăng có thể chững lại Q2 nếu NHNN siết lãi suất" → có direction (chững) + có điều kiện cụ thể → KHÔNG ba phải
+
+**Note quan trọng**: Từ "có thể" KHÔNG tự động ba phải — phụ thuộc context. "Có thể tăng" + lý do = OK. "Có thể tăng hoặc giảm" = ba phải.
+
+LLM (Master) judge bằng 2 test logic, không match từ keyword. Gate implementation: gate_checker.py dùng LLM-as-judge với 2 test thay vì regex match list từ.
+
+### Patch 4 — Em dash `—` ban policy (overrides §5 + §6 V4 + adds gate)
+
+**Em dash `—` (U+2014) BANNED trong title.** Đây là AI-tell signal. User feedback 2026-05-12: "bỏ cái dấu - , nhìn dấu này là biết AI viết bài rồi, nhìn nó không giống người viết". Apply:
+
+- **Title**: regex check `[—]` trong final_title (Headline output) → fail gate, Headline phải rewrite. Spec C Patch enforce.
+- **Body (Master)**: minimize em dash. Cho phép max 1 em dash / 100 từ. Khuyến khích thay bằng `,` `:` `?` `.` `()`.
+- **En dash `–` (U+2013) + hyphen `-` (U+002D)** acceptable khi grammatically needed (Q1-2026, Big-4).
+- **17 V4.0 article cũ**: KHÔNG retroactive rewrite, chỉ áp cho article V5.1 trở đi.
+
+### Patch 5 — Master skill SPLIT structure (overrides §11)
+
+Hiện tại `.claude/skills/finpath-newsroom-master-{bank,ck,bds}/SKILL.md` đang 359-414 lines mỗi file → balloon ~500+ với V5.1 (4 format body + voice + stance). SPLIT structure:
+
+```
+.claude/skills/finpath-newsroom-master-{sector}/
+├── SKILL.md                                    (~180 lines — workflow 9-step + format awareness + dispatch logic)
+├── references/
+│   ├── format-bodies/                          (NEW V5.1 folder)
+│   │   ├── flash-qa.md                         (100-150w pattern + 2 example)
+│   │   ├── standard-qa.md                      (200-300w pattern + 2 example)
+│   │   ├── standard-listicle.md                (250-350w pattern + 2 example — current default)
+│   │   └── standard-narrative.md               (250-350w pattern + 2 example)
+│   ├── voice-layer-rules.md                    (NEW V5.1 — 5 rules với definition+test+example)
+│   ├── stance-directive-handler.md             (NEW V5.1 — receive stance, apply, caveat policy)
+│   ├── format-examples.md                      (EXISTING — refactor: reorganize per format)
+│   ├── db-query-patterns.md                    (EXISTING)
+│   ├── jargon-mapping.md                       (EXISTING + thêm Anti-pattern "ba phải" definition+test)
+│   ├── master-pitfalls.md                      (EXISTING)
+│   └── compare-feed-spec.md                    (EXISTING)
+```
+
+**Duplicate strategy** (CLAUDE.md cấm folder `shared-references/`):
+- `voice-layer-rules.md` + `stance-directive-handler.md`: duplicate 3 copies (Bank/CK/BĐS). Mỗi copy ~50-80 lines. Acceptable vì rules ít thay đổi.
+- `format-bodies/*.md`: từng sector có examples riêng (Bank example dùng VCB/TCB, CK dùng SSI/HCM, BĐS dùng VHM/NVL) → KHÔNG duplicate, có ý nghĩa.
+
+**Tách orchestrator skill** (`.claude/skills/finpath-newsroom-orchestrator/`):
+
+```
+finpath-newsroom-orchestrator/
+├── SKILL.md                                    (~140 lines — core flow + dispatch logic)
+├── references/
+│   ├── observability-emit.md                   (NEW V5.1 — pipeline_log emit pattern per step)
+│   ├── db-persist-patterns.md                  (NEW V5.1 — SQLite write patterns + atomic)
+│   ├── failure-recovery.md                     (NEW V5.1 — per-step failure handling)
+│   ├── step-1-5-market-snapshot.md             (NEW V5.1 — Market Snapshot detail)
+│   ├── step-3-5-format-director.md             (NEW V5.1 — Format Director dispatch detail)
+│   ├── step-4-5-headline-craft.md              (NEW V5.1 — Headline dispatch + UPDATE SQL)
+│   └── compare-feed-layout.md                  (EXISTING)
+```
+
+Agent file `.claude/agents/newsroom-pipeline.md` thu gọn 508 → ~180 lines, reference skill khi cần detail.
+
+### Patch 6 — Spec changelog V1.2 entry
+
+Add to §19 Spec changelog:
+
+```
+- V1.2 (2026-05-12 PM) — Stance directive object + em dash ban + Voice Rule 2 redefine + Master skill SPLIT
+  - Patch 1: Master no-title (DỠ rule title khỏi prompt + skill)
+  - Patch 2: stance_directive object (free-form reason + 7-layer nội lực, KHÔNG matrix 2×2)
+  - Patch 3: Voice Rule 2 No-hedging redefine — definition + 2 test logic + example pair (KHÔNG list từ)
+  - Patch 4: Em dash `—` BANNED title (regex gate) + minimize body (max 1/100 từ)
+  - Patch 5: Master skill SPLIT (Bank/CK/BĐS each: SKILL + 4 format-bodies + voice + stance + existing refs)
+  - Patch 5b: Orchestrator skill SPLIT (SKILL + 7 references, agent file 508→180 lines)
+  - Rationale: User feedback "đừng dập khuôn list từ" + "em dash là AI-tell" + "nội lực không chỉ chỉ số" + "file quá dài tách ra"
+```
+
+---
+
 
 ## 1. Goal
 

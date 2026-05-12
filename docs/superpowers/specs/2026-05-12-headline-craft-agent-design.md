@@ -1,12 +1,172 @@
-# Headline Craft Agent — Design Spec V1.0
+# Headline Craft Agent — Design Spec V1.1
 
-**Date**: 2026-05-12
+**Date**: 2026-05-12 (V1.0 initial), 2026-05-12 PM (V1.1 — 4 lối flexible + em dash ban + criteria definitions + skill split)
 **Author**: Brainstormed with em (Claude)
 **Status**: Draft — pending user review before plan
 **Subsystem**: C (Headline Craft) from initial 5-subsystem feedback
 **Depends on / conflicts with**: V5.0 Format Diversity spec `docs/superpowers/specs/2026-05-11-master-article-format-diversity-design.md` — title_pattern logic moves from Format Director → Headline agent.
 
 ---
+
+## ⚠ V1.1 PATCH (2026-05-12 PM) — apply these overrides during implementation
+
+This patch addresses design gaps after V1.0 lock. Apply during implementation. Each patch overrides the corresponding V1.0 section.
+
+### Patch 1 — 4 lối giật tít flexible (overrides §10)
+
+Headline KHÔNG hardcode 1 dạng title. Pick 1 trong 4 lối theo body shape — định nghĩa principle, không match keyword:
+
+| Lối | Definition | Khi nào pick | Ví dụ (NO em dash) |
+|---|---|---|---|
+| **Question** | Title là 1 câu hỏi mở. Reader muốn đọc body để biết câu trả lời. | Body chứa nghịch lý hoặc câu hỏi sắc | "TCB hy sinh 5.000 tỷ/năm để đổi lấy gì?" |
+| **Declarative tension** | Title nêu 2 sự kiện đối lập trong 1 câu, KHÔNG dùng em dash. | Body có 2 fact ngược chiều cùng diễn ra | "BIDV lãi tăng 15,6%, nợ xấu cũng tăng 21,9%" hoặc "BIDV: lãi 15,6%, nợ xấu 21,9%" (dấu hai chấm) |
+| **Quote** | Title chứa quote ngắn từ CEO/CFO/sếp + context. | Brief có câu nói nhân vật ấn tượng | '"Chúng tôi tự tin nâng target" VHM phá vỡ kỳ vọng Q1' hoặc '"Chúng tôi tự tin": VHM nói gì sau Q1?' |
+| **Contrast verb** | Title đặt 2 chủ thể cạnh nhau với verb đối lập. | Body so sánh 2 nhóm hoặc 2 chiến lược | "VCB chọn thận trọng, CTG chọn bứt tốc, ai đặt cược đúng hơn?" |
+
+Headline pick 1 lối → output 3 candidate cùng lối → score → pick best (xem §11 scoring). KHÔNG ép tỷ lệ 4 lối cố định — body shape quyết định.
+
+### Patch 2 — Em dash `—` BAN (NEW hard criterion #5, overrides §11)
+
+User feedback 2026-05-12: "bỏ cái dấu - , nhìn dấu này là biết AI viết bài rồi, nhìn nó không giống người viết".
+
+**Hard rule**:
+- Regex check `[—]` (U+2014) trong final_title → FAIL gate, Headline rewrite.
+- En dash `–` (U+2013) + hyphen `-` (U+002D) ACCEPTABLE khi grammatically needed (Q1-2026, Big-4, IPO-2025).
+- Replacements ưu tiên: `:` (hai chấm) > `,` (phẩy) > `?` (hỏi) > `.` (split câu) > `""` (quote marks) > `()` (parenthesis).
+
+**Implementation**: gate check ở persist time — `lib/pipeline_db.py::validate_pipeline_step` cho step_4_5 thêm field `final_title` non-em-dash check.
+
+### Patch 3 — 4 hard criteria redefine: definition + ví dụ thay vì rule cứng (overrides §11)
+
+V1.0 §11 list 4 criteria as checklist. V1.1 chuyển 2 criteria fuzzy sang **definition + test logic + example pair** (không list keyword):
+
+**Criterion 1 — Ticker present** (HARD RULE, giữ V1.0):
+- Title MUST chứa ticker (3-4 ký tự uppercase). VCB / TCB / VHM acceptable. "Vietcombank" NOT acceptable (phải dùng ticker).
+- Implementation: regex `\b[A-Z]{3,4}\b` trong title.
+
+**Criterion 2 — ≤12 từ** (HARD RULE, giữ V1.0):
+- Title word count ≤ 12 (split by space, không tính punctuation).
+- Implementation: `len(title.split())` ≤ 12.
+
+**Criterion 3 — Hook strong** (REDEFINE — definition + 2 test + example pair):
+- **Định nghĩa**: Title tạo CĂNG THẲNG hoặc CÂU HỎI MỞ, khiến reader muốn click để biết câu trả lời. KHÔNG chỉ tóm tắt sự kiện.
+- **Test 1 — Tension check**: Title có >= 1 tension element (câu hỏi mở / 2 sự kiện đối lập / quote shock / contrast verb)?
+- **Test 2 — Click test**: Đọc title 5s, reader có muốn biết "vì sao" không? Nếu title đã trả lời hết, fail.
+- **Ví dụ pair**:
+  - ❌ "VHM lãi Q1 đạt 25.600 tỷ" (chỉ tóm tắt, không tension)
+  - ✅ "Q1/2026 VHM lãi 25.600 tỷ, vì sao đủ tự tin nâng thêm 10.000 tỷ?" (tóm tắt + tension question)
+  - ❌ "BIDV tăng vốn 100.000 tỷ" (chỉ thông báo)
+  - ✅ "BIDV vừa tăng vốn 100.000 tỷ, chữa cháy hay phòng xa?" (thông báo + tension)
+- **Implementation**: LLM-as-judge dùng 2 test → output {tension_present: bool, click_test_pass: bool}. Cả 2 = true mới pass.
+
+**Criterion 4 — Bình dân nguy hiểm** (REDEFINE — definition + 2 test + example pair):
+- **Định nghĩa**: Câu nói như nói chuyện thường ngày (bình dân), nhưng ẩn chứa thông tin sắc bén hoặc cảnh báo (nguy hiểm). KHÔNG dùng từ Anh, KHÔNG academic.
+- **Test 1 — Plain language**: Có từ nào người không học tài chính không hiểu không? (e.g., "capital allocation", "leverage ratio", "credit stress") → fail.
+- **Test 2 — Sharp edge**: Title có hint về tension/risk/surprise không? (chỉ "thông báo" thuần = fail).
+- **Ví dụ pair**:
+  - ❌ "BIDV's capital allocation strategy under credit stress" (Anh + academic)
+  - ❌ "BIDV tăng vốn để giảm risk NPL" (mix Anh + thiếu sharp)
+  - ✅ "BIDV vừa tăng vốn 100.000 tỷ, chữa cháy hay phòng xa?" (bình dân "chữa cháy/phòng xa" + nguy hiểm "tăng vốn = có vấn đề")
+  - ✅ "VHM nâng target +20% giữa năm, tự tin hay liều?" (bình dân "giữa năm/tự tin/liều" + nguy hiểm "liều")
+- **Implementation**: LLM-as-judge dùng 2 test → output {plain_language: bool, sharp_edge: bool}. Cả 2 = true mới pass.
+
+**Criterion 5 — No em dash** (NEW HARD RULE từ Patch 2):
+- Regex `[—]` (U+2014) trong title → fail.
+
+### Patch 4 — Headline input contract clarify (overrides §9)
+
+Headline nhận input đầy đủ để judgment, KHÔNG chỉ body:
+
+```python
+@dataclass
+class HeadlineInput:
+    article_id: str                          # generated_news.article_id
+    body: str                                # Master output body (no title)
+    insight_final: str                       # Master insight 1-2 câu
+    format_id: str                           # flash_qa / standard_qa / ...
+    brief_deep_question: str                 # Story Editor chosen question
+    brief_angle_label: str                   # Story Editor angle_label
+    brief_angle_narrative: str               # Story Editor angle_narrative
+    stance_directive: dict                   # V5.1.2 Patch 2 — Spec B
+    ticker: str                              # VCB / TCB / ...
+    voice_rules_applied: list[str]           # ["stance_set", "no_hedging_pass", ...] for cross-ref
+```
+
+Headline KHÔNG nhận pipeline_log hoặc full crawl_row — minimal contract.
+
+### Patch 5 — UPDATE generated_news.title SQL contract (NEW §12)
+
+Master KHÔNG insert title. Headline UPDATE sau Master persist.
+
+**SQL flow**:
+1. Master persist generated_news với `title = NULL` (hoặc placeholder `"<pending headline>"`).
+2. Headline read body + brief từ DB → generate 3 candidate → score → pick final → UPDATE:
+
+```sql
+UPDATE generated_news
+SET title = ?, headline_final = ?, updated_at = CURRENT_TIMESTAMP
+WHERE article_id = ?;
+```
+
+3. Headline persist `step_4_5_headline_craft` payload trong pipeline_log:
+
+```json
+{
+  "model": "sonnet",
+  "duration_ms": 12340,
+  "tokens": 850,
+  "final_title": "Q1/2026 VHM lãi 25.600 tỷ, vì sao đủ tự tin nâng thêm 10.000 tỷ?",
+  "final_loi": "Question",
+  "candidates": [
+    {"title": "...", "loi": "Question", "score": 7},
+    {"title": "...", "loi": "Declarative tension", "score": 6},
+    {"title": "...", "loi": "Question", "score": 5}
+  ],
+  "hard_criteria_pass": {
+    "ticker_present": true,
+    "word_count_le_12": true,
+    "hook_strong": {"tension_present": true, "click_test_pass": true},
+    "binh_dan_nguy_hiem": {"plain_language": true, "sharp_edge": true},
+    "no_em_dash": true
+  }
+}
+```
+
+**Failure mode**: Nếu cả 3 candidate fail criteria → Headline retry 1 lần (4-6 candidate). Vẫn fail → fallback: dùng `brief_deep_question` làm title (warning log).
+
+### Patch 6 — Headline skill SPLIT structure (NEW §13)
+
+`.claude/skills/finpath-newsroom-headline-craft/`:
+
+```
+finpath-newsroom-headline-craft/
+├── SKILL.md                                    (~150 lines — workflow + UPDATE contract + input parsing)
+└── references/
+    ├── 4-loi-giat-tit.md                       (Patch 1: 4 lối definition + ví dụ NO em dash)
+    ├── criteria-definitions.md                 (Patch 3: 5 criteria — hard rule vs LLM judge — definition + test + example)
+    ├── no-em-dash-policy.md                    (Patch 2: em dash ban + replacement priority)
+    └── candidates-scoring.md                   (8-point scoring detail + tiebreak rule)
+```
+
+Agent file `.claude/agents/newsroom-headline-craft.md` (~80 lines) chỉ dispatch wrapper.
+
+### Patch 7 — Spec changelog V1.1 entry
+
+Add to §X Spec changelog:
+
+```
+- V1.1 (2026-05-12 PM) — 4 lối flexible + em dash ban + criteria definition + UPDATE SQL + skill split
+  - Patch 1: 4 lối giật tít flexible (Question/Declarative tension/Quote/Contrast verb)
+  - Patch 2: Em dash `—` BAN (regex hard gate)
+  - Patch 3: 4 criteria redefine — ticker (rule)/≤12 từ (rule)/hook strong (definition+test+example)/bình dân nguy hiểm (definition+test+example)/no em dash (regex)
+  - Patch 4: Headline input contract clarify (HeadlineInput dataclass)
+  - Patch 5: UPDATE generated_news.title SQL flow + step_4_5 schema
+  - Patch 6: Skill SPLIT (SKILL.md + 4 references)
+  - Rationale: User feedback "không dập khuôn list từ" + "em dash AI-tell" + "tách file dễ quản lý"
+```
+
+---
+
 
 ## 1. Goal
 

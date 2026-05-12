@@ -12,6 +12,48 @@
 
 ---
 
+## 🚨 V5.1.2 PATCH NOTICE (2026-05-12 PM) — apply EVERY task
+
+**Spec reference**: `docs/superpowers/specs/2026-05-11-master-article-format-diversity-design.md` V5.1.2 PATCH at top.
+
+After Spec B V1.2 patches, this plan adds Phase 6 (Tasks 23-30) and amends prior tasks:
+
+### Amend Task 1 — `data/format_registry.yaml`
+SKIP fields below from all 4 format definitions (already noted V5.1, repeat for clarity):
+- `title_pattern`, `title_must_contain` / `title_must_contain_one_of`, `title_tension_words`, `title_must_match_regex`
+
+### Amend Task 5 — `lib/gate_checker.py`
+Function `check_no_hedging` REWRITE: KHÔNG dùng regex match từ ("có thể", "tùy thuộc",...). DÙNG LLM-as-judge với 2 test:
+- Test 1 — Reverse-truth test: Đảo ngược sự thật, câu vẫn đúng? → fail.
+- Test 2 — Direction check: Có cam kết direction không? → false = fail.
+- Implementation: gate gọi Sonnet inline với prompt "Apply 2 tests to this sentence: <text>. Return {test_1: pass/fail, test_2: pass/fail, reason: str}". Tokens ~50 per call.
+
+Function `check_em_dash_density` (NEW): count `—` (U+2014) trong body, fail nếu `count > word_count / 100`. Max 1 em dash / 100 từ.
+
+### Amend Task 12-15 — Master sector prompts
+**REMOVE** sections:
+- "Title hook test 5s" guideline
+- "tension word required (?, —, hy sinh, đánh đổi, nghịch lý,...)"
+- "Title must start with..." patterns
+- Any field instructing Master to generate title
+
+**ADD** sections:
+- "KHÔNG generate title. Trả về body + insight + data_trail. Field title sẽ do Headline agent generate sau."
+- "Nhận stance_directive object từ brief. Body PHẢI viết theo `stance_directive.direction` + `stance_directive.key_evidence`. Được phép note caveat trong closing nếu data có nuance — caveat KHÔNG được làm bài 'ba phải' (fail Voice Rule 2)."
+
+### Amend Task 4 — pipeline_db.py validate
+`_STEP_4_REQUIRED_V5` REMOVE field `final_title`. Title sẽ vào `_STEP_4_5_REQUIRED` (Plan C).
+
+`_STEP_3_REQUIRED_V5` ADD field `stance_directive: dict` — required với keys `{direction, confidence, reason, key_evidence}`.
+
+Story Editor brief schema (`brief_json` JSON in DB) MUST contain `stance_directive` object — validation tại step_3 persist.
+
+### Phase 6 (Tasks 23-30) — V5.1.2 SPLIT + new features
+
+Inserted at end of plan. See Phase 6 section below.
+
+---
+
 ## 🚨 V5.1 PATCH NOTICE (2026-05-12) — apply EVERY task
 
 After Subsystem C (Headline Craft) brainstorm, **title craft moved out of plan B** to dedicated Headline agent. Executor MUST apply these edits to the original task content below:
@@ -3605,6 +3647,756 @@ Plan execution complete. Push to origin/main when user approves.
 - `pick_format_for_option` return shape matches Format Director agent output
 - `check_all_v5` signature `(body, title, format_id, stance)` consistent across Tasks 5, 6, 13-15
 - `format_id_used` field consistently used in step_4_master across DB validation + agents + render
+
+---
+
+## Phase 6 — V5.1.2 SPLIT + stance + no-hedging redefine + em dash (Tasks 23-30)
+
+**Trigger**: After Phase 5 done. Apply 5 patches từ Spec B V1.2.
+
+**Why split**: Hiện tại agents/newsroom-pipeline.md = 508 lines, master-{bank,ck,bds}/SKILL.md = 359-414 lines. V5.1 thêm 4 format body + voice + stance sẽ balloon 500+. SPLIT để mỗi file ≤200 lines, dễ navigate + edit.
+
+**Strategy**: Move existing content to references/, SKILL.md giữ core workflow + reference loaders. Duplicate `voice-layer-rules.md` + `stance-directive-handler.md` 3 copies trong 3 master skill (CLAUDE.md cấm shared folder).
+
+### Task 23: Split orchestrator skill + agent
+
+**Files:**
+- Modify: `.claude/agents/newsroom-pipeline.md` (508 → ~180 lines)
+- Modify: `.claude/skills/finpath-newsroom-orchestrator/SKILL.md` (existing → ~140 lines)
+- Create: `.claude/skills/finpath-newsroom-orchestrator/references/observability-emit.md`
+- Create: `.claude/skills/finpath-newsroom-orchestrator/references/db-persist-patterns.md`
+- Create: `.claude/skills/finpath-newsroom-orchestrator/references/failure-recovery.md`
+- Create: `.claude/skills/finpath-newsroom-orchestrator/references/step-1-5-market-snapshot.md`
+- Create: `.claude/skills/finpath-newsroom-orchestrator/references/step-3-5-format-director.md`
+- Create: `.claude/skills/finpath-newsroom-orchestrator/references/step-4-5-headline-craft.md`
+
+- [ ] **Step 1: Read current pipeline.md (508 lines)**
+
+```bash
+cat .claude/agents/newsroom-pipeline.md | head -60
+```
+
+- [ ] **Step 2: Extract observability content → observability-emit.md**
+
+Source lines: `newsroom-pipeline.md:298-345` (payload_master + payload_skeptic patterns) + `newsroom-pipeline.md:75-130` (observability summary).
+
+Target file content:
+
+```markdown
+# Pipeline Observability — Emit pattern per step
+
+> Loaded from `Skill: finpath-newsroom-orchestrator` references. Orchestrator MUST emit `pipeline_log` payload after each step with required schema.
+
+## Required fields V5.0+ (fail-loud)
+
+Per `lib/pipeline_db.py::_OBSERVABILITY_REQUIRED`:
+- `model: str` — agent model used (opus/sonnet)
+- `duration_ms: int` — wall time
+- `tokens: int | None` — optional (Claude Code không guarantee `<usage>`)
+
+## Per-step extras
+
+- step_4_master: `chosen_question_idx, chosen_pick_reason, skip_reasons, data_trail, format_id_used, accepted_hypothesis`
+- step_4_5_headline_craft: `final_title, final_loi, candidates, hard_criteria_pass`
+- step_5_skeptic: `angle, verdict, skeptic_data_trail` ⏸ PAUSED 2026-05-12
+
+## Emit pattern (Python)
+
+```python
+import time
+t0 = time.time()
+started_at = datetime.now(timezone.utc).isoformat()
+# ... dispatch agent ...
+payload = {
+    "model": "opus",
+    "started_at": started_at,
+    "duration_ms": int((time.time() - t0) * 1000),
+    "tokens": parse_task_usage(task_return),
+    # step-specific extras here
+}
+db.log_pipeline_step(article_id, "step_4_master", payload)
+```
+
+## Failure: validation rejects payload
+
+`lib/pipeline_db.py::validate_pipeline_step` raises `ValueError` nếu thiếu required field. KHÔNG workaround — fix dispatch để collect đủ field.
+```
+
+- [ ] **Step 3: Extract DB persist patterns → db-persist-patterns.md**
+
+Source lines: `newsroom-pipeline.md:185-250` (DB write patterns) + scattered DB query examples.
+
+Target file content (~80 lines):
+
+```markdown
+# SQLite Persist Patterns — Orchestrator
+
+> Loaded from `Skill: finpath-newsroom-orchestrator`. All DB writes go through `lib/pipeline_db.py::PipelineDB`. NEVER raw `sqlite3.connect()`.
+
+## Open + WAL mode
+
+```python
+from lib.pipeline_db import PipelineDB
+db = PipelineDB('data/pipeline.db')  # WAL auto-enabled
+# ... operations ...
+db.close()
+```
+
+## Persist generated_news (Master output)
+
+[full pattern with code example — extracted from current pipeline.md]
+
+## UPDATE title (Headline output, V5.1)
+
+```python
+db.conn.execute(
+    "UPDATE generated_news SET title = ?, headline_final = ?, updated_at = CURRENT_TIMESTAMP WHERE article_id = ?",
+    (final_title, final_loi, article_id)
+)
+db.conn.commit()
+```
+
+## Log pipeline_step
+
+```python
+db.log_pipeline_step(article_id, "step_4_master", payload)
+# Auto validates via _OBSERVABILITY_REQUIRED + step-specific schema
+```
+
+## Atomic batch (multi-row)
+
+```python
+with db.conn:  # auto rollback on exception
+    for row in rows:
+        db.conn.execute(..., row)
+```
+```
+
+- [ ] **Step 4: Extract failure recovery → failure-recovery.md**
+
+Source: `newsroom-pipeline.md:346-410` (failure isolation, brief-level retry, batch survival).
+
+Target file content (~60 lines): per-step failure handling. Brief N fail → continue brief N+1. Master accepted_hypothesis=false → skip Skeptic + render. Git publish fail → self-heal actions. Pages wait timeout → fallback URL.
+
+- [ ] **Step 5: NEW step-1-5-market-snapshot.md**
+
+Content (~80 lines): Step 1.5 Market Snapshot Python helper (lib/stages/run_market_snapshot.py). Reads ticker → Finpath API price + volume → compute `ticker_status` (Hot/Cold/Normal) + `day_change_pct`. Emit payload. No agent dispatch.
+
+- [ ] **Step 6: NEW step-3-5-format-director.md**
+
+Content (~100 lines): Dispatch newsroom-format-director subagent. Input: briefs[] + market_snapshot + variety_guard (last 3 format). Output: format_picks[]. Validate response shape before persist step_3_5.
+
+- [ ] **Step 7: NEW step-4-5-headline-craft.md**
+
+Content (~100 lines): Dispatch newsroom-headline-craft subagent AFTER Master persist. Input: article_id (Headline reads body từ DB) + brief + stance_directive. Output: final_title + final_loi + candidates. UPDATE generated_news.title. Persist step_4_5 payload.
+
+- [ ] **Step 8: Update SKILL.md (140 lines)**
+
+Keep: core workflow + dispatch logic + hard rules.
+Move out: observability detail, DB patterns, failure recovery, step-1-5/3-5/4-5 detail.
+
+At bottom of SKILL.md add references section:
+
+```markdown
+## References (load on-demand)
+
+For detail beyond core flow:
+- `references/observability-emit.md` — pipeline_log emit pattern
+- `references/db-persist-patterns.md` — SQLite write patterns
+- `references/failure-recovery.md` — per-step failure handling
+- `references/step-1-5-market-snapshot.md` — Market Snapshot helper
+- `references/step-3-5-format-director.md` — Format Director dispatch
+- `references/step-4-5-headline-craft.md` — Headline Craft dispatch + UPDATE
+- `references/compare-feed-layout.md` — (existing) viewer layout
+```
+
+- [ ] **Step 9: Update agent file (180 lines)**
+
+Keep: HARD RULE + Skill load instruction. Move detail to skill references. Agent body becomes thin: load skill, run flow.
+
+- [ ] **Step 10: Test loadability**
+
+Run dispatch dry-run:
+```bash
+echo "TEST" | uv run python -c "
+from pathlib import Path
+skill = Path('.claude/skills/finpath-newsroom-orchestrator')
+assert skill.exists()
+refs = list((skill / 'references').glob('*.md'))
+assert len(refs) >= 7, f'expected 7 refs, got {len(refs)}'
+print(f'OK {len(refs)} references')
+"
+```
+
+- [ ] **Step 11: Commit**
+
+```bash
+git add .claude/agents/newsroom-pipeline.md .claude/skills/finpath-newsroom-orchestrator/
+git commit -m "refactor(orchestrator): split skill into 7 references (V5.1.2 patch 5)"
+```
+
+### Task 24: Split master-bank skill
+
+**Files:**
+- Modify: `.claude/skills/finpath-newsroom-master-bank/SKILL.md` (359 → ~180 lines)
+- Create: `.claude/skills/finpath-newsroom-master-bank/references/format-bodies/flash-qa.md`
+- Create: `.claude/skills/finpath-newsroom-master-bank/references/format-bodies/standard-qa.md`
+- Create: `.claude/skills/finpath-newsroom-master-bank/references/format-bodies/standard-listicle.md`
+- Create: `.claude/skills/finpath-newsroom-master-bank/references/format-bodies/standard-narrative.md`
+- Create: `.claude/skills/finpath-newsroom-master-bank/references/voice-layer-rules.md`
+- Create: `.claude/skills/finpath-newsroom-master-bank/references/stance-directive-handler.md`
+
+- [ ] **Step 1: Create flash-qa.md (~70 lines)**
+
+```markdown
+# Format: flash_qa (100-150 từ)
+
+> Loaded from `Skill: finpath-newsroom-master-bank`. Apply khi `format_id == "flash_qa"`.
+
+## Khi nào dùng
+
+Ticker_status = Hot (top tăng/giảm/bùng nổ/cạn cung) + data_richness ∈ {low, medium}. Người đọc cần info nhanh khi mã đang nóng.
+
+## Body pattern
+
+```
+[1 câu mở (≥20 từ): nêu question chính]
+
+[1 paragraph trả lời (60-100 từ): answer + verdict]
+
+[1 câu closing (≤20 từ): verdict ngắn cho NĐT cầm]
+```
+
+- KHÔNG bullet
+- KHÔNG heading "## Cần để ý"
+- Max 1 em dash / bài (Spec B Patch 4)
+
+## Word count
+
+- Total: 100-150 từ HARD CAP. <100 fail no_data. >150 fail word_count.
+- Opening: ≥20 từ
+- Body paragraph: 60-100 từ
+- Closing: ≤20 từ
+
+## Bold highlight
+
+≥1 bold `**...**` trong body paragraph. Highlight 1 số key (VD: `**lãi +17%**`).
+
+## Verdict line
+
+Closing MUST có verdict cho NĐT phân loại (Voice Rule 3):
+- ✅ "Mã phù hợp NĐT giá trị giữ trên 12 tháng, chấp nhận biến động ngắn hạn"
+- ❌ "Cần thêm thông tin để đánh giá" (ba phải, fail Voice Rule 2)
+
+## Examples Bank sector
+
+### Example 1: VCB +6.8% Hot
+Title (by Headline agent): "VCB tăng 6,8% sau khi Q1 lãi vượt 11%, đà tăng còn tiếp?"
+
+Body (130 từ):
+> Vietcombank tăng kịch trần 6,8% trong phiên sáng 12/5 sau khi công bố lãi quý 1 vượt 11% so cùng kỳ, vì sao thị trường phản ứng mạnh đến vậy?
+>
+> Lãi tăng vì biên lãi vay nới rộng từ 3,1% lên 3,3% nhờ huy động giá rẻ tăng. Nợ xấu vẫn ở mức an toàn 0,9%, ROA giữ ổn định 1,8%. **Tín dụng quý 1 tăng 3,5%** cao hơn trung bình ngành 2,1%. Phía sau con số: VCB đang ăn được phần lợi từ chu kỳ NHNN nới lỏng, không phải tăng nóng tín dụng.
+>
+> Mã phù hợp NĐT giá trị giữ trên 12 tháng, chấp nhận biến động ngắn hạn theo phiên.
+
+### Example 2: TCB -6.5% Cold panic
+[full second example similar pattern]
+```
+
+- [ ] **Step 2: Create standard-qa.md (~80 lines)**
+
+[same pattern: định nghĩa khi nào dùng + body pattern + word count + bold rule + verdict + 2 example Bank sector]
+
+- [ ] **Step 3: Create standard-listicle.md (~90 lines)**
+
+[same pattern, this is current default — port existing V4.0 body pattern guide here]
+
+- [ ] **Step 4: Create standard-narrative.md (~80 lines)**
+
+[same pattern]
+
+- [ ] **Step 5: Create voice-layer-rules.md (~100 lines)**
+
+```markdown
+# Voice Layer 5 Rules — Master Bank
+
+> Loaded from `Skill: finpath-newsroom-master-bank`. Apply CROSS-CUTTING toàn bộ 4 format.
+
+## V1 — Stance required
+
+Bài MUST có quan điểm rõ. Nhận `stance_directive` từ brief (see `stance-directive-handler.md`).
+
+## V2 — No-hedging (definition-based, KHÔNG list từ)
+
+### Định nghĩa "ba phải" (hedging)
+
+Câu khẳng định trung tính không cam kết hướng nào, có thể đúng dù sự thật ngược lại.
+
+### Test 1 — Đảo sự thật
+
+Đảo ngược sự thật, câu vẫn đúng? → fail.
+- ❌ "Cổ phiếu có thể tăng tùy thuộc thị trường" (tăng/giảm đều đúng → BA PHẢI)
+- ✅ "Cổ phiếu sẽ tăng vì Q1 lãi vượt 30%" (có direction + lý do)
+
+### Test 2 — Direction check
+
+Có cam kết direction không? → không = fail.
+- ❌ "Vẫn còn phải chờ thêm dữ liệu mới biết"
+- ✅ "Đà tăng có thể chững lại Q2 nếu NHNN siết lãi suất" (có direction)
+
+### Implementation
+
+LLM-as-judge runs 2 tests trên từng câu body. Gate fail = bài có ≥1 câu fail BA PHẢI.
+
+## V3 — Verdict line bắt buộc
+
+Closing MUST có verdict cụ thể cho NĐT. Không "tùy quan điểm", không "tham khảo".
+
+## V4 — Title stance (delegated to Headline)
+
+V5.1: Master KHÔNG generate title. Headline agent enforce title stance match body. Master chỉ cần đảm bảo body có stance rõ → Headline auto-pick title cùng hướng.
+
+## V5 — Contrarian-when-warranted
+
+Master được phép viết góc nghịch CHỈ KHI data clear support. KHÔNG override stance_directive (nếu stance positive, không tự ý viết negative).
+```
+
+- [ ] **Step 6: Create stance-directive-handler.md (~80 lines)**
+
+```markdown
+# Stance Directive Handler — Master Bank
+
+> Loaded from `Skill: finpath-newsroom-master-bank`. Apply khi parse brief.
+
+## Schema
+
+```yaml
+stance_directive:
+  direction: "positive" | "negative" | "neutral"
+  confidence: "high" | "medium" | "low"
+  reason: |
+    Free-form prose 1-3 câu Vietnamese.
+  key_evidence:
+    - "..."
+```
+
+## Receive
+
+Parse from brief_json[stance_directive]. Required field — fail-loud nếu missing.
+
+## Apply rules
+
+1. **Body MUST follow direction**. Opening + verdict cùng hướng `direction`.
+2. **Body MUST cite ≥1 evidence** từ `key_evidence` array (preserve wording where possible).
+3. **Caveat permitted in closing** nếu data nuance. Caveat phải có direction (không ba phải).
+4. **NEVER override stance** — Voice Rule V5 không apply để override stance_directive.
+
+## Examples
+
+### Stance: positive (mã giảm sàn nhưng nội lực OK)
+
+Brief:
+```yaml
+direction: positive
+reason: "Mã giảm sàn hôm nay nhưng Q1 lãi vẫn tăng 17%, ROA stable, không có scandal pháp lý → tin tích cực: panic temporary."
+key_evidence: ["Q1 lãi +17%", "Không có scandal", "Sector cycle vẫn up"]
+```
+
+Body MUST:
+- Opening: "Cổ phiếu X giảm sàn hôm nay, nhưng Q1 lãi vẫn tăng 17%..." (positive direction).
+- Closing verdict: "Mã phù hợp NĐT tích lũy giá oversold" (positive).
+
+Body MUST NOT:
+- Mở bằng "tin xấu" / "đáng lo".
+- Closing "chờ xem thêm" (ba phải, violation V2).
+
+### Stance: negative (mã tăng trần nhưng PE/PB cao + earnings yếu)
+
+[example case 2]
+
+### Stance: neutral (mixed signal)
+
+[example case 3]
+```
+
+- [ ] **Step 7: Update SKILL.md (180 lines)**
+
+Keep: 9-step workflow + Anti-pattern jargon mapping reference + finpath API patterns + KB structure.
+
+Move out (now in references/):
+- 4 format body patterns → format-bodies/*.md
+- Voice 5 rules → voice-layer-rules.md
+- Stance handling → stance-directive-handler.md
+
+Add references section listing 6 new files + 5 existing.
+
+- [ ] **Step 8: Verify dispatch**
+
+```bash
+ls .claude/skills/finpath-newsroom-master-bank/references/
+# Expected: 12 files (4 format-bodies/ + voice + stance + 6 existing)
+```
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add .claude/skills/finpath-newsroom-master-bank/
+git commit -m "refactor(master-bank): split skill — 4 format-bodies + voice + stance (V5.1.2)"
+```
+
+### Task 25: Split master-ck skill
+
+Same pattern as Task 24, BUT examples use SSI/HCM/VND tickers (CK sector). voice-layer-rules + stance-directive-handler là copy-paste từ master-bank (acceptable duplicate per CLAUDE.md no-shared-folder rule).
+
+[Steps 1-9 same structure, content swap to CK sector — full content omitted here for brevity, follow Task 24 mapping]
+
+### Task 26: Split master-bds skill
+
+Same pattern as Task 24, BUT examples use VHM/NVL/KDH/DXG tickers (BĐS sector). Note BĐS specific: data_richness thường low (BCTC quarterly thiếu), so flash_qa + standard_qa formats sẽ phổ biến hơn.
+
+[Steps 1-9 same structure, content swap to BĐS sector]
+
+### Task 27: Master prompts dỡ title generation rule (3 sector)
+
+**Files:**
+- Modify: `.claude/agents/newsroom-master-bank.md`
+- Modify: `.claude/agents/newsroom-master-ck.md`
+- Modify: `.claude/agents/newsroom-master-bds.md`
+
+- [ ] **Step 1: Find title rule in master-bank.md**
+
+```bash
+grep -n "title\|Title\|tension" .claude/agents/newsroom-master-bank.md
+```
+
+- [ ] **Step 2: Remove title generation sections**
+
+DELETE blocks:
+- "Title hook test 5s — đọc 5 giây phải thấy rõ insight"
+- "Tension word required: ?, —, hy sinh, đánh đổi, nghịch lý"
+- "Title style guide per format" (table mapping format→title style)
+- Any "title" field in output JSON schema
+
+- [ ] **Step 3: Add stance_directive parsing instructions**
+
+ADD section:
+
+```markdown
+## Stance Directive (V5.1.2)
+
+Brief V5.1 chứa `stance_directive` object. Parse + apply per `references/stance-directive-handler.md`:
+
+1. Read `brief["stance_directive"]["direction"]` → bài phải viết theo hướng này.
+2. Read `brief["stance_directive"]["key_evidence"]` → cite ≥1 evidence trong body.
+3. Closing verdict MUST match direction.
+4. KHÔNG generate title. Trả về body + insight + data_trail.
+```
+
+- [ ] **Step 4: Update output schema**
+
+Master return JSON:
+
+```json
+{
+  "article_id": "uuid",
+  "body": "...",
+  "insight_final": "...",
+  "data_trail": [...],
+  "quality_gates": {...},
+  "format_id_used": "standard_listicle",
+  "accepted_hypothesis": true
+}
+```
+
+REMOVE field `"title"` from output schema. Note in prompt: "title sẽ do Headline agent generate sau."
+
+- [ ] **Step 5: Repeat for master-ck.md + master-bds.md**
+
+Same edits across 3 agent files.
+
+- [ ] **Step 6: Run test**
+
+```bash
+uv run pytest tests/test_master_prompts.py -v
+# Expected: tests verify no "title" in output schema
+```
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add .claude/agents/newsroom-master-*.md
+git commit -m "refactor(master): remove title generation (V5.1.2 — Headline owns title)"
+```
+
+### Task 28: Story Editor brief schema add stance_directive
+
+**Files:**
+- Modify: `.claude/agents/newsroom-story-editor.md`
+- Modify: `.claude/skills/finpath-newsroom-story-editor/SKILL.md`
+- Modify: `lib/pipeline_db.py` — `_STEP_3_REQUIRED_V5` add stance_directive
+- Test: `tests/test_pipeline_db_validation.py::test_v5_step_3_requires_stance_directive`
+
+- [ ] **Step 1: Write failing test**
+
+```python
+def test_v5_step_3_requires_stance_directive():
+    payload = {
+        "model": "opus",
+        "duration_ms": 5000,
+        "briefs": [],
+    }
+    with pytest.raises(ValueError, match="stance_directive"):
+        validate_pipeline_step("step_3_story_editor", payload, pipeline_version="V5.1.2")
+```
+
+- [ ] **Step 2: Update pipeline_db.py**
+
+```python
+_STEP_3_REQUIRED_V5 = {
+    **_STEP_3_REQUIRED_V4,
+    **_OBSERVABILITY_REQUIRED,
+    "briefs": list,  # array of brief objects
+}
+# Per-brief schema enforced via _BRIEF_SCHEMA_V5
+_BRIEF_SCHEMA_V5 = {
+    **_BRIEF_SCHEMA_V4,
+    "stance_directive": dict,
+}
+_STANCE_DIRECTIVE_REQUIRED = {
+    "direction": str,        # positive/negative/neutral
+    "confidence": str,       # high/medium/low
+    "reason": str,
+    "key_evidence": list,
+}
+```
+
+In `validate_pipeline_step`, when version >= V5.1.2 and step_3, iterate briefs[] and validate each against _BRIEF_SCHEMA_V5 + stance_directive nested validation.
+
+- [ ] **Step 3: Run test passes**
+
+```bash
+uv run pytest tests/test_pipeline_db_validation.py::test_v5_step_3_requires_stance_directive -v
+```
+
+- [ ] **Step 4: Update Story Editor prompt**
+
+ADD section in `.claude/agents/newsroom-story-editor.md`:
+
+```markdown
+## Stance Directive Output (V5.1.2)
+
+For EACH brief output, include `stance_directive` object:
+
+```yaml
+stance_directive:
+  direction: "positive" | "negative" | "neutral"
+  confidence: "high" | "medium" | "low"
+  reason: |
+    Free-form prose 1-3 câu giải thích WHY stance đó.
+    Cross-intersect:
+    - Price event (Step 1.5 Market Snapshot)
+    - Internal strength (broad 7-layer: tài chính + quản trị + chiến lược + vận hành + sản phẩm + sector cycle + vĩ mô)
+    - Context narrative
+  key_evidence:
+    - "..."
+    - "..."
+```
+
+KHÔNG dập khuôn matrix 2×2 (PE cao=negative, giảm sàn=positive). Stance dựa REASON narrative, không metric đơn lẻ.
+```
+
+- [ ] **Step 5: Update Story Editor skill**
+
+`.claude/skills/finpath-newsroom-story-editor/SKILL.md` thêm references/`stance-judgment-guide.md` (~120 lines) — 7-layer nội lực definition + 6 case study (Hot+healthy, Hot+degraded, Cold+healthy, Cold+degraded, Normal+mixed, Normal+early signal).
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add lib/pipeline_db.py .claude/agents/newsroom-story-editor.md .claude/skills/finpath-newsroom-story-editor/ tests/
+git commit -m "feat(story-editor): add stance_directive brief field + 7-layer judgment (V5.1.2)"
+```
+
+### Task 29: Master receive + apply stance_directive
+
+**Files:**
+- Modify: `lib/quality_gates.py` — `check_stance_consistency` accept stance_directive object
+- Modify: `.claude/skills/finpath-newsroom-master-{bank,ck,bds}/references/stance-directive-handler.md` (Task 24-26 already create file, this task add tests + integration)
+- Test: `tests/test_stance_application.py` (NEW)
+
+- [ ] **Step 1: Write failing test**
+
+```python
+def test_master_body_follows_stance_positive():
+    stance = {
+        "direction": "positive",
+        "confidence": "high",
+        "reason": "Mã giảm sàn nhưng Q1 lãi vẫn tăng 17%, ROA stable",
+        "key_evidence": ["Q1 lãi +17%", "ROA stable"],
+    }
+    body = "Cổ phiếu X giảm sàn hôm nay, nhưng Q1 lãi vẫn tăng 17%..."
+    result = check_stance_consistency(body, stance)
+    assert result.passed
+    assert "Q1 lãi +17%" in body  # evidence cited
+```
+
+- [ ] **Step 2: Implement check_stance_consistency**
+
+```python
+def check_stance_consistency(body: str, stance_directive: dict) -> GateResult:
+    direction = stance_directive["direction"]
+    evidence = stance_directive["key_evidence"]
+    
+    # Test 1: Body cites ≥1 evidence (substring match)
+    cited = [e for e in evidence if e in body]
+    if not cited:
+        return GateResult(passed=False, reason=f"Body không cite evidence nào từ key_evidence={evidence}")
+    
+    # Test 2: Closing line matches direction (LLM-as-judge)
+    closing = body.strip().split("\n")[-1]  # last non-empty line
+    judge_result = llm_direction_check(closing, expected=direction)
+    if not judge_result["match"]:
+        return GateResult(passed=False, reason=f"Closing '{closing}' không match direction '{direction}'")
+    
+    return GateResult(passed=True, evidence_cited=cited)
+```
+
+- [ ] **Step 3: Run tests pass**
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add lib/quality_gates.py tests/test_stance_application.py
+git commit -m "feat(gates): stance_consistency check — evidence cited + direction match (V5.1.2)"
+```
+
+### Task 30: Voice Rule 2 redefine — LLM-as-judge no-hedging
+
+**Files:**
+- Modify: `lib/gate_checker.py` (or `lib/quality_gates.py`) — `check_no_hedging` REWRITE
+- Test: `tests/test_no_hedging_redefine.py` (NEW)
+
+- [ ] **Step 1: Write failing tests**
+
+```python
+def test_no_hedging_test_1_reverse_truth_fails_for_dual_outcome():
+    """'có thể tăng tùy thuộc thị trường' → reverse-truth pass → BA PHẢI"""
+    text = "Cổ phiếu có thể tăng tùy thuộc thị trường"
+    result = check_no_hedging(text)
+    assert not result.passed
+    assert "reverse_truth" in result.reason
+
+def test_no_hedging_passes_directional():
+    """'sẽ tăng vì Q1 lãi vượt 30%' → có direction + lý do → PASS"""
+    text = "Cổ phiếu sẽ tăng vì Q1 lãi vượt kỳ vọng 30%"
+    result = check_no_hedging(text)
+    assert result.passed
+
+def test_no_hedging_passes_conditional_with_direction():
+    """'có thể chững lại nếu NHNN siết' → có direction → PASS"""
+    text = "Đà tăng có thể chững lại Q2 nếu NHNN siết lãi suất"
+    result = check_no_hedging(text)
+    assert result.passed
+
+def test_no_hedging_fails_no_direction():
+    """'vẫn còn chờ' → không direction → BA PHẢI"""
+    text = "Vẫn còn phải chờ thêm dữ liệu mới biết"
+    result = check_no_hedging(text)
+    assert not result.passed
+```
+
+- [ ] **Step 2: Implement check_no_hedging with 2 LLM tests**
+
+```python
+def check_no_hedging(text: str) -> GateResult:
+    """
+    Definition-based: "Ba phải" = câu khẳng định trung tính không cam kết hướng,
+    có thể đúng dù sự thật ngược lại.
+    
+    Test 1 — Reverse-truth: Đảo ngược sự thật, câu vẫn đúng?
+    Test 2 — Direction: Có cam kết direction không?
+    """
+    prompt = f"""Apply 2 tests to this Vietnamese sentence about stock analysis:
+
+Sentence: "{text}"
+
+Test 1 — Reverse-truth: Imagine the actual outcome is OPPOSITE of what the sentence implies. Does the sentence still hold? If yes, the sentence is hedging.
+
+Test 2 — Direction: Does the sentence commit to a direction (up/down/strong/weak/positive/negative)? If no direction is committed, the sentence is hedging.
+
+Return JSON:
+{{
+    "test_1_reverse_truth": "pass" | "fail",   // pass = NOT hedging
+    "test_2_direction": "pass" | "fail",        // pass = has direction
+    "reason": "1-line explanation"
+}}
+"""
+    response = sonnet_call(prompt, max_tokens=100)
+    result = json.loads(response)
+    passed = result["test_1_reverse_truth"] == "pass" and result["test_2_direction"] == "pass"
+    return GateResult(passed=passed, reason=result["reason"])
+```
+
+- [ ] **Step 3: Run tests pass (each test call ~50 tokens, LLM-as-judge stable)**
+
+- [ ] **Step 4: Add em dash body density check**
+
+```python
+def check_em_dash_density(body: str) -> GateResult:
+    """Em dash (—, U+2014) density ≤ 1 / 100 từ."""
+    em_count = body.count("—")
+    word_count = len(body.split())
+    density = em_count / (word_count / 100) if word_count > 0 else 0
+    if density > 1:
+        return GateResult(passed=False, reason=f"Em dash density {density:.2f}/100 words > 1")
+    return GateResult(passed=True)
+```
+
+- [ ] **Step 5: Wire into check_all_v5**
+
+```python
+def check_all_v5(body: str, format_id: str, stance_directive: dict) -> list[GateResult]:
+    gates = [
+        check_no_english_jargon(body),       # Gate 1
+        check_no_metadata_leak(body),         # Gate 2
+        check_no_hedging(body),               # Gate 3 (REDEFINED)
+        check_verdict_line(body),             # Gate 4
+        check_stance_consistency(body, stance_directive),  # Gate 5 (now uses stance_directive)
+        check_em_dash_density(body),          # Gate 6 NEW
+        check_word_count_per_format(body, format_id),  # Gate 7
+        check_body_pattern_per_format(body, format_id),  # Gate 8
+    ]
+    return gates
+```
+
+Total 8 gates (was 9 in V5.0, title_pattern removed → 8 in V5.1, em_dash_density added in V5.1.2 → still 8 since stance_consistency was implicit before).
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add lib/gate_checker.py lib/quality_gates.py tests/
+git commit -m "refactor(gates): no-hedging redefine LLM-as-judge + em_dash_density (V5.1.2)"
+```
+
+---
+
+## Phase 6 — Self-review checklist
+
+### Spec coverage check (V5.1.2)
+- [ ] Patch 1 (Master no-title): Task 27 dỡ title rule ✓
+- [ ] Patch 2 (Stance directive): Task 28 brief schema + Task 29 Master apply ✓
+- [ ] Patch 3 (Voice Rule 2 redefine): Task 30 LLM-as-judge ✓
+- [ ] Patch 4 (Em dash policy): Task 30 em_dash_density + Plan C em dash regex title ✓
+- [ ] Patch 5 (Master skill SPLIT): Task 24-26 ✓
+- [ ] Patch 5b (Orchestrator skill SPLIT): Task 23 ✓
+
+### Placeholder scan
+- [ ] Task 25 (Split master-ck) full content omitted — rely on Task 24 mapping. Mitigate: executor must apply Task 24 pattern, just swap example tickers. Document as "follow Task 24 structure, swap content".
+- [ ] Task 26 (Split master-bds) same.
+
+### Type consistency
+- `stance_directive` shape consistent: `{direction, confidence, reason, key_evidence}` across Task 28-29 + Spec B Patch 2.
+- `GateResult` field `passed: bool, reason: str, evidence_cited: list[str] | None` consistent Task 29-30.
 
 ---
 
