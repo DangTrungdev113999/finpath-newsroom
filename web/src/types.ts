@@ -86,6 +86,28 @@ export interface PipelineLog {
   };
 }
 
+// V5.0 — Format Director output (step_3_5)
+export interface FormatPick {
+  option_idx: number;
+  format_id: FormatId;
+  format_reason: string;
+  tone_bias: 'neutral' | 'acknowledge_market_red' | 'acknowledge_market_green';
+  length_target: number;
+}
+
+export interface VarietyCheck {
+  recent_3_articles_same_ticker_formats?: string[];
+  current_pick_diversity_warning?: boolean;
+}
+
+export interface FormatDirectorData {
+  format_id: FormatId;
+  format_reason: string;
+  tone_bias: string;
+  length_target: number;
+  variety_check?: VarietyCheck;
+}
+
 export interface ArticleMeta {
   title: string;
   ticker: string;
@@ -110,6 +132,8 @@ export interface ArticleMeta {
   raw_article_url: string;
   // Phase F T11 — observability per pipeline step
   pipeline_log?: PipelineLog;
+  // V5.0 — Format Director (step 3.5); null for V3.6/V4.0 legacy articles
+  format_director?: FormatDirectorData | null;
 }
 
 export interface Article {

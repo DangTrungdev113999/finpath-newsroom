@@ -5,6 +5,7 @@ import { QuestionOptions } from './QuestionOptions';
 import { DataTrail } from './DataTrail';
 import { InsightCallout } from './InsightCallout';
 import { PipelineObservability } from './PipelineObservability';
+import { FormatPickPanel } from './FormatPickPanel';
 import { formatPublishedDate } from '../lib/format';
 
 export function RightColumn({ meta }: { meta: ArticleMeta }) {
@@ -45,6 +46,9 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
           <p className="leading-relaxed">{meta.why_chosen_narrative}</p>
         </section>
       )}
+
+      {/* Section 2b: Format chọn — V5.0 Format Director (graceful degrade for legacy) */}
+      <FormatPickPanel data={meta.format_director} />
 
       {/* Section 3: Hướng tiếp cận */}
       {meta.angle_label && (
