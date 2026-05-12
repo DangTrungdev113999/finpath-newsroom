@@ -167,3 +167,56 @@ export interface ArticleSummary {
 export interface Manifest {
   articles: ArticleSummary[];
 }
+
+// === Subsystem H V1.0 — Pipeline Run History ===
+
+export interface PipelinePickedItem {
+  source: string;
+  url: string;
+  published: string;
+  reason: string;
+}
+
+export interface PipelineRejectedItem {
+  source: string;
+  url: string;
+  published: string;
+  reject_agent: 'editor_v1' | 'story_editor' | 'master' | 'unknown';
+  reject_label: string;
+  reason: string;
+}
+
+export interface PipelineFunnelDetail {
+  picked: PipelinePickedItem[];
+  rejected: PipelineRejectedItem[];
+}
+
+export interface PipelineBatch {
+  funnel_batch_id: string;
+  ticker: string;
+  sector_code: string | null;
+  sector_name: string | null;
+  hot_nhom: string | null;
+  hot_rank: number | null;
+  fetched_count: number;
+  chosen_count: number;
+  rejected_count: number;
+  funnel_detail: PipelineFunnelDetail;
+}
+
+export interface PipelineSession {
+  session_id: string;
+  trigger_type: 'tin' | 'tin-hot' | 'tin-batch';
+  trigger_args: string;
+  started_at: string;
+  ended_at: string;
+  fetched_total: number;
+  chosen_total: number;
+  rejected_total: number;
+  batches: PipelineBatch[];
+}
+
+export interface PipelineRunsManifest {
+  built_at: string;
+  sessions: PipelineSession[];
+}
