@@ -283,3 +283,4 @@ db.update_crawl_row(row_id, {
 ## References
 - `references/expert-questions.md` — examples thinking process per 4 questions
 - `references/brief-schema-full.md` — full brief JSON spec V2.2 (1.2) với examples
+- `references/foreign-flow-when-to-call.md` — V5.1.3: when to call foreign flow API for stance judgment
