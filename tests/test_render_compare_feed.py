@@ -9,6 +9,8 @@ from lib.render_compare_feed import (
     render_for_funnel_batch,
     render_article_md_v4,
     build_right_column,
+    clean_manifest,
+    update_manifest,
 )
 
 
@@ -434,3 +436,67 @@ def test_update_manifest_atomic_concurrent(tmp_path):
     ids = {a["id"] for a in data["articles"]}
     assert ids == {"article-0", "article-1", "article-2"}, \
         f"Lost entries — got {ids}"
+
+
+def test_update_manifest_sweeps_stale_entries(tmp_path):
+    """Headline (Step 4.5) regenerates slug from final title — old placeholder
+    entry must NOT linger pointing to a non-existent .md file (causes 404 in
+    viewer). update_manifest sweeps any entry whose .md file is missing.
+    """
+    manifest = tmp_path / "manifest.json"
+
+    # Pre-seed manifest with a stale entry whose .md file does NOT exist —
+    # simulates the Master-persists-placeholder → Headline-renames-slug case.
+    stale = {
+        "articles": [
+            {
+                "id": "STB-20260513-1900-pending-headline",
+                "ticker": "STB",
+                "sector": "Bank",
+                "title": "placeholder",
+                "crawled_at": "2026-05-13T03:00:00Z",
+                "key_view": "trung lập",
+                "word_count": 0,
+            }
+        ]
+    }
+    manifest.write_text(json.dumps(stale), encoding="utf-8")
+
+    # New render writes the .md file then calls update_manifest with final slug.
+    final_id = "STB-20260513-1900-stb-gom-dna-lpbank"
+    (tmp_path / f"{final_id}.md").touch()
+    update_manifest(
+        manifest,
+        {
+            "id": final_id,
+            "ticker": "STB",
+            "sector": "Bank",
+            "title": "STB gom DNA LPBank",
+            "crawled_at": "2026-05-13T03:00:00Z",
+            "key_view": "lạc quan",
+            "word_count": 276,
+        },
+    )
+
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    ids = {a["id"] for a in data["articles"]}
+    assert ids == {final_id}, f"stale placeholder leaked → {ids}"
+
+
+def test_clean_manifest_drops_orphans(tmp_path):
+    """clean_manifest is the one-shot equivalent for the same sweep."""
+    manifest = tmp_path / "manifest.json"
+    (tmp_path / "live.md").touch()
+    manifest.write_text(
+        json.dumps({
+            "articles": [
+                {"id": "live", "crawled_at": "2026-05-13T00:00:00Z"},
+                {"id": "orphan", "crawled_at": "2026-05-13T00:00:00Z"},
+            ]
+        }),
+        encoding="utf-8",
+    )
+    result = clean_manifest(manifest)
+    assert result == {"removed": 1, "remaining": 1}
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    assert [a["id"] for a in data["articles"]] == ["live"]

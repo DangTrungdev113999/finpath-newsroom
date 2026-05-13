@@ -235,14 +235,44 @@ def _author_for_sector(sector: str) -> str:
     return {"Bank": "Chuyên gia ngân hàng", "CK": "Chuyên gia chứng khoán", "BĐS": "Chuyên gia bất động sản"}.get(sector, "Chuyên gia")
 
 
+def _filter_stale_entries(articles: list[dict], output_dir: Path) -> list[dict]:
+    """Drop manifest entries whose `<id>.md` file is missing on disk.
+
+    Master persists with placeholder slug (`<TICKER>-<DATE>-<HHMM>-pending-headline`);
+    after Headline (Step 4.5) the slug is regenerated from the final title and the
+    new file is rendered. The old placeholder entry stays unless we sweep here,
+    causing 404s in the viewer.
+    """
+    return [a for a in articles if (output_dir / f"{a['id']}.md").exists()]
+
+
+def clean_manifest(manifest_path: Path) -> dict:
+    """Self-heal: drop entries whose .md file no longer exists. Atomic write."""
+    if not manifest_path.exists():
+        return {"removed": 0, "remaining": 0}
+    current = json.loads(manifest_path.read_text(encoding="utf-8"))
+    before = len(current.get("articles", []))
+    current["articles"] = _filter_stale_entries(
+        current.get("articles", []), manifest_path.parent
+    )
+    after = len(current["articles"])
+    tmp_path = manifest_path.with_suffix(".json.tmp")
+    tmp_path.write_text(
+        json.dumps(current, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    os.replace(tmp_path, manifest_path)
+    return {"removed": before - after, "remaining": after}
+
+
 def update_manifest(manifest_path: Path, summary: dict) -> None:
     """Atomic append/update entry in manifest.json. id = public_slug.
 
     Phase G T6 — atomic via temp file + os.replace. Read-modify-write loop with
     retry on stale read (when 2nd writer races between our read + write).
     macOS/Linux: os.replace is atomic (POSIX rename guarantees).
+
+    Self-heal: every write also sweeps stale entries (file deleted/renamed).
     """
-    import os
     import tempfile
     import time
 
@@ -262,6 +292,9 @@ def update_manifest(manifest_path: Path, summary: dict) -> None:
         # Apply update
         current["articles"] = [a for a in current["articles"] if a["id"] != summary["id"]]
         current["articles"].append(summary)
+        current["articles"] = _filter_stale_entries(
+            current["articles"], manifest_path.parent
+        )
         current["articles"].sort(key=lambda a: a["crawled_at"], reverse=True)
 
         # Atomic write via temp file in same dir + replace
