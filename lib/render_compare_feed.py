@@ -150,6 +150,31 @@ def _parse_json(s: str) -> dict:
         return {}
 
 
+def _build_gemini_block(article: dict) -> dict | None:
+    """Step 4.3 — return frontmatter block when Gemini side succeeded, else None.
+
+    Defensive: requires status='success' AND title AND body all present (avoids
+    emitting a half-broken block when only some fields were persisted).
+    """
+    if article.get("gemini_status") != "success":
+        return None
+    title = article.get("gemini_title")
+    body = article.get("gemini_body")
+    if not isinstance(title, str) or not isinstance(body, str) or not title or not body:
+        return None
+    block: dict = {"title": title, "body": body}
+    word_count = article.get("gemini_word_count")
+    if isinstance(word_count, int):
+        block["word_count"] = word_count
+    model = article.get("gemini_model")
+    if isinstance(model, str) and model:
+        block["model"] = model
+    generated_at = article.get("gemini_generated_at")
+    if isinstance(generated_at, str) and generated_at:
+        block["generated_at"] = generated_at
+    return block
+
+
 def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict]) -> str:
     """Build the V4.0 markdown file content (frontmatter + 2 sections).
 
@@ -177,6 +202,10 @@ def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict
         # 8-section right column
         **build_right_column(article, anchor_row, funnel_rows),
     }
+
+    gemini_block = _build_gemini_block(article)
+    if gemini_block is not None:
+        fm["gemini"] = gemini_block
 
     fm_yaml = yaml.safe_dump(fm, allow_unicode=True, sort_keys=False).strip()
     body = (article.get("body") or "").strip()
