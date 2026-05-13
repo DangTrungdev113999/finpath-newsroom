@@ -1,52 +1,191 @@
-import type { ReactNode } from 'react';
+import { Fragment, type ComponentType, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import {
+  BookOpen,
+  ChevronDown,
+  History,
+  Newspaper,
+  Rss,
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '../shared/ui/dropdown-menu';
+import { cn } from '../shared/lib/cn';
 import { ThemeSwitcher } from '../themes/ThemeSwitcher';
+
+type IconType = ComponentType<{ className?: string; strokeWidth?: number | string }>;
+
+type NavItem = {
+  to: string;
+  label: string;
+  icon: IconType;
+  match: (pathname: string) => boolean;
+};
+
+const NAV_ITEMS: ReadonlyArray<NavItem> = [
+  {
+    to: '/',
+    label: 'Bài viết',
+    icon: Newspaper,
+    match: (p) => p === '/' || p.startsWith('/article/'),
+  },
+  {
+    to: '/feed',
+    label: 'Dòng tin',
+    icon: Rss,
+    match: (p) => p === '/feed',
+  },
+  {
+    to: '/tai-lieu',
+    label: 'Tài liệu',
+    icon: BookOpen,
+    match: (p) => p === '/tai-lieu' || p.startsWith('/tai-lieu/'),
+  },
+  {
+    to: '/pipeline-runs',
+    label: 'Lịch sử pipeline',
+    icon: History,
+    match: (p) => p === '/pipeline-runs' || p.startsWith('/pipeline-runs'),
+  },
+];
 
 export function Header() {
   const { pathname } = useLocation();
-  const isCards = pathname === '/' || pathname.startsWith('/article/');
-  const isFeed = pathname === '/feed';
-  const isKb = pathname === '/tai-lieu' || pathname.startsWith('/tai-lieu/');
-  const isRuns = pathname === '/pipeline-runs' || pathname.startsWith('/pipeline-runs');
+  const activeItem = NAV_ITEMS.find((item) => item.match(pathname)) ?? NAV_ITEMS[0];
 
   return (
     <header
       className="sticky top-0 z-30 border-b border-fg-4/40 bg-bg-1/80"
-      style={{ backdropFilter: 'saturate(180%) blur(20px)', WebkitBackdropFilter: 'saturate(180%) blur(20px)' }}
+      style={{
+        backdropFilter: 'saturate(180%) blur(20px)',
+        WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+      }}
     >
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-3 sm:gap-6 sm:px-6">
-        <div className="flex min-w-0 items-center gap-4 sm:gap-7">
-          <Logo />
+      <div className="mx-auto max-w-7xl">
+        <div className="flex h-14 items-center justify-between gap-2 px-3 sm:gap-4 sm:px-6">
+          {/* Brand + desktop inline nav */}
+          <div className="flex min-w-0 items-center gap-3 lg:gap-7">
+            <Logo />
 
-          <span aria-hidden className="hidden h-5 w-px bg-fg-4/60 sm:block" />
+            <span aria-hidden className="hidden h-5 w-px bg-fg-4/60 lg:block" />
 
-          <nav
-            aria-label="Điều hướng chính"
-            className="flex shrink-0 items-center gap-3 sm:gap-5"
-          >
-            <NavLink to="/" active={isCards}>
-              Bài viết
-            </NavLink>
-            <span aria-hidden className="h-3 w-px bg-fg-4/60" />
-            <NavLink to="/feed" active={isFeed}>
-              Dòng tin
-            </NavLink>
-            <span aria-hidden className="h-3 w-px bg-fg-4/60" />
-            <NavLink to="/tai-lieu" active={isKb}>
-              Tài liệu
-            </NavLink>
-            <span aria-hidden className="h-3 w-px bg-fg-4/60" />
-            <NavLink to="/pipeline-runs" active={isRuns}>
-              Lịch sử pipeline
-            </NavLink>
-          </nav>
-        </div>
+            <nav
+              aria-label="Điều hướng chính"
+              className="hidden shrink-0 items-center gap-3 lg:flex lg:gap-5"
+            >
+              {NAV_ITEMS.map((item, idx) => (
+                <Fragment key={item.to}>
+                  {idx > 0 && <span aria-hidden className="h-3 w-px bg-fg-4/60" />}
+                  <NavLink to={item.to} active={item.match(pathname)}>
+                    {item.label}
+                  </NavLink>
+                </Fragment>
+              ))}
+            </nav>
+          </div>
 
-        <div className="w-[6.5rem] shrink-0 sm:w-44">
-          <ThemeSwitcher />
+          {/* Right cluster — nav dropdown (mobile+tablet) + theme switcher */}
+          <div className="flex shrink-0 items-center gap-2">
+            <MobileNavMenu activeItem={activeItem} pathname={pathname} />
+            <ThemeSwitcher />
+          </div>
         </div>
       </div>
     </header>
+  );
+}
+
+function MobileNavMenu({
+  activeItem,
+  pathname,
+}: {
+  activeItem: NavItem;
+  pathname: string;
+}) {
+  const ActiveIcon = activeItem.icon;
+
+  return (
+    <div className="lg:hidden">
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          className={cn(
+            'group flex items-center rounded-pill',
+            'border border-fg-4/40 bg-bg-2/60 text-fg-1',
+            'hover:border-fg-4/70 hover:bg-bg-2 hover:text-fg-0',
+            'transition-[background-color,border-color,color] duration-med ease-out-quart',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35',
+            'data-[state=open]:border-fg-4/70 data-[state=open]:bg-bg-2 data-[state=open]:text-fg-0',
+            // < sm: square icon-only button (40×40)
+            // ≥ sm: pill with current section label
+            'h-10 w-10 justify-center sm:h-9 sm:w-auto sm:gap-2 sm:px-3',
+          )}
+          aria-label={`Điều hướng — đang xem ${activeItem.label}`}
+        >
+          <ActiveIcon
+            className="h-4 w-4 shrink-0 text-brand sm:h-3.5 sm:w-3.5"
+            strokeWidth={2}
+          />
+          <span className="hidden max-w-[10rem] truncate text-left font-sans text-[13px] font-medium tracking-[0.005em] text-fg-1 sm:inline">
+            {activeItem.label}
+          </span>
+          <ChevronDown
+            className="hidden h-3 w-3 shrink-0 text-fg-3 transition-transform duration-med ease-out-quart group-hover:text-fg-1 group-data-[state=open]:rotate-180 sm:block"
+            strokeWidth={2}
+          />
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent side="bottom" align="end" className="w-56 p-1">
+          <DropdownMenuLabel>Điều hướng</DropdownMenuLabel>
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive = item.match(pathname);
+            return (
+              <DropdownMenuItem
+                key={item.to}
+                asChild
+                className={cn(
+                  'relative h-auto gap-2.5 py-2 pl-3 pr-2',
+                  '[&_svg]:h-4 [&_svg]:w-4',
+                  isActive && 'bg-brand/10 text-fg-0',
+                )}
+              >
+                <Link
+                  to={item.to}
+                  aria-current={isActive ? 'page' : undefined}
+                  className="no-underline"
+                >
+                  {isActive && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-y-1 left-0 w-[2px] rounded-r-full bg-brand"
+                    />
+                  )}
+                  <Icon
+                    className={cn(
+                      'shrink-0',
+                      isActive ? 'text-brand' : 'text-fg-2',
+                    )}
+                    strokeWidth={1.75}
+                  />
+                  <span
+                    className={cn(
+                      'flex-1 truncate font-sans text-[13px]',
+                      isActive ? 'font-semibold text-fg-0' : 'font-medium text-fg-1',
+                    )}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
 
@@ -160,7 +299,7 @@ function Logo() {
       </span>
 
       {/* Wordmark */}
-      <span className="flex items-baseline leading-none tracking-[-0.025em] text-fg-0">
+      <span className="flex min-w-0 items-baseline leading-none tracking-[-0.025em] text-fg-0">
         <span className="font-display text-[18px] font-semibold sm:text-[20px]">
           Team
         </span>

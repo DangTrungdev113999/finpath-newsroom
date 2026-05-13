@@ -38,13 +38,15 @@ import { THEMES, getTheme } from "./registry";
 function SwatchTrio({
   swatches,
   size = "sm",
+  className,
 }: {
   swatches: readonly [string, string, string];
   size?: "sm" | "md";
+  className?: string;
 }) {
   const dot = size === "md" ? "h-3 w-3" : "h-2.5 w-2.5";
   return (
-    <span className="flex items-center gap-0.5 shrink-0" aria-hidden>
+    <span className={cn("flex items-center gap-0.5 shrink-0", className)} aria-hidden>
       {swatches.map((c, i) => (
         <span
           key={i}
@@ -142,22 +144,23 @@ export function ThemeSwitcher() {
     <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger
         className={cn(
-          "group flex h-7 w-full items-center gap-2 rounded-pill px-3",
+          "group flex items-center rounded-pill",
           "border border-fg-4/40 bg-bg-2/60 text-fg-2",
           "hover:border-fg-4/70 hover:bg-bg-2 hover:text-fg-0",
           "transition-[background-color,border-color,color] duration-med ease-out-quart",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35",
           "data-[state=open]:border-fg-4/70 data-[state=open]:bg-bg-2 data-[state=open]:text-fg-0",
+          // < sm: square icon button (40×40); ≥ sm: pill chip with label + swatches
+          "h-10 w-10 justify-center sm:h-7 sm:w-44 sm:justify-start sm:gap-2 sm:px-3",
         )}
-        aria-label="Đổi giao diện"
+        aria-label={`Đổi giao diện (hiện tại: ${active.label})`}
       >
-        <PaletteIcon className="h-3.5 w-3.5 shrink-0" strokeWidth={1.75} />
+        <PaletteIcon className="h-4 w-4 shrink-0 sm:h-3.5 sm:w-3.5" strokeWidth={1.75} />
         <span className="hidden flex-1 truncate text-left font-sans text-xs sm:inline">
           {active.label}
         </span>
-        <span className="flex-1 sm:hidden" aria-hidden />
-        <SwatchTrio swatches={active.swatches} />
-        <ChevronsUpDown className="h-3 w-3 shrink-0 text-fg-3 group-hover:text-fg-1" />
+        <SwatchTrio swatches={active.swatches} className="hidden sm:flex" />
+        <ChevronsUpDown className="hidden h-3 w-3 shrink-0 text-fg-3 group-hover:text-fg-1 sm:block" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         side="top"
