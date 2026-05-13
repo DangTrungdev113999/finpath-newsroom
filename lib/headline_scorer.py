@@ -19,91 +19,19 @@ from __future__ import annotations
 import re
 from typing import Any
 
-# Tension words (was in V5.0 quality_gates per V5.0 plan, dropped from quality_gates
-# per V5.1 PATCH — now lives here in Headline scorer).
-TITLE_TENSION_WORDS = [
-    "hy sinh", "đánh đổi", "nghịch lý", "vì sao", "đổi lấy",
-    "không phải", "bù lại", "thay vì", "chấp nhận",
-]
-
-DRAMATIC_VERBS = [
-    # V1.2: kept but downstream is_bao_chi penalizes formulaic constructs
-    "hy sinh", "đánh đổi", "đặt cược", "lội ngược",
-    "rút khỏi", "vượt mặt", "tung đòn", "đặt cọc",
-    "chấp nhận thua", "tự chậm lại", "đập cửa", "thoát hiểm",
-    "chấp nhận hi sinh", "đánh cược", "đổ vỡ", "vực dậy",
-    "tiếp đà", "phá kỷ lục", "soán ngôi", "lấn sang", "rơi vào",
-    # V1.2 NEW bình dân verbs (concrete, everyday VN — match user's chosen style)
-    "ăn lãi", "ăn ưu đãi", "ăn lời", "ăn được", "ăn ", "ăn,",
-    "khoe lãi", "khoe ",
-    "dồn tiền", "dồn ", "xén cổ tức", "xén ",
-    "gom hàng", "gom ", "bơm vốn", "bơm ",
-    "đẻ ra", "ngồi trên tiền", "ngồi trên",
-    "chạy đâu", "đi vay", "đi đâu",
-    "đổi tên", "đổi hướng", "đổi mô hình",
-    "gọi vốn", "gọi tiền",
-    "chia cổ tức", "chia kỷ lục",
-    "vọt", "tụt", "rớt", "nhảy",
-    "bán hàng", "bán ESOP", "bán nội bộ",
-    "thật ra", "thực ra", "thật chỉ",
-]
-
-PR_CLICKBAIT_WORDS = [
-    "cú nổ", "bí mật", "sốc", "hot", "thông tin nóng",
-    "không thể tin nổi", "cú twist", "kỳ tích", "hé lộ",
-    "kỷ tích",  # Vietnamese variant
-]
-
-# === V1.2 BAN LISTS ===
-
-BAO_CHI_FORMULAIC_PHRASES = [
-    # Formula clichés V1.1 produced 7/10 titles — drop verbatim
-    "đánh đổi gì", "đánh đổi để", "đánh đổi nào", "đánh đổi để lấy",
-    "hy sinh để", "hy sinh nhằm", "hy sinh lợi nhuận",
-    "để đổi lấy", "để lấy gì", "đổi lấy gì", "đổi lấy điều gì",
-    "đặt cược vào", "đặt cược để",
-    # Báo chí formal verb constructs (thông cáo style)
-    "đặt mục tiêu", "đặt kế hoạch", "công bố kế hoạch",
-    "đã công bố", "ghi nhận", "thông qua nghị quyết",
-    "phấn đấu", "dự kiến đạt",
-    # Báo chí buzzwords (overused tin truyền thống)
-    "lao dốc", "bứt phá", "lập kỷ lục",
-]
-
-# V1.2 — VN finance terms naturalized into Vietnamese usage (NOT English jargon
-# even though spelled with Latin letters). Override has_english check.
-# Reason: terms like ESOP / EPS / ROE / NIM are universally used in VN finance
-# media + investor talk; banning them in titles forces awkward verbose VN
-# equivalents that no real investor would say.
-NATURALIZED_FINANCE_TERMS = {
-    "esop", "eps", "roe", "roa", "nim", "casa", "npl", "lntt", "lnst",
-    "cof", "ldr", "car", "esg", "ipo", "spo", "etf",
-    "vix", "ssi", "vnindex", "vn-index", "hose", "hnx", "upcom",
-}
-
-# Format pattern "Q1/2026 X lãi Y" — báo chí summary lead style
-BAO_CHI_QUARTER_PATTERN = re.compile(
-    r"^(Q[1-4]/?\d{0,4}|năm \d{4})\s+\w+\s+(lãi|lợi nhuận|doanh thu|công bố|ghi nhận)",
-    re.IGNORECASE,
+# V1.3: voice constants moved to lib/voice_rules.py for title + body sharing.
+# Re-export at module level for backward compat (existing tests + downstream
+# code import these names from headline_scorer).
+from lib.voice_rules import (
+    TITLE_TENSION_WORDS,
+    DRAMATIC_VERBS,
+    PR_CLICKBAIT_WORDS,
+    BAO_CHI_FORMULAIC_PHRASES,
+    NATURALIZED_FINANCE_TERMS,
+    BAO_CHI_QUARTER_PATTERN,
+    RUBRIC_LABEL_LEAK,
+    CONCRETE_QUESTION_SUBJECTS,
 )
-
-# Rubric labels accidentally written to title field (label leak bug V1.1)
-RUBRIC_LABEL_LEAK = {
-    "question", "declarative tension", "quote", "contrast verb",
-    "lối question", "lối declarative", "lối quote", "lối contrast",
-}
-
-# Concrete question subjects (V1.2 bonus — vs generic abstract "để đổi lấy gì")
-CONCRETE_QUESTION_SUBJECTS = [
-    "ai gom", "ai trả", "ai bán", "ai đẩy", "ai chạy", "ai đang",
-    "ai vừa", "ai mua", "ai thoát",
-    "đi đâu", "chạy đâu", "tiền đâu", "tiền chạy",
-    "sợ gì", "đáng sợ", "lo gì", "ngại gì",
-    "khôn hay liều", "khôn hay dại", "đúng hay sai",
-    "bao giờ", "khi nào", "đến bao giờ",
-    "trước ngày", "trước kỳ", "sau tháng",
-    " lạ?", " thật?", " thật vậy?",
-]
 
 # Universe — synced with lib/finpath_sectors (139 tickers V5.1.3 cached).
 # Hardcoded subset for hot-path Headline detection (fallback if cache miss).
