@@ -83,7 +83,11 @@ def _build_template_vars(article: dict[str, Any]) -> dict[str, str]:
 
     deep_question = picked_option.get("question") or picked_option.get("deep_question") or ""
     tone_bias = picked_option.get("tone_bias") or "neutral"
-    length_target = picked_option.get("length_target") or "standard"
+    # length_target may arrive as int (Story Editor stores word count target, e.g. 250)
+    # or string ("compact"/"standard"/"detailed"). Always coerce to str for substitution.
+    length_target = picked_option.get("length_target")
+    if length_target is None or length_target == "":
+        length_target = "standard"
 
     key_evidence = stance.get("key_evidence") if isinstance(stance, dict) else None
     if isinstance(key_evidence, list):
@@ -110,9 +114,9 @@ def _build_template_vars(article: dict[str, Any]) -> dict[str, str]:
         "brief_stance_confidence": str(stance.get("confidence", "")) if isinstance(stance, dict) else "",
         "brief_stance_reason": str(stance.get("reason", "")) if isinstance(stance, dict) else "",
         "brief_key_evidence": key_evidence_text,
-        "format_id": format_id,
-        "tone_bias": tone_bias,
-        "length_target": length_target,
+        "format_id": str(format_id),
+        "tone_bias": str(tone_bias),
+        "length_target": str(length_target),
         "data_trail_json": json.dumps(data_trail, ensure_ascii=False, indent=2),
     }
 

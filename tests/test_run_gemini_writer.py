@@ -72,7 +72,9 @@ def _seed_full_article(db, *, article_id: str = "art-001") -> None:
                 },
                 "format_id": "standard_qa",
                 "tone_bias": "neutral",
-                "length_target": "standard",
+                # Real Story Editor stores integer word count (200/250/300/...), not
+                # categorical string. Regression for crash on _substitute() type error.
+                "length_target": 250,
             }
         ],
     }
