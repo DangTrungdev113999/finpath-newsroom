@@ -74,3 +74,17 @@ Body:
 > TCB ghi nhận tỷ lệ tiền gửi không kỳ hạn giảm từ 38% xuống 33% trong quý 1/2026. Ngân hàng công bố chiến lược điều chỉnh, đặt mục tiêu khôi phục tỷ lệ trong các quý tiếp theo. Khách hàng cá nhân được ghi nhận có xu hướng chuyển sang tiền gửi có kỳ hạn. Nhà đầu tư cần thận trọng theo dõi diễn biến làm chỉ báo sớm cho năm 2026.
 
 → Fail: 4 báo chí verbs (ghi nhận x2 + công bố + đặt mục tiêu) + 0 bold + closing "thận trọng theo dõi làm chỉ báo" vague.
+
+### ❌ V1.5-lite bad examples — DO NOT invent verb-noun combos
+
+| Pattern | Bad example | Fix |
+|---|---|---|
+| Verb tự chế | "FPT chấm đích Huế" | "FPT chọn Huế / FPT nhắm tới Huế" |
+| Verb cưỡng ép | "vọt lãi" (title) | "lãi vọt / lãi tăng vọt" |
+| Verb sai ngữ cảnh | "VCBS chấm 111.421 đồng" | "VCBS định giá 111.421 đồng" |
+| Hán-Việt formal | "8 di sản UNESCO độc bản" | "8 di sản UNESCO duy nhất" |
+| Hán-Việt formal | "chưa hội đủ điều kiện" | "chưa đủ điều kiện" |
+| Abbreviation chưa expand | "BCA nhận 50% vốn" | "Bộ Công An (BCA) nhận 50% vốn" |
+| Fabricated price | "FPT dưới 145 nghìn/cp" (FPT thực tế 70 nghìn) | Fetch Finpath current → target ±50% |
+
+Self-test 5 giây: reader bình dân chưa từng nghe combo đó → rewrite.

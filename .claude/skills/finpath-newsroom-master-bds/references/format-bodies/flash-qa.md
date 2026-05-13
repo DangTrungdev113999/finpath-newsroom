@@ -59,6 +59,20 @@ Ticker_status = Hot (top tăng/giảm/bùng nổ/cạn cung) + data_richness ∈
 
 → Fail: 4 báo chí verbs (ghi nhận, công bố, đặt mục tiêu, dự kiến đạt) + closing vague "cần theo dõi làm chỉ báo" + 0 bold.
 
+### ❌ V1.5-lite bad examples — DO NOT invent verb-noun combos
+
+| Pattern | Bad example | Fix |
+|---|---|---|
+| Verb tự chế | "FPT chấm đích Huế" | "FPT chọn Huế / FPT nhắm tới Huế" |
+| Verb cưỡng ép | "vọt lãi" (title) | "lãi vọt / lãi tăng vọt" |
+| Verb sai ngữ cảnh | "VCBS chấm 111.421 đồng" | "VCBS định giá 111.421 đồng" |
+| Hán-Việt formal | "8 di sản UNESCO độc bản" | "8 di sản UNESCO duy nhất" |
+| Hán-Việt formal | "chưa hội đủ điều kiện" | "chưa đủ điều kiện" |
+| Abbreviation chưa expand | "BCA nhận 50% vốn" | "Bộ Công An (BCA) nhận 50% vốn" |
+| Fabricated price | "FPT dưới 145 nghìn/cp" (FPT thực tế 70 nghìn) | Fetch Finpath current → target ±50% |
+
+Self-test 5 giây: reader bình dân chưa từng nghe combo đó → rewrite.
+
 ## Verdict line (V3)
 
 Closing MUST có 5 elements:

@@ -77,3 +77,17 @@ Body:
 > Techcombank công bố kế hoạch giảm tỷ trọng cho vay BĐS từ 31% xuống dưới 25% trong năm 2026. Ngân hàng đặt mục tiêu hoàn thành kế hoạch trước Thông tư 22 của NHNN có hiệu lực từ 2027. Lợi nhuận quý 1/2026 ghi nhận tăng 22% so cùng kỳ. Buffer dự phòng được duy trì ở mức 226%. Nhà đầu tư cần theo dõi diễn biến các quý tới làm chỉ báo cho năm 2027.
 
 → Fail: 4 báo chí verbs (công bố + đặt mục tiêu + hoàn thành + ghi nhận) + 0 bold + 0 metaphor + closing "cần theo dõi làm chỉ báo" vague.
+
+### ❌ V1.5-lite bad examples — DO NOT invent verb-noun combos
+
+| Pattern | Bad example | Fix |
+|---|---|---|
+| Verb tự chế | "FPT chấm đích Huế" | "FPT chọn Huế / FPT nhắm tới Huế" |
+| Verb cưỡng ép | "vọt lãi" (title) | "lãi vọt / lãi tăng vọt" |
+| Verb sai ngữ cảnh | "VCBS chấm 111.421 đồng" | "VCBS định giá 111.421 đồng" |
+| Hán-Việt formal | "8 di sản UNESCO độc bản" | "8 di sản UNESCO duy nhất" |
+| Hán-Việt formal | "chưa hội đủ điều kiện" | "chưa đủ điều kiện" |
+| Abbreviation chưa expand | "BCA nhận 50% vốn" | "Bộ Công An (BCA) nhận 50% vốn" |
+| Fabricated price | "FPT dưới 145 nghìn/cp" (FPT thực tế 70 nghìn) | Fetch Finpath current → target ±50% |
+
+Self-test 5 giây: reader bình dân chưa từng nghe combo đó → rewrite.
