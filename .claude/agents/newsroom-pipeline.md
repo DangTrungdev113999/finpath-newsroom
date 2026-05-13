@@ -82,7 +82,27 @@ Pass `$SESSION_ID`, `$TRIGGER_TYPE`, `$TRIGGER_ARGS` through to Step 1 Crawler i
 
 WebSearch (1-2 query với template trên) + WebFetch top 25-30 results tìm news ≤7 ngày. Whitelist priority: CafeF, VnEconomy, Vietstock, Báo Pháp luật, Tin nhanh chứng khoán, VietnamFinance, Bizlive. Aim **25-30 candidates** (script filter sẽ siết xuống ~10-15 after V3.2 gate).
 
-Build JSON candidates → save `/tmp/crawler-input-<ticker>.json` → run with `$SESSION_ID`/`$TRIGGER_TYPE`/`$TRIGGER_ARGS` from Step 0. Script applies V3.2 filter (PDF skip + corporate site skip + URL dedup + title relevance ticker/full_name + 3-day date window optimistic-on-missing) before INSERT:
+Build JSON candidates → save `/tmp/crawler-input-<ticker>.json` → run with `$SESSION_ID`/`$TRIGGER_TYPE`/`$TRIGGER_ARGS` from Step 0. Script applies V3.2 filter (PDF skip + corporate site skip + URL dedup + title relevance ticker/full_name + 3-day date window optimistic-on-missing) before INSERT.
+
+**Candidates JSON schema (HARD RULE — exact field names)**: file MUST be a JSON array of dicts. Field names matter — VHM run 2026-05-13 wasted 4 retries because orchestrator improvised `source` / `published_at` instead of correct `source_name` / `published_date`.
+
+```json
+[
+  {
+    "url": "https://cafef.vn/...",                    // REQUIRED
+    "source_name": "CafeF",                            // REQUIRED — NOT "source"
+    "title": "VHM Q1/2026 lãi ròng tăng 47%",          // OPTIONAL (default "(no title)")
+    "content": "...short excerpt for raw_content...",  // OPTIONAL (truncated to 2000 chars)
+    "published_date": "2026-05-09T08:30:00+07:00",     // OPTIONAL — NOT "published_at"
+    "ticker": "VHM"                                    // OPTIONAL (defaults to CLI <TICKER>)
+  },
+  ...
+]
+```
+
+`published_date` accepts ISO 8601 with TZ OR `YYYY-MM-DD`. Legacy `published_time` also accepted (auto-normalized). **Optimistic-on-missing**: if `published_date` absent, candidate is KEPT (not filtered out by date window). Use this when you scraped a candidate but couldn't extract date — better to let Editor V1 judge title relevance than drop pre-filter.
+
+Source of truth schema: `lib/stages/run_crawler.py::write_candidate_to_db` lines 95-109 + `lib/tavily_crawler.py::filter_results` for date window logic.
 
 ```bash
 cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/stages/run_crawler.py <TICKER> \
