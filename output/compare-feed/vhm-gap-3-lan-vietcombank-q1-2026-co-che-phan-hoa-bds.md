@@ -137,6 +137,43 @@ format_director:
   tone_bias: neutral
   length_target: 300
   variety_check: OK
+gemini:
+  title: 'VHM lãi 25.625 tỷ: tiền từ đâu khi cả ngành bất động sản còn đói?'
+  body: 'Vinhomes (VHM) báo lãi sau thuế quý I/2026 tới **25.625 tỷ đồng**, tăng vọt
+    **866%** và bỏ xa cả ngành. Con số này đến từ đâu khi các đối thủ còn đang chật
+    vật?
+
+
+    - **Cơ chế chính không phải bán được hàng mới, mà là doanh thu từ ''của để dành''**.
+    Khoản **205.000 tỷ đồng** doanh số đã chốt từ các năm trước giờ mới đủ điều kiện
+    bàn giao và hạch toán, tạo ra cú nổ lợi nhuận Q1 này. Đây là độ trễ 2-3 năm của
+    ngành bất động sản dự án.
+
+
+    - **Lợi nhuận 25.625 tỷ đồng không chỉ cao đột biến mà còn gấp 3 lần lợi nhuận
+    của Vietcombank**, một ông lớn ngành tài chính. Điều này cho thấy VHM đang vận
+    hành một cỗ máy bàn giao và thu tiền ở quy mô khổng lồ, tạo ra khoảng cách mênh
+    mông với các đối thủ cùng ngành vẫn đang báo lỗ.
+
+
+    - **VHM liên tục nạp thêm ''đạn'' cho các chu kỳ tương lai**. Việc mở bán đại
+    dự án **Hải Vân Bay** trong quý II/2026 và khởi công khu đô thị **23.600 tỷ tại
+    Điện Biên** là những bước đi gối đầu, đảm bảo nguồn thu cho giai đoạn 2028 trở
+    đi, thay vì chỉ sống bằng quá khứ.
+
+
+    - **Rủi ro lớn nhất là sức mua thật của thị trường trong tương lai**. Lợi nhuận
+    khủng hiện tại là trái ngọt từ giai đoạn 2023-2024. Liệu VHM có ký thêm được hàng
+    trăm nghìn tỷ doanh số mới trong bối cảnh kinh tế khó khăn hơn không, đó mới là
+    câu hỏi quyết định giá cổ phiếu trong dài hạn.
+
+
+    Lợi nhuận khủng đã phản ánh vào giá. Quyết định mua/giữ lúc này phụ thuộc vào
+    **kết quả mở bán dự án Hải Vân Bay trong quý II/2026**. Nếu dự án này bán chạy,
+    VHM chứng tỏ chu kỳ mới đã bắt đầu. Nếu không, đây chỉ là cú vang của quá khứ.'
+  word_count: 296
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T11:51:03.257129+00:00'
 ---
 
 <!-- left -->

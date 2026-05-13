@@ -139,6 +139,41 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://cafef.vn/ssi-du-kien-phat-hanh-10-trieu-co-phieu-esop-cho-295-nguoi-188260509093443431.chn
 format_director: null
+gemini:
+  title: SSI thưởng sếp ESOP giá 10.000đ, cổ đông được gì khi thị giá 28.000đ?
+  body: 'SSI vừa báo lãi quý I/2026 tới **1.461 tỷ đồng** nhưng lại sắp phát hành
+    10 triệu cổ phiếu ESOP với giá chỉ bằng 1/3 thị giá cho lãnh đạo. Vậy đây là động
+    lực giữ người tài hay một món hời cho các sếp trên lưng cổ đông?
+
+
+    - **Phần thưởng giữ chân nhân tài**: Về lý thuyết, ESOP giá rẻ là công cụ để giữ
+    người giỏi, vì họ được mua cổ phiếu và hưởng lợi khi công ty tăng trưởng. Đợt
+    này SSI trao cho **295 nhân sự chủ chốt**, trong đó riêng Chủ tịch Nguyễn Duy
+    Hưng nhận 1 triệu cổ phiếu.
+
+
+    - **Cái giá của sự pha loãng**: 10 triệu cổ phiếu mới sẽ làm giảm giá trị của
+    mỗi cổ phiếu hiện hữu. Ngay tại giá 28.000 đồng, 295 nhân sự này có ngay khoản
+    "lãi trên giấy" hơn **180 tỷ đồng**, trong khi công ty chỉ thu về 100 tỷ để bổ
+    sung vốn cho vay margin.
+
+
+    - **So sánh với quyền lợi cổ đông**: Cổ đông vừa được duyệt chia cổ tức bằng cổ
+    phiếu tỷ lệ 5:1, thực chất là không nhận được tiền tươi. Trong khi đó, nhóm nhân
+    sự chủ chốt được mua thẳng cổ phiếu với giá "rẻ như cho", một đặc quyền không
+    dành cho số đông.
+
+
+    - **Bối cảnh kinh doanh thuận lợi**: Động thái này diễn ra khi SSI đang "vào form"
+    với doanh thu môi giới quý I **gấp đôi** cùng kỳ và dư nợ margin lên tới **37.000
+    tỷ đồng**. Ban lãnh đạo có thể xem đây là phần thưởng xứng đáng cho kết quả này.
+
+
+    Nhà đầu tư nên chấp nhận pha loãng ngắn hạn nếu tin rằng ban lãnh đạo sẽ dùng
+    động lực này để giúp lợi nhuận công ty vượt đỉnh trong 1-2 năm tới.'
+  word_count: 248
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T11:49:12.170376+00:00'
 ---
 
 <!-- left -->

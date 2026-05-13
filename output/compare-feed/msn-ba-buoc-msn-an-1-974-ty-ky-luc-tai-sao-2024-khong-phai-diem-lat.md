@@ -244,6 +244,39 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://dantri.com.vn/kinh-doanh/ba-buoc-ngoat-hoi-tu-dua-masan-group-buoc-vao-giai-doan-tai-dinh-gia-20260406165956510.htm
 format_director: null
+gemini:
+  title: MSN đã có lãi, tại sao phải đợi 2026 mới là điểm nổ?
+  body: 'Masan (MSN) đã có lãi trở lại nhưng giá cổ phiếu vẫn lình xình. Tại sao các
+    quỹ lớn và ban lãnh đạo đều chỉ về năm 2026 như một điểm hẹn tái định giá, chứ
+    không phải bây giờ?
+
+
+    - **WinCommerce không còn là ''cục nợ''**: Gã khổng lồ bán lẻ từng đốt tiền không
+    thương tiếc nay đã có lãi, với lợi nhuận quý 1/2026 tăng vọt **3,5 lần** cùng
+    kỳ. Khi điểm trừ tài chính lớn nhất biến thành cỗ máy tiền, định giá MSN buộc
+    phải viết lại.
+
+
+    - **Mỏ Núi Pháo ''trúng số'' vonfram**: Mảng khoáng sản MSR lật ngược thế cờ từ
+    lỗ 222 tỷ sang lãi **537 tỷ** trong một quý. Cú đột biến này đến từ giá vonfram
+    thế giới bay lên **3.150 USD/mtu**, một kịch bản ít ai ngờ tới.
+
+
+    - **Masan Consumer quay lại đường đua**: Cỗ máy tiền mặt cốt lõi MCH không chỉ
+    ổn định mà còn tăng trưởng **15,2%** hai tháng đầu năm. Khi cả ba trụ cột cùng
+    lúc khỏe mạnh, đây là lúc cỗ máy MSN vận hành hết công suất.
+
+
+    - **Gánh nợ giảm đi một nửa**: Đòn bẩy nợ ròng, nỗi lo lớn nhất của nhà đầu tư,
+    dự kiến co lại từ **3,5 lần** xuống chỉ còn **1,7 lần** vào cuối năm 2026. Công
+    ty sẽ nhẹ gánh hơn để tập trung tăng trưởng.
+
+
+    Với giá mục tiêu **111.421 đồng** từ VCBS, vùng giá dưới 80.000 là khu vực phù
+    hợp để tích lũy cho tầm nhìn cuối 2025 - đầu 2026, chờ đợi 3 động cơ cùng nổ máy.'
+  word_count: 216
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T11:56:11.357223+00:00'
 ---
 
 <!-- left -->

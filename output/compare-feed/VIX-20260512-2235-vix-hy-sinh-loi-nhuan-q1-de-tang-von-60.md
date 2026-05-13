@@ -172,6 +172,38 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://vietnamfinance.vn/khoi-dau-chat-vat-loi-nhuan-cua-vix-nhu-tau-luon-d143591.html
 format_director: null
+gemini:
+  title: VIX bơm 11.000 tỷ vốn mới để rồi tự doanh lỗ và mảng margin đi lùi?
+  body: 'Vừa huy động thành công hơn 11.000 tỷ đồng, VIX được kỳ vọng sẽ ''làm nên
+    chuyện''. Nhưng báo cáo Q1/2026 lại dội một gáo nước lạnh: tự doanh lỗ nặng, mảng
+    cho vay co lại. Liệu núi tiền mới có đang tạo ra giá trị, hay chỉ là gánh nặng
+    chi phí?
+
+
+    - **Tự doanh quay đầu lỗ**: Mảng tự doanh, vốn là động lực chính, bất ngờ **lỗ
+    82 tỷ đồng** trong quý 1. Đây là một cú sốc khi so với mức lãi 330 tỷ cùng kỳ,
+    cho thấy bộ phận này đang rất chật vật để xoay xở trong một thị trường khó đoán
+    hơn.
+
+
+    - **Hụt hơi trên sân nhà margin**: Đáng lo hơn, quy mô cho vay ký quỹ của VIX
+    **giảm mạnh 18,9%** xuống còn 12.507 tỷ. Con số này đặc biệt đáng báo động vì
+    nó đi ngược hoàn toàn xu thế toàn ngành chứng khoán (tăng trưởng **2,9%**), ngụ
+    ý VIX đang mất thị phần.
+
+
+    - **Chi phí vốn phình to**: Tiền không miễn phí và áp lực đã hiện rõ. Chi phí
+    tài chính của VIX **tăng vọt 261%** lên 150 tỷ đồng. Áp lực phải sinh lời từ số
+    vốn mới là cực lớn, trong khi cả hai cỗ máy chính là tự doanh và margin đều đang
+    chạy không hiệu quả.
+
+
+    Vốn mới chưa phải là phép màu, thậm chí còn đang là gánh nặng. Nhà đầu tư đang
+    cầm cổ phiếu nên chờ báo cáo Q2/2026 để kiểm chứng liệu VIX có vực dậy được tự
+    doanh và giành lại thị phần margin hay không.'
+  word_count: 221
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T11:50:00.841799+00:00'
 ---
 
 <!-- left -->

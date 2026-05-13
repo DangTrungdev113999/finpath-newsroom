@@ -70,6 +70,50 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://vietstock.vn/2026/05/tap-doan-dat-xanh-doi-ten-thanh-bluemarq-group-loat-cong-ty-con-doi-theo-ho-moi-737-1439495.htm
 format_director: null
+gemini:
+  title: 'DXG thành Bluemarq: Đổi tên hay đổi vận khi lõi kinh doanh thay đổi?'
+  body: 'Tập đoàn Đất Xanh (DXG) vừa chính thức đổi tên thành Bluemarq Group. Đây
+    không chỉ là thay đổi cái mác, mà là tín hiệu cho một cuộc đại tu toàn bộ cỗ máy
+    kinh doanh bên trong, từ cách làm dự án đến cách kiếm tiền.
+
+
+    - **Từ "buôn đất" sang làm "gà đẻ trứng vàng"**: Lãnh đạo DXG tuyên bố sẽ không
+    còn tập trung chính vào việc phát triển dự án để bán nữa. Thay vào đó, họ chuyển
+    sang mô hình **tập đoàn đầu tư 4 chân**, mục tiêu nắm giữ các tài sản tạo ra dòng
+    tiền ổn định, giống như đi thu tiền thuê nhà thay vì chỉ lướt sóng.
+
+
+    - **Cấu trúc mới, luật chơi mới**: Bluemarq Group sẽ là công ty mẹ chuyên đi đầu
+    tư, còn thương hiệu **Đất Xanh** sẽ co lại, chỉ phụ trách mảng dịch vụ môi giới.
+    Các công ty con chủ lực như Hà An cũng đã đổi tên thành **Bluemarq Development**,
+    cho thấy sự thay đổi đồng bộ từ trên xuống dưới.
+
+
+    - **Không tự làm một mình**: Cách phát triển dự án cũng thay đổi. Thay vì tự "ôm"
+    từ A-Z, Bluemarq sẽ ưu tiên **liên doanh, hợp tác** với các đối tác trong và ngoài
+    nước. Đây là cách chia sẻ rủi ro nhưng cũng có thể làm biên lợi nhuận mỏng đi
+    nếu không chọn đúng đối tác.
+
+
+    - **Tiền đâu để tái cấu trúc?**: Để phục vụ cho chiến lược mới, DXG có kế hoạch
+    sử dụng vốn từ đợt phát hành **155.7 triệu cổ phiếu** để rót vào các dự án và
+    công ty con. Điều này cho thấy ban lãnh đạo đang rất quyết tâm "đốt tiền" cho
+    ván cờ này.
+
+
+    - **Rủi ro không hề nhỏ**: Mô hình holding phức tạp hơn và đòi hỏi năng lực quản
+    lý khác biệt. Trong bối cảnh DXG vẫn đang gánh khoản nợ gần **4,800 tỷ đồng**,
+    việc dàn trải nguồn lực ra 4 mảng có thể là con dao hai lưỡi nếu một trong các
+    chân trụ yếu đi.
+
+
+    Ván cờ tái cấu trúc của DXG rất lớn và cần thời gian kiểm chứng. Nhà đầu tư đang
+    cầm cổ phiếu thực chất đang cược vào tầm nhìn của lãnh đạo. Ai muốn mua mới, có
+    lẽ nên chờ đến giữa năm 2027, khi các mảng kinh doanh mới thực sự "đẻ" ra tiền,
+    thay vì mua một câu chuyện còn trên giấy.'
+  word_count: 318
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T11:54:04.270774+00:00'
 ---
 
 <!-- left -->

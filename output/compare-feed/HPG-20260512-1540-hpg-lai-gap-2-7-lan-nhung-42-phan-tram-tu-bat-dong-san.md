@@ -147,6 +147,39 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://doanhnhan.baophapluat.vn/dhdcd-hoa-phat-hpg-2026-lai-quy-1-dot-pha-9-000-ty-dong-don-dau-mang-thep-duong-sat-cao-toc-va-don-luc-cho-dung-quat-2.html
 format_director: null
+gemini:
+  title: 'HPG lãi 9.000 tỷ: Cú hích bất động sản hay thép thật sự hồi sinh?'
+  body: 'Hòa Phát (HPG) vừa báo lãi sau thuế quý 1/2026 đột biến hơn **9.000 tỷ đồng**,
+    gấp 2.7 lần cùng kỳ. Nhưng bóc tách ra, gần **43%** lợi nhuận đến từ việc bán
+    một dự án bất động sản cũ. Vậy sức khỏe của mảng thép cốt lõi, thứ quyết định
+    tương lai HPG, thực sự ra sao?
+
+
+    - **Lợi nhuận cốt lõi vẫn khỏe, nhưng bị "pha loãng"**: Mảng thép thực tế vẫn
+    mang về **5.200 tỷ đồng** lợi nhuận, cho thấy nhu cầu và giá thép cuộn cán nóng
+    (HRC) đang hồi phục. Tuy nhiên, khoản lãi bất thường **3.800 tỷ** từ chuyển nhượng
+    dự án Phố Nối khiến bức tranh chung trông "ảo" hơn so với thực tế vận hành hàng
+    ngày.
+
+
+    - **Biên lợi nhuận gộp ngành thép đang cải thiện**: Con số **15,8%** biên lợi
+    nhuận gộp quý 1 là một tín hiệu tích cực, được hỗ trợ bởi giá HRC tăng và sản
+    lượng bán hàng đạt **3 triệu tấn**. Điều này cho thấy hoạt động sản xuất kinh
+    doanh chính của HPG đang đi đúng hướng, dù chưa đủ sức tạo ra cú nhảy vọt như
+    con số 9.000 tỷ.
+
+
+    - **"Bán của để dành" dồn tiền cho đại dự án**: Khoản lãi từ bất động sản giống
+    như một liều "thuốc tăng lực" tài chính ngắn hạn. Hòa Phát đang chủ động thoái
+    vốn khỏi các mảng không cốt lõi để dồn toàn lực cho siêu dự án **Dung Quất 2**,
+    ván cược sẽ định hình tương lai của tập đoàn trong dài hạn.
+
+
+    Nhà đầu tư nên thận trọng, chờ báo cáo quý 2/2026 để xem sức mạnh thật của mảng
+    thép. Cổ phiếu có thể cần "tiêu hóa" hết khoản lãi đột biến này trước khi đi tiếp.'
+  word_count: 234
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T11:52:41.235940+00:00'
 ---
 
 <!-- left -->

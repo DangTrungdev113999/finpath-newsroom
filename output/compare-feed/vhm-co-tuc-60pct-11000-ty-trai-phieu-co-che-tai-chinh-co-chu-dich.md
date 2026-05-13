@@ -149,6 +149,35 @@ format_director:
   tone_bias: neutral
   length_target: 300
   variety_check: OK
+gemini:
+  title: 'VHM đặt cược 60.000 tỷ lợi nhuận: Tiền từ dự án hay đi vay?'
+  body: 'Vinhomes (VHM) vừa chốt mục tiêu lợi nhuận 60.000 tỷ đồng cho năm 2026, cao
+    nhất lịch sử, kèm lời hứa chia hơn 24.644 tỷ tiền mặt cho cổ đông. Con số khổng
+    lồ này ngay lập tức đặt ra câu hỏi lớn: tiền thực sự ở đâu ra khi túi tiền mặt
+    quý 1 vừa sụt 27%?
+
+
+    Câu trả lời nằm ở các đại dự án gối đầu. VHM đang chuẩn bị mở bán dự án khủng
+    Hải Vân Bay Đà Nẵng ngay trong Quý 2/2026, song song với việc khởi công siêu dự
+    án 23.600 tỷ ở Điện Biên. Đây là hai cỗ máy in tiền chính, được kỳ vọng sẽ ghi
+    nhận doanh thu để hiện thực hóa mục tiêu tham vọng. Logic là dùng tiền bán hàng
+    tương lai để trả cho các cam kết hiện tại.
+
+
+    Nhưng để guồng máy chạy, VHM phải liên tục vay nợ. Chỉ trong tháng 4 và 5/2026,
+    công ty đã huy động tổng cộng 11.000 tỷ đồng trái phiếu. Rủi ro ở đây là kỳ hạn
+    trái phiếu (2-3 năm) ngắn hơn vòng đời dự án (5-7 năm), tạo áp lực phải liên tục
+    đảo nợ. Dù tổng tài sản tăng 10% cho thấy đòn bẩy có kiểm soát, đây vẫn là ván
+    cược lớn vào tốc độ bán hàng.
+
+
+    VHM hiện là một ván cược vào tốc độ bán hàng. Nhà đầu tư tin vào sức nóng của
+    Hải Vân Bay có thể cân nhắc giải ngân. Ai thận trọng hơn nên chờ số liệu mở bán
+    thực tế của Quý 2/2026 được công bố. Cổ đông đang nắm giữ cần theo dõi chặt chẽ
+    lịch trả nợ trái phiếu trong 2-3 năm tới.'
+  word_count: 256
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T11:51:43.197202+00:00'
 ---
 
 <!-- left -->

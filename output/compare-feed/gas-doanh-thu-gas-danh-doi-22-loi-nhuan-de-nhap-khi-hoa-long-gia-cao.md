@@ -127,6 +127,41 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://www.tinnhanhchungkhoan.vn/pv-gas-giu-vung-nguon-cung-lng-lpg-cho-thi-truong-nang-luong-viet-nam-giua-gian-doan-tai-eo-bien-hormuz-post390145.html
 format_director: null
+gemini:
+  title: Doanh thu GAS năm 2026 vẫn tăng, sao kế hoạch lợi nhuận lại 'cài số lùi'?
+  body: 'Tổng Công ty Khí Việt Nam (GAS) vừa công bố kế hoạch 2026 với doanh thu **142.000
+    tỷ** đồng, tăng nhẹ so với 2025. Nhưng nghịch lý là lợi nhuận sau thuế lại dự
+    kiến giảm **22%** còn **9.019 tỷ**. Tại sao bán được nhiều hàng hơn mà lại lời
+    ít đi?
+
+
+    - **Trục xoay sang LNG nhập khẩu**: Nguồn khí nội địa đang cạn dần, buộc GAS phải
+    tăng cường nhập khẩu khí tự nhiên hóa lỏng (LNG) để cung cấp cho các nhà máy điện
+    như Nhơn Trạch 3 và 4. Đây là ván cược lớn nhưng chi phí đầu vào rất biến động.
+
+
+    - **Biên lợi nhuận bị bào mòn**: Áp lực chi phí LNG nhập khẩu được dự báo sẽ ăn
+    thẳng vào lợi nhuận gộp. Dù doanh thu 2026 có thể tăng **4%** so với kế hoạch
+    **136.843 tỷ** của 2025, chi phí cao hơn khiến lợi nhuận ròng không thể theo kịp.
+
+
+    - **Từ ''chủ nhà'' thành ''thương lái''**: Trước đây, GAS hưởng lợi lớn từ nguồn
+    khí giá rẻ trong nước, giống như chủ nhà có sẵn tài sản cho thuê. Giờ đây, công
+    ty phải đi nhập LNG giá cao, vai trò giống một thương lái mua đi bán lại, rủi
+    ro cao và biên lợi nhuận mỏng hơn.
+
+
+    - **Cổ tức vẫn là điểm sáng**: Dù lợi nhuận giảm, ban lãnh đạo vẫn cam kết duy
+    trì chính sách cổ tức tiền mặt **20%** cho năm 2026. Đây là nỗ lực giữ chân cổ
+    đông trong giai đoạn chuyển mình đầy thách thức của doanh nghiệp.
+
+
+    GAS đang trong pha hy sinh lợi nhuận để xây nền tăng trưởng mới. Nhà đầu tư dài
+    hạn có thể chờ đợi, quan sát biên lợi nhuận LNG thực tế khi Nhơn Trạch 3-4 vận
+    hành ổn định.'
+  word_count: 205
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T11:55:38.229285+00:00'
 ---
 
 <!-- left -->

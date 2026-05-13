@@ -70,6 +70,35 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://danviet.vn/dat-xanh-thanh-bluemarq-group-cuoc-thay-ten-doi-ho-lan-khap-he-sinh-thai-d1424831.html
 format_director: null
+gemini:
+  title: 'DXG thành Bluemarq: Lãi môi giới khủng có gánh nổi khối nợ 4.800 tỷ?'
+  body: 'Đất Xanh (DXG) vừa khoác lên mình tấm áo mới mang tên Bluemarq Group, một
+    động thái thường thấy khi doanh nghiệp muốn làm mới mình. Nhưng đằng sau cái tên
+    Tây này, cỗ máy kiếm tiền của DXG có thật sự thay đổi, hay chỉ là một cuộc "bình
+    mới rượu cũ"?
+
+
+    Điểm sáng bất ngờ trong quý I/2026 là mảng môi giới. Mảng này một mình mang về
+    604 tỷ đồng doanh thu, gấp ba lần cùng kỳ, tạo ra 420 tỷ lãi gộp. Con số này thậm
+    chí còn vượt cả mảng bán căn hộ và đất nền truyền thống, cho thấy hệ thống bán
+    hàng của DXG vẫn là một vũ khí cực kỳ sắc bén, đủ sức "cân" cả thị trường khó
+    khăn.
+
+
+    Tuy nhiên, bức tranh tài chính lại ẩn chứa nhiều lo ngại. Tiền mặt của công ty
+    đã bốc hơi 1.600 tỷ đồng so với đầu năm, chỉ còn 1.800 tỷ. Trong khi đó, tổng
+    nợ vay và thuê tài chính vẫn còn hơn 4.800 tỷ. Việc chuyển sang mô hình vừa bán
+    vừa giữ lại khai thác cũng là một canh bạc dài hơi, đòi hỏi vốn lớn và chưa chắc
+    đã hiệu quả ngay.
+
+
+    DXG lúc này phù hợp với nhà đầu tư chấp nhận rủi ro, cược vào khả năng mảng môi
+    giới sẽ tiếp tục gánh team trong 2-3 quý tới để xử lý dần khối nợ. Ai an toàn
+    hơn nên đứng ngoài quan sát cho đến khi công ty chứng minh được mô hình mới hiệu
+    quả và bảng cân đối kế toán lành mạnh trở lại.'
+  word_count: 268
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T11:53:36.171816+00:00'
 ---
 
 <!-- left -->

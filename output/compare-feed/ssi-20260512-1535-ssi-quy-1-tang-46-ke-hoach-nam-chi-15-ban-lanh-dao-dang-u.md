@@ -144,6 +144,43 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://finance.vietstock.vn/bao-cao-phan-tich/20127/ssi-bao-cao-cap-nhat-dhcd-2026.htm
 format_director: null
+gemini:
+  title: SSI lãi đậm Q1, sao cả năm 2026 chỉ đặt mục tiêu tăng 21%?
+  body: 'SSI vừa báo lãi quý 1 tăng vọt 46% so với cùng kỳ, nhưng kế hoạch cả năm
+    2026 lại chỉ nhắm tăng trưởng doanh thu 21% và lợi nhuận 15%. Ban lãnh đạo đang
+    "ém hàng" hay thực sự nhìn thấy rủi ro nào đó sắp tới?
+
+
+    - **Tự doanh là con dao hai lưỡi, khó đoán nhất:** Mảng này có thể đóng góp lợi
+    nhuận đột biến khi thị trường thuận lợi, nhưng cũng bốc hơi rất nhanh khi VN-Index
+    quay đầu. Kế hoạch thận trọng chính là để phòng thủ cho kịch bản thị trường không
+    còn dễ dàng như đầu năm.
+
+
+    - **Pha loãng nặng vì tăng vốn khủng:** Kế hoạch phát hành thêm **hơn 500 triệu
+    cổ phiếu** để nâng vốn điều lệ lên 30.000 tỷ đồng sẽ gây áp lực lên EPS (lợi nhuận
+    trên mỗi cổ phiếu). Lợi nhuận phải tăng rất mạnh mới gánh nổi số cổ phiếu mới
+    này.
+
+
+    - **Cho vay margin không thể tăng nóng mãi:** Dư nợ cho vay ký quỹ dự kiến chạm
+    **39.000 tỷ đồng** là nguồn thu ổn định, nhưng mảng này rất nhạy cảm với chính
+    sách tiền tệ và tâm lý thị trường. Dư địa để tăng trưởng đột phá từ đây không
+    còn nhiều.
+
+
+    - **Củng cố "chân kiềng" quản lý quỹ:** SSI đang bù lại bằng cách đẩy mạnh mảng
+    quản lý tài sản (SSIAM), nhắm mục tiêu chiếm **35-36% thị phần**. Đây là nguồn
+    thu phí bền vững hơn, giúp giảm bớt sự phụ thuộc vào biến động của thị trường
+    chứng khoán.
+
+
+    SSI vẫn là một công ty đầu ngành, nhưng rủi ro pha loãng và sự phụ thuộc vào tự
+    doanh khiến cổ phiếu khó có đột biến ngắn hạn. Nhà đầu tư đang nắm giữ nên tiếp
+    tục quan sát, chưa vội mua thêm cho đến khi có kết quả kinh doanh quý 2.'
+  word_count: 248
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T11:49:35.729673+00:00'
 ---
 
 <!-- left -->

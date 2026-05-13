@@ -256,6 +256,37 @@ format_director:
     - standard_qa
     - standard_listicle
     pass: true
+gemini:
+  title: MSN đã có lãi, tại sao nhà đầu tư phải chờ tới tận năm 2026?
+  body: 'Masan (MSN) đã có lãi trở lại, nhưng các báo cáo phân tích lại hẹn nhà đầu
+    tư tới tận năm **2026** cho một cuộc "tái định giá". Vậy đâu là lý do cho sự chờ
+    đợi này khi mọi thứ có vẻ đã **tốt lên**?
+
+
+    - **Cú lột xác về đòn bẩy tài chính**: Vấn đề lớn nhất của MSN luôn là nợ. Trong
+    một năm, tỷ lệ nợ ròng trên lợi nhuận (EBITDA) đã **giảm một nửa**, từ 3,5 lần
+    xuống còn **1,7 lần**, nhờ tập đoàn tạo ra **11.300 tỷ** đồng tiền thật từ kinh
+    doanh để trả nợ, không phải bán tài sản.
+
+
+    - **"Cỗ máy tiền" hoạt động trơn tru**: Dòng tiền từ hoạt động kinh doanh quý
+    1/2026 **tăng 50%**, cho thấy khả năng trả nợ đến từ các mảng cốt lõi. Mảng tiêu
+    dùng MCH vẫn vững với biên lợi nhuận **21,2%**, còn chuỗi WinCommerce (WCM) ghi
+    nhận lãi gấp **3,5 lần** cùng kỳ.
+
+
+    - **Chờ "cú đấm" từ mảng vonfram**: Mảng bán lẻ và tiêu dùng là cái nền vững,
+    nhưng cú hích lớn cho định giá lại đến từ **Masan High-Tech Materials (MSR)**.
+    Giá vonfram bật tăng giúp MSR lãi **537 tỷ** từ mức lỗ 222 tỷ, hoạt động như một
+    "cú đấm bồi" khi cỗ máy chính đã vào guồng.
+
+
+    Với nhà đầu tư dài hạn, vùng giá hiện tại là để tích lũy chờ điểm rơi lợi nhuận
+    của MSR trong **nửa sau 2026**. Ai lướt sóng cần cẩn trọng vì giá có thể **đi
+    ngang**.'
+  word_count: 216
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T11:54:35.532352+00:00'
 ---
 
 <!-- left -->
