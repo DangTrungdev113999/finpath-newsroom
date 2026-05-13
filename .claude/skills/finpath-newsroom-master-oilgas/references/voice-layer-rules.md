@@ -33,14 +33,18 @@ Implementation: `lib.quality_gates.check_no_hedging` (LLM judge inline, keyword 
 
 ---
 
-## V3 — Verdict line bắt buộc (V1.3 actionable composition)
+## V3 — Closing là QUYẾT ĐỊNH ĐẦU TƯ, không phải tóm tắt
 
-Closing MUST có 5 elements:
-1. Stance verb — "nên cầm/giảm/giữ/bán/tích lũy" HOẶC "phù hợp/không phù hợp NĐT"
-2. Quantified trigger — number with unit HOẶC condition with number
-3. Timeframe — "12 tháng", "Q3/2026", "ngắn hạn / dài hạn"
-4. Holder context — "NĐT đang cầm", "người giữ" + action verb
-5. NO `CLOSING_VAGUE_BAN` ("cần theo dõi" / "làm chỉ báo" / "đáng theo dõi")
+Closing CHUYỂN THESIS THÀNH QUYẾT ĐỊNH. Agent đọc body xong tự hỏi: cược thực sự là gì? Cho ai là buy? Cho ai là wait? Cho ai là giữ? Identity của cổ phiếu chuyển nếu thesis đúng?
+
+Closing có thể 1-3 câu. Conditional bet ("nếu... thì...") OK. Investor segmentation ("ai tin X thì... ai chỉ nhìn Y thì...") OK. Identity transformation ("không còn là gia công — sẽ là AI hạ tầng") OK. Concrete metaphor OK khi tự nhiên. Form tuỳ bài, KHÔNG dập khuôn.
+
+**Quality bar** — đọc `closing-examples.md` 6 expert benchmark để cảm nhận. KHÔNG copy structure, KHÔNG pick phrases.
+
+**Safety net** (objective):
+1. Stance verb có mặt — `STANCE_VERBS` (nên cầm/giữ/bán/tích lũy/phù hợp NĐT/...)
+2. KHÔNG vague phrase — `CLOSING_VAGUE_BAN` (cần theo dõi/đáng theo dõi/làm chỉ báo)
+3. ≥1 number/timeframe trong closing
 
 Implementation: `check_verdict_line` composes `check_actionable_closing`.
 
