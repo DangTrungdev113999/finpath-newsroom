@@ -1,99 +1,37 @@
-"""Headline scoring module V1.2 — 7 hard criteria + 8-point rubric.
+"""Headline scoring module V1.5-lite — 8 hard criteria + 6-point rubric.
 
 V1.1 (2026-05-12 AM): em dash '—' BANNED in title (AI-tell signal).
-V1.2 (2026-05-12 PM): added bao_chi reject + label_leak reject + concrete_question
-bonus. Reason — V1.1 generated 7/10 titles using formula 'X đánh đổi/hy sinh Y
-để Z?'. User feedback: pattern formulaic, không 'bình dân nguy hiểm'.
+V1.2 (2026-05-12 PM): added bao_chi reject + label_leak reject + concrete_question bonus.
+V1.3 (2026-05-13 AM): orphan number detector + word_count relaxed ≤12 → ≤16.
+V1.5-lite (2026-05-13 PM): drop V1.2-V1.4 word bonus scorer (caused Pattern A
+pile-on per audit). Add Hán-Việt + abbreviation hard criteria. Simplified rubric.
 
-V1.2 bans (hard criteria additions):
-- BAO_CHI_FORMULAIC_PHRASES: 'đánh đổi gì', 'để đổi lấy', 'hy sinh để',
-  'đặt cược vào', 'đặt mục tiêu', 'lao dốc', 'bứt phá', 'Q1/2026 X lãi Y'
-- RUBRIC_LABEL_LEAK: title field = bare 'Question'/'Declarative tension'
+Dropped in V1.5-lite:
+- is_bao_chi / BAO_CHI_FORMULAIC_PHRASES / BAO_CHI_QUARTER_PATTERN
+- has_concrete_question_subject / CONCRETE_QUESTION_SUBJECTS
+- has_dramatic_verb / DRAMATIC_VERBS
+- has_tension_word / TITLE_TENSION_WORDS
+- RUBRIC_LABEL_LEAK (replaced by inline set in is_label_leak)
+- hook_strong / binh_dan_nguy_hiem nested dicts in check_hard_criteria
+- 8-point rubric → 6-point rubric
 
-V1.2 bonuses (rubric):
-- concrete_question_subject: 'ai gom?', 'đi đâu?', 'sợ gì?', 'khôn hay liều?'
-
-Benchmark V1.2: 'Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?' score ≥6/8.
+Added in V1.5-lite:
+- no_han_viet_formal hard criterion (via HAN_VIET_FORMAL_BAN)
+- abbreviation_expanded hard criterion (via check_abbreviation_expanded)
+- has_concrete_number info field
+- plain_language flat key (was nested in binh_dan_nguy_hiem)
 """
 from __future__ import annotations
 import re
 from typing import Any
 
-# V1.5-lite: dropped V1.2 word lists. Keep only naturalized terms allowlist
-# (used by has_english for jargon check exception).
+# V1.5-lite: only naturalized terms needed (exception for has_english check).
 from lib.voice_rules import NATURALIZED_FINANCE_TERMS
-
-# V1.5-lite local copies — these were removed from voice_rules because they
-# caused Pattern A pile-on in Master body. Kept here ONLY for headline scoring
-# functions until Task 3 refactors headline_scorer fully.
-# TODO Task 3: replace/remove these local copies.
-TITLE_TENSION_WORDS = [
-    "hy sinh", "đánh đổi", "nghịch lý", "vì sao", "đổi lấy",
-    "không phải", "bù lại", "thay vì", "chấp nhận",
-]
-
-DRAMATIC_VERBS = [
-    "hy sinh", "đánh đổi", "đặt cược", "lội ngược",
-    "rút khỏi", "vượt mặt", "tung đòn", "đặt cọc",
-    "chấp nhận thua", "tự chậm lại", "đập cửa", "thoát hiểm",
-    "chấp nhận hi sinh", "đánh cược", "đổ vỡ", "vực dậy",
-    "tiếp đà", "phá kỷ lục", "soán ngôi", "lấn sang", "rơi vào",
-    "ăn lãi", "ăn ưu đãi", "ăn lời", "ăn được", "ăn ", "ăn,",
-    "khoe lãi", "khoe ",
-    "dồn tiền", "dồn ", "xén cổ tức", "xén ",
-    "gom hàng", "gom ", "bơm vốn", "bơm ",
-    "đẻ ra", "ngồi trên tiền", "ngồi trên",
-    "chạy đâu", "đi vay", "đi đâu",
-    "đổi tên", "đổi hướng", "đổi mô hình",
-    "gọi vốn", "gọi tiền",
-    "chia cổ tức", "chia kỷ lục",
-    "vọt", "tụt", "rớt", "nhảy",
-    "bán hàng", "bán ESOP", "bán nội bộ",
-    "thật ra", "thực ra", "thật chỉ",
-    "tống ", "nhồi ", "nhồi thêm",
-    "sa thải", "lùa ", "rước ",
-    "phân hóa", "ngược chiều",
-    "cắt sâu", "cắt mạnh",
-]
 
 PR_CLICKBAIT_WORDS = [
     "cú nổ", "bí mật", "sốc", "hot", "thông tin nóng",
     "không thể tin nổi", "cú twist", "kỳ tích", "hé lộ",
     "kỳ tích", "kỷ tích",
-]
-
-BAO_CHI_FORMULAIC_PHRASES = [
-    "đánh đổi gì", "đánh đổi để", "đánh đổi nào", "đánh đổi để lấy",
-    "hy sinh để", "hy sinh nhằm", "hy sinh lợi nhuận",
-    "để đổi lấy", "để lấy gì", "đổi lấy gì", "đổi lấy điều gì",
-    "đặt cược vào", "đặt cược để",
-    "đặt mục tiêu", "đặt kế hoạch", "công bố kế hoạch",
-    "đã công bố", "ghi nhận", "thông qua nghị quyết",
-    "phấn đấu", "dự kiến đạt",
-    "lao dốc", "bứt phá", "lập kỷ lục",
-]
-
-BAO_CHI_QUARTER_PATTERN = re.compile(
-    r"^(Q[1-4]/?\d{0,4}|năm \d{4})\s+\w+\s+(lãi|lợi nhuận|doanh thu|công bố|ghi nhận)",
-    re.IGNORECASE,
-)
-
-RUBRIC_LABEL_LEAK = {
-    "question", "declarative tension", "quote", "contrast verb",
-    "lối question", "lối declarative", "lối quote", "lối contrast",
-}
-
-CONCRETE_QUESTION_SUBJECTS = [
-    "ai gom", "ai trả", "ai bán", "ai đẩy", "ai chạy", "ai đang",
-    "ai vừa", "ai mua", "ai thoát",
-    "đi đâu", "chạy đâu", "tiền đâu", "tiền chạy",
-    "sợ gì", "đáng sợ", "lo gì", "ngại gì",
-    "khôn hay liều", "khôn hay dại", "đúng hay sai",
-    "bao giờ", "khi nào", "đến bao giờ",
-    "trước ngày", "trước kỳ", "sau tháng",
-    " lạ?", " thật?", " thật vậy?",
-    "nào sai", "nào đúng", "ai thắng", "ai thua", "bên nào",
-    "kẻ nào", "phe nào", "nhóm nào",
 ]
 
 # Universe — synced with lib/finpath_sectors (139 tickers V5.1.3 cached).
@@ -169,16 +107,6 @@ def has_specific_number(title: str) -> bool:
     return False
 
 
-def has_dramatic_verb(title: str) -> bool:
-    tlc = title.lower()
-    return any(v in tlc for v in DRAMATIC_VERBS)
-
-
-def has_tension_word(title: str) -> bool:
-    tlc = title.lower()
-    return any(w in tlc for w in TITLE_TENSION_WORDS)
-
-
 def has_paradox_pattern(title: str) -> bool:
     return bool(re.search(
         r"\bmà\b|\bnhưng\b|\bthật ra\b|\bthực ra\b|\bkỳ thực\b",
@@ -219,23 +147,6 @@ def has_em_dash(title: str) -> bool:
     return "—" in title
 
 
-def is_bao_chi(title: str) -> bool:
-    """V1.2 — detect báo chí formula/cliché. Reject hard criteria.
-
-    Catches:
-    - Formula 'X đánh đổi/hy sinh Y để Z' (V1.1 over-generated)
-    - Báo chí formal verbs (đặt mục tiêu / ghi nhận / công bố)
-    - Buzzwords (lao dốc / bứt phá / lập kỷ lục)
-    - Format 'Q1/2026 X lãi Y' summary lead
-    """
-    tlc = title.lower()
-    if any(phrase in tlc for phrase in BAO_CHI_FORMULAIC_PHRASES):
-        return True
-    if BAO_CHI_QUARTER_PATTERN.match(title):
-        return True
-    return False
-
-
 def is_label_leak(title: str) -> bool:
     """V1.2 — detect rubric label accidentally written as title.
 
@@ -244,9 +155,13 @@ def is_label_leak(title: str) -> bool:
     - 'Question — explanation:' meta-prefix
     - 'Lối X:' prefix
     """
+    _RUBRIC_LABEL_LEAK = {
+        "question", "declarative tension", "quote", "contrast verb",
+        "lối question", "lối declarative", "lối quote", "lối contrast",
+    }
     tlc = title.lower().strip().rstrip("?.!")
     # Bare label or short title that IS just the label
-    if len(title.split()) <= 4 and tlc in RUBRIC_LABEL_LEAK:
+    if len(title.split()) <= 4 and tlc in _RUBRIC_LABEL_LEAK:
         return True
     # Common leak patterns observed in production V1.1
     if tlc.startswith("question") and ":" in title:
@@ -258,17 +173,6 @@ def is_label_leak(title: str) -> bool:
     if tlc.startswith("contrast verb"):
         return True
     return False
-
-
-def has_concrete_question_subject(title: str) -> bool:
-    """V1.2 — concrete question subject ('ai gom?' / 'đi đâu?').
-
-    Vs generic abstract ('để đổi lấy gì?'). Earns +1 rubric bonus.
-    """
-    if not has_open_question(title):
-        return False
-    tlc = title.lower()
-    return any(s in tlc for s in CONCRETE_QUESTION_SUBJECTS)
 
 
 # V1.3 — generic reference words that need specifier nearby ("ngành" alone fails,
@@ -321,7 +225,6 @@ def has_orphan_number(title: str) -> bool:
     for i, tok in enumerate(tokens):
         if re.search(r"\d+([.,]\d+)?%", tok):
             window = tokens[i + 1: i + 5]
-            window_text = " ".join(window)
             # Skip if percent token itself contains noun (vd "85%vốn")
             if any(noun in tok for noun in NOUN_HINTS):
                 continue
@@ -345,138 +248,113 @@ def has_orphan_number(title: str) -> bool:
 
 
 def check_hard_criteria(title: str) -> dict[str, Any]:
-    """V1.2 — 7 hard criteria check.
+    """V1.5-lite — 8 hard criteria check.
 
-    Returns dict with 8 keys + computed 'passed' flag:
+    Drops V1.2-V1.4 word-list checks (is_bao_chi, has_concrete_question_subject,
+    self_explanatory bonus). User feedback: those caused Pattern A pile-on
+    (chấm đích / vọt lãi / xén lợi).
+
+    Returns dict with 9 keys + computed 'passed' flag:
     - ticker_present: bool
-    - word_count_le_16: bool (V1.3: relaxed from 12 — clarity > conciseness)
-    - hook_strong: {tension_present, click_test_pass} dict
-    - binh_dan_nguy_hiem: {plain_language, sharp_edge} dict
+    - word_count_le_16: bool
     - no_em_dash: bool
-    - not_bao_chi: bool (V1.2 NEW — ban formula clichés + báo chí buzzwords)
-    - not_label_leak: bool (V1.2 NEW — title KHÔNG được = rubric label)
-    - not_orphan_number: bool (V1.3 NEW — số/percent phải có subject, ngành phải có specifier)
-    - passed: bool (all top-level + nested True)
+    - not_label_leak: bool (V1.2 preserved)
+    - not_orphan_number: bool (V1.3 preserved)
+    - no_han_viet_formal: bool (V1.5 NEW)
+    - abbreviation_expanded: bool (V1.5 NEW)
+    - has_concrete_number: bool (V1.5 NEW — info field, not required for passed)
+    - plain_language: bool (no English + no PR clickbait)
+    - passed: bool (all required True)
     """
     ticker_present = has_ticker(title)
-    # V1.3 relaxed from ≤12 → ≤16 (clarity > conciseness per user feedback 2026-05-13)
     word_count_le_16 = len(title.split()) <= 16
-
-    # Hook strong = 2 sub-tests (V1.2: also accept concrete_question_subject
-    # as tension signal — 'Tiền chạy đâu?', 'Khôn hay liều?')
-    tension_present = (
-        has_dramatic_verb(title)
-        or has_tension_word(title)
-        or has_paradox_pattern(title)
-        or has_concrete_question_subject(title)
-    )
-    # Click test heuristic (V1.2): has number/question/dramatic/concrete-Q-subject
-    click_test_pass = (
-        has_specific_number(title)
-        or has_open_question(title)
-        or has_dramatic_verb(title)
-        or has_concrete_question_subject(title)
-    )
-    hook_strong = {
-        "tension_present": tension_present,
-        "click_test_pass": click_test_pass,
-    }
-
-    # Bình dân nguy hiểm = 2 sub-tests
-    # plain_language: no English jargon + no PR clickbait
-    plain_language = not has_english(title) and not has_pr_clickbait(title)
-    # sharp_edge: has tension/dramatic/specific (i.e. not bland)
-    sharp_edge = (
-        has_dramatic_verb(title)
-        or has_specific_number(title)
-        or has_tension_word(title)
-        or has_paradox_pattern(title)
-    )
-    binh_dan_nguy_hiem = {
-        "plain_language": plain_language,
-        "sharp_edge": sharp_edge,
-    }
-
     no_em_dash = not has_em_dash(title)
-    not_bao_chi = not is_bao_chi(title)
     not_label_leak = not is_label_leak(title)
     not_orphan_number = not has_orphan_number(title)
+
+    # V1.5-lite NEW: Hán-Việt formal check (title)
+    from lib.voice_rules import HAN_VIET_FORMAL_BAN
+    tlc = title.lower()
+    han_viet_found = [t for t in HAN_VIET_FORMAL_BAN if t in tlc]
+    no_han_viet_formal = len(han_viet_found) == 0
+
+    # V1.5-lite NEW: Abbreviation expansion (title)
+    from lib.quality_gates import check_abbreviation_expanded
+    abbrev_result = check_abbreviation_expanded(title)
+    abbreviation_expanded = abbrev_result["pass"]
+
+    # V1.5-lite NEW: Concrete number (informational — not in passed)
+    has_concrete_number = has_specific_number(title) and not_orphan_number
+
+    # plain_language preserved
+    plain_language = not has_english(title) and not has_pr_clickbait(title)
 
     passed = (
         ticker_present
         and word_count_le_16
-        and hook_strong["tension_present"]
-        and hook_strong["click_test_pass"]
-        and binh_dan_nguy_hiem["plain_language"]
-        and binh_dan_nguy_hiem["sharp_edge"]
         and no_em_dash
-        and not_bao_chi
         and not_label_leak
         and not_orphan_number
+        and no_han_viet_formal
+        and abbreviation_expanded
+        and plain_language
     )
 
     return {
         "ticker_present": ticker_present,
         "word_count_le_16": word_count_le_16,
-        "hook_strong": hook_strong,
-        "binh_dan_nguy_hiem": binh_dan_nguy_hiem,
         "no_em_dash": no_em_dash,
-        "not_bao_chi": not_bao_chi,
         "not_label_leak": not_label_leak,
         "not_orphan_number": not_orphan_number,
+        "no_han_viet_formal": no_han_viet_formal,
+        "abbreviation_expanded": abbreviation_expanded,
+        "has_concrete_number": has_concrete_number,
+        "plain_language": plain_language,
         "passed": passed,
     }
 
 
 def score_title(title: str) -> dict[str, Any]:
-    """V1.3 — 8-point rubric. Only call after check_hard_criteria passes.
+    """V1.5-lite — 6-point rubric (simplified from V1.3 8-point).
 
-    Returns {score: int, max: 8, elements: dict}.
+    Drops scorer word bonuses (caused Pattern A pile-on):
+    - dramatic_verb +2 (DRAMATIC_VERBS list)
+    - concrete_question_subject +1 (CONCRETE_QUESTION_SUBJECTS list)
+    - self_explanatory +1 (V1.3)
+    - tension_word +1 (TITLE_TENSION_WORDS list)
 
-    Scoring (max 8, weighted by impact on reader curiosity):
-    - dramatic_verb: +2
-    - specific_number: +2
-    - concrete_question_subject (V1.2): +1 (bonus for 'ai gom?' vs 'đổi lấy gì?')
-    - open_question: +1
-    - tension_word: +1
-    - paradox_pattern: +1
-    - self_explanatory (V1.3): +1 (≤14 từ AND no orphan number — sweet spot)
+    Keeps mechanical signals:
+    - has_concrete_number: +2 (number with subject, no orphan)
+    - open_question (?): +1
+    - paradox pattern (mà / nhưng / thật ra): +1
+    - extra_concise (≤10 từ): +1
+    - has_ticker (bonus for prominence): +1
 
-    V1.3 PATCH: replaced extra_concise (≤10 từ) — pushed hook quá ngắn → mất
-    subject. Now reward "≤14 từ AND không orphan number" — balance concise + clear.
+    Returns {score: int, max: 6, elements: dict}.
     """
     elements = {
         "ticker": has_ticker(title),
-        "dramatic_verb": has_dramatic_verb(title),
-        "specific_number": has_specific_number(title),
-        "concrete_question_subject": has_concrete_question_subject(title),
+        "has_concrete_number": has_specific_number(title) and not has_orphan_number(title),
         "open_question": has_open_question(title),
-        "tension_word": has_tension_word(title),
         "paradox_pattern": has_paradox_pattern(title),
-        "self_explanatory": len(title.split()) <= 14 and not has_orphan_number(title),
+        "extra_concise": len(title.split()) <= 10,
     }
     score = 0
-    if elements["dramatic_verb"]:
+    if elements["has_concrete_number"]:
         score += 2
-    if elements["specific_number"]:
-        score += 2
-    if elements["concrete_question_subject"]:
-        score += 1
     if elements["open_question"]:
-        score += 1
-    if elements["tension_word"]:
         score += 1
     if elements["paradox_pattern"]:
         score += 1
-    if elements["self_explanatory"]:
+    if elements["extra_concise"]:
         score += 1
-    # Cap at 8 (open_question + concrete_question may both fire, +1 each but
-    # concrete already implies open, so cap)
-    return {"score": min(score, 8), "max": 8, "elements": elements}
+    if elements["ticker"]:
+        score += 1
+    return {"score": min(score, 6), "max": 6, "elements": elements}
 
 
 def pick_best_candidate(candidates: list[str]) -> dict[str, Any]:
-    """Apply 5 hard criteria filter + score → return best.
+    """Apply hard criteria filter + score → return best.
 
     Returns: {final_title, picked_score, all_scored}
     Raises ValueError if 0 candidates pass hard criteria.
