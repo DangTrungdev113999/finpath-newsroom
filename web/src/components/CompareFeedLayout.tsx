@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Article } from '../types';
 import { LeftColumn } from './LeftColumn';
 import { RightColumn } from './RightColumn';
 import { CommentSection } from './CommentSection';
 import { TTSButton } from './TTSButton';
+import { ModelToggle, type ArticleModel } from './ModelToggle';
 import { formatCrawledAt } from '../lib/format';
 
 export function CompareFeedLayout({
@@ -14,11 +16,26 @@ export function CompareFeedLayout({
   showRight?: boolean;
 }) {
   const { meta, leftMarkdown } = article;
+  const [model, setModel] = useState<ArticleModel>('claude');
+  const geminiAvailable = !!(meta.gemini?.title && meta.gemini?.body);
+  const showGemini = model === 'gemini' && geminiAvailable;
+  const displayTitle = showGemini ? meta.gemini!.title : meta.title;
+  const displayBody = showGemini ? meta.gemini!.body : leftMarkdown;
+  const displayLeftMeta = showGemini
+    ? {
+        ...meta.left_meta,
+        author: meta.gemini?.model ? `Gemini · ${meta.gemini.model}` : 'Gemini',
+        word_count: meta.gemini?.word_count ?? meta.left_meta.word_count,
+        // Skeptic critique is Claude-side only — clear verdict marker in Gemini view
+        skeptic_verdict: '',
+      }
+    : meta.left_meta;
+
   return (
     <article className="max-w-7xl mx-auto px-4 py-6">
       <header className={showRight ? '' : 'max-w-3xl mx-auto'}>
         <h1 className="leading-tight">
-          {meta.sector_icon} {meta.title}
+          {meta.sector_icon} {displayTitle}
         </h1>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <p className="!m-0 hidden min-w-0 flex-1 text-sm italic text-fg-3 sm:block">
@@ -30,7 +47,14 @@ export function CompareFeedLayout({
               {meta.funnel_batch_id}
             </Link>
           </p>
-          <TTSButton text={leftMarkdown} />
+          <div className="flex items-center gap-3">
+            <ModelToggle
+              selected={model}
+              onChange={setModel}
+              geminiAvailable={geminiAvailable}
+            />
+            <TTSButton text={displayBody} />
+          </div>
         </div>
       </header>
 
@@ -38,12 +62,12 @@ export function CompareFeedLayout({
 
       {showRight ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-          <LeftColumn meta={meta.left_meta} body={leftMarkdown} />
+          <LeftColumn meta={displayLeftMeta} body={displayBody} />
           <RightColumn meta={meta} />
         </div>
       ) : (
         <div className="max-w-3xl mx-auto">
-          <LeftColumn meta={meta.left_meta} body={leftMarkdown} />
+          <LeftColumn meta={displayLeftMeta} body={displayBody} />
         </div>
       )}
 
