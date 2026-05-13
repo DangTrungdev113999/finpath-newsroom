@@ -224,13 +224,40 @@ Observability + failure isolation + variety-guard trade-off: see `references/obs
 
 For each persisted article from Step 4:
 
-**Spawn via helper** (HARD RULE — no inline self-execute, schema validation fail-loud V5.1):
+**Build payload with central_thesis** (V1.6 — semantic anchor from Story Editor brief):
 
 ```bash
-cat > /tmp/prompt-headline-<article_id>.md <<'EOF'
-<JSON with article_id, ticker, sector, body, draft_title, stance_directive, format_id, category>
+cd "/Users/trungdt/Desktop/Stream Intelligent" && PAYLOAD_JSON=$(uv run python -c "
+import json, sqlite3
+from lib.brief_central_thesis import extract_central_thesis
+conn = sqlite3.connect('data/pipeline.db')
+conn.row_factory = sqlite3.Row
+r = conn.execute('SELECT article_id, ticker, sector, body, title, brief_json, pipeline_log FROM generated_news WHERE article_id = ?', ('<article_id>',)).fetchone()
+plog = json.loads(r['pipeline_log'] or '{}')
+picked_idx = int((plog.get('step_4_master') or {}).get('chosen_question_idx') or 0)
+fmt = (plog.get('step_4_master') or {}).get('format_id_used') or 'standard_listicle'
+thesis = extract_central_thesis(r['brief_json'] or '', r['body'] or '', picked_idx=picked_idx)
+brief = json.loads(r['brief_json'] or '{}')
+opts = brief.get('deep_question_options') or []
+opt = opts[picked_idx] if (0 <= picked_idx < len(opts)) else {}
+print(json.dumps({
+    'article_id': r['article_id'],
+    'ticker': r['ticker'],
+    'sector': r['sector'],
+    'body': r['body'],
+    'draft_title': r['title'],
+    'central_thesis': thesis['thesis'],
+    'thesis_source': thesis['source'],
+    'stance_directive': opt.get('stance_directive') or brief.get('stance_directive') or {},
+    'format_id': fmt,
+    'category': opt.get('category') or brief.get('angle_label') or '',
+}, ensure_ascii=False))
+")
 
-Follow newsroom-headline-craft skill V1.5-lite: pick 1 of 4 lối, generate 3 candidates, score 8 hard criteria + 6-point rubric, pick best. Em dash `—` BANNED in title. Return JSON: {final_title, final_loi, candidates, picked_score, hard_criteria_pass {ticker_present, word_count_le_16, no_em_dash, not_label_leak, not_orphan_number, no_han_viet_formal, abbreviation_expanded, plain_language, has_concrete_number, passed}}.
+cat > /tmp/prompt-headline-<article_id>.md <<EOF
+$PAYLOAD_JSON
+
+Follow newsroom-headline-craft skill V1.6: read body fully, anchor on central_thesis, generate 3 candidates capturing thesis (not peripheral facts), apply professional-patterns reference, pick by craft. 7 V1.6 hard criteria (ticker_present, word_count_le_16, no_em_dash, not_label_leak, no_han_viet_formal, abbreviation_expanded, plain_language). not_orphan_number + vague_action_verbs = soft hints. Em dash banned. Return JSON: {final_title, final_loi, candidates, hard_criteria_pass (7 V1.6 keys + soft hints), thesis_captured_reason}.
 EOF
 
 uv run python lib/stages/spawn_step_agent.py newsroom-headline-craft /tmp/prompt-headline-<article_id>.md \
@@ -238,7 +265,7 @@ uv run python lib/stages/spawn_step_agent.py newsroom-headline-craft /tmp/prompt
   > /tmp/spawn-headline-<article_id>.json
 ```
 
-Receive: `final_title`, `final_loi`, `candidates`, `picked_score`, `hard_criteria_pass` (V1.5-lite flat 8 keys + info — `ticker_present` / `word_count_le_16` / `no_em_dash` / `not_label_leak` / `not_orphan_number` / `no_han_viet_formal` / `abbreviation_expanded` / `plain_language` / `has_concrete_number` (info) / `passed`).
+Receive: `final_title`, `final_loi`, `candidates`, `hard_criteria_pass` (V1.6 flat 7 keys + info — `ticker_present` / `word_count_le_16` / `no_em_dash` / `not_label_leak` / `no_han_viet_formal` / `abbreviation_expanded` / `plain_language` / `not_orphan_number` (info) / `has_concrete_number` (info) / `vague_action_verbs` (soft hint list) / `passed`), plus `thesis_captured_reason` (1-sentence: tại sao title này capture central_thesis).
 
 **Replace article title** (UPDATE `generated_news.title` from Master placeholder to final) + **persist observability**:
 
@@ -252,22 +279,25 @@ db.conn.execute(
     ('<final_title>', '<final_loi>', '<article_id>')
 )
 db.conn.commit()
-# Log step_4_5
+# Log step_4_5 (V1.6 — picked_score deprecated to info; thesis fields added)
 db.log_pipeline_step('<article_id>', 'step_4_5_headline_craft', {
     'model': 'claude-sonnet-4-6',
     'duration_ms': <int>,
     'tokens': <parse_task_usage(task_return) or None>,
     'final_title': '<final_title>',
     'final_loi': '<final_loi>',
-    'picked_score': <int>,
-    'candidates': <list>,
-    'hard_criteria_pass': {<8 V1.5-lite flat keys + has_concrete_number info + passed>},
+    'central_thesis': '<thesis text passed to agent>',
+    'thesis_source': '<v5_deep_question|v4_insight|body_opening|empty>',
+    'thesis_captured_reason': '<1-sentence why title captures thesis>',
+    'picked_score': <int — info field deprecated V1.6, kept for audit>,
+    'candidates': <list — each with title + loi + soft_hints>,
+    'hard_criteria_pass': {<7 V1.6 flat keys + not_orphan_number info + vague_action_verbs soft hint + has_concrete_number info + passed>},
 })
 db.close()
 "
 ```
 
-⚠️ **Schema validation V5.1**: `step_4_5_headline_craft.final_title` MUST pass `check_hard_criteria()` (5 V1.1 hard criteria) ELSE `ValueError` raised by `lib/pipeline_db.py::validate_pipeline_step`. Halt pipeline — do NOT persist weak title.
+⚠️ **Schema validation V1.6**: `step_4_5_headline_craft.final_title` MUST pass `check_hard_criteria()` (7 V1.6 hard criteria) ELSE `ValueError` raised by `lib/pipeline_db.py::validate_pipeline_step`. `not_orphan_number` + `vague_action_verbs` are soft hints (logged but do not halt). Halt pipeline if 7 hard criteria fail — do NOT persist weak title.
 
 ⚠️ **HARD RULE — no inline self-execute**: orchestrator MUST spawn `newsroom-headline-craft` via `lib/stages/spawn_step_agent.py`. If spawn returns `ok:false` 2x retry still fails hard criteria, STOP pipeline + report `weak_title_no_hook` error.
 

@@ -247,54 +247,110 @@ def has_orphan_number(title: str) -> bool:
     return False
 
 
+def detect_vague_action_verb(title: str) -> list[dict[str, str]]:
+    """V1.6 — soft hint detector for vague action verbs in titles.
+
+    Reads title token-by-token. For each verb in VAGUE_ACTION_VERBS:
+    - If followed within 4 tokens by any CONCRETE_OBJECT_HINTS → NOT flagged
+      ("PVS ăn 1.974 tỷ lãi" → 'lãi' present → OK)
+    - Otherwise → flagged with suggestion text
+      ("PVS ăn 44%" → no concrete object → flagged)
+      ("FPT nguy 2.330 tỷ" → 'nguy' not a verb → flagged regardless)
+
+    'nguy' / 'mắc' are flagged ALWAYS (no valid concrete bổ ngữ in title context).
+    Returns list of {verb, position, suggestion}. Empty list = no hints.
+    NOT in `passed` flag — agent self-check + audit log only.
+    """
+    from lib.voice_rules import VAGUE_ACTION_VERBS, CONCRETE_OBJECT_HINTS
+
+    tlc = title.lower()
+    tokens = re.findall(r"\S+", tlc)
+    hints: list[dict[str, str]] = []
+
+    # 'nguy' and 'mắc' are always-flagged (no resolution via concrete object in title length)
+    ALWAYS_FLAG = {"nguy", "mắc"}
+
+    for i, tok in enumerate(tokens):
+        clean = re.sub(r"[^\w]", "", tok)
+        if clean in VAGUE_ACTION_VERBS:
+            if clean in ALWAYS_FLAG:
+                hints.append({
+                    "verb": clean,
+                    "position": str(i),
+                    "suggestion": VAGUE_ACTION_VERBS[clean],
+                })
+                continue
+            # Look ahead 4 tokens for concrete object
+            window = tokens[i + 1: i + 5]
+            has_concrete = any(
+                any(obj in re.sub(r"[^\w\s]", "", w) for obj in CONCRETE_OBJECT_HINTS)
+                for w in window
+            )
+            if not has_concrete:
+                hints.append({
+                    "verb": clean,
+                    "position": str(i),
+                    "suggestion": VAGUE_ACTION_VERBS[clean],
+                })
+    return hints
+
+
 def check_hard_criteria(title: str) -> dict[str, Any]:
-    """V1.5-lite — 8 hard criteria check.
+    """V1.6 — 7 hard criteria + 2 soft info hints.
 
-    Drops V1.2-V1.4 word-list checks (is_bao_chi, has_concrete_question_subject,
-    self_explanatory bonus). User feedback: those caused Pattern A pile-on
-    (chấm đích / vọt lãi / xén lợi).
+    Drops `not_orphan_number` from MUST-pass list (was V1.5-lite hard criterion).
+    Reason: orphan-number gate is too rigid — production data shows agent-crafted
+    titles that ARE clear ("PVS dồn 282 tỷ trích lập") sometimes fail; titles
+    that PASS still feel "AI cụt nghĩa" ("FPT mẹ nguy 2.330 tỷ"). User explicit:
+    "không thích dập khuôn — phải tùy từng bài". Detector kept as soft hint —
+    agent reads as self-check, scorer logs but does not halt pipeline.
 
-    Returns dict with 9 keys + computed 'passed' flag:
-    - ticker_present: bool
-    - word_count_le_16: bool
-    - no_em_dash: bool
-    - not_label_leak: bool (V1.2 preserved)
-    - not_orphan_number: bool (V1.3 preserved)
-    - no_han_viet_formal: bool (V1.5 NEW)
-    - abbreviation_expanded: bool (V1.5 NEW)
-    - has_concrete_number: bool (V1.5 NEW — info field, not required for passed)
-    - plain_language: bool (no English + no PR clickbait)
-    - passed: bool (all required True)
+    7 V1.6 hard criteria (MUST pass for `passed`):
+    - ticker_present
+    - word_count_le_16
+    - no_em_dash
+    - not_label_leak
+    - no_han_viet_formal
+    - abbreviation_expanded
+    - plain_language
+
+    Info-only (logged, NOT in `passed` flag):
+    - not_orphan_number (V1.3 detector — soft hint, agent self-check)
+    - has_concrete_number (V1.5 detector — soft hint)
+    - vague_action_verbs (V1.6 NEW — list of vague verbs flagged)
     """
     ticker_present = has_ticker(title)
     word_count_le_16 = len(title.split()) <= 16
     no_em_dash = not has_em_dash(title)
     not_label_leak = not is_label_leak(title)
-    not_orphan_number = not has_orphan_number(title)
+    not_orphan_number = not has_orphan_number(title)  # V1.6: info only
 
-    # V1.5-lite NEW: Hán-Việt formal check (title)
+    # Hán-Việt formal check
     from lib.voice_rules import HAN_VIET_FORMAL_BAN
     tlc = title.lower()
     han_viet_found = [t for t in HAN_VIET_FORMAL_BAN if t in tlc]
     no_han_viet_formal = len(han_viet_found) == 0
 
-    # V1.5-lite NEW: Abbreviation expansion (title)
+    # Abbreviation expansion
     from lib.quality_gates import check_abbreviation_expanded
     abbrev_result = check_abbreviation_expanded(title)
     abbreviation_expanded = abbrev_result["pass"]
 
-    # V1.5-lite NEW: Concrete number (informational — not in passed)
+    # Info-only: concrete number presence
     has_concrete_number = has_specific_number(title) and not_orphan_number
+
+    # V1.6 NEW: vague action verbs soft hint
+    vague_hints = detect_vague_action_verb(title)
 
     # plain_language preserved
     plain_language = not has_english(title) and not has_pr_clickbait(title)
 
+    # V1.6: passed = 7 hard criteria only (orphan_number + vague_verbs are soft)
     passed = (
         ticker_present
         and word_count_le_16
         and no_em_dash
         and not_label_leak
-        and not_orphan_number
         and no_han_viet_formal
         and abbreviation_expanded
         and plain_language
@@ -305,11 +361,13 @@ def check_hard_criteria(title: str) -> dict[str, Any]:
         "word_count_le_16": word_count_le_16,
         "no_em_dash": no_em_dash,
         "not_label_leak": not_label_leak,
-        "not_orphan_number": not_orphan_number,
         "no_han_viet_formal": no_han_viet_formal,
         "abbreviation_expanded": abbreviation_expanded,
-        "has_concrete_number": has_concrete_number,
         "plain_language": plain_language,
+        # Info-only (soft hints, not in passed)
+        "not_orphan_number": not_orphan_number,
+        "has_concrete_number": has_concrete_number,
+        "vague_action_verbs": vague_hints,
         "passed": passed,
     }
 

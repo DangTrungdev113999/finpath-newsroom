@@ -64,3 +64,29 @@ HAN_VIET_FORMAL_BAN = {
     "khả năng huy động": "khả năng gọi vốn",
     "tiến hành triển khai": "đang làm",
 }
+
+
+# V1.6 — Vague action verbs flagged in titles (soft hint, not hard reject).
+# Consumer: lib.headline_scorer.detect_vague_action_verb. Agent uses as
+# self-check during candidate generation. User feedback:
+# "FPT mẹ nguy 2.330 tỷ" / "khoản 282 tỷ che gì" / "PVS ăn 44%"
+# Reader can't tell WHAT happened — verb mơ hồ. Resolve by following with
+# CONCRETE_OBJECT_HINTS within 4 tokens (lãi/doanh thu/kế hoạch/etc).
+VAGUE_ACTION_VERBS = {
+    "ăn": "verb mơ hồ — chỉ rõ ăn lãi/doanh thu/kế hoạch (vd: 'ăn 1.974 tỷ lãi')",
+    "che": "verb mơ hồ — chỉ rõ che cái gì (vd: 'che 282 tỷ trích lập')",
+    "nguy": "không phải verb đơn — dùng 'có thể mất X' / 'rủi ro mất X'",
+    "mắc": "verb mơ hồ — chỉ rõ mắc kẹt/mắc nợ + nguyên nhân (vd: 'mắc kẹt 14.000 tỷ Lô B')",
+    "đẻ": "verb colloquial — dùng 'tạo' / 'phát sinh' + bổ ngữ rõ",
+    "đốt": "verb colloquial — dùng 'tiêu' / 'chi' / 'lỗ' + bổ ngữ",
+}
+
+# Concrete objects that "rescue" vague verbs — if verb followed by these within
+# 4 tokens, treat as concrete enough. Lowercase only (case-insensitive check).
+CONCRETE_OBJECT_HINTS = {
+    "lãi", "lợi nhuận", "doanh thu", "lỗ", "chi phí", "vốn",
+    "cổ tức", "trái phiếu", "tài sản", "nợ",
+    "kế hoạch", "trích lập", "dự phòng",
+    "nhân viên", "nhân sự",
+    "vị thế", "thị phần", "cổ phần",
+}

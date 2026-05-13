@@ -106,6 +106,88 @@ def test_v1_5_lite_drops_has_concrete_question_subject():
     assert not hasattr(hs, "has_concrete_question_subject")
 
 
+# === V1.6 — hard criteria 8→7 (orphan_number to soft) + vague_action_verb ===
+
+class TestV16HardCriteriaReduce:
+    def test_orphan_number_no_longer_fails_passed(self):
+        """V1.6: title with orphan % no longer blocks passed=True."""
+        # "ngành" without specifier was V1.3 orphan trigger
+        result = check_hard_criteria("PVS ăn 44%, ngành thì chưa rõ")
+        # not_orphan_number may be False (info field) but should not gate `passed`
+        # if all other 7 criteria pass — verify by checking they're decoupled
+        # In this title other criteria likely OK except plain_language
+        # Focus: passed flag composition no longer includes not_orphan_number
+        # If not_orphan_number=False but all 7 hard pass, passed=True
+        result2 = check_hard_criteria("STB cắt 85%, ngành còn lại tuyển?")
+        if all(result2[k] for k in [
+            "ticker_present", "word_count_le_16", "no_em_dash",
+            "not_label_leak", "no_han_viet_formal",
+            "abbreviation_expanded", "plain_language",
+        ]):
+            # All 7 hard pass — passed should be True regardless of orphan_number
+            assert result2["passed"] is True or result2["not_orphan_number"] is True
+
+    def test_passed_uses_only_7_hard_criteria(self):
+        """V1.6: passed flag = 7 hard criteria conjunction, not 8."""
+        result = check_hard_criteria("STB cắt 2.700, VPB tuyển 362. Bank nào đúng?")
+        # All 7 hard should pass
+        seven_hard = (
+            result["ticker_present"]
+            and result["word_count_le_16"]
+            and result["no_em_dash"]
+            and result["not_label_leak"]
+            and result["no_han_viet_formal"]
+            and result["abbreviation_expanded"]
+            and result["plain_language"]
+        )
+        assert result["passed"] is seven_hard
+
+
+class TestVagueActionVerbDetector:
+    def test_flags_orphan_an_with_percent(self):
+        """'PVS ăn 44%' — verb ăn không có concrete object."""
+        from lib.headline_scorer import detect_vague_action_verb
+        hints = detect_vague_action_verb("PVS kế hoạch giảm 48% nhưng Q1 đã ăn 44%")
+        assert any(h["verb"] == "ăn" for h in hints)
+
+    def test_passes_an_with_concrete_object(self):
+        """'PVS ăn 1.974 tỷ lãi' — verb có object lãi → OK."""
+        from lib.headline_scorer import detect_vague_action_verb
+        hints = detect_vague_action_verb("PVS ăn 1.974 tỷ lãi kỷ lục")
+        assert not any(h["verb"] == "ăn" for h in hints)
+
+    def test_always_flags_nguy(self):
+        """'nguy' không phải verb đơn — luôn flag."""
+        from lib.headline_scorer import detect_vague_action_verb
+        hints = detect_vague_action_verb("FPT mẹ nguy 2.330 tỷ?")
+        assert any(h["verb"] == "nguy" for h in hints)
+
+    def test_always_flags_mac(self):
+        """'mắc' trong title gần như luôn mơ hồ."""
+        from lib.headline_scorer import detect_vague_action_verb
+        hints = detect_vague_action_verb("PVS tiền mặt còn mắc Lô B?")
+        assert any(h["verb"] == "mắc" for h in hints)
+
+    def test_clean_title_no_hints(self):
+        """Title không có vague verbs → empty list."""
+        from lib.headline_scorer import detect_vague_action_verb
+        hints = detect_vague_action_verb("VHM Q1 lãi 25.625 tỷ, gấp 3 lần Vietcombank")
+        assert hints == []
+
+    def test_che_flagged_when_orphan(self):
+        """'khoản 282 tỷ che gì' — che vague + no concrete object."""
+        from lib.headline_scorer import detect_vague_action_verb
+        hints = detect_vague_action_verb("PVS Q1 ăn 44%: khoản 282 tỷ che gì?")
+        assert any(h["verb"] == "che" for h in hints)
+
+    def test_hints_in_check_hard_criteria_result(self):
+        """check_hard_criteria returns vague_action_verbs key (info)."""
+        result = check_hard_criteria("FPT mẹ nguy 2.330 tỷ?")
+        assert "vague_action_verbs" in result
+        assert isinstance(result["vague_action_verbs"], list)
+        assert any(h["verb"] == "nguy" for h in result["vague_action_verbs"])
+
+
 # === Detector functions (preserved) ===
 
 def test_has_ticker_in_universe():

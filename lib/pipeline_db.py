@@ -178,11 +178,12 @@ def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str =
             f"MUST dispatch via Task tool to enforce schema."
         )
 
-    # V1.5-lite — step_4_5_headline_craft fail-loud: final_title MUST pass 8
-    # hard criteria (ticker_present + word_count_le_16 + no_em_dash + not_label_leak
-    # + not_orphan_number + no_han_viet_formal + abbreviation_expanded + plain_language).
-    # Orchestrator cannot silently persist a weak title; Headline agent MUST
-    # regenerate (max 2 retry) before this validate succeeds.
+    # V1.6 — step_4_5_headline_craft fail-loud: final_title MUST pass 7 hard
+    # criteria (ticker_present + word_count_le_16 + no_em_dash + not_label_leak
+    # + no_han_viet_formal + abbreviation_expanded + plain_language).
+    # `not_orphan_number` + `vague_action_verbs` are soft hints — logged but
+    # do NOT halt. User feedback "không thích dập khuôn" — agent self-checks
+    # via craft + thesis anchor, soft hints inform without forcing rewrite.
     if step_key == "step_4_5_headline_craft" and is_v5_1_plus:
         from lib.headline_scorer import check_hard_criteria
         title = payload.get("final_title", "")
@@ -190,18 +191,17 @@ def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str =
             hc = check_hard_criteria(title)
             if not hc.get("passed", False):
                 failed_keys: list[str] = []
-                # V1.5-lite — flat 8 keys (no nested dicts)
-                v1_5_lite_keys = [
+                # V1.6 — flat 7 hard keys (no nested dicts)
+                v1_6_hard_keys = [
                     "ticker_present", "word_count_le_16", "no_em_dash",
-                    "not_label_leak", "not_orphan_number",
-                    "no_han_viet_formal", "abbreviation_expanded",
-                    "plain_language",
+                    "not_label_leak", "no_han_viet_formal",
+                    "abbreviation_expanded", "plain_language",
                 ]
-                for key in v1_5_lite_keys:
+                for key in v1_6_hard_keys:
                     if not hc.get(key):
                         failed_keys.append(key)
                 raise ValueError(
-                    f"pipeline_log[step_4_5_headline_craft].final_title fails V1.5-lite hard criteria: "
+                    f"pipeline_log[step_4_5_headline_craft].final_title fails V1.6 hard criteria: "
                     f"{failed_keys} — title={title!r}. Headline agent emitted weak title; "
                     f"MUST regenerate (max 2 retry) before persist."
                 )
