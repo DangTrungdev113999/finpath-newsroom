@@ -16,8 +16,10 @@ export function CompareFeedLayout({
   showRight?: boolean;
 }) {
   const { meta, leftMarkdown } = article;
-  const [model, setModel] = useState<ArticleModel>('claude');
   const geminiAvailable = !!(meta.gemini?.title && meta.gemini?.body);
+  const [model, setModel] = useState<ArticleModel>(
+    geminiAvailable ? 'gemini' : 'claude',
+  );
   const showGemini = model === 'gemini' && geminiAvailable;
   const displayTitle = showGemini ? meta.gemini!.title : meta.title;
   const displayBody = showGemini ? meta.gemini!.body : leftMarkdown;
