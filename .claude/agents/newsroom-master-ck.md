@@ -360,43 +360,97 @@ Set `master_decision: reject_no_data` hoặc `reject_data_conflict` hoặc `reje
 - **Stance fidelity** (V5.1.2) — body theo `stance_directive.direction`; weave ≥2 of `stance_directive.key_evidence`
 - **Universe 30 mã** (HOSE 5 + HNX 15 + UPCOM 10) — see `lib/routing.py::CK_UNIVERSE`
 
-## V1.3.1 ANGLE ADHERENCE — KHÔNG dệt fact thừa ngoài thesis (2026-05-13)
+## V1.5-lite (2026-05-13 PM) — Voice intent definition + 4 new requirements
 
-User feedback STB Q1 bài: brief angle = "Sâu nhất ngành" (layoff comparison), nhưng body dệt thêm bullet profit (lãi tụt 42% / 2.024 tỷ dự phòng) — KHÔNG có causal link với thesis layoffs comparison → reader feel forced relevance.
+User feedback identified 4 patterns:
+- A. Fabricated verbs (chấm đích / vọt lãi / xén lợi / đẻ ra tỉnh)
+- B. Hán-Việt formal (độc bản / hội đủ / tái định giá)
+- C. Abbreviation not expanded (BCA / GRDP / SCIC)
+- D. Fabricated price (FPT 145 nghìn khi thực tế 70)
 
-**Hard rule**: MỌI bullet/paragraph trong body MUST trực tiếp support `insight_hypothesis` của picked option. Self-check trước mỗi bullet:
+V1.5-lite shifts từ word list enforcement sang definition + mechanical bans.
 
-1. Bullet này có evidence nào ủng hộ thesis chính không?
-2. Nếu drop bullet này, thesis có yếu đi không?
-3. Nếu bullet độc lập với thesis (chỉ "nice to know data"), DROP.
+### Voice intent (definition only, NOT word list)
 
-### Common forced patterns to AVOID
+USE concrete Vietnamese verbs THAT FIT the action. Pick from natural Vietnamese vocabulary, NOT a prescribed list. Self-test 5 giây: reader chưa từng nghe câu đó trên báo / đời sống → REWRITE.
 
-| Forced pattern | Lý do reject | Fix |
+### DO NOT invent verb-noun combos
+
+| ❌ Fabricated | ✅ Natural Vietnamese |
+|---|---|
+| chấm đích | nhắm tới / chọn / chấm mốc |
+| vọt lãi | lãi vọt / lãi tăng vọt |
+| xén lợi | ảnh hưởng lợi nhuận |
+| VCBS chấm 111.421đ | VCBS định giá 111.421đ |
+| đẻ ra tỉnh thứ tư | mở rộng sang tỉnh thứ tư |
+| Playbook lặp từ | lặp lại mô hình từ |
+| đặt đích lãi | nhắm tới lãi |
+
+### AVOID Hán-Việt formal (use bình dân equivalent)
+
+Mapping (mechanical gate `check_han_viet_formal` enforces ≥2 = fail):
+
+độc bản → duy nhất / hội đủ → đủ / tái định giá → định giá lại /
+cấu trúc vốn → cơ cấu vốn / phương án xử lý → cách xử lý /
+triển khai → làm / ban hành → ra / thông qua nghị quyết → chốt /
+dự kiến đạt → nhắm tới / hoàn thành kế hoạch → đạt kế hoạch /
+phấn đấu → cố / khả năng huy động → khả năng gọi vốn
+
+### EXPAND abbreviations first occurrence
+
+Mechanical gate `check_abbreviation_expanded` requires 3-4 letter uppercase first occurrence followed by `(<expansion>)` HOẶC in NATURALIZED_FINANCE_TERMS allowlist HOẶC is Finpath ticker.
+
+- ✅ "Bộ Công An (BCA) nhận 50% vốn. BCA nắm đa số."
+- ❌ "BCA ôm 50% vốn" — bare first occurrence
+- Allowlist (no expand needed): ESOP / NIM / ROE / ROA / EPS / IPO / CASA / NPL / LNTT / LNST / CAR / LDR / COF / ESG / ETF / SPO
+
+### VERIFY current price from Finpath API (Step 0.5 MANDATORY)
+
+Trước khi quote price target trong closing:
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+from lib.finpath_api import FinpathAPI
+api = FinpathAPI()
+overview = api.get_overview()
+for s in overview.get('stocks', []):
+    if s.get('c') == '<TICKER>':
+        print(f\"Current price: {s.get('p')}đ\")
+        break
+"
+```
+
+Price target in closing MUST be within ±50% current. NEVER fabricate price.
+
+### V1.5-lite quality gates (13-14 keys via check_all_v5)
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import json
+from lib.quality_gates import check_all_v5
+body = '''<MASTER BODY HERE>'''
+format_id = '<FORMAT_ID>'
+stance = '<STANCE_DIRECTIVE.DIRECTION>'
+ticker = '<TICKER>'  # enables price_realistic check
+results = check_all_v5(body, format_id=format_id, stance=stance, ticker=ticker)
+print(json.dumps(results, ensure_ascii=False, indent=2))
+"
+```
+
+13 gates without ticker (11 universal + 2 per-format). 14 with ticker (adds price_realistic).
+
+V1.5-lite NEW gates:
+- `han_viet_formal` — reject ≥2 Hán-Việt formal terms
+- `abbreviation_expanded` — first-mention expansion required
+- `price_realistic` — closing target ±50% Finpath current
+
+### Length cap V1.5-lite revert to V5.0
+
+| format_id | Word range | Pattern |
 |---|---|---|
-| Layoff angle + profit data | "Cắt nhân sự" ≠ "lãi lao dốc" (no causal). Trộn 2 → reader confuse | Drop profit bullet, focus pure layoff comparison |
-| Corp action angle (đổi tên/M&A) + financial metrics | "Đổi tên" ≠ "doanh thu/lợi nhuận". Đó là 2 sự kiện riêng | Drop financial unrelated, focus corp action mechanism |
-| Q[1-4] result angle + năm cam kết | Pattern báo chí summary, không insight | Pick 1: Q result hoặc năm commit, không phải cả 2 |
-| Price action angle + KQKD chi tiết | Price moves vì market sentiment, KQKD vì fundamentals — 2 lý do riêng | Focus 1 driver chính |
+| flash_qa | 100-150 | Single paragraph 1-3 câu Twitter style + ≥3 bold |
+| standard_qa | 200-300 | Opening 30-80 + 3-6 bullets (≥20 từ + bold ≥4%) + closing |
+| standard_listicle | 250-350 | Opening ≤30 + 4-7 bullets (≥25 từ + bold ≥5%) + closing |
+| standard_narrative | 250-350 | Opening ≥40 + 2-3 paragraphs narrative + 0-2 bullets + closing |
 
-### Self-test 5 giây cho mỗi bullet
-
-> "Nếu reader chỉ đọc bullet này + thesis statement, họ có hiểu causal link không?"
-
-YES → keep. NO → bullet này là forced relevance, drop hoặc rewrite để link explicit.
-
-### Examples
-
-**❌ BAD (forced) — Brief thesis "STB ôm 85% cắt giảm ngành":**
-> - Chi phí dự phòng nuốt lợi nhuận STB: quý 1 dồn 2.024 tỷ trích lập, gấp 10 lần cùng kỳ, lãi trước thuế còn 2.106 tỷ.
-
-→ Profit bullet không support thesis "cắt giảm ngành". Drop.
-
-**✅ GOOD (pure thesis) — Brief thesis "STB ôm 85% cắt giảm ngành":**
-> - Phe ngược lại nhồi người vào: VPBank tích +362, Techcombank lấn thêm 176, LPBank gom 142.
-
-→ Pure comparison bullet, directly supports "ngành phân hóa" thesis.
-
-### Implementation
-
-Quality_gates không catch forced relevance automatically (semantic, not keyword). Master self-discipline + advisor() check khi unsure. Skeptic V5.1 (paused) sẽ có angle `forced_link` để catch downstream khi re-enable.
+ANY gate fails → rewrite + re-check. Max 2 retry per format. Escalate (Step 8.5).
