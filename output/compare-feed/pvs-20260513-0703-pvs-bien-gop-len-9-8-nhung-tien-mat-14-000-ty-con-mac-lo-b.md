@@ -230,6 +230,41 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://vietnambiz.vn/pvs-so-huu-hon-16000-ty-tien-mat-bang-82-von-hoa-cong-ty-20265135812551.htm
 format_director: null
+gemini:
+  title: 'PVS: Mua "két sắt" 16.000 tỷ, được tặng luôn mảng kinh doanh chính?'
+  body: 'Tổng Công ty Cổ phần Dịch vụ Kỹ thuật Dầu khí Việt Nam (PVS) đang ngồi trên
+    **16.013 tỷ đồng** tiền mặt, một con số chiếm tới 82% vốn hóa. Điều này đồng nghĩa
+    thị trường đang định giá toàn bộ hoạt động kinh doanh cốt lõi của đại gia dầu
+    khí này gần như bằng không. Liệu đây là một món hời bị bỏ quên hay một cái bẫy
+    giá rẻ mà nhà đầu tư cần cảnh giác?
+
+
+    - **"Cái két sắt" này không nằm im mà tự đẻ ra tiền.** Chỉ riêng trong quý 1/2026,
+    khoản tiền gửi khổng lồ này đã mang về cho PVS **107 tỷ đồng** tiền lãi, góp phần
+    quan trọng giúp công ty báo lãi sau thuế **435 tỷ đồng**.
+
+    - **Phần kinh doanh bị "cho không" lại đang tăng tốc mạnh.** Quý 1/2026 chứng
+    kiến doanh thu PVS vọt **45%** lên 8.699 tỷ đồng. Đáng chú ý hơn, biên lợi nhuận
+    gộp đã cải thiện ngoạn mục từ mức 4,27% của cùng kỳ lên **9,83%**, cho thấy chất
+    lượng hoạt động đang tốt lên.
+
+    - **Thị trường có lý do để bi quan trong quá khứ.** Mảng Cơ khí & Xây lắp (M&C),
+    vốn chiếm tới 68% doanh thu, có biên lợi nhuận mỏng lịch sử. Tuy nhiên, mọi thứ
+    đang thay đổi khi biên gộp mảng này được dự báo sẽ tăng dần từ mức **3%** của
+    năm 2026 lên **4,5%** vào năm 2028.
+
+    - **Tương lai nằm ở "của để dành" trị giá hơn 100.000 tỷ đồng.** Đây là giá trị
+    các hợp đồng PVS đã ký, chủ yếu từ siêu dự án Lô B - Ô Môn. Dòng tiền từ dự án
+    này sẽ bắt đầu được giải ngân mạnh vào giai đoạn 2026-2028, hứa hẹn thay đổi bộ
+    mặt lợi nhuận của PVS.
+
+
+    Định giá hiện tại của PVS là câu chuyện của quá khứ. Nếu backlog **100.000 tỷ**
+    từ Lô B thực sự chuyển hóa thành lợi nhuận, PVS sẽ được định giá lại. Nhà đầu
+    tư tin vào chu kỳ dầu khí 2026-2028 có thể bắt đầu tích lũy.'
+  word_count: 276
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T12:32:30.742713+00:00'
 ---
 
 <!-- left -->

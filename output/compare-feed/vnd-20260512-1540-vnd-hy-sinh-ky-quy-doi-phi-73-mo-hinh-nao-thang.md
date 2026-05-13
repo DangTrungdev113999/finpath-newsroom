@@ -221,6 +221,38 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://vietnambiz.vn/vndirect-bao-lai-quy-i-tang-43-2026420235159887.htm
 format_director: null
+gemini:
+  title: VND báo lãi lớn nhưng co lại mảng margin 8%. Thận trọng hay mất thị phần?
+  body: 'VNDirect (VND) vừa công bố kết quả kinh doanh quý I/2026 với lợi nhuận sau
+    thuế tăng vọt **43%**, đạt **545 tỷ đồng**. Nhưng giữa lúc thị trường sôi động,
+    dư nợ cho vay ký quỹ của công ty lại bất ngờ giảm **8%**. Đây là bước đi thận
+    trọng hay VND đang tự mình bỏ lỡ cơ hội?
+
+
+    - **Chủ động giảm rủi ro, dồn lực cho khách hàng tổ chức**: VND dường như đang
+    đánh đổi tăng trưởng nóng từ margin để tập trung vào mảng môi giới khách hàng
+    tổ chức, nơi phí dịch vụ cao và ổn định hơn. Chiến lược này đã giúp doanh thu
+    môi giới tăng **73%** trong quý I, tạo bước đệm đón sóng nâng hạng FTSE vào tháng
+    9/2026.
+
+
+    - **Quy mô ký quỹ ngày càng ''tí hon'' so với đối thủ**: Dư nợ **12.469 tỷ đồng**
+    của VND giờ đây quá nhỏ bé khi đặt cạnh các ông lớn như SSI (**37.000 tỷ**) hay
+    TCBS (**45.000 tỷ**). Việc thu hẹp này khiến VND khó cạnh tranh trong cuộc đua
+    giành thị phần từ nhà đầu tư cá nhân ham dùng đòn bẩy.
+
+
+    - **Đánh đổi ''cá nhanh'' lấy ''cá voi''**: Có thể xem đây là chiến lược đổi ''miếng
+    ăn nhanh'' từ margin – vốn có biên lãi **6-8%** nhưng rủi ro cao khi thị trường
+    đảo chiều – để lấy ''con cá voi'' là các khách hàng tổ chức và dòng vốn ETF. Tuy
+    lợi nhuận không bùng nổ bằng, nhưng tạo ra nền tảng bền vững hơn.
+
+
+    Nhà đầu tư nên chờ báo cáo quý II/2026 để xác nhận liệu mảng môi giới tổ chức
+    có thật sự bù đắp được miếng bánh margin đã mất hay không.'
+  word_count: 209
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T12:27:32.166594+00:00'
 ---
 
 <!-- left -->

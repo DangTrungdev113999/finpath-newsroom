@@ -176,6 +176,40 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://cafef.vn/sacombank-cong-bo-ket-qua-kinh-doanh-quy-i-2026-duy-tri-dinh-huong-than-trong-thuc-chat-tung-buoc-nang-cao-hieu-qua-hoat-dong-188260429113244305.chn
 format_director: null
+gemini:
+  title: STB hy sinh lợi nhuận Quý 1, nhà đầu tư lại hò reo?
+  body: 'Sacombank (STB) vừa báo lãi quý 1/2026 giảm sút gần một nửa, chỉ đạt **2.106
+    tỷ đồng**. Nhưng lạ là thị trường lại kéo cổ phiếu tăng mạnh **+6,37%**. Phải
+    chăng nhà đầu tư đang thấy điều gì mà bảng điện không nói hết?
+
+
+    - **Chấp nhận "tắm máu" để dọn nợ**: STB đã trích lập dự phòng rủi ro tín dụng
+    tới **2.024 tỷ đồng**, gần gấp 10 lần cùng kỳ. Đây là lý do chính "ăn" hết lợi
+    nhuận, nhưng lại là liều thuốc đắng mà thị trường chờ đợi để xử lý dứt điểm các
+    tồn đọng cũ.
+
+
+    - **Máy bơm tiền cốt lõi vẫn chạy**: Dù biên lãi vay (NIM) có thu hẹp, tăng trưởng
+    tín dụng của STB vẫn đạt **9,23%** trong quý 1, cho thấy nhu cầu vay vốn vẫn tốt.
+    Ngân hàng đang chủ động "lấy mỡ nó rán nó", dùng lãi từ kinh doanh để xử lý nợ.
+
+
+    - **Kỳ vọng vào bộ sậu mới**: Sự xuất hiện của Quyền TGĐ mới Loic Faussier và
+    kế hoạch lợi nhuận **8.100 tỷ** cho cả năm 2026 cho thấy quyết tâm tái cơ cấu.
+    NĐT đang đặt cược giai đoạn tệ nhất sắp qua, dù **ROE** tạm thời tụt xuống chỉ
+    còn **7,59%**.
+
+
+    - **Cục nợ xấu vẫn còn đó**: Tỷ lệ nợ xấu **5,01%** vẫn là một thách thức lớn.
+    Thị trường sẽ theo dõi sát sao liệu STB có thể kéo con số này về dưới mục tiêu
+    4,5% hay không, vì đó là thước đo thật sự của quá trình "dọn nhà".
+
+
+    STB phù hợp cho nhà đầu tư kiên nhẫn, cược vào câu chuyện tái cơ cấu. Nên chờ
+    xác nhận tỷ lệ nợ xấu giảm trong quý 2-3/2026 trước khi tăng tỷ trọng.'
+  word_count: 248
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T12:27:06.766721+00:00'
 ---
 
 <!-- left -->

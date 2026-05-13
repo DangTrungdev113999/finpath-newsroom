@@ -171,6 +171,37 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://baomoi.com/loat-ngan-hang-thay-doi-nhan-su-cap-cao-truoc-giai-doan-phat-trien-moi-c55138043.epi
 format_director: null
+gemini:
+  title: 'STB ''nhập khẩu'' bộ sậu LPBank: Canh bạc sao chép mô hình thành công?'
+  body: 'Sacombank (STB) vừa thay máu gần hết ban điều hành, với 3 trong 4 vị trí
+    chủ chốt mới đều là người cũ của LPBank, từ Quyền Tổng Giám đốc đến hai Phó Tổng.
+    Đây không phải trùng hợp, mà là canh bạc có chủ đích: Liệu STB có ''bê'' nguyên
+    công thức của đối thủ về được không?
+
+
+    - **Cấy DNA thành công của LPBank.** Thay vì tự mày mò cải tổ, STB chọn đường
+    tắt là chiêu mộ thẳng những kiến trúc sư đã làm nên thành công ở LPBank. Cụ thể
+    là ông Loic Faussier (Quyền TGĐ), ông Lưu Danh Đức (Phó TGĐ mảng công nghệ), và
+    ông Nguyễn Hoàng Hải (Phó TGĐ mảng vận hành tinh gọn).
+
+
+    - **Công thức đã được kiểm chứng bằng số.** Blueprint của LPBank rất ấn tượng:
+    năm 2025 họ đạt LNTT **14.269 tỷ đồng** (+17%), tổng tài sản vượt 605.000 tỷ.
+    Quan trọng hơn, họ tinh gọn bộ máy từ 17 khối xuống 8, giúp kéo CIR xuống chỉ
+    còn **28,3%** - một con số đáng mơ ước.
+
+
+    - **Cổ đông STB đang trả giá ngắn hạn.** Cuộc ''đập đi xây lại'' này rất tốn kém.
+    Hiệu quả kinh doanh của STB đã giảm mạnh, thể hiện qua ROE quý 1/2026 chỉ còn
+    **7,59%**, bốc hơi từ mức đỉnh **20,89%** của quý 3/2025. Cổ đông phải chấp nhận
+    chi phí quá độ này.
+
+
+    Nhà đầu tư nên giữ và quan sát. Nếu ROE của STB hồi phục trên 12% vào cuối quý
+    3/2026, canh bạc ''LPBank-hóa'' này mới chứng tỏ là một bước đi đúng đắn.'
+  word_count: 218
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T12:28:03.236351+00:00'
 ---
 
 <!-- left -->

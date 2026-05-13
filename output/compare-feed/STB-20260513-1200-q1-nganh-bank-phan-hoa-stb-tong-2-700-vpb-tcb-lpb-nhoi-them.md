@@ -184,6 +184,50 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://giaothuongkinhte.vn/sacombank-giam-hon-2700-nhan-su-tin-hieu-cho-lan-song-tai-cau-truc-sau-cua-nganh-ngan-hang-a9393.html
 format_director: null
+gemini:
+  title: 'STB cắt 85% nhân sự toàn ngành ngân hàng: Tái cơ cấu hay báo động đỏ?'
+  body: 'Quý 1 vừa qua, Sacombank chiếm tới 85% trong tổng số hơn 3.000 nhân sự bị
+    cắt giảm của 28 ngân hàng. Con số khổng lồ này không phải là một sự kiện ngẫu
+    nhiên, mà là kết quả của một cuộc đại phẫu có chủ đích.
+
+
+    - **Cú "xén" nhân sự sâu nhất một thập kỷ:** Sacombank không chỉ giảm nhẹ, mà
+    cắt thẳng **2.736** nhân viên trong 3 tháng, đưa quân số hợp nhất xuống **14.080**
+    người. Đây là mức thấp nhất trong 10 năm, khác hẳn giai đoạn 2017-2024 luôn duy
+    trì trên 18.000 người, cho thấy quyết tâm tái cấu trúc rất lớn.
+
+
+    - **Không chỉ riêng STB, cả "phe" đang siết lại:** Đây không phải chuyện riêng
+    của Sacombank. Nhìn rộng ra 18 tháng qua, bộ ba **STB, TPB và VIB** đã cùng nhau
+    cắt giảm hơn **4.600** nhân sự. Họ đang dẫn đầu một làn sóng tinh gọn bộ máy và
+    số hóa mạnh mẽ trong nhóm ngân hàng tư nhân.
+
+
+    - **Trong khi đó, phe khác lại rầm rộ tuyển quân:** Trái ngược hoàn toàn, một
+    nhóm ngân hàng lại tích cực bơm thêm người. Dẫn đầu là **VPBank (+362 người)**,
+    theo sau là **Techcombank (+176)** và **LPBank (+142)**. Nhóm này rõ ràng đang
+    có bài toán khác: mở rộng quy mô để chạy đà tín dụng bán lẻ.
+
+
+    - **Cắt người để "gánh" chi phí dự phòng khổng lồ:** Đây là nút thắt chính. Lợi
+    nhuận trước thuế quý 1 của STB giảm **42,7%**, còn **2.106 tỷ đồng**, chủ yếu
+    do chi phí dự phòng rủi ro tín dụng tăng vọt gấp **10 lần** cùng kỳ, lên tới **2.024
+    tỷ**. Việc cắt giảm chi phí hoạt động, bao gồm nhân sự, là bắt buộc để bù đắp.
+
+
+    - **Hiệu quả sinh lời (ROE) rơi tự do:** Việc phải trích lập dự phòng "ăn" thẳng
+    vào lợi nhuận, kéo chỉ số ROE của STB từ mức **20,89%** (Quý 3/2025) rơi thẳng
+    xuống chỉ còn **7,59%** trong Quý 1/2026. Cuộc đại phẫu nhân sự là một phần nỗ
+    lực bảo vệ biên lợi nhuận đang bị bào mòn.
+
+
+    STB đang trong giai đoạn ''dọn nhà'' đau đớn, không phải là case đầu tư tăng trưởng
+    lúc này. Với P/B đang ở mức **2.03** và ROE chỉ còn **7,59%**, nhà đầu tư nên
+    chờ đợi tín hiệu rõ ràng về việc xử lý xong nợ xấu và lợi nhuận phục hồi bền vững,
+    thay vì vội bắt đáy.'
+  word_count: 305
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T12:28:36.623364+00:00'
 ---
 
 <!-- left -->

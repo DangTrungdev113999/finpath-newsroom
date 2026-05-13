@@ -247,6 +247,37 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://nhadautu.vn/pvs-lai-quy-i-tang-45-trich-lap-du-phong-bao-hanh-tang-manh-d104741.html
 format_director: null
+gemini:
+  title: PVS lãi Q1 khủng, sao kế hoạch cả năm lại "đi lùi" gần một nửa?
+  body: 'PVS vừa báo lãi quý I/2026 tới 435 tỷ đồng, tăng 45% và hoàn thành gần một
+    nửa kế hoạch cả năm. Nhưng nghịch lý là kế hoạch 2026 lại đặt mục tiêu lợi nhuận
+    giảm gần 48%. Phải chăng PVS đang "giấu" lợi nhuận cho các quý sau?
+
+
+    - **Lãi gộp được "phù phép"**: Cú tăng lãi gộp gấp 3 lần không hoàn toàn đến từ
+    hiệu quả thi công. PVS đã thay đổi cách hạch toán, đẩy **282 tỷ đồng** chi phí
+    bảo hành công trình ra khỏi giá vốn, khiến biên lãi gộp mảng xây lắp từ mức 5-6%
+    quen thuộc vọt lên **9,8%** trong quý I.
+
+
+    - **Mục tiêu năm quá thấp để tin**: Ban lãnh đạo đặt kế hoạch lợi nhuận cả năm
+    chỉ **990 tỷ đồng**, giảm sâu 48% so với năm trước. Con số này phi lý khi quý
+    I đã chạy được gần **49%** quãng đường. Đây là tín hiệu rõ ràng PVS đang muốn
+    "để dành" lợi nhuận cho cuối năm.
+
+
+    - **Chuẩn bị cho chu kỳ lớn**: Ngành dầu khí đang vào chu kỳ xây lắp mới, tương
+    tự giai đoạn BSR hưởng lợi từ biên lọc dầu đỉnh cao năm 2022-2023. Việc "giấu
+    bớt" lợi nhuận ở quý đầu là bước đệm chiến lược để công bố những con số đột phá
+    khi các đại dự án vào guồng.
+
+
+    Ai tin vào chu kỳ lớn của ngành dầu khí thì nên xem đây là cơ hội tích lũy. PVS
+    có thể sẽ "bung sổ" lợi nhuận thật vào cuối năm 2026 khi thị trường cần những
+    câu chuyện rõ ràng nhất.'
+  word_count: 232
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T12:33:11.223595+00:00'
 ---
 
 <!-- left -->

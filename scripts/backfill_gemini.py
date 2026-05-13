@@ -26,15 +26,22 @@ from lib.stages.run_gemini_writer import run_gemini_writer  # noqa: E402
 
 
 def find_targets(db: PipelineDB, dates: list[str]) -> list[dict]:
+    """Backfill targets — filter by crawl_log.crawled_at because feed sort uses
+    crawled_at and many articles have generated_news.published_at = NULL (Skeptic
+    step paused → never sets published_at). Joining keeps the cohort aligned with
+    what users actually see in /feed.
+    """
     placeholders = ",".join("?" for _ in dates)
     cur = db.conn.execute(
         f"""
-        SELECT article_id, ticker, title, gemini_status, date(published_at) AS pub_date,
-               (SELECT funnel_batch_id FROM crawl_log WHERE row_id = generated_news.row_id) AS batch_id
-        FROM generated_news
-        WHERE date(published_at) IN ({placeholders})
-          AND (gemini_status IS NULL OR gemini_status != 'success')
-        ORDER BY published_at ASC
+        SELECT gn.article_id, gn.ticker, gn.title, gn.gemini_status,
+               date(cl.crawled_at) AS pub_date,
+               cl.funnel_batch_id AS batch_id
+        FROM generated_news gn
+        JOIN crawl_log cl ON cl.row_id = gn.row_id
+        WHERE date(cl.crawled_at) IN ({placeholders})
+          AND (gn.gemini_status IS NULL OR gn.gemini_status != 'success')
+        ORDER BY cl.crawled_at ASC
         """,
         dates,
     )

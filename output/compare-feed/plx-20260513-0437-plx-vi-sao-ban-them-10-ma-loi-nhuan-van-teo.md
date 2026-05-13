@@ -243,6 +243,35 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://tuoitre.vn/petrolimex-cai-so-lui-loi-nhuan-2026-lan-dau-len-tieng-truoc-ap-luc-tu-xe-dien-20260405123509795.htm
 format_director: null
+gemini:
+  title: 'PLX: Doanh thu kỷ lục 315.000 tỷ nhưng lợi nhuận lại "cài số lùi"?'
+  body: 'Petrolimex (PLX) vừa công bố kế hoạch 2026 với những con số trái ngược: doanh
+    thu dự kiến cao nhất lịch sử 315.000 tỷ đồng, sản lượng tăng 10%. Nhưng tại sao
+    lợi nhuận trước thuế lại bị **đặt mục tiêu lùi 7%** về chỉ còn 3.380 tỷ?
+
+
+    - **Biên lợi nhuận bị siết cứng**: PLX là nhà bán lẻ, không phải lọc dầu. Biên
+    gộp bị neo chặt bởi công thức giá cơ sở và Quỹ Bình ổn giá của nhà nước, khiến
+    cho sản lượng tăng không đồng nghĩa với lợi nhuận tăng tương ứng.
+
+    - **Sản lượng nuốt chửng chi phí**: Để đạt **sản lượng 19,4 triệu m³/tấn** (+10%),
+    PLX có thể phải chấp nhận chi phí vận hành và bán hàng cao hơn, bào mòn phần lãi
+    ít ỏi còn lại sau khi đã bị khống chế giá bán.
+
+    - **Áp lực xe điện đã hiện hữu**: Ban lãnh đạo PLX lần đầu thừa nhận xe điện là
+    mối đe dọa, dự kiến tăng trưởng sản lượng sẽ chậm lại chỉ còn **6-7%/năm** giai
+    đoạn 2028-2030. Đây là đám mây đen dài hạn che mờ tiềm năng.
+
+    - **Cổ tức tiền mặt là điểm sáng**: Bất chấp kế hoạch thận trọng, PLX vẫn dự kiến
+    trả cổ tức tiền mặt **1.200 đồng/cổ phiếu** cho năm 2024. ACBS vẫn lạc quan, định
+    giá tới **49.600 đồng**.
+
+
+    PLX phù hợp cho nhà đầu tư ăn cổ tức hơn là tìm kiếm tăng trưởng đột phá. Cổ phiếu
+    có thể đi ngang cho đến khi có tín hiệu rõ ràng về cải thiện biên lợi nhuận.'
+  word_count: 215
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T12:30:51.319918+00:00'
 ---
 
 <!-- left -->

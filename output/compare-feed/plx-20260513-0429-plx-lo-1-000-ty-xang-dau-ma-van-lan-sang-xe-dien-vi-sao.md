@@ -236,6 +236,39 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://vneconomy.vn/petrolimex-gop-35-ty-thanh-lap-cong-ty-sac-o-to-dien.htm
 format_director: null
+gemini:
+  title: PLX lỗ ngàn tỷ mảng xăng, vội rót vốn vào xe điện. Nước cờ gì đây?
+  body: 'Vừa báo lỗ **662 tỷ** đồng quý 1/2026, Petrolimex (PLX) đã công bố góp **35
+    tỷ** vào công ty sạc xe điện. Giữa lúc mảng kinh doanh cốt lõi lao đao vì giá
+    dầu, tại sao PLX lại quyết định nhảy vào một cuộc chơi hoàn toàn mới?
+
+
+    - **Kênh cũ thấm đòn**: Mảng xăng dầu, nguồn sống của PLX, vừa lỗ ròng gần **1.000
+    tỷ** do biến động giá thế giới. Việc phải ôm dầu diesel giá đỉnh 292 USD/thùng
+    rồi bán giá đáy 140 USD chỉ sau một tháng cho thấy mô hình kinh doanh cũ quá mong
+    manh.
+
+
+    - **Ném đá dò đường, không phải tất tay**: Khoản đầu tư **35 tỷ** đồng chỉ chiếm
+    35% vốn của liên doanh VGX 100 tỷ. Đây là một bước đi cực kỳ nhỏ để học hỏi thị
+    trường, chứ không phải một cú đặt cược sinh tử khi tiền mặt đang eo hẹp.
+
+
+    - **Chọn lối đi an toàn**: Thay vì tự ôm cả 3 gánh nặng (xe + pin + trạm sạc)
+    như VinFast, PLX chọn mô hình liên doanh "nhẹ vốn". Họ chỉ lo phần trạm sạc, tận
+    dụng mạng lưới cây xăng có sẵn, để các đối tác lo phần còn lại.
+
+
+    - **Hết tiền để phiêu lưu**: Với lượng tồn kho kỷ lục **29.800 tỷ** đồng đang
+    ngốn vốn, PLX đơn giản là không có dư tiền để đốt vào một cuộc chơi tốn kém. Mô
+    hình góp vốn là lựa chọn gần như bắt buộc khi dòng tiền bị thắt chặt.
+
+
+    NĐT ngắn hạn đừng vội mừng. Câu chuyện xe điện này cần ít nhất 2-3 năm để kiểm
+    chứng. Hiện tại, số phận của PLX vẫn phụ thuộc hoàn toàn vào giá dầu thế giới.'
+  word_count: 227
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T12:30:17.490431+00:00'
 ---
 
 <!-- left -->

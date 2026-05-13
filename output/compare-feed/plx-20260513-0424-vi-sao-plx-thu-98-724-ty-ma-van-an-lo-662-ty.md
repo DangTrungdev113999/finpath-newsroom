@@ -236,6 +236,36 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://cafef.vn/petrolimex-chinh-thuc-cong-bo-so-lo-quy-1-2026-188260504215537198.chn
 format_director: null
+gemini:
+  title: PLX doanh thu cao nhất 13 năm, vì sao vẫn lỗ đậm 662 tỷ?
+  body: 'Petrolimex (PLX) vừa báo cáo một quý kinh doanh kỳ lạ: doanh thu vọt lên
+    **98.700 tỷ đồng**, cao nhất trong 13 năm, nhưng lại ôm khoản lỗ sau thuế **662
+    tỷ đồng**, nặng nhất kể từ 2020. Tiền bán xăng dầu chảy về nhiều kỷ lục, vậy đã
+    bốc hơi đi đâu?
+
+
+    - **Giá dầu nhảy múa điên loạn**: Nguyên nhân chính là giá thế giới biến động.
+    Giá diesel Singapore Platts vọt từ **75 USD** lên đỉnh **292 USD** rồi rớt mạnh,
+    khiến chi phí đầu vào của PLX không thể lường trước và ăn mòn hết lợi nhuận gộp.
+
+    - **Cú đấm từ hàng tồn kho**: PLX phải trích lập dự phòng giảm giá tới **6.500
+    tỷ đồng** cho khối hàng tồn kho khổng lồ **30.000 tỷ** đã mua ở vùng giá cao.
+    Đây là khoản lỗ "trên giấy" nhưng phản ánh rủi ro kẹt vốn cực lớn.
+
+    - **Chi phí nhập khẩu phi mã**: Phụ phí nhập khẩu, ví như tiền "ship" mỗi thùng
+    dầu, đã tăng gấp **12 lần** từ 3 USD lên gần **40 USD**. Gánh nặng này góp phần
+    kéo biên lợi nhuận gộp từ **5,47%** xuống chỉ còn **3,75%**.
+
+    - **Con dao hai lưỡi chờ ngày lật lại**: Khoản dự phòng này có thể được hoàn nhập
+    khi giá dầu ổn định. Cuối năm 2022, PLX từng "lật kèo" ghi nhận lãi lớn nhờ hoàn
+    nhập gần **1.000 tỷ** tương tự.
+
+
+    Ai đang giữ PLX nên chờ giá diesel thế giới ổn định trên **140 USD/thùng**. Mua
+    mới lúc này là bắt dao rơi trừ khi bạn tin giá dầu sẽ sớm vọt mạnh trở lại.'
+  word_count: 218
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T12:29:38.393969+00:00'
 ---
 
 <!-- left -->

@@ -187,6 +187,35 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://vietnambiz.vn/fpt-telecom-khong-dap-ung-dieu-kien-cong-ty-dai-chung-2026512114834318.htm
 format_director: null
+gemini:
+  title: FPT có nguy cơ mất 'gà đẻ trứng vàng' FOX vào tay nhà nước?
+  body: 'FPT Telecom (FOX) đang đứng trước nguy cơ bị huỷ tư cách công ty đại chúng
+    sau khi Bộ Công an (BCA) nắm hơn 50% vốn. Với việc FPT mẹ vẫn đang giữ 45,7% cổ
+    phần, ván cờ này sẽ ảnh hưởng đến túi tiền của cổ đông FPT ra sao?
+
+
+    - **Cổ phiếu cô đặc cực độ**: Việc BCA nhận 50% vốn từ SCIC hồi tháng 7/2025 và
+    FPT mẹ sở hữu 45,7% đã khiến tổng lượng cổ phiếu trong tay hai cổ đông lớn lên
+    tới **95,7%**, đẩy lượng cổ phiếu tự do giao dịch xuống chỉ còn 4,3%, không đủ
+    điều kiện công ty đại chúng.
+
+    - **''Gà đẻ trứng vàng'' vẫn khoẻ**: Bất chấp lùm xùm, FOX vẫn là cỗ máy in tiền.
+    Quý 1/2026, công ty lãi trước thuế **1.126 tỷ**, tăng 16% và đã hoàn thành 25%
+    kế hoạch năm. Đây là nguồn lợi nhuận cực kỳ quan trọng mà FPT không muốn giá trị
+    bị sụt giảm trên sổ sách.
+
+    - **Rủi ro bị định giá lại**: Mất tư cách đại chúng giống như biến một món hàng
+    hiệu trên kệ thành hàng bán nội bộ. Dù chất lượng không đổi, nhưng thanh khoản
+    để thị trường định giá sẽ mất, có thể khiến khoản đầu tư vốn hoá **60.283 tỷ**
+    của FPT tại FOX bị neo theo giá trị sổ sách.
+
+
+    Nhà đầu tư FPT nên giữ vị thế, chờ thông báo chính thức về hướng xử lý cho FOX
+    trong 6 tháng tới. Rủi ro định giá lại là có thật nếu không có giải pháp tăng
+    free-float.'
+  word_count: 235
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T12:31:47.744301+00:00'
 ---
 
 <!-- left -->
