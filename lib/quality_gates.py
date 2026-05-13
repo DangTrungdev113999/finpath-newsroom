@@ -357,7 +357,10 @@ def check_no_hedging(body: str) -> dict[str, Any]:
 DIRECTION_KEYWORDS_RE = re.compile(
     r"(tích cực|tiêu cực|cảnh báo|đáng giữ|đáng chú ý|rủi ro|cơ hội|"
     r"tăng trưởng dài hạn|đỉnh ngắn hạn|"
-    r"đáng lo|đáng tích lũy)",
+    r"đáng lo|đáng tích lũy|"
+    # V1.3 — action-based direction (V1.3 voice uses "nên giữ/giảm/cắt" not "tích cực")
+    r"nên giữ|nên cầm|nên giảm|nên cắt|nên bán|nên tích lũy|nên mua|nên thoát|"
+    r"phù hợp|không phù hợp|phòng thủ)",
     re.IGNORECASE,
 )
 TIMEFRAME_KEYWORDS_RE = re.compile(
@@ -373,7 +376,12 @@ HOLDER_ACTION_RE = re.compile(
 
 
 def check_verdict_line(body: str) -> dict[str, Any]:
-    """V5.0 Gate 7 — closing must contain 3 elements: direction + timeframe + holder action."""
+    """V5.0 Gate 7 + V1.3 TIGHTEN — closing 3 elements + actionable composition.
+
+    V5.0: direction + timeframe + holder action.
+    V1.3: also call check_actionable_closing (stance verb + quantified trigger
+    + no vague phrase). Closing pass cũ rule mà fail actionable → verdict fail.
+    """
     cleaned = _clean(body).strip()
     blocks = [b.strip() for b in re.split(r"\n\s*\n", cleaned) if b.strip()]
     closing_text = "\n".join(blocks[-2:]) if len(blocks) >= 2 else cleaned
@@ -392,6 +400,12 @@ def check_verdict_line(body: str) -> dict[str, Any]:
 
     if missing:
         return {"pass": False, "reason": f"Verdict missing: {missing}"}
+
+    # V1.3 PATCH — compose actionable_closing (stricter actionability check)
+    actionable = check_actionable_closing(body)
+    if not actionable["pass"]:
+        return {"pass": False, "reason": f"Verdict not actionable: {actionable['reason']}"}
+
     return {"pass": True, "reason": ""}
 
 
@@ -433,6 +447,8 @@ def check_stance_consistency(body: str, stance: str) -> dict[str, Any]:
 
 
 # Sentence density: each sentence must contain ≥1 specific element.
+# V1.3 PATCH: added metaphor/analogy markers — encourages "ví von" voice over
+# raw numbers, parallel V1.2 title bình dân nguy hiểm.
 SPECIFIC_ELEMENT_RE = re.compile(
     r"(\d+([.,]\d+)?(%|đ|tỷ|nghìn|triệu)?|"
     r"\b(VCB|TCB|MBB|CTG|BID|VPB|HDB|STB|SHB|EIB|TPB|MSB|LPB|OCB|VIB|ACB|"
@@ -442,7 +458,9 @@ SPECIFIC_ELEMENT_RE = re.compile(
     r"(cao hơn|thấp hơn|gấp|vượt|hơn|thấp nhất|cao nhất|so với|so cùng kỳ)|"
     r"(Q[1-4]|năm \d{4}|tháng \d|quý|tuần|YTD|YoY|QoQ|hôm nay)|"
     r"(do|vì|nhờ|khiến|dẫn đến|kéo theo|bổ sung|trở thành|chuyển|tích lũy|đánh đổi)|"
-    r"(rút|chuyển|duy trì|phòng thủ|lấn sang|tăng|giảm|đi chậm|nới|co))",
+    r"(rút|chuyển|duy trì|phòng thủ|lấn sang|tăng|giảm|đi chậm|nới|co)|"
+    r"(như một|kiểu|ví như|tựa|nói nôm na|nói cách khác|thật ra|thực ra|"
+    r"kỳ thực|tương đương|ngang ngửa|ngang với|tựa hồ|chẳng khác|khác nào))",
     re.IGNORECASE,
 )
 
@@ -492,6 +510,146 @@ def check_em_dash_density(body: str) -> dict[str, Any]:
             "pass": False,
             "reason": f"Em dash overused: {em_dash_count} em dashes in {word_count} words (max {threshold:.1f})",
         }
+    return {"pass": True, "reason": ""}
+
+
+# ============================================================
+# V1.3 BODY VOICE GATES (bình dân xuồng xã nguy hiểm)
+# ============================================================
+
+# Per-format bold density thresholds (V1.3).
+# flash_qa: absolute count (Twitter style, short body).
+# Others: ratio = bold_count / word_count.
+_BOLD_DENSITY_MIN = {
+    "flash_qa": {"mode": "absolute", "value": 3},
+    "standard_qa": {"mode": "ratio", "value": 0.04},
+    "standard_listicle": {"mode": "ratio", "value": 0.05},
+    "standard_narrative": {"mode": "ratio", "value": 0.03},
+}
+
+_BOLD_RE = re.compile(r"\*\*[^*]+\*\*")
+
+# Quantified trigger: number with unit OR conditional pattern with number
+# nearby. Catches "12 tháng", "35K tỷ", "vượt 3,5%", "nếu rơi dưới 70".
+_QUANTIFIED_TRIGGER_RE = re.compile(
+    r"\d+([.,]\d+)?\s*(tỷ|%|nghìn|triệu|đ|/năm|/tháng|/quý|K|nghìn/cp|"
+    r"tháng|quý|năm|cp|cổ phiếu|điểm|bps|đồng)",
+    re.IGNORECASE,
+)
+
+
+def check_bao_chi_body(body: str) -> dict[str, Any]:
+    """V1.3 — ban ≥2 báo chí verb occurrences in body.
+
+    Parallel V1.2 title `is_bao_chi`. Audit top 3 verbs: bàn giao (6x) ·
+    ghi nhận · phát hành · công bố · dự kiến. 1 occurrence = factual
+    reporting OK; ≥2 = thông cáo style.
+
+    Skeptic section + pipeline log stripped before check.
+    """
+    from lib.voice_rules import BAO_CHI_BODY_VERBS
+
+    cleaned = _clean(body).lower()
+    leaked = []
+    for verb in BAO_CHI_BODY_VERBS:
+        # Count occurrences of this verb in cleaned body
+        occurrences = cleaned.count(verb)
+        if occurrences > 0:
+            leaked.extend([verb] * occurrences)
+
+    if len(leaked) >= 2:
+        return {
+            "pass": False,
+            "reason": f"Báo chí body voice: {len(leaked)} occurrences of {set(leaked)}",
+            "leaked_verbs": leaked,
+        }
+    return {"pass": True, "reason": "", "leaked_verbs": leaked}
+
+
+def check_bold_density(body: str, format_id: str) -> dict[str, Any]:
+    """V1.3 — per-format markdown bold density target.
+
+    flash_qa: ≥3 bold absolute count (Twitter style short).
+    standard_qa: ≥4% density.
+    standard_listicle: ≥5% density (densest).
+    standard_narrative: ≥3% density (prose flow allowed).
+
+    User feedback 2026-05-13: body audit TB 1.83% — quá thấp, scan-fail.
+    """
+    cleaned = _clean(body)
+    bold_count = len(_BOLD_RE.findall(cleaned))
+    # Word count excluding markdown markers
+    text_for_words = _BOLD_RE.sub(lambda m: m.group(0)[2:-2], cleaned)
+    word_count = len([w for w in re.findall(r"\S+", text_for_words) if w])
+
+    if word_count == 0:
+        return {"pass": True, "reason": "", "bold_count": 0, "density": 0.0}
+
+    config = _BOLD_DENSITY_MIN.get(format_id, {"mode": "ratio", "value": 0.04})
+    density = bold_count / word_count
+
+    if config["mode"] == "absolute":
+        if bold_count < config["value"]:
+            return {
+                "pass": False,
+                "reason": f"Bold count {bold_count} < {config['value']} (flash_qa absolute min)",
+                "bold_count": bold_count,
+                "density": density,
+            }
+    else:
+        if density < config["value"]:
+            return {
+                "pass": False,
+                "reason": f"Bold density {density:.1%} < {config['value']:.0%} ({format_id})",
+                "bold_count": bold_count,
+                "density": density,
+            }
+
+    return {"pass": True, "reason": "", "bold_count": bold_count, "density": density}
+
+
+def check_actionable_closing(body: str) -> dict[str, Any]:
+    """V1.3 — closing must be actionable for NĐT.
+
+    3 layers:
+    1. Contains ≥1 STANCE_VERB ("nên cầm" / "nên giảm" / "phù hợp NĐT").
+    2. Contains ≥1 quantified trigger (price/percent/condition with number).
+    3. NOT match CLOSING_VAGUE_BAN ("cần theo dõi" / "làm chỉ báo").
+
+    Audit pattern: VHM-cổ tức "theo dõi hấp thụ làm chỉ báo sớm" → fail.
+    SSI-ESOP "giữ 12 tháng nếu margin > 35K tỷ" → pass.
+    """
+    from lib.voice_rules import STANCE_VERBS, CLOSING_VAGUE_BAN
+
+    cleaned = _clean(body).strip()
+    blocks = [b.strip() for b in re.split(r"\n\s*\n", cleaned) if b.strip()]
+    # Take last 1-2 blocks as closing (Master closing usually 1 paragraph)
+    closing = "\n".join(blocks[-2:]) if len(blocks) >= 2 else cleaned
+    closing_lc = closing.lower()
+
+    # Layer 3: vague phrase ban (check first — fail fast on cliché)
+    vague_found = [p for p in CLOSING_VAGUE_BAN if p in closing_lc]
+    if vague_found:
+        return {
+            "pass": False,
+            "reason": f"Closing vague: {vague_found}",
+        }
+
+    # Layer 1: stance verb required
+    stance_found = [v for v in STANCE_VERBS if v in closing_lc]
+    if not stance_found:
+        return {
+            "pass": False,
+            "reason": "Closing missing stance verb (nên cầm/giảm/giữ/phù hợp NĐT)",
+        }
+
+    # Layer 2: quantified trigger required
+    if not _QUANTIFIED_TRIGGER_RE.search(closing):
+        return {
+            "pass": False,
+            "reason": "Closing missing quantified trigger (price/percent/condition with number)",
+        }
+
     return {"pass": True, "reason": ""}
 
 
@@ -594,13 +752,16 @@ def check_body_pattern_per_format(body: str, format_id: str) -> dict[str, Any]:
 
 
 def check_all_v5(body: str, format_id: str, stance: str) -> dict[str, dict[str, Any]]:
-    """Run V5.0 + V5.1 + V5.1.2 gates: 7 universal + 2 per-format = 9 keys.
+    """Run V5.0 + V5.1 + V5.1.2 + V1.3 gates.
 
     V5.1 PATCH: title_pattern dropped (moved to Plan C lib/headline_scorer.py).
     V5.1.2 PATCH (B-30): em_dash_density wired in (was standalone in B-5).
+    V1.3 PATCH (2026-05-13): bao_chi_body + bold_density added. verdict_line
+    now composes actionable_closing (no separate key — covered by verdict_line).
 
-    Universal (7): no_english_jargon, no_metadata_leak, no_hedging, verdict_line,
-                   stance_consistency, sentence_density, em_dash_density.
+    Universal (9): no_english_jargon, no_metadata_leak, no_hedging, verdict_line
+                   (composes actionable_closing), stance_consistency, sentence_density,
+                   em_dash_density, bao_chi_body (V1.3), bold_density (V1.3).
     Per-format (2): word_count, body_pattern.
     """
     return {
@@ -611,6 +772,8 @@ def check_all_v5(body: str, format_id: str, stance: str) -> dict[str, dict[str, 
         "stance_consistency": check_stance_consistency(body, stance),
         "sentence_density": check_sentence_density(body),
         "em_dash_density": check_em_dash_density(body),
+        "bao_chi_body": check_bao_chi_body(body),
+        "bold_density": check_bold_density(body, format_id),
         "word_count": check_word_count_per_format(body, format_id),
         "body_pattern": check_body_pattern_per_format(body, format_id),
     }
