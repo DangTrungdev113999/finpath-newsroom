@@ -1,5 +1,5 @@
 ---
-title: PVS biên gộp lên 9,8% nhưng tiền mặt 14.000 tỷ còn mắc Lô B?
+title: 'PVS: giữ núi tiền mặt nhưng thị trường vẫn không tin'
 ticker: PVS
 sector: oilGas
 sector_icon: 📰

@@ -1,5 +1,5 @@
 ---
-title: 'MSN WinCommerce vọt 14% doanh thu cũ: bán lẻ Việt hồi phục thật?'
+title: WinCommerce lãi gấp 3,5 lần, từ gánh nặng thành át chủ bài MSN
 ticker: MSN
 sector: fb
 sector_icon: 📰

@@ -1,5 +1,5 @@
 ---
-title: PLX vì sao bán thêm 10% mà lợi nhuận vẫn teo?
+title: Petrolimex chiếm 50% thị phần xăng nhưng tại sao không thể định giá?
 ticker: PLX
 sector: oilGas
 sector_icon: 📰

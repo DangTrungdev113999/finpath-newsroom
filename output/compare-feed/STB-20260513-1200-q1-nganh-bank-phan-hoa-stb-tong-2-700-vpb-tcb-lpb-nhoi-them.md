@@ -1,6 +1,5 @@
 ---
-title: 'Q1 ngành bank phân hóa: STB tống 2.700, VPB+TCB+LPB nhồi thêm 700. Bank nào
-  sai?'
+title: 'STB cắt 16% nhân sự, VPB ngược chiều tuyển 362: Q1 ngành bank ai đúng?'
 ticker: STB
 sector: Bank
 sector_icon: 🏦

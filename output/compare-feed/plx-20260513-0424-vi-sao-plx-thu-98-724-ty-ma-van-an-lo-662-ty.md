@@ -1,5 +1,5 @@
 ---
-title: Vì sao PLX thu 98.724 tỷ mà vẫn ăn lỗ 662 tỷ?
+title: PLX lỗ 662 tỷ nhưng không mất tiền thật - dự phòng 6.500 tỷ hoàn nhập?
 ticker: PLX
 sector: oilGas
 sector_icon: 📰

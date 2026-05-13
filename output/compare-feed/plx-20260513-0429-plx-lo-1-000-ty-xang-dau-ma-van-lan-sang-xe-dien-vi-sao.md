@@ -1,5 +1,5 @@
 ---
-title: PLX lỗ 1.000 tỷ xăng dầu mà vẫn lấn sang xe điện, vì sao?
+title: PLX lỗ xăng dầu mà bắt tay Selex, vì sao không tự xây như VinFast?
 ticker: PLX
 sector: oilGas
 sector_icon: 📰

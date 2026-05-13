@@ -1,5 +1,5 @@
 ---
-title: Vì sao FPT đổ 89 triệu đô vào Huế thay vì siêu đô thị?
+title: FPT biến Huế thành "mỏ dữ liệu" AI đầu tiên Việt Nam
 ticker: FPT
 sector: Phòng thủ
 sector_icon: 📰

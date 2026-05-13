@@ -1,5 +1,5 @@
 ---
-title: Bộ Công an ôm 50% vốn FPT Telecom, FPT mẹ nguy 2.330 tỷ?
+title: FPT Telecom lãi hai chữ số nhưng sắp mất chuẩn công ty đại chúng
 ticker: FPT
 sector: Phòng thủ
 sector_icon: 📰

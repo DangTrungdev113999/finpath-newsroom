@@ -70,14 +70,42 @@ ALL_TICKERS = [
 
 GROUP_REFS = ["Big4", "Big 4", "tư nhân top", "tư nhân", "Big5", "Big3"]
 
+# Full brand names accepted for ticker_present — professional-patterns.md line 42:
+# "ticker_present (Finpath universe OR full brand)"
+# Populated from 7 expert benchmarks + common VN finance brands.
+FULL_BRAND_NAMES = [
+    "Petrolimex",       # PLX
+    "PV GAS",           # GAS
+    "Vietcombank",      # VCB
+    "Techcombank",      # TCB
+    "Vietinbank",       # CTG
+    "BIDV",             # BID
+    "Sacombank",        # STB
+    "VPBank",           # VPB
+    "MB Bank",          # MBB
+    "ACB",              # ACB (also ticker)
+    "FPT Telecom",      # subsidiary of FPT
+    "PetroVietnam",     # PVN umbrella
+    "Vinamilk",         # VNM
+    "Masan",            # MSN
+    "Vincom",           # VRE
+]
+
 
 def has_ticker(title: str) -> bool:
-    """Check title contains at least 1 ticker OR group reference."""
+    """Check title contains at least 1 ticker OR group reference OR full brand name.
+
+    V1.8 (2026-05-13): added FULL_BRAND_NAMES check — aligns with professional-patterns.md
+    which defines ticker_present as "Finpath universe OR full brand".
+    """
     for t in ALL_TICKERS:
         if re.search(rf"\b{t}\b", title):
             return True
     for g in GROUP_REFS:
         if g in title:
+            return True
+    for b in FULL_BRAND_NAMES:
+        if b in title:
             return True
     return False
 

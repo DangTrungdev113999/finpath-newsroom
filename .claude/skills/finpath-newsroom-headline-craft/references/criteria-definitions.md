@@ -1,64 +1,32 @@
-# Hard Criteria — Headline Craft V1.5-lite
+# 7 Hard Criteria — Headline Craft V1.8 (objective rejects, NOT craft rubric)
 
-> Loaded from `Skill: finpath-newsroom-headline-craft`. 8 hard criteria ALL must pass.
+> 7 objective rejects via `lib.headline_scorer.check_hard_criteria()`. ALL must pass — agent re-craft nếu fail. KHÔNG dùng để craft, dùng để filter sau.
 
-## V1.5-lite PATCH note (2026-05-13 PM)
+## V1.6+ shift (2026-05-13 evening)
 
-User feedback: V1.2-V1.4 word-list scorer bonuses (DRAMATIC_VERBS +2,
-CONCRETE_QUESTION_SUBJECTS +1, self_explanatory +1) caused Pattern A
-pile-on — AI invented verbs from lists ("chấm đích / vọt lãi / xén lợi").
+V1.5-lite có 8 hard + 6-point rubric — rubric pulled agent into Pattern A pile-on (force concrete_number + paradox marker). V1.6 dropped `not_orphan_number` to soft hint. V1.8 simplifies further: 7 hard = SAFETY NET only. Craft = agent judgment + 7 expert benchmark in `professional-patterns.md`.
 
-V1.5-lite drops word bonuses + word-list checks. Adds Hán-Việt + abbreviation
-mechanical bans. Simplified 6-point rubric.
+## 7 hard criteria
 
-## 8 hard criteria V1.5-lite
+1. **ticker_present** — Finpath 139+ universe OR full brand name (Petrolimex / PV GAS / Vietcombank)
+2. **word_count_le_16** — `len(title.split()) <= 16`
+3. **no_em_dash** — `—` (U+2014) BANNED. Hyphen `-` + en dash `–` OK.
+4. **not_label_leak** — reject "Question:" / "Lối X:" / "Declarative tension" / "Quote" / "Contrast verb" bare prefix
+5. **no_han_viet_formal** — title không chứa `lib/voice_rules.py::HAN_VIET_FORMAL_BAN` (độc bản / hội đủ / tái định giá / cấu trúc / phương án xử lý / etc.)
+6. **abbreviation_expanded** — 3-4 letter uppercase MUST be: expansion in parentheses on first use OR in `NATURALIZED_FINANCE_TERMS` allowlist (ESOP/NIM/CASA/ROE/ETF/IPO/...) OR Finpath ticker
+7. **plain_language** — no English jargon (except NATURALIZED) + no PR clickbait (cú nổ / bí mật / sốc / hot / thông tin nóng)
 
-### Criterion 1 — Ticker present
-`has_ticker(title)` — match Finpath 139+ universe OR group ref (Big4/tư nhân).
+## Info-only fields (soft hints, NOT in `passed`)
 
-### Criterion 2 — Compact ≤16 từ
-V1.3 relaxed from 12 → 16 (clarity > conciseness).
+- `not_orphan_number` — số/% phải có subject within 4 tokens (V1.3 detector, V1.6 demoted to soft)
+- `has_concrete_number` — has specific number + subject (info)
+- `vague_action_verbs` — list of vague verbs detected (ăn/che/nguy/mắc/đẻ/đốt without concrete object)
 
-### Criterion 3 — No em dash (V1.1)
-`"—" not in title` (U+2014 only). Hyphen + en dash OK.
-
-### Criterion 4 — Not label leak (V1.2)
-Reject "Question" / "Declarative tension" / "Quote" / "Contrast verb" as bare title or `Lối X:` prefix.
-
-### Criterion 5 — Not orphan number (V1.3)
-Number/percent MUST have subject within 4 tokens. "ngành/nhóm" MUST have specifier (bank/CK/BĐS/etc.).
-
-### Criterion 6 — No Hán-Việt formal (V1.5 NEW)
-Title không chứa term từ `HAN_VIET_FORMAL_BAN` (độc bản / hội đủ / tái định giá / cấu trúc / phương án xử lý / etc.).
-
-### Criterion 7 — Abbreviation expanded (V1.5 NEW)
-3-4 letter uppercase first occurrence MUST be:
-- Followed by `(<expansion>)`, OR
-- In NATURALIZED_FINANCE_TERMS allowlist (ESOP/NIM/ROE/etc.), OR
-- Is a Finpath ticker
-
-### Criterion 8 — Plain language
-No English jargon (except NATURALIZED) + no PR clickbait (cú nổ / bí mật / sốc / hot / thông tin nóng).
-
-## Combined: `passed` flag
-
-```python
-passed = (
-    ticker_present
-    and word_count_le_16
-    and no_em_dash
-    and not_label_leak
-    and not_orphan_number
-    and no_han_viet_formal     # V1.5 NEW
-    and abbreviation_expanded   # V1.5 NEW
-    and plain_language
-)
-```
-
-`has_concrete_number` is returned as info field (not part of passed flag).
+Agent đọc soft hints → tự cân nhắc rewrite. KHÔNG halt pipeline.
 
 ## Reference
 
-- Hán-Việt mapping: `lib/voice_rules.py::HAN_VIET_FORMAL_BAN`
-- Abbreviation: `lib/quality_gates.py::check_abbreviation_expanded`
-- NATURALIZED: `lib/voice_rules.py::NATURALIZED_FINANCE_TERMS`
+- 7 criteria implementation: `lib/headline_scorer.py::check_hard_criteria()`
+- Vague verb detector: `lib/headline_scorer.py::detect_vague_action_verb()`
+- 7 expert benchmark + craft principles: `professional-patterns.md`
+- Em dash detection: `no-em-dash-policy.md`

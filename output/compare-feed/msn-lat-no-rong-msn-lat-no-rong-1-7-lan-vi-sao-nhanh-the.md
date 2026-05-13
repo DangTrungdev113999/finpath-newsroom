@@ -1,5 +1,5 @@
 ---
-title: MSN lật nợ ròng 1,7 lần vì sao nhanh thế?
+title: MSN vừa hạ nợ vừa giữ 12.200 tỷ tiền mặt - làm thế nào?
 ticker: MSN
 sector: fb
 sector_icon: 📰

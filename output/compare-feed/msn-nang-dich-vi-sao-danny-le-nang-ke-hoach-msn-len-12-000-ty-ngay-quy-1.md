@@ -1,5 +1,5 @@
 ---
-title: Vì sao Danny Le nâng kế hoạch MSN lên 12.000 tỷ ngay quý 1?
+title: Vì sao Danny Le ép thị trường nhìn MSN như cỗ máy lãi 12.000 tỷ?
 ticker: MSN
 sector: fb
 sector_icon: 📰

@@ -1,5 +1,5 @@
 ---
-title: 'MSN ăn 1.974 tỷ kỷ lục: tại sao 2024 không phải điểm lật?'
+title: MSN lãi kỷ lục 1.974 tỷ nhưng vì sao 2024 không phải thời điểm?
 ticker: MSN
 sector: fb
 sector_icon: 📰

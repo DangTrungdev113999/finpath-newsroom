@@ -1,5 +1,5 @@
 ---
-title: 'STB rước cả ê-kíp LPBank: lợi nhuận rớt Q1 có phải giá mua người tài?'
+title: STB trả 7,59% ROE để rước mô hình LPBank, canh bạc có xứng?
 ticker: STB
 sector: Bank
 sector_icon: 🏦

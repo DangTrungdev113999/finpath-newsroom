@@ -1,5 +1,5 @@
 ---
-title: GAS đánh đổi 22% lợi nhuận để nhập khí hoá lỏng giá cao?
+title: Vì sao PV GAS tăng doanh thu nhưng lãi lại giảm 22% năm 2026?
 ticker: GAS
 sector: Phòng thủ
 sector_icon: 📰

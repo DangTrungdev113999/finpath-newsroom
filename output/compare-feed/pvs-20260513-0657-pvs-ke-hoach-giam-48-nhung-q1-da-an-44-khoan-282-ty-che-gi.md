@@ -1,5 +1,5 @@
 ---
-title: 'PVS kế hoạch giảm 48% nhưng Q1 đã ăn 44%: khoản 282 tỷ che gì?'
+title: PVS trích 282 tỷ bảo hành khi cùng kỳ bằng 0, tính toán gì?
 ticker: PVS
 sector: oilGas
 sector_icon: 📰
