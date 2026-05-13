@@ -136,18 +136,18 @@ function ToggleButton({
         'group/mt inline-flex h-6 items-center justify-center rounded-full',
         'transition-[background,box-shadow,color] duration-med ease-out-quart',
         'focus-visible:outline-none focus-visible:ring-2',
-        withLabel ? 'gap-1.5 px-2.5 font-sans text-[12px] font-medium' : 'w-6',
+        // Mobile is icon-only regardless; labels appear at ≥sm when withLabel.
+        withLabel
+          ? 'w-6 sm:w-auto sm:gap-1.5 sm:px-2.5 sm:font-sans sm:text-[12px] sm:font-medium'
+          : 'w-6',
         active
-          ? cn(ACTIVE_STYLES[model], withLabel && 'text-white')
-          : cn(
-              'hover:bg-bg-3/60 focus-visible:ring-fg-3/40',
-              withLabel ? 'text-fg-1' : 'text-fg-1',
-            ),
+          ? cn(ACTIVE_STYLES[model], withLabel && 'sm:text-white')
+          : 'text-fg-1 hover:bg-bg-3/60 focus-visible:ring-fg-3/40',
         disabled && 'cursor-not-allowed opacity-40 hover:bg-transparent',
       )}
     >
       {logo}
-      {withLabel && <span>{label}</span>}
+      {withLabel && <span className="hidden sm:inline">{label}</span>}
     </button>
   );
 }

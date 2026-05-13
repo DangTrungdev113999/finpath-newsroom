@@ -37,8 +37,8 @@ export function CompareFeedLayout({
         <h1 className="leading-tight">
           {meta.sector_icon} {displayTitle}
         </h1>
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <p className="!m-0 min-w-0 flex-1 text-sm italic text-fg-3">
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4">
+          <p className="!m-0 min-w-0 text-sm italic text-fg-3 sm:flex-1">
             🕐 Crawled {formatCrawledAt(meta.crawled_at)}
             <span className="hidden sm:inline">
               {' '}·{' '}
