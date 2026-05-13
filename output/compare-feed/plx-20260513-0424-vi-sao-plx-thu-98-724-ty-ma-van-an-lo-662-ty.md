@@ -7,7 +7,7 @@ crawled_at: '2026-05-13T04:01:40.721884+00:00'
 funnel_batch_id: PLX-20260513-0401
 left_meta:
   author: Chuyên gia
-  word_count: 224
+  word_count: 227
   key_view: trung lập
   skeptic_verdict: null
   pipeline_version: V5.0
@@ -242,7 +242,7 @@ format_director: null
 
 **PLX khoe doanh thu 98.724 tỷ** quý 1/2026, cao nhất 13 năm, nhưng vẫn **ăn lỗ 662 tỷ** — quý đầu báo lỗ kể từ giữa năm 2022. Vì sao bán nhiều nhất lịch sử lại lỗ to nhất 6 năm?
 
-- **Doanh thu vọt 45%**: giá dầu diesel quốc tế nhảy từ 75 USD lên 292 USD/thùng trong vòng 2 tháng, kéo theo PLX bán cùng lượng nhưng thu tiền gấp đôi. Phần ăn này là tiền thật, không phải sổ sách.
+- **Doanh thu vọt 45%**: giá dầu diesel quốc tế nhảy từ 75 đô la Mỹ (USD) lên 292 USD/thùng trong vòng 2 tháng, kéo theo PLX bán cùng lượng nhưng thu tiền gấp đôi. Phần ăn này là tiền thật, không phải sổ sách.
 - **Lỗ 662 tỷ chủ yếu là khoản 1 lần**: PLX gánh **6.500 tỷ dự phòng** tồn kho khi dầu diesel rớt từ 292 về 140 USD/thùng cuối tháng 3. Đây là tiền giấy, chưa phải tiền mặt thực mất.
 - **Phụ phí nhập khẩu nuốt biên**: chi phí trả thêm vọt từ 2,5-3 USD lên **35-40 USD/thùng**, **gấp 12 lần**. Biên bán lẻ cố định 300-500 đồng/lít không đủ ăn cú này, Bộ Công Thương chưa kịp đưa vào giá cơ sở.
 - **Tồn kho 30.000 tỷ là dao 2 lưỡi**: dầu diesel hồi trên 140 USD tháng 4-5 thì khoản dự phòng **hoàn nhập**, lãi quý 2 sẽ nhảy mạnh kiểu cú lật cuối năm 2022.

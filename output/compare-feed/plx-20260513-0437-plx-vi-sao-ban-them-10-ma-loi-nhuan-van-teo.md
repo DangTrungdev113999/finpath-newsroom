@@ -7,7 +7,7 @@ crawled_at: '2026-05-13T04:01:40.724232+00:00'
 funnel_batch_id: PLX-20260513-0401
 left_meta:
   author: Chuyên gia
-  word_count: 238
+  word_count: 263
   key_view: thận trọng
   skeptic_verdict: null
   pipeline_version: V5.0
@@ -247,15 +247,15 @@ format_director: null
 
 <!-- left -->
 
-PLX khoe sản lượng 2026 vọt 10% lên **19,4 triệu m³/tấn**, doanh thu chạm kỷ lục **315.000 tỷ** — nhưng lợi nhuận trước thuế lại giảm **7,8% về 3.380 tỷ**. Sản lượng phình mà lãi co, cổ đông được gì?
+PLX đặt kế hoạch 2026 với sản lượng lên **19,4 triệu m³/tấn** (+10%), doanh thu chạm kỷ lục **315.000 tỷ** — nhưng lợi nhuận trước thuế lại giảm **7,8% về 3.380 tỷ**. Sản lượng phình mà lãi co, cổ đông được gì?
 
-- **Biên gộp neo cứng 300-500 đồng/lít**: nhà nước quyết công thức giá xăng, PLX không tự nhồi biên dù chiếm **50% thị phần bán lẻ**, khác hẳn ngành bán lẻ tự định giá.
-- **Sản lượng +10% nuốt lãi -7,8%**: mỗi lít bán thêm chỉ đẻ vài trăm đồng, không đủ bù khấu hao kho bãi — như xe to chạy nhanh mà ăn dầu nhiều hơn.
-- **Xe điện gặm dần từ 2028**: PLX tự thừa nhận sản lượng tụt từ **8,5-10%/năm** xuống còn **6-7%/năm**, khi xe xăng bị siết và VinFast bơm hàng ra thị trường.
-- **Cổ tức xén từ 1.200 về 1.000 đồng**: ban điều hành cắt **17%** chia cho cổ đông, dấu hiệu dồn tiền cho chuyển dịch năng lượng xanh thay vì rót đều như chu kỳ cũ.
-- **ACBS giữ 49.600, MBS xén về 44.000**: chênh **12%** giữa 2 nhà phân tích cho thấy tỷ suất sinh lời vốn chủ dự phóng 2026 ở mức 12% chưa thuyết phục thị trường.
+- **Biên gộp neo cứng 300-500 đồng/lít**: nhà nước quyết công thức giá xăng, PLX không thể tự đẩy biên dù chiếm **50% thị phần bán lẻ**. Đây là rủi ro cấu trúc khác hẳn ngành bán lẻ tự định giá.
+- **Sản lượng +10% nhưng lãi vẫn giảm 7,8%**: mỗi lít bán thêm chỉ thêm vài trăm đồng, không đủ bù khấu hao kho bãi. Chi phí mở rộng cắt sạch phần lãi tăng thêm.
+- **Xe điện gặm dần từ 2028**: PLX thừa nhận đà tăng sản lượng sẽ chậm lại từ **8,5-10%/năm** xuống **6-7%/năm** khi xe xăng bị siết và VinFast bơm hàng ra thị trường. Tiêu cực dài hạn.
+- **Cổ tức giảm từ 1.200 về 1.000 đồng**: ban điều hành cắt **17%** chia cho cổ đông, dấu hiệu dồn tiền cho năng lượng xanh thay vì rót đều như chu kỳ cũ.
+- **Chứng khoán ACB (ACBS) giữ giá mục tiêu 49.600, MBS hạ về 44.000**: chênh **12%** giữa hai nhà phân tích cho thấy mức tỷ suất sinh lời vốn chủ 12% năm 2026 chưa thuyết phục được thị trường.
 
-NĐT phòng thủ giữ vùng **38-40 nghìn**, chốt nếu vượt **44**; tránh thêm vị thế dài hạn khi rủi ro xe điện gặm thị phần xăng từ năm 2028.
+NĐT đang cầm nên giữ vùng **38-40 nghìn**, cẩn thận khi giá qua ngưỡng **44**; không nên thêm vị thế dài hạn khi rủi ro xe điện ăn dần thị phần xăng từ năm 2028.
 
 <!-- right -->
 

@@ -7,7 +7,7 @@ crawled_at: '2026-05-13T04:01:40.723326+00:00'
 funnel_batch_id: PLX-20260513-0401
 left_meta:
   author: Chuyên gia
-  word_count: 238
+  word_count: 242
   key_view: lạc quan
   skeptic_verdict: null
   pipeline_version: V5.0
@@ -240,7 +240,7 @@ format_director: null
 
 <!-- left -->
 
-**Petrolimex khoe lỗ 662 tỷ quý 1/2026**, mảng xăng dầu âm cả nghìn tỷ, cùng tuần ký góp 35 tỷ lập VGX với Xuân Cầu Holdings và Selex Motors. Vì sao chốt thời điểm là bây giờ, không phải 2 năm trước khi xe điện vừa nóng?
+**Petrolimex khoe lỗ 662 tỷ quý 1/2026**, mảng xăng dầu âm cả nghìn tỷ, cùng tuần ký góp 35 tỷ lập VGX (liên doanh xe điện) với Xuân Cầu Holdings và Selex Motors. Vì sao chốt thời điểm là bây giờ, không phải 2 năm trước khi xe điện vừa nóng?
 
 - **Lỗ xăng dầu 1.000 tỷ quý 1** đổi lấy **cơ hội** lấn sang mảng năng lượng xanh, kênh cũ vừa thấm đòn biến động giá, kênh mới phải dồn sớm để không chạy theo người đi trước.
 - **35 tỷ ăn 35% vốn VGX** trên tổng vốn **100 tỷ**, PLX không đốt tiền lớn, chỉ bơm **3.000 cửa hàng** và lưu lượng khách làm tài sản nhẹ.

@@ -23,6 +23,17 @@
       "format_id": "standard_listicle"
     },
     {
+      "id": "gas-doanh-thu-gas-danh-doi-22-loi-nhuan-de-nhap-khi-hoa-long-gia-cao",
+      "ticker": "GAS",
+      "sector": "Phòng thủ",
+      "title": "GAS đánh đổi 22% lợi nhuận để nhập khí hoá lỏng giá cao?",
+      "crawled_at": "2026-05-13T04:13:10.545428+00:00",
+      "key_view": "paradox:GAS doanh thu len 5% nhung lai tut 22% — chuyen dich co cau sang LNG nhap bien mong",
+      "word_count": 269,
+      "category": null,
+      "format_id": "standard_qa"
+    },
+    {
       "id": "gas-doanh-thu-len-lai-rut-22-phan-tram-hormuz-lng-xen-bien",
       "ticker": "GAS",
       "sector": "Phòng thủ",
@@ -34,6 +45,28 @@
       "format_id": "standard_qa"
     },
     {
+      "id": "FPT-20260513-1900-bo-cong-an-om-50-von-fpt-telecom-fpt-me-nguy-2-330-ty",
+      "ticker": "FPT",
+      "sector": "Phòng thủ",
+      "title": "Bộ Công an ôm 50% vốn FPT Telecom, FPT mẹ nguy 2.330 tỷ?",
+      "crawled_at": "2026-05-13T04:04:22.666082+00:00",
+      "key_view": "Điểm nghẽn cơ cấu sở hữu chạm phần đóng góp lớn nhất",
+      "word_count": 248,
+      "category": null,
+      "format_id": "standard_qa"
+    },
+    {
+      "id": "FPT-20260513-bo-cong-an-om-50-fpt-telecom-fpt-me-nguy-2-330-ty",
+      "ticker": "FPT",
+      "sector": "Phòng thủ",
+      "title": "Bộ Công an ôm 50% FPT Telecom, FPT mẹ nguy 2.330 tỷ?",
+      "crawled_at": "2026-05-13T04:04:22.666082+00:00",
+      "key_view": "Điểm nghẽn cơ cấu sở hữu chạm phần đóng góp lớn nhất",
+      "word_count": 248,
+      "category": null,
+      "format_id": "standard_qa"
+    },
+    {
       "id": "bca-om-50-von-fox-fpt-me-nguy-2-330-ty-vi-sao",
       "ticker": "FPT",
       "sector": "Phòng thủ",
@@ -41,6 +74,17 @@
       "crawled_at": "2026-05-13T04:04:22.666082+00:00",
       "key_view": "Điểm nghẽn cơ cấu sở hữu chạm phần đóng góp lớn nhất",
       "word_count": 248,
+      "category": null,
+      "format_id": "standard_qa"
+    },
+    {
+      "id": "fpt-bom-89-vi-sao-fpt-do-89-trieu-do-vao-hue-thay-vi-sieu-do-thi",
+      "ticker": "FPT",
+      "sector": "Phòng thủ",
+      "title": "Vì sao FPT đổ 89 triệu đô vào Huế thay vì siêu đô thị?",
+      "crawled_at": "2026-05-13T04:04:22.665778+00:00",
+      "key_view": "trung lập",
+      "word_count": 255,
       "category": null,
       "format_id": "standard_qa"
     },
@@ -89,6 +133,28 @@
       "format_id": "standard_qa"
     },
     {
+      "id": "msn-lat-no-rong-msn-lat-no-rong-1-7-lan-vi-sao-nhanh-the",
+      "ticker": "MSN",
+      "sector": "fb",
+      "title": "MSN lật nợ ròng 1,7 lần vì sao nhanh thế?",
+      "crawled_at": "2026-05-13T03:18:33.218723+00:00",
+      "key_view": "Ba bước ngoặt hội tụ — thời điểm tái định giá",
+      "word_count": 237,
+      "category": null,
+      "format_id": "standard_qa"
+    },
+    {
+      "id": "msn-ba-buoc-msn-an-1-974-ty-ky-luc-tai-sao-2024-khong-phai-diem-lat",
+      "ticker": "MSN",
+      "sector": "fb",
+      "title": "MSN ăn 1.974 tỷ kỷ lục: tại sao 2024 không phải điểm lật?",
+      "crawled_at": "2026-05-13T03:18:33.218723+00:00",
+      "key_view": "Ba bước ngoặt hội tụ - Masan vào chu kỳ tái định giá Q2/2026",
+      "word_count": 244,
+      "category": null,
+      "format_id": "standard_qa"
+    },
+    {
       "id": "msn-ba-buoc-ngoat-thoi-diem-tai-dinh-gia-202605131104",
       "ticker": "MSN",
       "sector": "fb",
@@ -98,6 +164,17 @@
       "word_count": 244,
       "category": null,
       "format_id": "standard_qa"
+    },
+    {
+      "id": "msn-wincommerce-doanh-msn-wincommerce-vot-14-doanh-thu-cu-ban-le-viet-hoi-phuc",
+      "ticker": "MSN",
+      "sector": "fb",
+      "title": "MSN WinCommerce vọt 14% doanh thu cũ: bán lẻ Việt hồi phục thật?",
+      "crawled_at": "2026-05-13T03:18:33.218668+00:00",
+      "key_view": "trung lập",
+      "word_count": 266,
+      "category": null,
+      "format_id": "standard_listicle"
     },
     {
       "id": "msn-wincommerce-doanh-thu-cua-hang-cu-vot-14-chi-dau-som-chu",
@@ -122,6 +199,17 @@
       "format_id": "standard_listicle"
     },
     {
+      "id": "msn-nang-dich-vi-sao-danny-le-nang-ke-hoach-msn-len-12-000-ty-ngay-quy-1",
+      "ticker": "MSN",
+      "sector": "fb",
+      "title": "Vì sao Danny Le nâng kế hoạch MSN lên 12.000 tỷ ngay quý 1?",
+      "crawled_at": "2026-05-13T03:18:33.218546+00:00",
+      "key_view": "Sếp Masan Danny Le nâng đích lãi 38-65% ngay sau quý 1 là cú neo định giá — ký mức nền lãi mới chứ không phản ứng quý đột biến. NĐT giá trị tích lũy 12-18 tháng dưới 80.000.",
+      "word_count": 253,
+      "category": null,
+      "format_id": "standard_qa"
+    },
+    {
       "id": "msn-nang-dich-lai-2026-len-10-000-12-000-ty",
       "ticker": "MSN",
       "sector": "fb",
@@ -142,6 +230,17 @@
       "word_count": 256,
       "category": null,
       "format_id": "standard_listicle"
+    },
+    {
+      "id": "STB-20260513-1900-stb-ruoc-ca-e-kip-lpbank-loi-nhuan-rot-q1-co-phai-gia-mua",
+      "ticker": "STB",
+      "sector": "Bank",
+      "title": "STB rước cả ê-kíp LPBank: lợi nhuận rớt Q1 có phải giá mua người tài?",
+      "crawled_at": "2026-05-13T03:02:55.870312+00:00",
+      "key_view": "lạc quan",
+      "word_count": 292,
+      "category": "hidden_mechanism",
+      "format_id": "standard_narrative"
     },
     {
       "id": "STB-20260513-1900-stb-gom-dna-lpbank-loi-nhuan-rot-42-vi-sao-chap-nhan",

@@ -589,52 +589,51 @@ def render_for_funnel_batch(db_path: Path, funnel_batch_id: str, output_dir: Pat
     written = []
 
     for anchor in anchors:
+        # V1.5-lite fix: render ALL articles per row_id (was LIMIT 1).
+        # Some rows produce multiple articles when Master re-runs same brief
+        # OR Story Editor picks 2 options for same row. All should render.
         cur = db.conn.execute(
-            "SELECT * FROM generated_news WHERE row_id = ? ORDER BY published_at DESC LIMIT 1",
+            "SELECT * FROM generated_news WHERE row_id = ? ORDER BY published_at DESC",
             (anchor["row_id"],),
         )
-        art_row = cur.fetchone()
-        if not art_row:
+        art_rows = cur.fetchall()
+        if not art_rows:
             continue
-        article = dict(art_row)
-        public_slug = article.get("public_slug") or f"{anchor['ticker']}-{anchor['row_id']}"
-        md_content = render_article_md_v4(article, anchor, rows)
-        out_path = output_dir / f"{public_slug}.md"
-        out_path.write_text(md_content, encoding="utf-8")
-        # Extract chosen deep_question category (1 of 5 Story Editor enums)
-        # for frontend filter — paradox / why_now / hidden_mechanism /
-        # comparison_deep / early_signal.
-        brief = _parse_json(anchor.get("brief_json", "{}"))
-        pipeline_log = _parse_json(article.get("pipeline_log", "{}"))
-        options = brief.get("deep_question_options") or []
-        chosen_idx = pipeline_log.get("step_4_master", {}).get(
-            "chosen_question_idx", 0
-        )
-        chosen_category = None
-        if isinstance(chosen_idx, int) and 0 <= chosen_idx < len(options):
-            chosen_category = options[chosen_idx].get("category")
+        for art_row in art_rows:
+            article = dict(art_row)
+            public_slug = article.get("public_slug") or f"{anchor['ticker']}-{anchor['row_id']}-{article['article_id'][:8]}"
+            md_content = render_article_md_v4(article, anchor, rows)
+            out_path = output_dir / f"{public_slug}.md"
+            out_path.write_text(md_content, encoding="utf-8")
+            # Extract chosen deep_question category (1 of 5 Story Editor enums)
+            brief = _parse_json(anchor.get("brief_json", "{}"))
+            pipeline_log = _parse_json(article.get("pipeline_log", "{}"))
+            options = brief.get("deep_question_options") or []
+            chosen_idx = pipeline_log.get("step_4_master", {}).get(
+                "chosen_question_idx", 0
+            )
+            chosen_category = None
+            if isinstance(chosen_idx, int) and 0 <= chosen_idx < len(options):
+                chosen_category = options[chosen_idx].get("category")
 
-        # V5.1 format_id — read from pipeline_log.step_4_master.format_id_used
-        # (set by Format Director step 3.5). Fallback default = standard_listicle
-        # vì 100% V4.0 article hiện tại đều dùng pattern listicle.
-        format_id = (
-            pipeline_log.get("step_4_master", {}).get("format_id_used")
-            or "standard_listicle"
-        )
+            format_id = (
+                pipeline_log.get("step_4_master", {}).get("format_id_used")
+                or "standard_listicle"
+            )
 
-        summary = {
-            "id": public_slug,
-            "ticker": article["ticker"],
-            "sector": article.get("sector", "Bank"),
-            "title": article["title"],
-            "crawled_at": anchor["crawled_at"],
-            "key_view": article.get("key_view", "trung lập"),
-            "word_count": article.get("word_count", 0),
-            "category": chosen_category,
-            "format_id": format_id,
-        }
-        update_manifest(manifest_path, summary)
-        written.append(str(out_path))
+            summary = {
+                "id": public_slug,
+                "ticker": article["ticker"],
+                "sector": article.get("sector", "Bank"),
+                "title": article["title"],
+                "crawled_at": anchor["crawled_at"],
+                "key_view": article.get("key_view", "trung lập"),
+                "word_count": article.get("word_count", 0),
+                "category": chosen_category,
+                "format_id": format_id,
+            }
+            update_manifest(manifest_path, summary)
+            written.append(str(out_path))
 
     # Final reconcile — rebuild manifest from DB as single source of truth.
     # Drops any orphan entries that lingered from a Headline slug rename or a
