@@ -287,18 +287,42 @@ uv run python lib/stages/spawn_step_agent.py newsroom-headline-craft /tmp/prompt
 
 Receive: `final_title`, `final_loi`, `candidates`, `hard_criteria_pass` (V1.6 flat 7 keys + info — `ticker_present` / `word_count_le_16` / `no_em_dash` / `not_label_leak` / `no_han_viet_formal` / `abbreviation_expanded` / `plain_language` / `not_orphan_number` (info) / `has_concrete_number` (info) / `vague_action_verbs` (soft hint list) / `passed`), plus `thesis_captured_reason` (1-sentence: tại sao title này capture central_thesis).
 
-**Replace article title** (UPDATE `generated_news.title` from Master placeholder to final) + **persist observability**:
+**Replace article title + RECOMPUTE public_slug** (UPDATE `generated_news.title` + `public_slug` from Master placeholder to final) + **persist observability**:
+
+⚠️ V1.8.1 (2026-05-13): Master persists `public_slug` placeholder ("pending-headline") before Step 4.5. Pipeline MUST recompute slug from `final_title` via `lib.slugify.slugify_hook()`, UPDATE DB, AND rename `output/compare-feed/<old_slug>.md` → `<new_slug>.md` if file already exists (re-render-twice safety).
 
 ```bash
 cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import os
+from pathlib import Path
 from lib.pipeline_db import PipelineDB
+from lib.slugify import slugify_hook
 db = PipelineDB('data/pipeline.db')
-# UPDATE generated_news.title from placeholder to final
+final_title = '<final_title>'
+# Recompute hook from final title
+new_hook = slugify_hook(final_title)
+# Fetch current public_slug (may contain 'pending-headline' placeholder from Master)
+row = db.conn.execute('SELECT public_slug FROM generated_news WHERE article_id = ?', ('<article_id>',)).fetchone()
+old_slug = row[0] if row else None
+# If old slug had 'pending-headline' placeholder OR is empty, substitute the new hook into prefix pattern
+if old_slug and 'pending-headline' in old_slug:
+    new_slug = old_slug.replace('pending-headline', new_hook)
+else:
+    new_slug = new_hook  # fallback when Master did not produce prefix pattern
+# UPDATE title + headline_final + public_slug atomically
 db.conn.execute(
-    'UPDATE generated_news SET title = ?, headline_final = ?, updated_at = CURRENT_TIMESTAMP WHERE article_id = ?',
-    ('<final_title>', '<final_loi>', '<article_id>')
+    'UPDATE generated_news SET title = ?, headline_final = ?, public_slug = ? WHERE article_id = ?',
+    (final_title, '<final_loi>', new_slug, '<article_id>')
 )
 db.conn.commit()
+# Rename .md file if it was rendered with old slug (defensive — pipeline normally renders AFTER this step)
+out_dir = Path('output/compare-feed')
+old_path = out_dir / (old_slug + '.md') if old_slug else None
+new_path = out_dir / (new_slug + '.md')
+if old_path and old_path.exists() and old_path != new_path:
+    os.rename(old_path, new_path)
+    print(f'renamed: {old_path.name} -> {new_path.name}')
+print(f'public_slug_updated: {new_slug}')
 # Log step_4_5 (V1.6 — picked_score deprecated to info; thesis fields added)
 db.log_pipeline_step('<article_id>', 'step_4_5_headline_craft', {
     'model': 'claude-sonnet-4-6',
