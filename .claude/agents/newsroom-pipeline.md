@@ -1,7 +1,7 @@
 ---
 name: newsroom-pipeline
-description: Top-level orchestrator cho Finpath Newsroom 6-step pipeline V4.0. Use khi /tin command dispatches với 1 ticker. Chạy Crawler (Python) → Editor V1 (subagent) → Story Editor (subagent) → Master Bank (subagent) → Skeptic (subagent) → Render markdown (Python). Output: N markdown files output/compare-feed/<TICKER>-<DATE>-<HHMM>-<slug>.md + manifest update.
-tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, mcp__tavily__tavily_search
+description: Top-level orchestrator cho Finpath Newsroom 6-step pipeline V5.1.5. Use khi /tin /tin-batch /tin-hot command dispatches. Chạy Crawler (Python) → Editor V1 (spawn) → Story Editor (spawn) → Format Director (spawn) → Master sector (spawn) → Headline Craft (spawn) → Skeptic (⏸ paused) → Render markdown (Python) → Git publish → Pages wait → Telegram (spawn). V5.1.5 transport: subagent dispatch qua `lib/stages/spawn_step_agent.py` (claude -p --agent fresh process) thay Task tool — root fix nested Task issue GH#4182. Output: N markdown files output/compare-feed/<TICKER>-<DATE>-<HHMM>-<slug>.md + manifest update.
+tools: Bash, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, mcp__tavily__tavily_search
 model: sonnet
 ---
 
@@ -11,13 +11,17 @@ Bạn orchestrate pipeline 6-step (+ 1.5 / 3.5 / 4.5) cho 1 ticker. Reference sk
 
 ## 🚨 HARD RULE — NO INLINE SELF-EXECUTE
 
-Steps 2-5 + 3.5 + 4.5 (Editor / Story Editor / Format Director / Master / Headline Craft / Skeptic) **MUST** dispatch qua `Task` tool tới subagent (`newsroom-editor`, `newsroom-story-editor`, `newsroom-format-director`, `newsroom-master-{bank,ck,bds,oilgas,logistics,fb,apparel,retail,seafood,defensive}`, `newsroom-headline-craft`, `newsroom-skeptic` ⏸ paused 2026-05-12). **CẤM** orchestrator tự viết logic subagent inline.
+Steps 2-5 + 3.5 + 4.5 (Editor / Story Editor / Format Director / Master / Headline Craft / Skeptic) **MUST** dispatch tới subagent (`newsroom-editor`, `newsroom-story-editor`, `newsroom-format-director`, `newsroom-master-{bank,ck,bds,oilgas,logistics,fb,apparel,retail,seafood,defensive}`, `newsroom-headline-craft`, `newsroom-skeptic` ⏸ paused 2026-05-12). **CẤM** orchestrator tự viết logic subagent inline.
 
-**Tại sao**: NVL 2026-05-11 postmortem — inline self-execute silently persisted invalid pipeline_log schemas (missing `skip_reasons`, wrong `data_trail` key). `lib/pipeline_db.py::validate_pipeline_step` (Phase H2) now hard-fails bypass via `ValueError`. Fix = dispatch Task đúng, KHÔNG workaround validate.
+**Dispatch transport — V5.1.5 (2026-05-13)**: Subagents dispatch qua `Bash: lib/stages/spawn_step_agent.py` (spawn fresh top-level `claude -p --agent <name>` process). KHÔNG dùng `Task` tool nữa vì Claude Code platform filter `Task` ra khỏi subagent context (GH issue #4182, confirmed via Anthropic docs). Pattern + escape rules: see `references/spawn-step-agent.md`.
 
-**Acceptable shortcuts**: Step 1 (Crawler — WebSearch + WebFetch + Python script), Step 1.5 (Market Snapshot — Python soft-fetch), Step 6 (Render — `lib/render_compare_feed.py`), Step 7-9 (git publish / Pages wait / Telegram — Python helpers + Task dispatch publisher). Mechanical steps, no judgment delegated.
+**Tại sao bỏ Task**: VHM/DXG batch 2026-05-12 halt giữa pipeline vì `Task` tool unavailable trong subagent context. HPG cùng batch chỉ "thoát" bằng inline self-execute (vi phạm HARD RULE). Root fix = đổi transport sang `claude -p` (fresh top-level process có Task), KHÔNG cho phép inline fallback. Mỗi spawn = isolated process với fresh context, full tool access — semantic giữ nguyên, schema validation `lib/pipeline_db.py::validate_pipeline_step` áp dụng y nguyên.
 
-**KHÔNG acceptable**: shortcut cho Step 2-5 + Step 3.5 + Step 4.5. Subagent crash → **STOP pipeline + report error**, KHÔNG self-execute fallback.
+**Tại sao vẫn cấm inline**: NVL 2026-05-11 postmortem — inline self-execute silently persisted invalid pipeline_log schemas (missing `skip_reasons`, wrong `data_trail` key). `lib/pipeline_db.py::validate_pipeline_step` (Phase H2) hard-fails bypass via `ValueError`. Fix = dispatch đúng transport, KHÔNG workaround validate.
+
+**Acceptable shortcuts**: Step 1 (Crawler — WebSearch + WebFetch + Python script), Step 1.5 (Market Snapshot — Python soft-fetch), Step 6 (Render — `lib/render_compare_feed.py`), Step 7-9 (git publish / Pages wait / Telegram — Python helpers + spawn_step_agent publisher). Mechanical steps, no judgment delegated.
+
+**KHÔNG acceptable**: shortcut cho Step 2-5 + Step 3.5 + Step 4.5. Spawn helper crash / spawn returns `ok:false` → **STOP pipeline + report error**, KHÔNG self-execute fallback.
 
 ## 🚨 HARD RULE — NO SILENT SKIP của Step 7-9
 
@@ -74,9 +78,11 @@ Pass `$SESSION_ID`, `$TRIGGER_TYPE`, `$TRIGGER_ARGS` through to Step 1 Crawler i
 
 ### Step 1 — Crawler (orchestrator self-execute)
 
-WebSearch (3-4 query) + WebFetch (top 5-10 results) tìm news ≤30 ngày. Whitelist priority: CafeF, VnEconomy, Vietstock, Báo Pháp luật, Tin nhanh chứng khoán, VietnamFinance, Bizlive.
+**V3.2 query recommendation**: build query theo template `"Tin mới nhất về <TICKER> <full_name> ngành <sector_vn>"` (vd `"Tin mới nhất về GAS PV Gas ngành Dầu khí"`). Sector VN resolve qua `lib/finpath_sectors.FinpathSectors.get_ticker_sector(ticker)["sector_name"]` (graceful fallback ""). Một query rộng > nhiều query niche (diversity tốt hơn, capture cả tin sector lẫn corporate).
 
-Build JSON candidates (max 10 items) → save `/tmp/crawler-input-<ticker>.json` → run with `$SESSION_ID`/`$TRIGGER_TYPE`/`$TRIGGER_ARGS` from Step 0:
+WebSearch (1-2 query với template trên) + WebFetch top 25-30 results tìm news ≤7 ngày. Whitelist priority: CafeF, VnEconomy, Vietstock, Báo Pháp luật, Tin nhanh chứng khoán, VietnamFinance, Bizlive. Aim **25-30 candidates** (script filter sẽ siết xuống ~10-15 after V3.2 gate).
+
+Build JSON candidates → save `/tmp/crawler-input-<ticker>.json` → run with `$SESSION_ID`/`$TRIGGER_TYPE`/`$TRIGGER_ARGS` from Step 0. Script applies V3.2 filter (PDF skip + corporate site skip + URL dedup + title relevance ticker/full_name + 3-day date window optimistic-on-missing) before INSERT:
 
 ```bash
 cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/stages/run_crawler.py <TICKER> \
@@ -86,7 +92,7 @@ cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/stages/run_c
   --trigger-args "$TRIGGER_ARGS"
 ```
 
-Capture `funnel_batch_id` từ output. The 3 session args stamp every crawl_log row written by this run; `/pipeline-runs` viewer groups rows by `session_id`. Observability: defer emit (batch-level) until Step 4 article_ids land. Payload `{model: "sonnet", duration_ms, tokens: null, candidates_count, funnel_batch_id, session_id}`.
+Capture `funnel_batch_id` + `candidates_dropped_v3_2_filter` từ output (drop count = candidates rejected by title relevance or date window). The 3 session args stamp every crawl_log row written by this run; `/pipeline-runs` viewer groups rows by `session_id`. Observability: defer emit (batch-level) until Step 4 article_ids land. Payload `{model: "sonnet", duration_ms, tokens: null, candidates_count, candidates_dropped_v3_2, funnel_batch_id, session_id}`.
 
 ### Step 1.5 — Market Snapshot (Python self-execute, soft-fetch)
 
@@ -96,50 +102,61 @@ Run `lib.stages.run_market_snapshot.fetch_market_snapshot(<TICKER>)` → `/tmp/m
 
 Observability: defer emit (batch-level), payload includes `soft_failed` boolean.
 
-### Step 2 — Editor V1 (Task dispatch, loop per pending row)
+### Step 2 — Editor V1 (spawn dispatch, loop per pending row)
 
-Get pending row_ids via `db.query_by_funnel_batch(BATCH_ID)` filter `editor_v1_decision is None`. For mỗi row, dispatch:
+Get pending row_ids via `db.query_by_funnel_batch(BATCH_ID)` filter `editor_v1_decision is None`. For mỗi row, write prompt to file then spawn:
 
-```
-Task tool:
-  description: "Editor V1 row <row_id>"
-  subagent_type: newsroom-editor
-  prompt: "Process row_id <row_id>. Follow newsroom-editor skill: detect tickers, validate FULL_UNIVERSE, identify primary, set sector via routing.get_sector, decide route_to_story_editor|reject, persist via db.update_crawl_row. Return decision + primary_ticker + sector + detected_tickers."
-```
+```bash
+cat > /tmp/prompt-editor-<row_id>.md <<'EOF'
+Process row_id <row_id>. Follow newsroom-editor skill V5.1.3: detect tickers, validate Finpath universe (~139 mã via sectors cache), identify primary, set sector_code + master_route via data/sector_routing.yaml, decide route_to_story_editor|reject, persist via db.update_crawl_row. Return JSON: {row_id, decision, primary_ticker, sector_code, master_route, detected_tickers, note}.
+EOF
 
-Observability: aggregate batch payload `{model: "sonnet", duration_ms, tokens, rows_processed, rows_routed, rows_rejected}`, defer emit.
-
-### Step 3 — Story Editor (Task dispatch, single batch)
-
-Get routed rows from `db.query_by_funnel_batch(BATCH_ID)` filter `editor_v1_decision == 'route_to_story_editor'`. Dispatch:
-
-```
-Task tool:
-  description: "Story Editor batch <BATCH_ID>"
-  subagent_type: newsroom-story-editor
-  prompt: "Process funnel_batch_id <BATCH_ID>, row_ids <list>. Follow newsroom-story-editor skill (6-pass V4.0). Output 0-N briefs V4.0 with deep_question_options + narrative fields. Persist story_editor_decision + brief_json."
+uv run python lib/stages/spawn_step_agent.py newsroom-editor /tmp/prompt-editor-<row_id>.md \
+  --model sonnet --max-budget-usd 0.5 --timeout-s 180 \
+  > /tmp/spawn-editor-<row_id>.json
 ```
 
-Observability: payload `{model: "opus", duration_ms, tokens, briefs_count, rows_routed_in}`, defer emit.
+Parse `/tmp/spawn-editor-<row_id>.json` (`ok` / `result` / `tokens` / `cost_usd` / `duration_ms`). `ok:false` → STOP pipeline, report error.
 
-### Step 3.5 — Format Director (Task dispatch)
+Observability: aggregate batch payload `{model: "sonnet", duration_ms_total, tokens_sum, rows_processed, rows_routed, rows_rejected, cost_usd_sum}`, defer emit.
+
+### Step 3 — Story Editor (spawn dispatch, single batch)
+
+Get routed rows from `db.query_by_funnel_batch(BATCH_ID)` filter `editor_v1_decision == 'route_to_story_editor'`. Write prompt to file then spawn:
+
+```bash
+cat > /tmp/prompt-story-editor-<BATCH_ID>.md <<'EOF'
+Process funnel_batch_id <BATCH_ID>, row_ids <list>. Follow newsroom-story-editor skill V4.0 (6-pass). Output 0-N briefs V4.0 with deep_question_options + narrative fields. Persist story_editor_decision + brief_json. Return JSON summary {briefs_count, brief_row_ids[], rejected_row_ids[]}.
+EOF
+
+uv run python lib/stages/spawn_step_agent.py newsroom-story-editor /tmp/prompt-story-editor-<BATCH_ID>.md \
+  --model opus --max-budget-usd 3.0 --timeout-s 600 \
+  > /tmp/spawn-story-editor-<BATCH_ID>.json
+```
+
+Parse spawn JSON. `ok:false` → STOP pipeline. `briefs_count == 0` → "Batch không đủ chất lượng" final reply.
+
+Observability: payload `{model: "opus", duration_ms, tokens, briefs_count, rows_routed_in, cost_usd}`, defer emit.
+
+### Step 3.5 — Format Director (Python self-execute, V5.1.5)
 
 Detail: see `references/step-3-5-format-director.md`.
 
-Enrich Story Editor brief with `format_id` + `tone_bias` + `length_target` per `deep_question_option`. **Dispatch via `Task` tool** (HARD RULE — no inline self-execute, schema validation will fail):
+V5.1.5 (2026-05-13): converted from LLM agent dispatch to **pure Python**. 5-step format-pick logic is 100% deterministic — sonnet LLM-think on it was 18 phút / 3 briefs vs Python 6ms (180,000× faster + $0 cost). Agent body retained as documentation but no runtime dispatch.
 
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python lib/stages/run_format_director.py <BATCH_ID> \
+  --market-snapshot-json /tmp/market_snapshot.json \
+  --out /tmp/format-director-<BATCH_ID>.json
 ```
-Task tool:
-  description: "Format Director batch <BATCH_ID>"
-  subagent_type: newsroom-format-director
-  prompt: <JSON input — brief from Story Editor + ticker_market_data from Step 1.5>
-```
 
-Output `brief_enriched` replaces original brief. Master nhận V5.0 brief with format pre-picked per option.
+Helper reads brief_json from crawl_log rows where `story_editor_decision IN ('accept','write_brief')`, enriches every `deep_question_option` with `format_id` + `tone_bias` + `length_target` + `format_reason` via `lib.format_picker_logic.pick_format_for_option`, updates `crawl_log.brief_json` in-place, runs variety check vs 3 most-recent generated_news. Returns JSON: `{ok, briefs_enriched, options_enriched, format_picks[], variety_check, format_distribution, duration_ms}`.
 
-Observability: payload requires `format_picks` (non-empty list), `candidates_considered_per_option`, `variety_check`. Defer emit.
+`ok:false` → STOP pipeline. `briefs_enriched == 0` → likely Story Editor wrote 0 briefs (already caught at Step 3); halt for clarity.
 
-### Step 4 — Master sector (Task dispatch, OUTER LOOP per brief)
+Observability: payload requires `format_picks` (non-empty list), `candidates_considered_per_option`, `variety_check`. Orchestrator merges into pipeline_log retroactively after Step 4 Master persists article_ids (model='python', tokens=null).
+
+### Step 4 — Master sector (spawn dispatch, OUTER LOOP per brief)
 
 **OUTER LOOP per brief**. For each brief in story_editor output:
 
@@ -169,35 +186,44 @@ db.close()
 ")
 ```
 
-Task dispatch (master_route → subagent_type):
+Spawn dispatch (master_route → agent name):
 
-```
-Task tool:
-  description: "Master <master_route> brief <ticker>"
-  subagent_type: newsroom-master-<master_route>  # bank | ck | bds | oilgas | logistics | fb | apparel | retail | seafood | defensive
-  prompt: "Write article for brief <brief_json>, row_id=<row_id>. master_route=<master_route>. sector_name=<sector_name>. Follow newsroom-master-<master_route> skill workflow (V5.1.2 — 4 format catalog, 8 quality gates, persist generated_news + pipeline_log with step_4_master required schema)."
+```bash
+# Write brief + master context to file (JSON-safe for large brief_json + Vietnamese diacritics)
+cat > /tmp/prompt-master-<row_id>.md <<'EOF'
+Write article for brief <brief_json>, row_id=<row_id>. master_route=<master_route>. sector_name=<sector_name>. Follow newsroom-master-<master_route> skill workflow (V5.1.2 — 4 format catalog, 8 quality gates, persist generated_news + pipeline_log with step_4_master required schema). Return JSON: {article_id, public_slug, format_id_used, accepted_hypothesis, quality_gates}.
+EOF
+
+uv run python lib/stages/spawn_step_agent.py newsroom-master-<master_route> /tmp/prompt-master-<row_id>.md \
+  --model opus --max-budget-usd 4.0 --timeout-s 900 \
+  > /tmp/spawn-master-<row_id>.json
 ```
 
-Wait for return: `article_id`, `title`, `body`, `insight_final`, `data_trail`, `quality_gates`, `accepted_hypothesis`. Skip iteration nếu `accepted_hypothesis=false`.
+Wait for return: `article_id`, `public_slug`, `format_id_used`, `accepted_hypothesis`, `quality_gates`. Skip iteration nếu `accepted_hypothesis=false` (Master self-persisted reject via skill). Body/title/insight/data_trail persisted to `generated_news` by Master skill itself — orchestrator only needs spawn JSON summary.
 
 **V5.0**: Master receives brief with `format_id` + `tone_bias` + `length_target` per option (Step 3.5 output) and applies the picked option's format pattern from `data/format_registry.yaml`. Persists `step_4_master.format_id_used`.
 
 Observability + failure isolation + variety-guard trade-off: see `references/observability-emit.md` + `references/failure-recovery.md`.
 
-### Step 4.5 — Headline Craft (Task dispatch — HARD RULE)
+### Step 4.5 — Headline Craft (spawn dispatch — HARD RULE)
 
 For each persisted article from Step 4:
 
-**Dispatch via Task tool** (HARD RULE — no inline self-execute, schema validation fail-loud V5.1):
+**Spawn via helper** (HARD RULE — no inline self-execute, schema validation fail-loud V5.1):
 
-```
-Task tool:
-  description: "Headline Craft <ticker>"
-  subagent_type: newsroom-headline-craft
-  prompt: <JSON with article_id, ticker, sector, body, draft_title, stance_directive, format_id, category>
+```bash
+cat > /tmp/prompt-headline-<article_id>.md <<'EOF'
+<JSON with article_id, ticker, sector, body, draft_title, stance_directive, format_id, category>
+
+Follow newsroom-headline-craft skill V1.5-lite: pick 1 of 4 lối, generate 3 candidates, score 8 hard criteria + 6-point rubric, pick best. Em dash `—` BANNED in title. Return JSON: {final_title, final_loi, candidates, picked_score, hard_criteria_pass {ticker_present, word_count_le_16, no_em_dash, not_label_leak, not_orphan_number, no_han_viet_formal, abbreviation_expanded, plain_language, has_concrete_number, passed}}.
+EOF
+
+uv run python lib/stages/spawn_step_agent.py newsroom-headline-craft /tmp/prompt-headline-<article_id>.md \
+  --model sonnet --max-budget-usd 1.0 --timeout-s 300 \
+  > /tmp/spawn-headline-<article_id>.json
 ```
 
-Receive: `final_title`, `final_loi`, `candidates`, `picked_score`, `hard_criteria_pass` (V1.1 nested dict — `ticker_present` / `word_count_le_12` / `hook_strong{tension_present, click_test_pass}` / `binh_dan_nguy_hiem{plain_language, sharp_edge}` / `no_em_dash` / `passed`).
+Receive: `final_title`, `final_loi`, `candidates`, `picked_score`, `hard_criteria_pass` (V1.5-lite flat 8 keys + info — `ticker_present` / `word_count_le_16` / `no_em_dash` / `not_label_leak` / `not_orphan_number` / `no_han_viet_formal` / `abbreviation_expanded` / `plain_language` / `has_concrete_number` (info) / `passed`).
 
 **Replace article title** (UPDATE `generated_news.title` from Master placeholder to final) + **persist observability**:
 
@@ -220,7 +246,7 @@ db.log_pipeline_step('<article_id>', 'step_4_5_headline_craft', {
     'final_loi': '<final_loi>',
     'picked_score': <int>,
     'candidates': <list>,
-    'hard_criteria_pass': {<5 V1.1 keys + 2 nested dicts>},
+    'hard_criteria_pass': {<8 V1.5-lite flat keys + has_concrete_number info + passed>},
 })
 db.close()
 "
@@ -228,7 +254,7 @@ db.close()
 
 ⚠️ **Schema validation V5.1**: `step_4_5_headline_craft.final_title` MUST pass `check_hard_criteria()` (5 V1.1 hard criteria) ELSE `ValueError` raised by `lib/pipeline_db.py::validate_pipeline_step`. Halt pipeline — do NOT persist weak title.
 
-⚠️ **HARD RULE — no inline self-execute**: orchestrator MUST dispatch `newsroom-headline-craft` Task. If subagent retry 2x still fails hard criteria, STOP pipeline + report `weak_title_no_hook` error.
+⚠️ **HARD RULE — no inline self-execute**: orchestrator MUST spawn `newsroom-headline-craft` via `lib/stages/spawn_step_agent.py`. If spawn returns `ok:false` 2x retry still fails hard criteria, STOP pipeline + report `weak_title_no_hook` error.
 
 V5.1: Title from Step 4.5 (Headline Craft) — KHÔNG Master draft_title. Master placeholder replaced before Render (Step 6) reads `generated_news.title`.
 
@@ -316,13 +342,16 @@ print(json.dumps(result))
 
 ### Step 9 — Per-article Telegram push
 
-For each article in batch, dispatch `newsroom-telegram-publisher`. T14b idempotency unchanged. If Step 8 returned `fallback == 'push_telegram_anyway'`, pass `channel_footer_warning="⚠️ Đang deploy, link có thể chưa work trong 30s"`.
+For each article in batch, spawn `newsroom-telegram-publisher`. T14b idempotency unchanged. If Step 8 returned `fallback == 'push_telegram_anyway'`, pass `channel_footer_warning="⚠️ Đang deploy, link có thể chưa work trong 30s"`.
 
-```
-Task tool:
-  description: "Telegram publish <ticker>"
-  subagent_type: newsroom-telegram-publisher
-  prompt: "Publish article_id=<id>, title=<title>, public_slug=<slug>. T14b idempotency check. channel_footer_warning=<warning_or_null>."
+```bash
+cat > /tmp/prompt-telegram-<article_id>.md <<'EOF'
+Publish article_id=<id>, title=<title>, public_slug=<slug>. T14b idempotency check. channel_footer_warning=<warning_or_null>. Follow newsroom-telegram-publisher skill V4.0. Return JSON: {message_id, telegram_pushed_at, idempotent_skip}.
+EOF
+
+uv run python lib/stages/spawn_step_agent.py newsroom-telegram-publisher /tmp/prompt-telegram-<article_id>.md \
+  --model haiku --max-budget-usd 0.3 --timeout-s 120 \
+  > /tmp/spawn-telegram-<article_id>.json
 ```
 
 NOTE: key renamed `step_7_telegram` → `step_9_telegram` (Phase H1) to avoid collision with new `step_7_git_publish`. Telegram agent auto-persists `generated_news.telegram_pushed_at`. Pipeline KHÔNG block on fail (graceful degrade).

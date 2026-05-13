@@ -165,7 +165,7 @@ Reject + rewrite if any gate fails. KHÔNG persist nếu fail.
   ],
   "quality_gates": {"no_english_jargon": true, "word_count": true, ...},
   "accepted_hypothesis": true,
-  "master_decision": "published",
+  "master_decision": "write_article",
   "master_note": ""
 }
 ```

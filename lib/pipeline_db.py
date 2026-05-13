@@ -178,9 +178,9 @@ def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str =
             f"MUST dispatch via Task tool to enforce schema."
         )
 
-    # V5.1 — step_4_5_headline_craft fail-loud: final_title MUST pass 5 V1.1
-    # hard criteria (ticker_present + word_count_le_12 + hook_strong{tension,
-    # click_test} + binh_dan_nguy_hiem{plain_language, sharp_edge} + no_em_dash).
+    # V1.5-lite — step_4_5_headline_craft fail-loud: final_title MUST pass 8
+    # hard criteria (ticker_present + word_count_le_16 + no_em_dash + not_label_leak
+    # + not_orphan_number + no_han_viet_formal + abbreviation_expanded + plain_language).
     # Orchestrator cannot silently persist a weak title; Headline agent MUST
     # regenerate (max 2 retry) before this validate succeeds.
     if step_key == "step_4_5_headline_craft" and is_v5_1_plus:
@@ -190,20 +190,18 @@ def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str =
             hc = check_hard_criteria(title)
             if not hc.get("passed", False):
                 failed_keys: list[str] = []
-                if not hc.get("ticker_present"):
-                    failed_keys.append("ticker_present")
-                if not hc.get("word_count_le_12"):
-                    failed_keys.append("word_count_le_12")
-                hook = hc.get("hook_strong", {})
-                if not (hook.get("tension_present") and hook.get("click_test_pass")):
-                    failed_keys.append("hook_strong")
-                bd = hc.get("binh_dan_nguy_hiem", {})
-                if not (bd.get("plain_language") and bd.get("sharp_edge")):
-                    failed_keys.append("binh_dan_nguy_hiem")
-                if not hc.get("no_em_dash"):
-                    failed_keys.append("no_em_dash")
+                # V1.5-lite — flat 8 keys (no nested dicts)
+                v1_5_lite_keys = [
+                    "ticker_present", "word_count_le_16", "no_em_dash",
+                    "not_label_leak", "not_orphan_number",
+                    "no_han_viet_formal", "abbreviation_expanded",
+                    "plain_language",
+                ]
+                for key in v1_5_lite_keys:
+                    if not hc.get(key):
+                        failed_keys.append(key)
                 raise ValueError(
-                    f"pipeline_log[step_4_5_headline_craft].final_title fails hard criteria: "
+                    f"pipeline_log[step_4_5_headline_craft].final_title fails V1.5-lite hard criteria: "
                     f"{failed_keys} — title={title!r}. Headline agent emitted weak title; "
                     f"MUST regenerate (max 2 retry) before persist."
                 )
