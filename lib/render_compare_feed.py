@@ -316,6 +316,97 @@ def update_manifest(manifest_path: Path, summary: dict) -> None:
     raise RuntimeError(f"Failed to atomically update {manifest_path} after {max_retries} retries")
 
 
+def rebuild_manifest_from_db(db, output_dir: Path) -> dict:
+    """Rebuild manifest.json from generated_news as single source of truth.
+
+    Replaces the incremental update flow. Every accepted article whose
+    `<public_slug>.md` exists on disk gets an entry; orphan files (placeholder
+    leftover after Headline slug rename) and stale entries (file missing) are
+    both excluded. Atomic write via temp + os.replace.
+
+    Call at the end of `render_for_funnel_batch` (or as a one-shot reconcile)
+    so the manifest always reflects DB truth — render-twice scenarios can no
+    longer leak placeholder entries.
+    """
+    cur = db.conn.execute(
+        """
+        SELECT gn.public_slug, gn.ticker, gn.sector, gn.title, gn.key_view,
+               gn.word_count, gn.pipeline_log, gn.brief_json,
+               cl.crawled_at
+        FROM generated_news gn
+        JOIN crawl_log cl ON cl.row_id = gn.row_id
+        WHERE gn.accepted_hypothesis = 1
+          AND gn.public_slug IS NOT NULL
+        ORDER BY cl.crawled_at DESC
+        """
+    )
+    articles: list[dict] = []
+    skipped_no_file = 0
+    for row in cur.fetchall():
+        public_slug = row["public_slug"]
+        if not (output_dir / f"{public_slug}.md").exists():
+            skipped_no_file += 1
+            continue
+
+        pipeline_log = _parse_json(row["pipeline_log"] or "{}")
+        brief = _parse_json(row["brief_json"] or "{}")
+        options = brief.get("deep_question_options") or []
+        chosen_idx = pipeline_log.get("step_4_master", {}).get("chosen_question_idx", 0)
+        chosen_category = None
+        if isinstance(chosen_idx, int) and 0 <= chosen_idx < len(options):
+            chosen_category = options[chosen_idx].get("category")
+        format_id = (
+            pipeline_log.get("step_4_master", {}).get("format_id_used")
+            or "standard_listicle"
+        )
+
+        articles.append({
+            "id": public_slug,
+            "ticker": row["ticker"],
+            "sector": row["sector"] or "Bank",
+            "title": row["title"],
+            "crawled_at": row["crawled_at"],
+            "key_view": row["key_view"] or "trung lập",
+            "word_count": row["word_count"] or 0,
+            "category": chosen_category,
+            "format_id": format_id,
+        })
+
+    # Preserve legacy entries (hand-crafted .md files with no DB row) so
+    # rebuild doesn't drop pre-pipeline samples like VCB-20260508-1530.md.
+    # Filter is still strict on file existence — pure-stale entries (no file
+    # AND no DB row) get dropped as intended.
+    manifest_path = output_dir / "manifest.json"
+    new_ids = {a["id"] for a in articles}
+    legacy_carried = 0
+    if manifest_path.exists():
+        try:
+            old = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            old = {"articles": []}
+        for entry in old.get("articles", []):
+            entry_id = entry.get("id")
+            if not entry_id or entry_id in new_ids:
+                continue
+            if (output_dir / f"{entry_id}.md").exists():
+                articles.append(entry)
+                legacy_carried += 1
+
+    articles.sort(key=lambda a: a.get("crawled_at") or "", reverse=True)
+    tmp_path = manifest_path.with_suffix(".json.tmp")
+    tmp_path.write_text(
+        json.dumps({"articles": articles}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    os.replace(tmp_path, manifest_path)
+    return {
+        "total": len(articles),
+        "from_db": len(new_ids),
+        "legacy_carried": legacy_carried,
+        "skipped_no_file": skipped_no_file,
+    }
+
+
 def build_pipeline_runs_manifest(db, output_path: Path) -> int:
     """Build pipeline-runs.json from crawl_log + generated_news.
 
@@ -545,8 +636,18 @@ def render_for_funnel_batch(db_path: Path, funnel_batch_id: str, output_dir: Pat
         update_manifest(manifest_path, summary)
         written.append(str(out_path))
 
+    # Final reconcile — rebuild manifest from DB as single source of truth.
+    # Drops any orphan entries that lingered from a Headline slug rename or a
+    # mid-pipeline render retry. Cheap (one query + atomic write).
+    rebuild_summary = rebuild_manifest_from_db(db, output_dir)
+
     db.close()
-    return {"count": len(written), "files": written}
+    return {
+        "count": len(written),
+        "files": written,
+        "manifest_total": rebuild_summary["total"],
+        "manifest_skipped_no_file": rebuild_summary["skipped_no_file"],
+    }
 
 
 def main() -> int:

@@ -10,6 +10,7 @@ from lib.render_compare_feed import (
     render_article_md_v4,
     build_right_column,
     clean_manifest,
+    rebuild_manifest_from_db,
     update_manifest,
 )
 
@@ -500,3 +501,100 @@ def test_clean_manifest_drops_orphans(tmp_path):
     assert result == {"removed": 1, "remaining": 1}
     data = json.loads(manifest.read_text(encoding="utf-8"))
     assert [a["id"] for a in data["articles"]] == ["live"]
+
+
+def test_rebuild_manifest_excludes_orphan_placeholder_file(tmp_path):
+    """Even if BOTH placeholder.md AND final.md exist on disk (render-twice
+    scenario), rebuild_manifest_from_db only links the DB-current public_slug.
+    The orphan file is left on disk but unlisted — no 404 path for users.
+    """
+    schema = Path(__file__).parent.parent / "data" / "pipeline.schema.sql"
+    db_path = tmp_path / "test.db"
+    db = PipelineDB(db_path)
+    db.init_schema(schema)
+
+    db.insert_crawl_row({
+        "row_id": "anchor-1",
+        "funnel_batch_id": "STB-20260513-1900",
+        "ticker": "STB",
+        "source_name": "X",
+        "source_url": "https://x/a",
+        "title": "raw",
+        "crawled_at": "2026-05-13T03:00:00+07:00",
+        "primary_ticker": "STB",
+        "sector": "Bank",
+        "editor_v1_decision": "route_to_story_editor",
+        "story_editor_decision": "write_brief",
+        "master_decision": "write_article",
+        "brief_json": json.dumps({"deep_question_options": []}),
+        "status": "published",
+    })
+    final_slug = "STB-20260513-1900-stb-gom-dna-lpbank"
+    db.insert_generated_news({
+        "article_id": "art-1",
+        "row_id": "anchor-1",
+        "ticker": "STB",
+        "sector": "Bank",
+        "title": "STB gom DNA LPBank",
+        "body": "x",
+        "word_count": 276,
+        "key_view": "lạc quan",
+        "insight_final": "ok",
+        "accepted_hypothesis": 1,
+        "public_slug": final_slug,
+        "pipeline_version": "V4.0",
+        "pipeline_log": json.dumps({
+            "step_4_master": {
+                "chosen_question_idx": 0,
+                "chosen_pick_reason": "x",
+                "skip_reasons": {},
+                "data_trail": [{"source": "x", "fetched": "y"}],
+            }
+        }),
+    })
+
+    # Both files exist on disk — simulating render-twice race.
+    (tmp_path / "STB-20260513-1900-pending-headline.md").touch()
+    (tmp_path / f"{final_slug}.md").touch()
+
+    result = rebuild_manifest_from_db(db, tmp_path)
+    db.close()
+    assert result["total"] == 1
+    assert result["from_db"] == 1
+    data = json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))
+    assert [a["id"] for a in data["articles"]] == [final_slug]
+
+
+def test_rebuild_manifest_preserves_legacy_hand_crafted_entry(tmp_path):
+    """Legacy/pre-pipeline .md files (e.g. hand-crafted sample) with no DB
+    row but existing on disk + listed in old manifest should survive rebuild.
+    """
+    schema = Path(__file__).parent.parent / "data" / "pipeline.schema.sql"
+    db_path = tmp_path / "test.db"
+    db = PipelineDB(db_path)
+    db.init_schema(schema)
+
+    # Hand-crafted file on disk + listed in old manifest, no DB row.
+    legacy_id = "VCB-20260508-1530"
+    (tmp_path / f"{legacy_id}.md").touch()
+    (tmp_path / "manifest.json").write_text(
+        json.dumps({"articles": [{
+            "id": legacy_id,
+            "ticker": "VCB",
+            "sector": "Bank",
+            "title": "Sample",
+            "crawled_at": "2026-05-08T15:30:00Z",
+        }]}),
+        encoding="utf-8",
+    )
+
+    result = rebuild_manifest_from_db(db, tmp_path)
+    db.close()
+    assert result == {
+        "total": 1,
+        "from_db": 0,
+        "legacy_carried": 1,
+        "skipped_no_file": 0,
+    }
+    data = json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))
+    assert [a["id"] for a in data["articles"]] == [legacy_id]

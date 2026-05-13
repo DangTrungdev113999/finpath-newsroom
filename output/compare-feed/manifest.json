@@ -8,7 +8,7 @@
       "crawled_at": "2026-05-13T03:02:55.870788+00:00",
       "key_view": "phân hoá",
       "word_count": 250,
-      "category": "comparison_deep",
+      "category": null,
       "format_id": "standard_listicle"
     },
     {
@@ -50,9 +50,9 @@
       "sector": "BDS",
       "title": "HPG xén cổ tức 20% để xây nhà máy ray đường sắt",
       "crawled_at": "2026-05-12T15:40:34.121150+00:00",
-      "key_view": null,
+      "key_view": "trung lập",
       "word_count": 294,
-      "category": "why_now",
+      "category": null,
       "format_id": "standard_qa"
     },
     {
@@ -61,9 +61,9 @@
       "sector": "BDS",
       "title": "Thép HPG thật ra chỉ tăng 61%, 170% kia BĐS Phố Nối",
       "crawled_at": "2026-05-12T15:40:34.121047+00:00",
-      "key_view": null,
+      "key_view": "trung lập",
       "word_count": 297,
-      "category": "paradox",
+      "category": null,
       "format_id": "standard_qa"
     },
     {
@@ -72,7 +72,7 @@
       "sector": "bds",
       "title": "DXG bán hàng vọt 46%, lãi mẹ tụt 22%. Tiền chạy đâu?",
       "crawled_at": "2026-05-12T15:39:45.062011+00:00",
-      "key_view": null,
+      "key_view": "trung lập",
       "word_count": 336,
       "category": null,
       "format_id": "standard_narrative"
@@ -83,7 +83,7 @@
       "sector": "bds",
       "title": "DXG đổi tên Bluemarq, vốn đầu tư mới 20 tỷ?",
       "crawled_at": "2026-05-12T15:39:45.061841+00:00",
-      "key_view": null,
+      "key_view": "trung lập",
       "word_count": 298,
       "category": null,
       "format_id": "standard_listicle"
@@ -127,9 +127,9 @@
       "sector": "CK",
       "title": "SSI tự chậm lại: quý 1 tăng 46%, năm chỉ 15%?",
       "crawled_at": "2026-05-12T15:35:29.070201+00:00",
-      "key_view": null,
+      "key_view": "trung lập",
       "word_count": 242,
-      "category": "hidden_mechanism",
+      "category": null,
       "format_id": "standard_qa"
     },
     {
@@ -138,9 +138,9 @@
       "sector": "CK",
       "title": "SSI bán ESOP 100 tỷ, nội bộ ăn 180 tỷ ưu đãi",
       "crawled_at": "2026-05-12T15:35:29.068657+00:00",
-      "key_view": null,
+      "key_view": "trung lập",
       "word_count": 258,
-      "category": "paradox",
+      "category": null,
       "format_id": "standard_qa"
     },
     {
@@ -162,7 +162,7 @@
       "crawled_at": "2026-05-12T13:50:08.804288+00:00",
       "key_view": "paradox:BSR ke hoach bao thu 58% vs Q1 vuot 4 lan",
       "word_count": 286,
-      "category": "paradox",
+      "category": null,
       "format_id": "standard_qa"
     },
     {
@@ -250,7 +250,7 @@
       "crawled_at": "2026-05-10T03:31:35.442769+00:00",
       "key_view": "Nghịch lý hệ sinh thái — GPBank vượt FE Credit",
       "word_count": 333,
-      "category": "paradox",
+      "category": null,
       "format_id": "standard_listicle"
     },
     {
@@ -261,7 +261,7 @@
       "crawled_at": "2026-05-10T03:31:35.440860+00:00",
       "key_view": "Người trong cuộc mua — vì sao thời điểm này?",
       "word_count": 357,
-      "category": "why_now",
+      "category": null,
       "format_id": "standard_listicle"
     },
     {
@@ -272,7 +272,7 @@
       "crawled_at": "2026-05-10T03:31:35.438837+00:00",
       "key_view": "Đánh đổi chính sách — room 35% đổi bằng gánh GPBank",
       "word_count": 383,
-      "category": "hidden_mechanism",
+      "category": null,
       "format_id": "standard_listicle"
     },
     {
@@ -345,11 +345,10 @@
       "id": "VCB-20260508-1530",
       "ticker": "VCB",
       "sector": "Bank",
-      "title": "VCB quý I: lãi vẫn tăng 9% dù bỏ thêm 1.700 tỷ vào quỹ phòng nợ xấu",
+      "title": "Vietcombank: Sample Article (hand-crafted Phase 1)",
       "crawled_at": "2026-05-08T15:30:00+07:00",
-      "key_view": "thận trọng",
-      "word_count": 354,
-      "format_id": "standard_listicle"
+      "key_view": "trung lập",
+      "word_count": 0
     }
   ]
 }
