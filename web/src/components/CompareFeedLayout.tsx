@@ -39,7 +39,7 @@ export function CompareFeedLayout({
         </h1>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <p className="!m-0 hidden min-w-0 flex-1 text-sm italic text-fg-3 sm:block">
-            🕐 Crawled {formatCrawledAt(meta.crawled_at)} · Funnel batch:{' '}
+            🕐 Crawled {formatCrawledAt(meta.crawled_at)} ·{' '}
             <Link
               to={`/pipeline-runs?batch_id=${meta.funnel_batch_id}`}
               className="whitespace-nowrap text-brand hover:underline"
