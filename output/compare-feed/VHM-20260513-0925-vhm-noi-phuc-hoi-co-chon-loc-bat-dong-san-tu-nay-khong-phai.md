@@ -233,6 +233,38 @@ master_data_trail:
 skeptic_data_trail: []
 raw_article_url: https://cafef.vn/chu-tich-vinhomes-noi-gi-ve-thi-truong-bat-dong-san-trong-nam-2026-188260414152443615.chn
 format_director: null
+gemini:
+  title: 'Chủ tịch VHM vạch ranh giới BĐS 2026: Ai sống, ai ngáp?'
+  body: 'Chủ tịch Vinhomes Phạm Thiếu Hoa khẳng định thị trường BĐS 2026 sẽ **"phục
+    hồi có chọn lọc"**. Nghe thì hay, nhưng "lọc" là lọc ai, "chọn" là chọn ai? Giữa
+    một rừng cổ phiếu BĐS, đâu là tiêu chí để nhà đầu tư **tự sàng lọc** danh mục
+    của mình?
+
+
+    - **Vũ khí độc quyền tạo dòng tiền**: Nhờ gói lãi suất cố định **0-6%** kéo dài
+    tới 5 năm, VHM dễ dàng chốt doanh số bán trước Q1/2026 lên tới **81.700 tỷ**,
+    tăng 133%. Đây là sức bán tạo ra **dòng tiền thật**, không phải lời hứa hẹn trên
+    giấy tờ.
+
+
+    - **Sự phân hóa không thể chối cãi**: Chỉ cần nhìn vào doanh thu Q1/2026 là thấy
+    ngay "kẻ mạnh, người yếu". VHM thu về **65.114 tỷ** đồng, trong khi các tên tuổi
+    khác như Novaland (NVL) chỉ có **3.587 tỷ**, còn Đất Xanh (DXG) là **1.467 tỷ**.
+    Chênh lệch không phải vài lần, mà là **cả chục lần**.
+
+
+    - **Nhóm bị bỏ lại phía sau**: Theo chủ tịch VHM, các dự án **không hướng tới
+    nhu cầu ở thực**, pháp lý "chưa sạch", hoặc chỉ tập trung đầu cơ đất nền sẽ là
+    nhóm yếu thế. Đây chính là những "cái bẫy" mà dòng tiền thông minh sẽ chủ động
+    né xa.
+
+
+    VHM dành cho người tin vào **sự thống trị của kẻ mạnh**. Với các mã BĐS nhỏ hơn,
+    nên chờ tín hiệu rõ ràng về pháp lý và dòng tiền sau **Q3/2026** trước khi xuống
+    tiền.'
+  word_count: 221
+  model: gemini-2.5-pro
+  generated_at: '2026-05-13T10:53:55.180295+00:00'
 ---
 
 <!-- left -->
