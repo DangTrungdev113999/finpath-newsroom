@@ -1,10 +1,32 @@
 {
   "articles": [
     {
+      "id": "bca-om-50-von-fox-fpt-me-nguy-2-330-ty-vi-sao",
+      "ticker": "FPT",
+      "sector": "Phòng thủ",
+      "title": "BCA ôm 50% vốn FOX, FPT mẹ nguy 2.330 tỷ vì sao?",
+      "crawled_at": "2026-05-13T04:04:22.666082+00:00",
+      "key_view": "Điểm nghẽn cơ cấu sở hữu chạm phần đóng góp lớn nhất",
+      "word_count": 238,
+      "category": null,
+      "format_id": "standard_qa"
+    },
+    {
+      "id": "fpt-bom-89-trieu-usd-vao-hue-khong-phai-tphcm-vi-sao",
+      "ticker": "FPT",
+      "sector": "Phòng thủ",
+      "title": "FPT bơm 89 triệu USD vào Huế, không phải TPHCM – vì sao?",
+      "crawled_at": "2026-05-13T04:04:22.665778+00:00",
+      "key_view": "trung lập",
+      "word_count": 232,
+      "category": null,
+      "format_id": "standard_qa"
+    },
+    {
       "id": "msn-ba-buoc-ngoat-thoi-diem-tai-dinh-gia-202605131104",
       "ticker": "MSN",
       "sector": "fb",
-      "title": "MSN ba bước ngoặt — thời điểm tái định giá",
+      "title": "MSN ăn 1.974 tỷ kỷ lục: tại sao 2024 không phải điểm lật?",
       "crawled_at": "2026-05-13T03:18:33.218723+00:00",
       "key_view": "Ba bước ngoặt hội tụ - Masan vào chu kỳ tái định giá Q2/2026",
       "word_count": 238,
