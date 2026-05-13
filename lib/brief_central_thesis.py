@@ -82,7 +82,14 @@ def _try_v5(brief: dict[str, Any], picked_idx: int) -> str:
     opt = opts[picked_idx]
     if not isinstance(opt, dict):
         return ""
-    return str(opt.get("question") or opt.get("deep_question") or "").strip()
+    # Field aliases observed in production briefs:
+    # question (V5.0 canonical), deep_question, angle (DXG), hypothesis (legacy),
+    # narrative_hook (some sectors). Pick first non-empty.
+    for key in ("question", "deep_question", "angle", "hypothesis", "narrative_hook"):
+        val = opt.get(key)
+        if isinstance(val, str) and val.strip():
+            return val.strip()
+    return ""
 
 
 def _try_v4(brief: dict[str, Any]) -> str:

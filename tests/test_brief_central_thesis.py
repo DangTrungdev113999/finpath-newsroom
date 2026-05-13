@@ -45,6 +45,32 @@ class TestV5Schema:
         assert result["source"] == "v5_deep_question"
         assert "FPT đổ 89 triệu USD" in result["thesis"]
 
+    def test_angle_field_alias(self) -> None:
+        """DXG-style briefs use angle field instead of question."""
+        brief = {
+            "deep_question_options": [
+                {
+                    "option_id": "A",
+                    "angle": "Nghịch lý tăng trưởng: doanh thu +46% nhưng cổ đông mẹ thực nhận ít hơn năm trước?",
+                    "stance_directive": {"direction": "bearish_neutral"},
+                }
+            ],
+        }
+        result = extract_central_thesis(brief, body="")
+        assert result["source"] == "v5_deep_question"
+        assert "doanh thu +46%" in result["thesis"]
+
+    def test_hypothesis_field_alias(self) -> None:
+        """Older briefs may use hypothesis instead of question."""
+        brief = {
+            "deep_question_options": [
+                {"hypothesis": "STB nén chi phí nhân sự để giữ lợi nhuận?"}
+            ],
+        }
+        result = extract_central_thesis(brief, body="")
+        assert result["source"] == "v5_deep_question"
+        assert "STB" in result["thesis"]
+
 
 class TestV4Schema:
     def test_picks_insight_hypothesis_first_sentence(self) -> None:
