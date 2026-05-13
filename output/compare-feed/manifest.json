@@ -9,7 +9,8 @@
       "key_view": "phân hoá",
       "word_count": 292,
       "category": null,
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "Chủ tịch VHM vạch ranh giới BĐS 2026: Ai sống, ai ngáp?"
     },
     {
       "id": "vhm-20260513-vhm-lan-dau-ban-ngoai-ha-noi-cuoc-300-000-ty-vao-ba-vung-moi",
@@ -20,7 +21,8 @@
       "key_view": "lạc quan",
       "word_count": 342,
       "category": null,
-      "format_id": "standard_listicle"
+      "format_id": "standard_listicle",
+      "gemini_title": "VHM và mục tiêu 350.000 tỷ: Canh bạc ba miền có gì để thắng?"
     },
     {
       "id": "pvs-20260513-0657-pvs-ke-hoach-giam-48-nhung-q1-da-an-44-khoan-282-ty-che-gi",
@@ -31,7 +33,8 @@
       "key_view": "lạc quan",
       "word_count": 232,
       "category": null,
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "PVS lãi Q1 khủng, sao kế hoạch cả năm lại \"đi lùi\" gần một nửa?"
     },
     {
       "id": "pvs-20260513-0703-pvs-bien-gop-len-9-8-nhung-tien-mat-14-000-ty-con-mac-lo-b",
@@ -42,7 +45,8 @@
       "key_view": "phân hoá",
       "word_count": 285,
       "category": "comparison_deep",
-      "format_id": "standard_listicle"
+      "format_id": "standard_listicle",
+      "gemini_title": "PVS: Mua \"két sắt\" 16.000 tỷ, được tặng luôn mảng kinh doanh chính?"
     },
     {
       "id": "gas-doanh-thu-gas-danh-doi-22-loi-nhuan-de-nhap-khi-hoa-long-gia-cao",
@@ -53,7 +57,8 @@
       "key_view": "paradox:GAS doanh thu len 5% nhung lai tut 22% — chuyen dich co cau sang LNG nhap bien mong",
       "word_count": 269,
       "category": null,
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "Doanh thu GAS năm 2026 vẫn tăng, sao kế hoạch lợi nhuận lại 'cài số lùi'?"
     },
     {
       "id": "FPT-20260513-1900-bo-cong-an-om-50-von-fpt-telecom-fpt-me-nguy-2-330-ty",
@@ -64,7 +69,8 @@
       "key_view": "Điểm nghẽn cơ cấu sở hữu chạm phần đóng góp lớn nhất",
       "word_count": 248,
       "category": "hidden_mechanism",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "FPT có nguy cơ mất 'gà đẻ trứng vàng' FOX vào tay nhà nước?"
     },
     {
       "id": "fpt-bom-89-vi-sao-fpt-do-89-trieu-do-vao-hue-thay-vi-sieu-do-thi",
@@ -75,7 +81,8 @@
       "key_view": "trung lập",
       "word_count": 255,
       "category": null,
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "FPT rót 89 triệu USD vào AI cho Huế, tại sao bỏ qua Hà Nội?"
     },
     {
       "id": "plx-20260513-0437-plx-vi-sao-ban-them-10-ma-loi-nhuan-van-teo",
@@ -86,7 +93,8 @@
       "key_view": "thận trọng",
       "word_count": 263,
       "category": "paradox",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "PLX: Doanh thu kỷ lục 315.000 tỷ nhưng lợi nhuận lại \"cài số lùi\"?"
     },
     {
       "id": "plx-20260513-0429-plx-lo-1-000-ty-xang-dau-ma-van-lan-sang-xe-dien-vi-sao",
@@ -97,18 +105,8 @@
       "key_view": "lạc quan",
       "word_count": 242,
       "category": "why_now",
-      "format_id": "standard_qa"
-    },
-    {
-      "id": "plx-20260513-0424-vi-sao-plx-thu-98-724-ty-ma-van-an-lo-662-ty",
-      "ticker": "PLX",
-      "sector": "oilGas",
-      "title": "PLX lỗ 662 tỷ nhưng không mất tiền thật - dự phòng 6.500 tỷ hoàn nhập?",
-      "crawled_at": "2026-05-13T04:01:40.721884+00:00",
-      "key_view": "trung lập",
-      "word_count": 227,
-      "category": "paradox",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "PLX lỗ ngàn tỷ mảng xăng, vội rót vốn vào xe điện. Nước cờ gì đây?"
     },
     {
       "id": "msn-lat-no-rong-msn-lat-no-rong-1-7-lan-vi-sao-nhanh-the",
@@ -119,18 +117,8 @@
       "key_view": "Ba bước ngoặt hội tụ — thời điểm tái định giá",
       "word_count": 237,
       "category": null,
-      "format_id": "standard_qa"
-    },
-    {
-      "id": "msn-ba-buoc-msn-an-1-974-ty-ky-luc-tai-sao-2024-khong-phai-diem-lat",
-      "ticker": "MSN",
-      "sector": "fb",
-      "title": "MSN lãi kỷ lục 1.974 tỷ nhưng vì sao 2024 không phải thời điểm?",
-      "crawled_at": "2026-05-13T03:18:33.218723+00:00",
-      "key_view": "Ba bước ngoặt hội tụ - Masan vào chu kỳ tái định giá Q2/2026",
-      "word_count": 244,
-      "category": null,
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "MSN đã có lãi, tại sao nhà đầu tư phải chờ tới tận năm 2026?"
     },
     {
       "id": "msn-wincommerce-doanh-msn-wincommerce-vot-14-doanh-thu-cu-ban-le-viet-hoi-phuc",
@@ -141,7 +129,8 @@
       "key_view": "trung lập",
       "word_count": 266,
       "category": null,
-      "format_id": "standard_listicle"
+      "format_id": "standard_listicle",
+      "gemini_title": "MSN: Doanh thu cửa hàng cũ WinCommerce 14% - dấu hiệu bỏ xa toàn ngành bán lẻ?"
     },
     {
       "id": "msn-nang-dich-vi-sao-danny-le-nang-ke-hoach-msn-len-12-000-ty-ngay-quy-1",
@@ -152,7 +141,8 @@
       "key_view": "Sếp Masan Danny Le nâng đích lãi 38-65% ngay sau quý 1 là cú neo định giá — ký mức nền lãi mới chứ không phản ứng quý đột biến. NĐT giá trị tích lũy 12-18 tháng dưới 80.000.",
       "word_count": 253,
       "category": null,
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "MSN: Vì sao CEO Danny Le nâng kế hoạch lãi 2026 ngay sau quý 1?"
     },
     {
       "id": "STB-20260513-1200-q1-nganh-bank-phan-hoa-stb-tong-2-700-vpb-tcb-lpb-nhoi-them",
@@ -163,7 +153,8 @@
       "key_view": "phân hoá",
       "word_count": 256,
       "category": null,
-      "format_id": "standard_listicle"
+      "format_id": "standard_listicle",
+      "gemini_title": "STB cắt 85% nhân sự toàn ngành ngân hàng: Tái cơ cấu hay báo động đỏ?"
     },
     {
       "id": "STB-20260513-1900-stb-ruoc-ca-e-kip-lpbank-loi-nhuan-rot-q1-co-phai-gia-mua",
@@ -174,7 +165,8 @@
       "key_view": "lạc quan",
       "word_count": 292,
       "category": "hidden_mechanism",
-      "format_id": "standard_narrative"
+      "format_id": "standard_narrative",
+      "gemini_title": "STB 'nhập khẩu' bộ sậu LPBank: Canh bạc sao chép mô hình thành công?"
     },
     {
       "id": "vhm-co-tuc-60pct-11000-ty-trai-phieu-co-che-tai-chinh-co-chu-dich",
@@ -185,7 +177,8 @@
       "key_view": "VHM vừa chia cổ tức kỷ lục vừa phát hành 11.000 tỷ đồng trái phiếu không phải mâu thuẫn mà là cơ chế tài chính có chủ đích: trả cổ tức từ lợi nhuận đỉnh chu kỳ, dùng trái phiếu tài trợ mở rộng Điện Biên và Hải Vân Bay. Tổng tài sản tăng 10% trong khi tiền mặt giảm 27% xác nhận VHM đang đầu tư chứ không tiêu tiền.",
       "word_count": 180,
       "category": null,
-      "format_id": "standard_narrative"
+      "format_id": "standard_narrative",
+      "gemini_title": "VHM đặt cược 60.000 tỷ lợi nhuận: Tiền từ dự án hay đi vay?"
     },
     {
       "id": "vhm-gap-3-lan-vietcombank-q1-2026-co-che-phan-hoa-bds",
@@ -196,7 +189,8 @@
       "key_view": "VHM bứt phá trong BĐS phân hóa Q1/2026 nhờ cơ chế bàn giao đại đô thị tích lũy 3-4 năm đổ vào một kỳ. Mô hình này tạo lợi thế cấu trúc không thể san phẳng trong 24 tháng. Pipeline Điện Biên và Hải Vân Bay là chỉ báo sớm cho chu kỳ tăng trưởng 2027-2028.",
       "word_count": 211,
       "category": null,
-      "format_id": "standard_listicle"
+      "format_id": "standard_listicle",
+      "gemini_title": "VHM lãi 25.625 tỷ: tiền từ đâu khi cả ngành bất động sản còn đói?"
     },
     {
       "id": "HPG-20260512-1540-hpg-cuoc-thep-ray-duong-sat-cao-toc-q2-2027-moi-giao-hang",
@@ -207,7 +201,8 @@
       "key_view": "trung lập",
       "word_count": 294,
       "category": "why_now",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "HPG xây nhà máy thép ray 700.000 tấn: Đón sóng lớn hay ván bài quá sớm?"
     },
     {
       "id": "HPG-20260512-1540-hpg-lai-gap-2-7-lan-nhung-42-phan-tram-tu-bat-dong-san",
@@ -218,7 +213,8 @@
       "key_view": "trung lập",
       "word_count": 297,
       "category": "paradox",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "HPG lãi 9.000 tỷ: Cú hích bất động sản hay thép thật sự hồi sinh?"
     },
     {
       "id": "DXG-20260512-2311-dxg-doanh-thu-tang-46-phan-co-dong-me-giam-216-q1-2026",
@@ -229,7 +225,8 @@
       "key_view": "trung lập",
       "word_count": 336,
       "category": null,
-      "format_id": "standard_narrative"
+      "format_id": "standard_narrative",
+      "gemini_title": "DXG thành Bluemarq: Lãi môi giới khủng có gánh nổi khối nợ 4.800 tỷ?"
     },
     {
       "id": "DXG-20260512-2311-dxg-bluemarq-group-4-tru-cot-rebrand-co-so-tai-chinh",
@@ -240,7 +237,8 @@
       "key_view": "trung lập",
       "word_count": 298,
       "category": null,
-      "format_id": "standard_listicle"
+      "format_id": "standard_listicle",
+      "gemini_title": "DXG thành Bluemarq: Đổi tên hay đổi vận khi lõi kinh doanh thay đổi?"
     },
     {
       "id": "vnd-20260512-1540-vnd-hy-sinh-ky-quy-doi-phi-73-mo-hinh-nao-thang",
@@ -251,7 +249,8 @@
       "key_view": "trung lập",
       "word_count": 281,
       "category": "paradox",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "VND báo lãi lớn nhưng co lại mảng margin 8%. Thận trọng hay mất thị phần?"
     },
     {
       "id": "VIX-20260512-2235-vix-hy-sinh-1-000-ty-cho-vixex-nam-nang-",
@@ -262,7 +261,8 @@
       "key_view": "lạc quan",
       "word_count": 234,
       "category": "why_now",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "VIX đặt cược 1.000 tỷ vào crypto, có phải bỏ lỡ sóng nâng hạng 2026?"
     },
     {
       "id": "VIX-20260512-2235-vix-hy-sinh-loi-nhuan-q1-de-tang-von-60",
@@ -273,7 +273,8 @@
       "key_view": "thận trọng",
       "word_count": 297,
       "category": "paradox",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "VIX bơm 11.000 tỷ vốn mới để rồi tự doanh lỗ và mảng margin đi lùi?"
     },
     {
       "id": "ssi-20260512-1535-ssi-quy-1-tang-46-ke-hoach-nam-chi-15-ban-lanh-dao-dang-u",
@@ -284,7 +285,8 @@
       "key_view": "trung lập",
       "word_count": 242,
       "category": "hidden_mechanism",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "SSI lãi đậm Q1, sao cả năm 2026 chỉ đặt mục tiêu tăng 21%?"
     },
     {
       "id": "ssi-20260512-1535-ssi-esop-chu-tich-huong-loi-18-ty-cong-ty-thu-100-ty-ai-thuc",
@@ -295,7 +297,8 @@
       "key_view": "trung lập",
       "word_count": 258,
       "category": "paradox",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "SSI thưởng sếp ESOP giá 10.000đ, cổ đông được gì khi thị giá 28.000đ?"
     },
     {
       "id": "STB-20260512-1512-stb-hy-sinh-loi-nhuan-quy-1-de-doi-lay-dieu-gi",
@@ -306,7 +309,8 @@
       "key_view": "lạc quan",
       "word_count": 284,
       "category": "paradox",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "STB hy sinh lợi nhuận Quý 1, nhà đầu tư lại hò reo?"
     },
     {
       "id": "bsr-danh-doi-ke-hoach-thap-58-de-doi-lay-dieu-gi",
@@ -317,7 +321,8 @@
       "key_view": "paradox:BSR ke hoach bao thu 58% vs Q1 vuot 4 lan",
       "word_count": 286,
       "category": "paradox",
-      "format_id": "standard_qa"
+      "format_id": "standard_qa",
+      "gemini_title": "BSR: Lãi Q1 gấp 4 lần kế hoạch năm, ban lãnh đạo thận trọng hay có ẩn ý?"
     },
     {
       "id": "q1-2026-vhm-lai-25-600-ty-vi-sao-du-tu-tin-nang-them-10-000",

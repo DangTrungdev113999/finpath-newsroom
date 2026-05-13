@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-05-13T12:34:02.156606+00:00",
+  "built_at": "2026-05-13T14:42:03.732544+00:00",
   "sessions": [
     {
       "session_id": "39782809-a007-46ac-b651-676679d32e00",
@@ -302,8 +302,8 @@
       "started_at": "2026-05-13T04:01:40.721884+00:00",
       "ended_at": "2026-05-13T04:01:40.725094+00:00",
       "fetched_total": 9,
-      "chosen_total": 3,
-      "rejected_total": 6,
+      "chosen_total": 2,
+      "rejected_total": 7,
       "batches": [
         {
           "funnel_batch_id": "PLX-20260513-0401",
@@ -313,8 +313,8 @@
           "hot_nhom": null,
           "hot_rank": null,
           "fetched_count": 9,
-          "chosen_count": 3,
-          "rejected_count": 6,
+          "chosen_count": 2,
+          "rejected_count": 7,
           "funnel_detail": {
             "picked": [
               {
@@ -328,12 +328,6 @@
                 "url": "https://vneconomy.vn/petrolimex-gop-35-ty-thanh-lap-cong-ty-sac-o-to-dien.htm",
                 "published": "2026-05-10",
                 "reason": "OK — accepted_hypothesis: true. Title: PLX lỗ xăng dầu mà bắt tay Selex, vì sao không tự xây như VinFast?"
-              },
-              {
-                "source": "CafeF",
-                "url": "https://cafef.vn/petrolimex-chinh-thuc-cong-bo-so-lo-quy-1-2026-188260504215537198.chn",
-                "published": "2026-05-04",
-                "reason": "OK — accepted_hypothesis: true. Title: PLX lỗ 662 tỷ nhưng không mất tiền thật - dự phòng 6.500 tỷ hoàn nhập?"
               }
             ],
             "rejected": [
@@ -384,6 +378,14 @@
                 "reject_agent": "story_editor",
                 "reject_label": "sub_event_attached: Chi tiết cảnh báo VCSC, cổ tức 1.200 đồng và kế hoạch 2026 đã được hấp thụ vào brief 54ec5529 (khung dài hạn 2026-2030).",
                 "reason": "sub_event_attached: Chi tiết cảnh báo VCSC, cổ tức 1.200 đồng và kế hoạch 2026 đã được hấp thụ vào brief 54ec5529 (khung dài hạn 2026-2030)."
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/petrolimex-chinh-thuc-cong-bo-so-lo-quy-1-2026-188260504215537198.chn",
+                "published": "2026-05-04",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
               }
             ]
           }
@@ -396,8 +398,8 @@
       "trigger_args": "MSN",
       "started_at": "2026-05-13T03:18:33.217727+00:00",
       "ended_at": "2026-05-13T03:18:33.218831+00:00",
-      "fetched_total": 11,
-      "chosen_total": 4,
+      "fetched_total": 10,
+      "chosen_total": 3,
       "rejected_total": 7,
       "batches": [
         {
@@ -407,8 +409,8 @@
           "sector_name": "Tiêu dùng thực phẩm",
           "hot_nhom": null,
           "hot_rank": null,
-          "fetched_count": 11,
-          "chosen_count": 4,
+          "fetched_count": 10,
+          "chosen_count": 3,
           "rejected_count": 7,
           "funnel_detail": {
             "picked": [
@@ -417,12 +419,6 @@
                 "url": "https://dantri.com.vn/kinh-doanh/ba-buoc-ngoat-hoi-tu-dua-masan-group-buoc-vao-giai-doan-tai-dinh-gia-20260406165956510.htm",
                 "published": "2026-04-06",
                 "reason": "OK — accepted_hypothesis: true. Title: MSN vừa hạ nợ vừa giữ 12.200 tỷ tiền mặt - làm thế nào?"
-              },
-              {
-                "source": "dantri.com.vn",
-                "url": "https://dantri.com.vn/kinh-doanh/ba-buoc-ngoat-hoi-tu-dua-masan-group-buoc-vao-giai-doan-tai-dinh-gia-20260406165956510.htm",
-                "published": "2026-04-06",
-                "reason": "OK — accepted_hypothesis: true. Title: MSN lãi kỷ lục 1.974 tỷ nhưng vì sao 2024 không phải thời điểm?"
               },
               {
                 "source": "cafef.vn",
