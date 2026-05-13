@@ -16,7 +16,7 @@ def test_hard_criteria_pass_canonical_example():
     result = check_hard_criteria("Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?")
     assert result["passed"] is True
     assert result["ticker_present"] is True
-    assert result["word_count_le_12"] is True
+    assert result["word_count_le_16"] is True
     assert result["hook_strong"]["tension_present"] is True
     assert result["binh_dan_nguy_hiem"]["plain_language"] is True
     assert result["no_em_dash"] is True
@@ -53,9 +53,10 @@ def test_hard_criteria_rejects_no_ticker():
 
 
 def test_hard_criteria_rejects_too_long():
-    """Title > 12 từ → word_count_le_12 False."""
-    result = check_hard_criteria("TCB hy sinh năm tỷ đổi lấy gì lớn nhất ngân hàng VN năm 2026 tăng trưởng")
-    assert result["word_count_le_12"] is False
+    """Title > 16 từ → word_count_le_16 False."""
+    # V1.3: 17 từ
+    result = check_hard_criteria("TCB hy sinh năm tỷ đổi lấy gì lớn nhất ngân hàng VN năm 2026 quý 1 tăng trưởng mạnh")
+    assert result["word_count_le_16"] is False
     assert result["passed"] is False
 
 
@@ -118,6 +119,49 @@ def test_has_em_dash():
     assert has_em_dash("Q1 BSR ăn 8.265 tỷ — sếp chỉ hứa 2.162 tỷ?") is True
     assert has_em_dash("TCB hy sinh 5.000 tỷ - đổi lấy gì?") is False  # hyphen OK
     assert has_em_dash("TCB hy sinh 5.000 tỷ – đổi lấy gì?") is False  # en dash OK
+
+
+# === V1.3 not_orphan_number ===
+
+def test_orphan_number_rejects_lone_percent_with_vague_ngành():
+    """User feedback 2026-05-13: '85% mà ngành còn lại' → fail."""
+    from lib.headline_scorer import has_orphan_number
+    assert has_orphan_number("STB xén 85% mà ngành còn lại vẫn tuyển?") is True
+
+
+def test_orphan_number_accepts_percent_with_subject():
+    """'85% nhân sự' OK, 'lãi 85%' OK — subject within 4 tokens."""
+    from lib.headline_scorer import has_orphan_number
+    assert has_orphan_number("STB xén 85% nhân sự ngành bank Q1?") is False
+    assert has_orphan_number("DXG bán hàng vọt 46%, lãi mẹ tụt 22%. Tiền chạy đâu?") is False
+
+
+def test_orphan_number_rejects_vague_ngành_without_specifier():
+    """'ngành' alone without specifier 'bank/CK/BĐS' → fail."""
+    from lib.headline_scorer import has_orphan_number
+    assert has_orphan_number("VHM cứu ngành sau khủng hoảng?") is True
+
+
+def test_orphan_number_accepts_ngành_bank_specifier():
+    """'ngành bank' with specifier → pass."""
+    from lib.headline_scorer import has_orphan_number
+    assert has_orphan_number("STB ôm 85% nhân sự cắt giảm ngành bank Q1, lạ?") is False
+
+
+def test_hard_criteria_v1_3_pure_comparison_passes():
+    """V1.3 16-từ pure comparison hook passes."""
+    result = check_hard_criteria(
+        "Q1 ngành bank phân hóa: STB tống 2.700, VPB+TCB+LPB nhồi thêm 700. Bank nào sai?"
+    )
+    assert result["passed"] is True
+    assert result["not_orphan_number"] is True
+
+
+def test_hard_criteria_v1_2_bad_hook_now_rejected():
+    """Old V1.2 hook 'STB xén 85% mà ngành còn lại vẫn tuyển?' → fail V1.3."""
+    result = check_hard_criteria("STB xén 85% mà ngành còn lại vẫn tuyển?")
+    assert result["passed"] is False
+    assert result["not_orphan_number"] is False
 
 
 # === Scoring ===

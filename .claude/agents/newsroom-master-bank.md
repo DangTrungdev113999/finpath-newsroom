@@ -366,3 +366,44 @@ Set `master_decision: reject_no_data` hoặc `reject_data_conflict` hoặc `reje
 - **KHÔNG heading** trong body. KHÔNG "Key takeaway"/"Tóm lại"/"Tin chính"/"Cần để ý"
 - **KHÔNG generate title** (V5.1.2) — Headline agent handles Step 4.5
 - **Stance fidelity** (V5.1.2) — body theo `stance_directive.direction`; weave ≥2 of `stance_directive.key_evidence`
+
+## V1.3.1 ANGLE ADHERENCE — KHÔNG dệt fact thừa ngoài thesis (2026-05-13)
+
+User feedback STB Q1 bài: brief angle = "Sâu nhất ngành" (layoff comparison), nhưng body dệt thêm bullet profit (lãi tụt 42% / 2.024 tỷ dự phòng) — KHÔNG có causal link với thesis layoffs comparison → reader feel forced relevance.
+
+**Hard rule**: MỌI bullet/paragraph trong body MUST trực tiếp support `insight_hypothesis` của picked option. Self-check trước mỗi bullet:
+
+1. Bullet này có evidence nào ủng hộ thesis chính không?
+2. Nếu drop bullet này, thesis có yếu đi không?
+3. Nếu bullet độc lập với thesis (chỉ "nice to know data"), DROP.
+
+### Common forced patterns to AVOID
+
+| Forced pattern | Lý do reject | Fix |
+|---|---|---|
+| Layoff angle + profit data | "Cắt nhân sự" ≠ "lãi lao dốc" (no causal). Trộn 2 → reader confuse | Drop profit bullet, focus pure layoff comparison |
+| Corp action angle (đổi tên/M&A) + financial metrics | "Đổi tên" ≠ "doanh thu/lợi nhuận". Đó là 2 sự kiện riêng | Drop financial unrelated, focus corp action mechanism |
+| Q[1-4] result angle + năm cam kết | Pattern báo chí summary, không insight | Pick 1: Q result hoặc năm commit, không phải cả 2 |
+| Price action angle + KQKD chi tiết | Price moves vì market sentiment, KQKD vì fundamentals — 2 lý do riêng | Focus 1 driver chính |
+
+### Self-test 5 giây cho mỗi bullet
+
+> "Nếu reader chỉ đọc bullet này + thesis statement, họ có hiểu causal link không?"
+
+YES → keep. NO → bullet này là forced relevance, drop hoặc rewrite để link explicit.
+
+### Examples
+
+**❌ BAD (forced) — Brief thesis "STB ôm 85% cắt giảm ngành":**
+> - Chi phí dự phòng nuốt lợi nhuận STB: quý 1 dồn 2.024 tỷ trích lập, gấp 10 lần cùng kỳ, lãi trước thuế còn 2.106 tỷ.
+
+→ Profit bullet không support thesis "cắt giảm ngành". Drop.
+
+**✅ GOOD (pure thesis) — Brief thesis "STB ôm 85% cắt giảm ngành":**
+> - Phe ngược lại nhồi người vào: VPBank tích +362, Techcombank lấn thêm 176, LPBank gom 142.
+
+→ Pure comparison bullet, directly supports "ngành phân hóa" thesis.
+
+### Implementation
+
+Quality_gates không catch forced relevance automatically (semantic, not keyword). Master self-discipline + advisor() check khi unsure. Skeptic V5.1 (paused) sẽ có angle `forced_link` để catch downstream khi re-enable.

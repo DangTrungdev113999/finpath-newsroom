@@ -78,7 +78,7 @@ def test_step_4_5_valid_payload_persists(db_v5_1):
         ],
         "hard_criteria_pass": {
             "ticker_present": True,
-            "word_count_le_12": True,
+            "word_count_le_16": True,
             "hook_strong": {"tension_present": True, "click_test_pass": True},
             "binh_dan_nguy_hiem": {"plain_language": True, "sharp_edge": True},
             "no_em_dash": True,
@@ -107,7 +107,7 @@ def test_step_4_5_weak_title_rejected(db_v5_1):
         "candidates": [],
         "hard_criteria_pass": {
             "ticker_present": False,
-            "word_count_le_12": True,
+            "word_count_le_16": True,
             "hook_strong": {"tension_present": False, "click_test_pass": False},
             "binh_dan_nguy_hiem": {"plain_language": True, "sharp_edge": False},
             "no_em_dash": True,
@@ -129,7 +129,7 @@ def test_step_4_5_em_dash_title_rejected(db_v5_1):
         "candidates": [],
         "hard_criteria_pass": {
             "ticker_present": True,
-            "word_count_le_12": True,
+            "word_count_le_16": True,
             "hook_strong": {"tension_present": True, "click_test_pass": True},
             "binh_dan_nguy_hiem": {"plain_language": True, "sharp_edge": True},
             "no_em_dash": False,

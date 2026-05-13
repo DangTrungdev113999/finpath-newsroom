@@ -42,6 +42,11 @@ DRAMATIC_VERBS = [
     "vọt", "tụt", "rớt", "nhảy",
     "bán hàng", "bán ESOP", "bán nội bộ",
     "thật ra", "thực ra", "thật chỉ",
+    # V1.3 additions — headcount / restructuring verbs (STB layoff cluster)
+    "tống ", "nhồi ", "nhồi thêm",
+    "sa thải", "lùa ", "rước ",
+    "phân hóa", "ngược chiều",
+    "cắt sâu", "cắt mạnh",
 ]
 
 PR_CLICKBAIT_WORDS = [
@@ -84,7 +89,7 @@ RUBRIC_LABEL_LEAK = {
     "lối question", "lối declarative", "lối quote", "lối contrast",
 }
 
-# Concrete question subjects (V1.2 rubric bonus)
+# Concrete question subjects (V1.2 rubric bonus + V1.3 additions)
 CONCRETE_QUESTION_SUBJECTS = [
     "ai gom", "ai trả", "ai bán", "ai đẩy", "ai chạy", "ai đang",
     "ai vừa", "ai mua", "ai thoát",
@@ -94,6 +99,9 @@ CONCRETE_QUESTION_SUBJECTS = [
     "bao giờ", "khi nào", "đến bao giờ",
     "trước ngày", "trước kỳ", "sau tháng",
     " lạ?", " thật?", " thật vậy?",
+    # V1.3 — comparison verdict (bank nào sai/đúng, ai thắng, etc)
+    "nào sai", "nào đúng", "ai thắng", "ai thua", "bên nào",
+    "kẻ nào", "phe nào", "nhóm nào",
 ]
 
 # ============================================================

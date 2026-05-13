@@ -82,11 +82,28 @@ def has_ticker(title: str) -> bool:
 
 
 def has_specific_number(title: str) -> bool:
-    """Number with financial unit (vd 5.000 tỷ, 30%, 250 đ)."""
-    return bool(re.search(
+    """Number with financial unit OR headcount unit OR bare ≥4-digit number.
+
+    V1.3 PATCH (2026-05-13): also accept "X người / X nhân viên / X nhân sự"
+    and bare numbers ≥1.000 (e.g. "2.700, VPB+TCB+LPB nhồi 700"). Headlines
+    về layoff / corp action have bare counts without financial unit.
+    """
+    # Financial unit (original V1.1)
+    if re.search(
         r"\d+([.,]\d+)?\s*(tỷ|triệu|nghìn|%|đ|/năm|/tháng|/quý|đ/tháng|bps|điểm)",
-        title, re.IGNORECASE
-    ))
+        title, re.IGNORECASE,
+    ):
+        return True
+    # V1.3 — headcount unit
+    if re.search(
+        r"\d+([.,]\d+)?\s*(người|nhân viên|nhân sự|lao động|cổ phiếu|cp)",
+        title, re.IGNORECASE,
+    ):
+        return True
+    # V1.3 — bare ≥4-digit number (vd "2.700" / "11.026" — concrete count without unit)
+    if re.search(r"\b\d{1,3}[.,]\d{3,}\b", title):
+        return True
+    return False
 
 
 def has_dramatic_verb(title: str) -> bool:
@@ -191,21 +208,96 @@ def has_concrete_question_subject(title: str) -> bool:
     return any(s in tlc for s in CONCRETE_QUESTION_SUBJECTS)
 
 
+# V1.3 — generic reference words that need specifier nearby ("ngành" alone fails,
+# "ngành bank" passes). Used by has_orphan_number to catch vague references.
+GENERIC_REFERENCES = {"ngành", "nhóm", "khu vực", "ngành nghề", "lĩnh vực", "khối"}
+
+# V1.3 — specifiers that can resolve a generic reference (must appear within 3 words)
+REFERENCE_SPECIFIERS = {
+    "bank", "ngân hàng", "tư nhân", "big4", "bds", "bđs", "ck", "chứng khoán",
+    "oilgas", "dầu khí", "logistics", "fb", "retail", "bán lẻ", "seafood",
+    "thuỷ sản", "thủy sản", "apparel", "dệt may", "defensive", "phòng thủ",
+    "tài chính", "công nghệ", "điện",
+}
+
+
+def has_orphan_number(title: str) -> bool:
+    """V1.3 — detect orphan number/percent (no subject) or vague reference.
+
+    Reader test 5 giây: title đứng độc lập, mọi number/percent phải có
+    subject explicit (vd "85% nhân sự" OK, "85%" alone fail).
+
+    Catches:
+    - Lone percentage without noun within 4 next tokens
+      ("STB xén 85% mà ngành còn lại..." → 85% no subject within "mà ngành")
+    - Generic reference "ngành" / "nhóm" without specifier within 3 tokens
+      ("ngành còn lại vẫn tuyển" → "ngành" without bank/CK/BĐS specifier)
+
+    Returns True if orphan (BAD), False if all numbers/refs have subject (GOOD).
+    """
+    tlc = title.lower()
+    tokens = re.findall(r"\S+", tlc)
+
+    # Check 1: Lone percentage. After every "<N>%" token, scan next 4 tokens
+    # for a Vietnamese noun. Accept if noun present.
+    NOUN_HINTS = {
+        # Headcount / personnel
+        "người", "nhân", "viên", "sự", "lao", "động",
+        # Money units
+        "tỷ", "tỉ", "triệu", "nghìn", "đồng", "đ", "vnđ",
+        # Business nouns
+        "lợi", "nhuận", "doanh", "thu", "vốn", "cổ", "phiếu", "tiền",
+        "tài", "sản", "nợ", "lãi", "biên", "giá", "chi", "phí", "dự",
+        "phòng", "tăng", "giảm", "trưởng", "thị", "phần", "quỹ",
+        "trái", "phiếu", "tín", "dụng", "huy", "động", "ký", "quỹ",
+        # Time
+        "năm", "tháng", "quý", "ngày", "kỳ", "q1", "q2", "q3", "q4",
+        # Direction adjectives
+        "cùng", "trên", "dưới", "vượt", "thấp", "cao",
+    }
+    for i, tok in enumerate(tokens):
+        if re.search(r"\d+([.,]\d+)?%", tok):
+            window = tokens[i + 1: i + 5]
+            window_text = " ".join(window)
+            # Skip if percent token itself contains noun (vd "85%vốn")
+            if any(noun in tok for noun in NOUN_HINTS):
+                continue
+            # Accept if any noun hint in next 4 tokens
+            if any(any(noun in w for noun in NOUN_HINTS) for w in window):
+                continue
+            # Orphan
+            return True
+
+    # Check 2: Generic reference without specifier nearby.
+    for i, tok in enumerate(tokens):
+        clean_tok = re.sub(r"[^\w]", "", tok)
+        if clean_tok in GENERIC_REFERENCES:
+            window = tokens[max(0, i - 2): i + 4]
+            window_text = " ".join(window)
+            if any(spec in window_text for spec in REFERENCE_SPECIFIERS):
+                continue
+            return True
+
+    return False
+
+
 def check_hard_criteria(title: str) -> dict[str, Any]:
     """V1.2 — 7 hard criteria check.
 
-    Returns dict with 7 keys + computed 'passed' flag:
+    Returns dict with 8 keys + computed 'passed' flag:
     - ticker_present: bool
-    - word_count_le_12: bool
+    - word_count_le_16: bool (V1.3: relaxed from 12 — clarity > conciseness)
     - hook_strong: {tension_present, click_test_pass} dict
     - binh_dan_nguy_hiem: {plain_language, sharp_edge} dict
     - no_em_dash: bool
     - not_bao_chi: bool (V1.2 NEW — ban formula clichés + báo chí buzzwords)
     - not_label_leak: bool (V1.2 NEW — title KHÔNG được = rubric label)
+    - not_orphan_number: bool (V1.3 NEW — số/percent phải có subject, ngành phải có specifier)
     - passed: bool (all top-level + nested True)
     """
     ticker_present = has_ticker(title)
-    word_count_le_12 = len(title.split()) <= 12
+    # V1.3 relaxed from ≤12 → ≤16 (clarity > conciseness per user feedback 2026-05-13)
+    word_count_le_16 = len(title.split()) <= 16
 
     # Hook strong = 2 sub-tests (V1.2: also accept concrete_question_subject
     # as tension signal — 'Tiền chạy đâu?', 'Khôn hay liều?')
@@ -245,10 +337,11 @@ def check_hard_criteria(title: str) -> dict[str, Any]:
     no_em_dash = not has_em_dash(title)
     not_bao_chi = not is_bao_chi(title)
     not_label_leak = not is_label_leak(title)
+    not_orphan_number = not has_orphan_number(title)
 
     passed = (
         ticker_present
-        and word_count_le_12
+        and word_count_le_16
         and hook_strong["tension_present"]
         and hook_strong["click_test_pass"]
         and binh_dan_nguy_hiem["plain_language"]
@@ -256,22 +349,24 @@ def check_hard_criteria(title: str) -> dict[str, Any]:
         and no_em_dash
         and not_bao_chi
         and not_label_leak
+        and not_orphan_number
     )
 
     return {
         "ticker_present": ticker_present,
-        "word_count_le_12": word_count_le_12,
+        "word_count_le_16": word_count_le_16,
         "hook_strong": hook_strong,
         "binh_dan_nguy_hiem": binh_dan_nguy_hiem,
         "no_em_dash": no_em_dash,
         "not_bao_chi": not_bao_chi,
         "not_label_leak": not_label_leak,
+        "not_orphan_number": not_orphan_number,
         "passed": passed,
     }
 
 
 def score_title(title: str) -> dict[str, Any]:
-    """V1.2 — 8-point rubric. Only call after check_hard_criteria passes.
+    """V1.3 — 8-point rubric. Only call after check_hard_criteria passes.
 
     Returns {score: int, max: 8, elements: dict}.
 
@@ -282,7 +377,10 @@ def score_title(title: str) -> dict[str, Any]:
     - open_question: +1
     - tension_word: +1
     - paradox_pattern: +1
-    - extra_concise (≤10 từ): +1
+    - self_explanatory (V1.3): +1 (≤14 từ AND no orphan number — sweet spot)
+
+    V1.3 PATCH: replaced extra_concise (≤10 từ) — pushed hook quá ngắn → mất
+    subject. Now reward "≤14 từ AND không orphan number" — balance concise + clear.
     """
     elements = {
         "ticker": has_ticker(title),
@@ -292,7 +390,7 @@ def score_title(title: str) -> dict[str, Any]:
         "open_question": has_open_question(title),
         "tension_word": has_tension_word(title),
         "paradox_pattern": has_paradox_pattern(title),
-        "extra_concise": len(title.split()) <= 10,
+        "self_explanatory": len(title.split()) <= 14 and not has_orphan_number(title),
     }
     score = 0
     if elements["dramatic_verb"]:
@@ -307,7 +405,7 @@ def score_title(title: str) -> dict[str, Any]:
         score += 1
     if elements["paradox_pattern"]:
         score += 1
-    if elements["extra_concise"]:
+    if elements["self_explanatory"]:
         score += 1
     # Cap at 8 (open_question + concrete_question may both fire, +1 each but
     # concrete already implies open, so cap)
