@@ -134,6 +134,16 @@ export interface ArticleMeta {
   pipeline_log?: PipelineLog;
   // V5.0 — Format Director (step 3.5); null for V3.6/V4.0 legacy articles
   format_director?: FormatDirectorData | null;
+  // Step 4.3 — Gemini Writer parallel side; absent when status != 'success'
+  gemini?: GeminiArticle;
+}
+
+export interface GeminiArticle {
+  title: string;
+  body: string;
+  word_count?: number;
+  model?: string;
+  generated_at?: string;
 }
 
 export interface Article {
