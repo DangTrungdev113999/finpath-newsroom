@@ -1,5 +1,6 @@
 ---
-title: STB xén 85% mà ngành còn lại vẫn tuyển?
+title: 'Q1 ngành bank phân hóa: STB tống 2.700, VPB+TCB+LPB nhồi thêm 700. Bank nào
+  sai?'
 ticker: STB
 sector: Bank
 sector_icon: 🏦
@@ -7,7 +8,7 @@ crawled_at: '2026-05-13T03:02:55.870788+00:00'
 funnel_batch_id: STB-20260513-0302
 left_meta:
   author: Chuyên gia ngân hàng
-  word_count: 280
+  word_count: 250
   key_view: phân hoá
   skeptic_verdict: null
   pipeline_version: V5.0
@@ -188,15 +189,14 @@ format_director: null
 
 <!-- left -->
 
-Q1/2026: 28 ngân hàng xén **3.026 người**, riêng Sacombank gánh **gần 85%**. Ngành chia hai phe ngược chiều.
+**Q1/2026: 28 ngân hàng xén 3.026 người**, riêng Sacombank gánh **~85% tổng cắt giảm ngành bank**. Ngành chia hai phe đi ngược chiều.
 
-- **STB cắt sâu nhất 10 năm**: ngân hàng mẹ xén **2.570 người**, hợp nhất bay **2.736** trong 3 tháng, kéo lực lượng xuống **14.080** – thấp nhất từ 2016, sau giai đoạn 2017-2024 luôn trên 18.000. Cảnh báo mô hình quá dày nhân sự.
-- **Phe cắt tỉa nối đuôi STB**: BIDV bớt **279**, TPBank **226**, Eximbank **222**, VIB **217**. Bộ ba STB + TPB + VIB xén gấp đôi trong 18 tháng, gom **4.600 người** rời hệ thống vì rủi ro chi phí.
-- **Phe ngược lại bơm mạnh người vào**: VPBank tích lũy **+362** trở thành kẻ tuyển nhiều nhất, Techcombank lấn thêm **176** lên **11.636**, LPBank gom **142** sau năm thanh lọc. Nhóm này chạy đà bán lẻ, cao hơn nhịp ngành.
-- **Chi phí dự phòng nuốt lợi nhuận STB**: quý 1 dồn **2.024 tỷ** trích lập, **gấp 10 lần** cùng kỳ, lãi trước thuế còn **2.106 tỷ**, giảm **42,7%** – lao dốc. Bù lại chi phí hoạt động xén **13%** còn **3.408 tỷ**.
-- **Hai phe, hai bài toán**: nhóm cắt dồn lực ép giá vốn và số hóa vận hành; nhóm tuyển có lợi thế tăng trưởng bán lẻ, cần đội bán hàng dày ở chi nhánh.
+- **STB cắt sâu nhất 10 năm**: ngân hàng mẹ tống **2.570 người**, hợp nhất bay **2.736** trong Q1 = **16% lực lượng**, kéo xuống **14.080**, thấp nhất từ 2016. Sau giai đoạn 2017-2024 luôn neo trên 18.000 người.
+- **Phe cắt nối đuôi STB**: BIDV bớt **279**, TPBank **226**, Eximbank **222**, VIB **217**. Bộ ba STB + TPB + VIB xén gấp đôi 18 tháng, gom **4.600 người** rời khỏi hệ thống, tín hiệu tinh gọn mạnh nhất từ 2016.
+- **Phe ngược lại nhồi người vào**: VPBank tích **+362** trở thành kẻ tuyển nhiều nhất ngành, Techcombank lấn thêm **176** lên **11.636**, LPBank gom **142** sau năm thanh lọc. Bộ ba VPB+TCB+LPB nhồi gần **700 người** Q1.
+- **Hai bài toán ngược chiều**: nhóm cắt dồn lực ép chi phí vốn, đẩy nhanh số hóa vận hành thay teller bằng AI và chatbot; nhóm nhồi có lợi thế bán lẻ, cần đội bán hàng dày ở chi nhánh để giữ thị phần khách hàng cá nhân.
 
-NĐT giá trị nên giữ STB qua quý 2, ưu tiên chi phí hoạt động dưới **3.200 tỷ** và lãi trước thuế trên **2.500 tỷ** thì tin tái cơ cấu xong. NĐT đà tăng ngắn hạn nên cầm VPB hoặc TCB – nhóm bơm người chạy đà tín dụng, không phải nhóm xén lương đợi tái cơ cấu.
+NĐT đang cầm STB nên giữ qua quý 2 với điều kiện chi phí hoạt động xén dưới **3.200 tỷ**, nếu không nên cắt 30% vị thế Q3. NĐT đà tăng ngắn hạn nên cầm VPB hoặc TCB vùng dưới **25 nghìn**, nhóm nhồi người chạy đà tín dụng — không phải nhóm xén lương đợi tái cơ cấu.
 
 <!-- right -->
 
