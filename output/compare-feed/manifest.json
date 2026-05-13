@@ -1,6 +1,17 @@
 {
   "articles": [
     {
+      "id": "gas-doanh-thu-len-lai-rut-22-phan-tram-hormuz-lng-xen-bien",
+      "ticker": "GAS",
+      "sector": "Phòng thủ",
+      "title": "GAS đánh đổi 22% lợi nhuận để nhập khí hoá lỏng giá cao?",
+      "crawled_at": "2026-05-13T04:13:10.545428+00:00",
+      "key_view": "paradox:GAS doanh thu len 5% nhung lai tut 22% — chuyen dich co cau sang LNG nhap bien mong",
+      "word_count": 239,
+      "category": null,
+      "format_id": "standard_qa"
+    },
+    {
       "id": "bca-om-50-von-fox-fpt-me-nguy-2-330-ty-vi-sao",
       "ticker": "FPT",
       "sector": "Phòng thủ",
