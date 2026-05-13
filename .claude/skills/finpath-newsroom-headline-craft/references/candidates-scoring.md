@@ -1,90 +1,62 @@
-# 8-Point Scoring Rubric — Headline V1.3
+# 6-Point Scoring Rubric — Headline V1.5-lite
 
-> Apply only to candidates passing all hard criteria (see `criteria-definitions.md`).
+> Apply only to candidates passing 8 hard criteria.
 
-## V1.3 PATCH (2026-05-13)
+## V1.5-lite PATCH (2026-05-13 PM)
 
-Replaced `extra_concise (≤10 từ) +1` → `self_explanatory (≤14 AND not orphan number) +1`.
+DROPPED V1.2-V1.4 word bonuses (Pattern A pile-on cause):
+- dramatic_verb +2 (DRAMATIC_VERBS list — replaced by Master prompt "DO NOT invent" examples)
+- concrete_question_subject +1 (CONCRETE_QUESTION_SUBJECTS list)
+- self_explanatory +1 (V1.3)
+- tension_word +1 (TITLE_TENSION_WORDS list)
 
-**Why**: V1.2 rewarded short hooks even when clarity demanded subject. Result was orphan numbers ("85%" without subject) + vague references ("ngành" alone). V1.3 rewards the sweet spot: short BUT clear.
+Simplified 6-point rubric — mechanical signals only.
 
-## Rubric V1.3
+## Rubric V1.5-lite
 
 | Element | Points | Detector |
 |---|---|---|
-| Dramatic verb (hy sinh, ăn, khoe, dồn, xén, gom, bơm, tống, nhồi, ...) | +2 | `has_dramatic_verb()` |
-| Specific number (V1.3 financial + headcount + bare 4-digit) | +2 | `has_specific_number()` |
-| Concrete question subject (ai gom, tiền đâu, khôn hay liều, bank nào sai) | +1 | `has_concrete_question_subject()` |
+| Has concrete number (number + subject, no orphan) | +2 | `has_specific_number(title) and not has_orphan_number(title)` |
 | Open question ending `?` | +1 | `has_open_question()` |
-| Tension word (vì sao, đánh đổi, nghịch lý) | +1 | `has_tension_word()` |
-| Paradox pattern (X mà Y / thật ra / kỳ thực) | +1 | `has_paradox_pattern()` |
-| **Self-explanatory (≤14 từ AND no orphan number)** | **+1** | V1.3 NEW ⭐ |
+| Paradox pattern (mà / nhưng / thật ra) | +1 | `has_paradox_pattern()` |
+| Extra concise (≤10 từ) | +1 | `len(title.split()) <= 10` |
+| Has ticker (bonus for prominence) | +1 | `has_ticker()` |
 
-**Max**: 8.
+**Max**: 6.
 
 ## Selection
 
 `pick_best_candidate(candidates) -> {final_title, picked_score, all_scored}`:
 
-1. Filter all candidates → drop fail hard criteria (8 keys including `not_orphan_number`)
-2. If 0 pass → `ValueError("All N candidates failed hard criteria")` — agent regenerate max 2 retry
-3. Sort passing: by score DESC, tie-break by length ASC
+1. Filter all candidates → drop fail hard criteria (8 keys)
+2. If 0 pass → `ValueError("All N candidates failed")` — agent regenerate
+3. Sort passing: by score DESC, tie-break length ASC
 4. Return top
 
-## V1.3 Benchmarks
+## V1.5-lite Benchmark
 
-### Pure comparison hook (16 từ but self-explanatory)
+**"STB sa thải 2.700 nhân viên, VPB tuyển 362. Bank nào đúng?"** — 10 từ, score 5/6
+- STB / VPB tickers — has_ticker **+1**
+- 2.700 / 362 — has_concrete_number **+2**
+- ? — open_question **+1**
+- 10 từ — extra_concise **+1**
+- No paradox pattern → 0
 
-> **"Q1 ngành bank phân hóa: STB tống 2.700, VPB+TCB+LPB nhồi thêm 700. Bank nào sai?"**
+Total = 5/6.
 
-Breakdown:
-- STB / VPB / TCB / LPB (tickers) — hard criterion
-- tống / nhồi (dramatic verbs V1.3) **+2**
-- 2.700 / 700 (specific numbers V1.3 bare) **+2**
-- Bank nào sai (concrete_question_subject V1.3) **+1**
-- ? (open_question) **+1**
-- phân hóa (V1.3 tension word) **+1**
-- KHÔNG có paradox pattern → 0
-- 16 từ > 14 → self_explanatory NOT awarded → 0
+## Scoring philosophy V1.5-lite
 
-Total = 2+2+1+1+1 = **7/8** (perfect 8 needs paradox + ≤14 từ).
-
-### Shorter version (10 từ, all V1.3 hard pass)
-
-> **"STB sa thải 2.700, VPB tuyển 362. Bank nào đúng?"**
-
-Breakdown:
-- STB / VPB (tickers) — hard criterion
-- sa thải (dramatic verb V1.3) **+2**
-- 2.700 / 362 (specific number V1.3) **+2**
-- Bank nào đúng (concrete_question_subject V1.3) **+1**
-- ? (open_question) **+1**
-- 10 từ ≤14 AND no orphan → self_explanatory **+1**
-
-Total = 2+2+1+1+1 = **7/8**.
-
-### V1.2 canonical (still benchmark)
-
-> **"Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?"** — score 6/8
-
-## Scoring philosophy V1.3
-
-- **Dramatic verb +2** vì most differentiating signal — bình dân verbs (ăn/khoe/dồn/xén/gom/bơm/tống/nhồi) thấy ngay tension + everyday voice
-- **Specific number +2** vì concreteness; V1.3 accepts financial unit + headcount + bare 4-digit
-- **Concrete_question_subject +1** vì "Bank nào sai?" > "vì sao?" (V1.2 bonus)
+- **has_concrete_number +2** vì concreteness; V1.3 accepted financial unit + headcount + bare 4-digit, V1.5-lite preserves
 - **Open question +1** vì curiosity hook
-- **Tension word +1** vì similar to dramatic verb nhưng weaker
 - **Paradox pattern +1** vì sets up contrast
-- **Self-explanatory +1** (V1.3) vì sweet spot 10-14 từ + no orphan = ideal scan
+- **Extra concise +1** vì scan time bonus
+- **Has ticker +1** vì identification at-a-glance
+
+V1.5-lite removes word bonuses — no more verb stuffing reward. Scorer rewards mechanical structure only. AI must pick natural verbs per ngữ cảnh, not list.
 
 ## Anti-gaming
 
-- "TCB hy sinh đánh đổi lao dốc lội ngược 5.000 tỷ?" — stuffing không giúp clarity
-- "STB 85% 16% 14% 2.700 700?" — stuffing numbers không tạo narrative
-- Scorer counts unique signals only — repeat dramatic verb just shows boolean True, +2 once
-
-## V1.3 trade-off
-
-V1.2 hook 5/8 ngắn (10 từ) > V1.3 hook 7/8 dài (16 từ) ai win?
-
-V1.3 win: scorer rewards CLARITY over CONCISENESS. The "self_explanatory +1" is a sweet spot bonus, not a hard rule — long-but-clear hooks beat short-but-orphan hooks. The hard criterion `not_orphan_number` blocks orphan hooks even if they score high otherwise.
+- Stuffing dramatic verbs ("hy sinh đánh đổi") — no longer scores (V1.5-lite removed)
+- Stuffing concrete_question_subjects ("nào sai") — no longer scores
+- Long titles for "self_explanatory" — no longer scores (V1.5-lite removed)
+- Real anti-gaming: 8 hard criteria + 6-point rubric reward concrete + curiosity hook, nothing else
