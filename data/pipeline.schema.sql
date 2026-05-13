@@ -59,6 +59,14 @@ CREATE TABLE IF NOT EXISTS generated_news (
   pipeline_log        TEXT,
   public_slug         TEXT,
   telegram_pushed_at  TIMESTAMP NULL,
+  -- Step 4.3 Gemini Writer (parallel to Claude Master): success/skipped_failure/skipped_disabled
+  gemini_title        TEXT,
+  gemini_body         TEXT,
+  gemini_word_count   INTEGER,
+  gemini_model        TEXT,
+  gemini_generated_at TIMESTAMP NULL,
+  gemini_status       TEXT,
+  gemini_error        TEXT,
   FOREIGN KEY (row_id) REFERENCES crawl_log(row_id)
 );
 

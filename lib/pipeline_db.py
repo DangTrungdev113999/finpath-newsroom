@@ -392,7 +392,8 @@ class PipelineDB:
 
     def _upgrade_generated_news_schema(self) -> None:
         """Conditional ALTER TABLE for generated_news V1.1 Headline Craft +
-        V5.1.3 sector fields. Same idempotency pattern as crawl_log upgrade.
+        V5.1.3 sector fields + Step 4.3 Gemini Writer. Same idempotency
+        pattern as crawl_log upgrade.
         """
         cur = self.conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='generated_news'"
@@ -409,6 +410,21 @@ class PipelineDB:
         ):
             if col not in existing:
                 self.conn.execute(f"ALTER TABLE generated_news ADD COLUMN {col} TEXT")
+        # Step 4.3 Gemini Writer parallel column set (per-column type because
+        # word_count INTEGER + generated_at TIMESTAMP differ from default TEXT).
+        for col, col_type in (
+            ("gemini_title", "TEXT"),
+            ("gemini_body", "TEXT"),
+            ("gemini_word_count", "INTEGER"),
+            ("gemini_model", "TEXT"),
+            ("gemini_generated_at", "TIMESTAMP"),
+            ("gemini_status", "TEXT"),
+            ("gemini_error", "TEXT"),
+        ):
+            if col not in existing:
+                self.conn.execute(
+                    f"ALTER TABLE generated_news ADD COLUMN {col} {col_type}"
+                )
         self.conn.commit()
 
     def init_schema(self, schema_path: str | Path) -> None:
@@ -521,6 +537,46 @@ class PipelineDB:
         sql = f"UPDATE generated_news SET {set_clause} WHERE article_id = ?"
         self.conn.execute(sql, [*updates.values(), article_id])
         self.conn.commit()
+
+    _GEMINI_STATUS_VALUES = {"success", "skipped_failure", "skipped_disabled"}
+
+    def update_gemini_output(
+        self,
+        *,
+        article_id: str,
+        status: str,
+        title: str | None = None,
+        body: str | None = None,
+        word_count: int | None = None,
+        model: str | None = None,
+        generated_at: str | None = None,
+        error: str | None = None,
+    ) -> None:
+        """Step 4.3 Gemini Writer column writer.
+
+        status MUST be one of {"success", "skipped_failure", "skipped_disabled"}.
+        On failure status, callers typically pass only `status` + `error`; on
+        success they pass everything except `error`. NULL columns stay NULL —
+        only provided fields are updated.
+        """
+        if status not in self._GEMINI_STATUS_VALUES:
+            raise ValueError(
+                f"gemini_status must be one of {sorted(self._GEMINI_STATUS_VALUES)}, got {status!r}"
+            )
+        updates: dict[str, Any] = {"gemini_status": status}
+        if title is not None:
+            updates["gemini_title"] = title
+        if body is not None:
+            updates["gemini_body"] = body
+        if word_count is not None:
+            updates["gemini_word_count"] = word_count
+        if model is not None:
+            updates["gemini_model"] = model
+        if generated_at is not None:
+            updates["gemini_generated_at"] = generated_at
+        if error is not None:
+            updates["gemini_error"] = error
+        self.update_generated_news(article_id, updates)
 
     def log_pipeline_step(self, article_id: str, step_key: str, payload: dict) -> None:
         """Shallow-MERGE payload into pipeline_log[step_key]. Existing keys
