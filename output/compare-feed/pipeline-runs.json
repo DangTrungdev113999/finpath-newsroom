@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-05-13T07:11:33.689763+00:00",
+  "built_at": "2026-05-13T07:29:23.178515+00:00",
   "sessions": [
     {
       "session_id": "9DF9047E-86BA-46CC-9F3D-86B600BB0919",
@@ -167,7 +167,7 @@
                 "source": "VietnamBiz",
                 "url": "https://vietnambiz.vn/fpt-telecom-khong-dap-ung-dieu-kien-cong-ty-dai-chung-2026512114834318.htm",
                 "published": "2026-05-12T11:48:00Z",
-                "reason": "OK — accepted_hypothesis: true. Title: BCA ôm 50% vốn FOX, FPT mẹ nguy 2.330 tỷ vì sao?"
+                "reason": "OK — accepted_hypothesis: true. Title: Bộ Công an ôm 50% vốn FPT Telecom, FPT mẹ nguy 2.330 tỷ?"
               },
               {
                 "source": "VietNamNet",
@@ -329,7 +329,7 @@
                 "source": "vietnambiz.vn",
                 "url": "https://vietnambiz.vn/ceo-masan-co-the-nang-ke-hoach-loi-nhuan-2026-len-10000-12000-ty-dong-2026571122426.htm",
                 "published": "2026-05-07",
-                "reason": "OK — accepted_hypothesis: true. Title: Vì sao Danny Le vọt đích MSN lên 12.000 tỷ ngay quý 1?"
+                "reason": "OK — accepted_hypothesis: true. Title: Vì sao Danny Le nâng kế hoạch MSN lên 12.000 tỷ ngay quý 1?"
               }
             ],
             "rejected": [
@@ -426,7 +426,7 @@
                 "source": "Bao Moi",
                 "url": "https://baomoi.com/loat-ngan-hang-thay-doi-nhan-su-cap-cao-truoc-giai-doan-phat-trien-moi-c55138043.epi",
                 "published": "2026-05-13T07:00:00Z",
-                "reason": "OK — accepted_hypothesis: true. Title: STB gom DNA LPBank, lợi nhuận rớt 42%, vì sao chấp nhận?"
+                "reason": "OK — accepted_hypothesis: true. Title: STB rước cả ê-kíp LPBank: lợi nhuận rớt Q1 có phải giá mua người tài?"
               }
             ],
             "rejected": [
