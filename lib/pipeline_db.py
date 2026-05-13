@@ -269,6 +269,43 @@ def parse_task_usage(task_return: str | None) -> int | None:
         return None
 
 
+def parse_spawn_observability(spawn_json_path: str | Path) -> dict[str, Any]:
+    """Extract observability fields from spawn_step_agent.py output JSON.
+
+    Returns dict ready to pass into `PipelineDB.log_pipeline_step`:
+      {model: str, duration_ms: int, tokens: dict | None, cost_usd: float}
+
+    `model` = primary model = the key in `model_usage` with highest costUSD.
+    This filters out side-task models like haiku used internally for tool
+    routing, keeping the model that did the actual work (opus / sonnet).
+
+    Source of truth = Anthropic API response captured by spawn_step_agent.py
+    in the `modelUsage` field. Use this instead of letting the orchestrator
+    LLM hallucinate the model name in step_4_master observability merge
+    (PVS run 2026-05-13 wrote `claude-sonnet-4` when actual was opus-4-7).
+
+    Returns `model: "unknown"` if spawn JSON has no `model_usage` (e.g. spawn
+    failed before any API call). Caller decides whether to skip persist or
+    log with placeholder.
+    """
+    data = json.loads(Path(spawn_json_path).read_text(encoding="utf-8"))
+    model_usage = data.get("model_usage") or {}
+    if model_usage:
+        primary_model = max(
+            model_usage.items(),
+            key=lambda kv: kv[1].get("costUSD", 0.0) if isinstance(kv[1], dict) else 0.0,
+        )[0]
+    else:
+        primary_model = "unknown"
+    tokens = data.get("tokens") or None
+    return {
+        "model": primary_model,
+        "duration_ms": int(data.get("duration_ms", 0)),
+        "tokens": tokens,
+        "cost_usd": float(data.get("cost_usd", 0.0)),
+    }
+
+
 class PipelineDB:
     """SQLite handle for crawl_log + generated_news."""
 

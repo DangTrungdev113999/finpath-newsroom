@@ -203,6 +203,21 @@ Wait for return: `article_id`, `public_slug`, `format_id_used`, `accepted_hypoth
 
 **V5.0**: Master receives brief with `format_id` + `tone_bias` + `length_target` per option (Step 3.5 output) and applies the picked option's format pattern from `data/format_registry.yaml`. Persists `step_4_master.format_id_used`.
 
+**Observability merge — HARD RULE (V5.1.5 fix 2026-05-13)**: After Master spawn succeeds + Master self-persists `step_4_master` (with hallucinated `model` + `duration_ms` — Master skill is the spawned agent, can't introspect its own model name), orchestrator MUST overwrite those fields with ground-truth from spawn JSON via `lib.pipeline_db.parse_spawn_observability`. Without this merge, DB pipeline_log records wrong model (PVS 2026-05-13 logged `claude-sonnet-4` when actual was `claude-opus-4-7`).
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+from lib.pipeline_db import PipelineDB, parse_spawn_observability
+db = PipelineDB('data/pipeline.db')
+obs = parse_spawn_observability('/tmp/spawn-master-<row_id>.json')
+db.log_pipeline_step('<article_id>', 'step_4_master', obs)
+db.close()
+print('observability_merged: model=' + obs['model'] + ' dur_ms=' + str(obs['duration_ms']))
+"
+```
+
+`parse_spawn_observability` reads `model_usage` from spawn JSON (Anthropic API ground truth) and picks the primary model (max costUSD — filters out haiku side-task). `log_pipeline_step` does shallow merge → Master's `data_trail`, `format_id_used`, `chosen_pick_reason` preserved; `model` + `duration_ms` + `tokens` + `cost_usd` overwritten with truth.
+
 Observability + failure isolation + variety-guard trade-off: see `references/observability-emit.md` + `references/failure-recovery.md`.
 
 ### Step 4.5 — Headline Craft (spawn dispatch — HARD RULE)
