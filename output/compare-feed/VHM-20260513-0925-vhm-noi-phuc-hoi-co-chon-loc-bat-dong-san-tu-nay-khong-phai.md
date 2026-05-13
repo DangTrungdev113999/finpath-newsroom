@@ -1,5 +1,6 @@
 ---
-title: 'Bất động sản 2026 phân đôi: VHM tăng 133%, NVL còn kẹt pháp lý'
+title: 'VHM nói ''phục hồi có chọn lọc'': bất động sản từ nay không phải cổ nào cũng
+  sống lại'
 ticker: VHM
 sector: BĐS
 sector_icon: 🏠
@@ -238,13 +239,13 @@ format_director: null
 
 Chủ tịch VHM Phạm Thiếu Hoa nói "phục hồi có chọn lọc" tại đại hội cổ đông 21/4 — đây là lần đầu một lãnh đạo bất động sản lớn vạch ba tiêu chí chia thắng và chậm tại buổi họp.
 
-- **Ở thực, không nghỉ dưỡng đầu cơ**: VHM dồn lực Ocean City và Royal Island, doanh số bán trước quý 1 đạt **81.700 tỷ, tăng 133%** so cùng kỳ nhờ lợi thế dòng tiền ở thực. NVL còn kẹt Aqua City và NovaWorld, hai dự án nghỉ dưỡng đầu cơ trước 2022, doanh thu Q1/2026 chỉ **3.587 tỷ** và rủi ro pháp lý còn nguyên.
+- **Ở thực, không nghỉ dưỡng đầu cơ**: VHM dồn lực Ocean City và Royal Island, doanh số bán trước quý 1 đạt **81.700 tỷ, tăng 133%** so cùng kỳ nhờ khách mua để ở thật (không phải đầu cơ). NVL còn kẹt Aqua City và NovaWorld, hai dự án nghỉ dưỡng đầu cơ trước 2022, doanh thu Q1/2026 chỉ **3.587 tỷ** và rủi ro pháp lý còn nguyên.
 
 - **Pháp lý sạch trước khi mở bán**: dự án phải có giấy phép và sổ đỏ. KDH bám nhà phố Bình Chánh, doanh thu **quý 4/2025 đạt 1.820 tỷ** ổn định nhờ pháp lý gọn. NVL tái cơ cấu trái phiếu suốt **2022-2024** vì vướng pháp lý, cổ phiếu xuống **16.700 đồng** đáng cẩn thận.
 
 - **Đòn bẩy lãi vay 0-6%**: VHM mở gói **lãi suất 0 đến 6% kéo dài 5 năm** từ 20/4 cho người mua nhà thực, trong khi lãi vay thị trường vẫn **10 đến 12%**. DXG xoay sang căn hộ giá vừa nhưng chưa có gói tương đương, doanh thu Q1 chỉ tăng **58,7%**, đà phục hồi còn yếu.
 
-NĐT cầm VHM hoặc KDH đứng bên thắng theo khung chủ tịch, tăng trưởng mạnh nhờ ở thực và pháp lý gọn, phù hợp giữ trên **18 tháng**. Ai cầm NVL ở **16.700 đồng** nên giữ chờ pháp lý Aqua City được gỡ trước cuối 2026, nếu trễ cổ phiếu còn chùn sâu. DXG ở **15.950 đồng** vẫn lỡ nhịp, muốn mua thêm phải đợi giá về dưới **13.000 đồng**.
+NĐT cầm VHM hoặc KDH ở phe thắng — tăng trưởng mạnh nhờ khách mua thật và pháp lý gọn, phù hợp giữ trên **18 tháng**. Ai cầm NVL ở **16.700 đồng** nên giữ chờ pháp lý Aqua City được gỡ trước cuối 2026, nếu trễ cổ phiếu còn chùn sâu. DXG ở **15.950 đồng** vẫn lỡ nhịp, muốn mua thêm phải đợi giá về dưới **13.000 đồng**.
 
 <!-- right -->
 
