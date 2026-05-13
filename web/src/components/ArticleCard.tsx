@@ -1,10 +1,14 @@
 import { Link } from 'react-router-dom';
 import type { ArticleSummary } from '../types';
 import { formatCrawledAt } from '../lib/format';
+import { useModelPreference } from '../lib/useModelPreference';
 
 export function ArticleCard({ article }: { article: ArticleSummary }) {
   const stamp = formatCrawledAt(article.crawled_at);
   const [datePart, timePart] = stamp.split(' '); // "11/05/2026" + "16:55"
+  const { model } = useModelPreference();
+  const displayTitle =
+    model === 'gemini' && article.gemini_title ? article.gemini_title : article.title;
 
   return (
     <Link
@@ -38,7 +42,7 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
       </div>
 
       <h3 className="mt-0 mb-5 flex-1 text-[15px] font-semibold leading-snug tracking-tight text-fg-0 transition-colors duration-med ease-out-quart group-hover:text-brand">
-        {article.title}
+        {displayTitle}
       </h3>
 
       <div className="flex items-center justify-between border-t border-fg-4/30 pt-3">

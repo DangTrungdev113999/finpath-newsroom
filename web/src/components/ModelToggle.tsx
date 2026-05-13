@@ -7,6 +7,10 @@ interface ModelToggleProps {
   selected: ArticleModel;
   onChange: (model: ArticleModel) => void;
   geminiAvailable: boolean;
+  /** When true, render text label next to each logo (use on roomy surfaces
+   *  like IndexPage filter row). Default false — icon-only, compact for the
+   *  article header next to TTSButton. */
+  withLabel?: boolean;
 }
 
 /**
@@ -21,6 +25,7 @@ export function ModelToggle({
   selected,
   onChange,
   geminiAvailable,
+  withLabel = false,
 }: ModelToggleProps) {
   const handleGeminiClick = () => {
     if (!geminiAvailable) return;
@@ -46,6 +51,8 @@ export function ModelToggle({
         disabled={false}
         ariaLabel="Bài Claude"
         title="Bài Claude"
+        withLabel={withLabel}
+        label="Claude"
         logo={
           <ClaudeMark
             className={cn(
@@ -69,6 +76,8 @@ export function ModelToggle({
             ? 'Bài Gemini'
             : 'Bài Gemini không khả dụng (Step 4.3 skipped — kiểm tra gemini_status trong DB)'
         }
+        withLabel={withLabel}
+        label="Gemini"
         logo={
           <GeminiMark
             className={cn(
@@ -101,6 +110,8 @@ function ToggleButton({
   ariaLabel,
   title,
   logo,
+  withLabel,
+  label,
 }: {
   model: ArticleModel;
   active: boolean;
@@ -109,6 +120,8 @@ function ToggleButton({
   ariaLabel: string;
   title: string;
   logo: ReactNode;
+  withLabel: boolean;
+  label: string;
 }) {
   return (
     <button
@@ -120,16 +133,21 @@ function ToggleButton({
       title={title}
       onClick={onClick}
       className={cn(
-        'group/mt inline-flex h-6 w-6 items-center justify-center rounded-full',
+        'group/mt inline-flex h-6 items-center justify-center rounded-full',
         'transition-[background,box-shadow,color] duration-med ease-out-quart',
         'focus-visible:outline-none focus-visible:ring-2',
+        withLabel ? 'gap-1.5 px-2.5 font-sans text-[12px] font-medium' : 'w-6',
         active
-          ? ACTIVE_STYLES[model]
-          : 'text-fg-1 hover:bg-bg-3/60 focus-visible:ring-fg-3/40',
+          ? cn(ACTIVE_STYLES[model], withLabel && 'text-white')
+          : cn(
+              'hover:bg-bg-3/60 focus-visible:ring-fg-3/40',
+              withLabel ? 'text-fg-1' : 'text-fg-1',
+            ),
         disabled && 'cursor-not-allowed opacity-40 hover:bg-transparent',
       )}
     >
       {logo}
+      {withLabel && <span>{label}</span>}
     </button>
   );
 }

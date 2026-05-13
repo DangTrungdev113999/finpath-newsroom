@@ -172,6 +172,10 @@ export interface ArticleSummary {
   /** V5.1 article format (Format Director step 3.5). Optional for back-compat —
    *  pre-V5.1 articles backfilled as standard_listicle in render_compare_feed.py. */
   format_id?: FormatId;
+  /** Step 4.3 — Gemini Writer parallel title (set only when gemini_status='success'
+   *  AND a non-empty title was persisted). Drives the "show Gemini title" mode on
+   *  ArticleCard when the global ModelToggle is set to Gemini. */
+  gemini_title?: string;
 }
 
 export interface Manifest {

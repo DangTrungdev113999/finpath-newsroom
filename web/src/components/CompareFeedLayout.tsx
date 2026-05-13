@@ -1,12 +1,12 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Article } from '../types';
 import { LeftColumn } from './LeftColumn';
 import { RightColumn } from './RightColumn';
 import { CommentSection } from './CommentSection';
 import { TTSButton } from './TTSButton';
-import { ModelToggle, type ArticleModel } from './ModelToggle';
+import { ModelToggle } from './ModelToggle';
 import { formatCrawledAt } from '../lib/format';
+import { useModelPreference } from '../lib/useModelPreference';
 
 export function CompareFeedLayout({
   article,
@@ -17,9 +17,7 @@ export function CompareFeedLayout({
 }) {
   const { meta, leftMarkdown } = article;
   const geminiAvailable = !!(meta.gemini?.title && meta.gemini?.body);
-  const [model, setModel] = useState<ArticleModel>(
-    geminiAvailable ? 'gemini' : 'claude',
-  );
+  const { model, setModel } = useModelPreference();
   const showGemini = model === 'gemini' && geminiAvailable;
   const displayTitle = showGemini ? meta.gemini!.title : meta.title;
   const displayBody = showGemini ? meta.gemini!.body : leftMarkdown;

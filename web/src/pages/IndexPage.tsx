@@ -6,7 +6,9 @@ import { loadManifest } from '../lib/articleLoader';
 import { ArticleCard } from '../components/ArticleCard';
 import { SymbolFilter, useSymbolFilter } from '../components/SymbolFilter';
 import { AngleFilter, useAngleFilter } from '../components/AngleFilter';
+import { ModelToggle } from '../components/ModelToggle';
 import { ArticleCardSkeleton } from '../components/skeletons/ArticleCardSkeleton';
+import { useModelPreference } from '../lib/useModelPreference';
 
 const INITIAL_SKELETON_COUNT = 6;
 const PAGE_SIZE = 12; // bài mỗi lần load thêm
@@ -20,6 +22,11 @@ export function IndexPage() {
   const { selected, setSelected } = useSymbolFilter();
   const { selected: angleSelected, setSelected: setAngleSelected } =
     useAngleFilter();
+  const { model, setModel } = useModelPreference();
+  const geminiAvailable = useMemo(
+    () => articles.some((a) => !!a.gemini_title),
+    [articles],
+  );
 
   useEffect(() => {
     loadManifest()
@@ -97,6 +104,12 @@ export function IndexPage() {
               items={articles}
               selected={angleSelected}
               onChange={setAngleSelected}
+            />
+            <ModelToggle
+              selected={model}
+              onChange={setModel}
+              geminiAvailable={geminiAvailable}
+              withLabel
             />
           </>
         )}

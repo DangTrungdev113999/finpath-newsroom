@@ -361,6 +361,7 @@ def rebuild_manifest_from_db(db, output_dir: Path) -> dict:
         """
         SELECT gn.public_slug, gn.ticker, gn.sector, gn.title, gn.key_view,
                gn.word_count, gn.pipeline_log, gn.brief_json,
+               gn.gemini_title, gn.gemini_status,
                cl.crawled_at
         FROM generated_news gn
         JOIN crawl_log cl ON cl.row_id = gn.row_id
@@ -389,7 +390,7 @@ def rebuild_manifest_from_db(db, output_dir: Path) -> dict:
             or "standard_listicle"
         )
 
-        articles.append({
+        entry = {
             "id": public_slug,
             "ticker": row["ticker"],
             "sector": row["sector"] or "Bank",
@@ -399,7 +400,12 @@ def rebuild_manifest_from_db(db, output_dir: Path) -> dict:
             "word_count": row["word_count"] or 0,
             "category": chosen_category,
             "format_id": format_id,
-        })
+        }
+        # Surface Gemini title only when Step 4.3 actually succeeded — keeps
+        # the manifest entry slim for the common no-Gemini case.
+        if row["gemini_status"] == "success" and row["gemini_title"]:
+            entry["gemini_title"] = row["gemini_title"]
+        articles.append(entry)
 
     # Preserve legacy entries (hand-crafted .md files with no DB row) so
     # rebuild doesn't drop pre-pipeline samples like VCB-20260508-1530.md.
