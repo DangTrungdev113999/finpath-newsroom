@@ -1,207 +1,192 @@
-# Voice Layer 7 Rules — Master Oil-Gas V1.3
+# Voice Layer 11 Rules — Master Oil-Gas V1.5-lite
 
-> Loaded from `Skill: finpath-newsroom-master-oilgas`. Apply CROSS-CUTTING toàn bộ 4 format (flash_qa / standard_qa / standard_listicle / standard_narrative).
+> Loaded from `Skill: finpath-newsroom-master-oilgas`. Apply CROSS-CUTTING toàn bộ 4 format. V1.5-lite (2026-05-13 PM) — definition-driven, no word lists.
 
-V1.3 (2026-05-13) — Body voice "bình dân xuồng xã nguy hiểm" parallel V1.2 title rules. User feedback: body audit 5 bài bold density TB 1.83% (cần ≥4%), 3/5 closing vague "theo dõi X làm chỉ báo", top 3 báo chí verbs "bàn giao/ghi nhận/công bố/dự kiến/phát hành" → kill stance + actionability.
+## V1.5-lite PATCH note
 
-Voice rules orthogonal với 11 quality gates V5.1.2 + V1.3 — both layers áp dụng đồng thời.
+User feedback 2026-05-13: V1.2-V1.4 prescriptive word lists (DRAMATIC_VERBS, PREFERRED_BODY_VERBS, METAPHOR_MARKERS) caused Pattern A — AI generalized STYLE từ list → invented "chấm đích / vọt lãi / xén lợi / đẻ ra tỉnh / Playbook lặp từ".
+
+V1.5-lite shifts từ "use these verbs" sang "match this intent":
+- Drop word lists from skill rules (no enforcement via list)
+- Add mechanical bans (Hán-Việt + abbreviation + price realistic)
+- Revert length cap to V5.0 (give AI room flow tự nhiên)
+
+11 voice rules đồng thời với 13 quality gates V1.5-lite.
 
 ---
 
 ## V1 — Stance required
 
-Bài MUST có quan điểm rõ. Nhận `stance_directive` từ brief (schema + apply rules: see `stance-directive-handler.md`).
+Bài MUST có quan điểm rõ. Nhận `stance_directive` từ brief.
 
 Stance = direction (bullish/bearish/divergent) + confidence (high/medium/low) + key_evidence.
 
-Bài không có stance → fail V1. Bài "đưa thông tin trung lập" không acceptable — đó là feed wire, không phải tin chuyên gia.
+Bài "đưa thông tin trung lập" → fail. Reader cần senior analyst's view, không feed wire.
 
 ---
 
-## V2 — No-hedging (LLM-as-judge V5.1.2 PATCH)
+## V2 — No-hedging (LLM-as-judge V5.1.2)
 
-### Định nghĩa "ba phải" (hedging)
+"Ba phải" = câu trung tính không cam kết hướng. Đảo sự thật câu vẫn đúng → fail.
 
-Câu khẳng định trung tính không cam kết hướng nào, có thể đúng dù sự thật ngược lại.
-
-### Test 1 — Đảo sự thật
-
-Đảo ngược sự thật, câu vẫn đúng? → fail.
-- Xấu: "Cổ phiếu có thể tăng tùy thuộc thị trường" (tăng/giảm đều đúng → BA PHẢI)
-- Tốt: "Cổ phiếu sẽ tăng vì quý 1 lãi vượt 30%" (có direction + lý do)
-
-### Test 2 — Direction check
-
-Có cam kết direction không? → không = fail.
-
-LLM-as-judge runs both tests inline. Falls back keyword check when no API key.
+Implementation: `lib.quality_gates.check_no_hedging` (LLM judge inline, keyword fallback).
 
 ---
 
-## V3 — Verdict line bắt buộc (V1.3 TIGHTEN)
+## V3 — Verdict line bắt buộc (V1.3 actionable composition)
 
-Closing MUST có verdict cụ thể cho NĐT. 5 elements bắt buộc (V1.3 — bumped from 3):
+Closing MUST có 5 elements:
+1. Stance verb — "nên cầm/giảm/giữ/bán/tích lũy" HOẶC "phù hợp/không phù hợp NĐT"
+2. Quantified trigger — number with unit HOẶC condition with number
+3. Timeframe — "12 tháng", "Q3/2026", "ngắn hạn / dài hạn"
+4. Holder context — "NĐT đang cầm", "người giữ" + action verb
+5. NO `CLOSING_VAGUE_BAN` ("cần theo dõi" / "làm chỉ báo" / "đáng theo dõi")
 
-1. **Stance verb** — "nên cầm/giảm/giữ/bán/tích lũy/thoát" HOẶC "phù hợp/không phù hợp NĐT" HOẶC "phòng thủ"
-2. **Quantified trigger** — number with unit (giá/percent/tỷ) HOẶC điều kiện định lượng ("nếu NIM > 3,5%", "khi CASA tụt dưới 22%")
-3. **Timeframe** — "12 tháng", "24-36 tháng", "Q3/2026", "ngắn hạn / dài hạn"
-4. **Holder context** — "NĐT đang cầm", "người giữ", "khớp NĐT" + động từ action
-5. **NO vague phrase** — auto-reject nếu chứa từ trong `CLOSING_VAGUE_BAN`:
-   - "cần theo dõi" · "đáng theo dõi" · "cần thận trọng" · "tham khảo trước khi"
-   - "làm chỉ báo" · "là chỉ báo sớm" · "đánh giá thêm" · "chờ thêm dữ liệu"
-
-Implementation: `lib.quality_gates.check_verdict_line` composes `check_actionable_closing` (V1.3). Cũ 3-element rule + V1.3 actionability layer.
-
-### ✅ Tốt (V1.3 actionable closings)
-
-1. "NĐT đang cầm nên giữ ACB 12-18 tháng nếu NIM duy trì trên 3,5% Q3/2026; giảm 30% vị thế nếu CASA tụt dưới 22%."
-2. "Mã phù hợp NĐT giá trị giữ vùng 75-80 nghìn/cp, cắt 30% nếu rơi dưới 70."
-3. "NĐT short-term FOMO không phù hợp — TCB cần 18 tháng nữa để re-rate khi P/B vượt 1,7."
-4. "Người giữ VCB nên tích lũy dưới 90.000 đồng, mục tiêu 110-115 trong 24 tháng nếu RWA tiếp tục cải thiện."
-5. "Đang cầm nên thoát 50% khi VHM vượt 85.000 đồng Q2 — buffer phòng thủ phần còn lại."
-
-### ❌ Xấu (V1.3 reject)
-
-1. "NĐT cần theo dõi tốc độ hấp thụ Hải Vân Bay Q2/2026 làm chỉ báo sớm cho năm 2027-2028."
-   → fail Layer 5 ("cần theo dõi" + "làm chỉ báo")
-2. "Tùy quan điểm NĐT đánh giá thêm trong các quý tới."
-   → fail Layer 1 (no stance) + Layer 5 ("đánh giá thêm")
-3. "Cần thêm thông tin để đánh giá — nhà đầu tư thận trọng quan sát."
-   → fail Layer 5 + Layer 2 (no quantified trigger)
-4. "Mã đáng chú ý cho NĐT dài hạn."
-   → fail Layer 2 (no number/condition)
+Implementation: `check_verdict_line` composes `check_actionable_closing`.
 
 ---
 
-## V4 — Title delegate (V5.1.2)
+## V4 — Title delegate to Headline Craft Step 4.5
 
-Master KHÔNG generate title. Headline agent (Step 4.5 in pipeline) writes title via 7 hard criteria + 4 lối V1.2.
-
-Master ensures body có 1 angle dominant để Headline agent extract title hook. Đừng spread 3 angle khác nhau trong body.
-
-Em dash trong title BANNED (AI-tell signal). Hyphen `-` + en dash `–` OK trong body.
+Master KHÔNG generate title. Headline agent enforces V1.5-lite 8 hard criteria.
 
 ---
 
 ## V5 — Contrarian-when-warranted
 
-Master được phép viết góc nghịch CHỈ KHI data clear support. KHÔNG override `stance_directive` từ brief.
-
-- Story Editor brief `direction: bullish`. Master tìm data confirming bullish + 1 caveat. → Write bullish body, caveat vào closing.
-- Master tìm data flat-out contradict bullish stance. → KHÔNG override → `master_decision: reject_data_conflict` + push back lên Story Editor.
-
-Contrarian-when-warranted ≠ override. Master không tự ý lật stance.
+Master viết góc nghịch CHỈ KHI data clear support. KHÔNG override `stance_directive`.
 
 ---
 
-## V6 — Bình dân xuồng xã nguy hiểm (V1.3 NEW)
+## V6 — Voice intent: bình dân xuồng xã nguy hiểm (V1.5-lite DEFINITION ONLY)
 
-### Định nghĩa
+### Intent statement (not a word list!)
 
-Voice "bình dân xuồng xã + nguy hiểm" = ngôn ngữ đời thường người Việt + sharp/edge cảm xúc + ưu tiên ví von > số khô khan. Parallel V1.2 title rules.
+Reader is everyday Vietnamese investor (NĐT). Body must read naturally — NOT thông cáo báo chí, NOT AI-generated.
 
-User feedback 2026-05-13: 5/5 bài audit dùng báo chí formal verbs ("bàn giao", "ghi nhận", "công bố", "dự kiến đạt", "phát hành") — kill stance + sound như thông cáo báo chí, không phải tin chuyên gia.
+**Apply intent**:
+- USE concrete Vietnamese verbs THAT FIT the action — pick from natural Vietnamese vocabulary, NOT from a prescribed list.
+- DO NOT invent verb-noun combos không có trong tiếng Việt tự nhiên.
+- AVOID báo chí thông cáo style verbs (bàn giao / ghi nhận / công bố / dự kiến đạt / phát hành thành công) — pile-on ≥3 trong body sẽ feel formal.
 
-### V6.1 — Ban báo chí body verbs (≥2 occurrence = fail)
+### DO NOT invent — bad examples V1.5-lite audit
 
-Reject body chứa ≥2 occurrence của từ trong `BAO_CHI_BODY_VERBS`:
-
-```
-bàn giao | ghi nhận | công bố | dự kiến đạt | phát hành thành công
-đang tiến hành | tiếp tục triển khai | đặt mục tiêu | hoàn thành kế hoạch
-phấn đấu | thông qua nghị quyết | đã được phê duyệt | đã được thông qua
-ban hành | triển khai đồng bộ | tích cực triển khai
-```
-
-1 occurrence OK (factual reporting), ≥2 = thông cáo style.
-
-Implementation: `lib.quality_gates.check_bao_chi_body`.
-
-### V6.2 — Prefer bình dân verbs
-
-Khi Master cần verb action, ưu tiên `PREFERRED_BODY_VERBS`:
-
-| Báo chí (BAN) | Bình dân (PREFER) | Ví dụ V1.3 |
+| Bad (fabricated) | Why | Better |
 |---|---|---|
-| ghi nhận lợi nhuận | ăn lãi / khoe lãi | "VHM ăn 25.625 tỷ Q1" |
-| phát hành trái phiếu | bơm vốn / gọi vốn | "VHM bơm 11.000 tỷ trái phiếu" |
-| bàn giao căn hộ | giao / trả khách | "VHM trả 4.000 căn Royal Island" |
-| công bố kế hoạch | khoe đích / đặt cọc | "VHM khoe đích 60.000 tỷ năm 2026" |
-| đặt mục tiêu | nhắm / chấm đích | "VHM nhắm 60K tỷ năm 2026" |
-| đang tiến hành | đang đẩy / đang gom | "TCB đang gom danh mục mới" |
-| phấn đấu | cố / lùa | "VHM cố tăng tốc Q2 sau khi tụt Q1" |
+| "chấm đích" | "chấm" không nghĩa "set goal" trong tiếng Việt | "nhắm tới / chọn / chấm mốc" |
+| "vọt lãi" | combo verb sai | "lãi vọt / lãi tăng vọt" |
+| "xén lợi FPT mẹ" | "xén lợi" kệch cỡm | "ảnh hưởng lợi nhuận FPT mẹ" |
+| "VCBS chấm 111.421 đồng" | "chấm" = mark/dot | "VCBS định giá 111.421 đồng" |
+| "đẻ ra tỉnh thứ tư" | forced metaphor | "mở rộng sang tỉnh thứ tư" |
+| "Playbook lặp từ" | English + verb lạ | "lặp lại mô hình từ" |
+| "đặt đích lãi" | "đặt đích" không tự nhiên | "nhắm tới lãi" |
 
-### V6.3 — Ưu tiên ví von > số khô khan
-
-Khi viết về 1 con số to, thay vì dồn 3 fact liên tiếp, dùng analogy/metaphor (V1.3 METAPHOR_MARKERS):
-
-```
-như | kiểu | giống | ví như | nói nôm na | nói cách khác
-thật ra | thực ra | kỳ thực
-gấp X lần | bằng | tương đương | ngang ngửa | ngang với
-tựa hồ | chẳng khác | khác nào
-```
-
-### ✅ Tốt (V6 examples)
-
-1. **"VHM Q1 ăn 25.625 tỷ, gấp 3 lần Vietcombank cùng kỳ."** — bình dân verb "ăn" + analogy "gấp 3 lần"
-2. **"TCB cố lùa thêm 8% CASA Q2, nhưng tiền tiết kiệm cứ chạy sang quỹ MMF."** — verb "cố lùa" + tension
-3. **"VPB khoe lãi 30% YoY mà cổ phiếu vẫn tụt 5% — thị trường đang nhìn cái gì?"** — verb "khoe" + paradox
-4. **"BSR ngồi trên 8.265 tỷ Q1 nhưng sếp chỉ hứa 2.162 tỷ cả năm. Bảo thủ hay sợ gì?"** — "ngồi trên" + concrete question
-
-### ❌ Xấu (V6 reject)
-
-1. "VHM ghi nhận lợi nhuận sau thuế 25.625 tỷ đồng quý 1/2026, đặt mục tiêu 60.000 tỷ năm 2026, đồng thời công bố kế hoạch phát hành trái phiếu 11.000 tỷ."
-   → 4 báo chí verbs (ghi nhận + đặt mục tiêu + công bố + phát hành) → fail bao_chi_body
-2. "Theo công bố, ngân hàng dự kiến đạt 8% tăng trưởng tín dụng năm 2026 và sẽ tiếp tục triển khai chiến lược phòng thủ."
-   → 3 báo chí verbs (công bố + dự kiến đạt + tiếp tục triển khai)
+**Self-test 5 giây**: Reader chưa từng nghe câu đó trên báo / đời sống → REWRITE.
 
 ---
 
-## V7 — Bold density per format (V1.3 NEW)
+## V7 — Bold density per format (V1.4 mechanical)
 
-User feedback: body audit TB bold density 1.83% — user bỏ qua vì không tô đậm ý chính. Tham khảo X/Twitter Wu Blockchain style.
-
-### Target per format
-
-| Format | Mode | Target | Equivalent |
-|---|---|---|---|
-| flash_qa | absolute | ≥3 bold/bài | ~3% tại 100 từ |
-| standard_qa | ratio | ≥4% | 1 bold per 25 từ |
-| standard_listicle | ratio | ≥5% (densest) | 1 bold per 20 từ |
-| standard_narrative | ratio | ≥3% (prose flow) | 1 bold per 33 từ |
-
-Implementation: `lib.quality_gates.check_bold_density` reads `bold_density_min` từ `data/format_registry.yaml` (single source of truth).
-
-### Bold target priority
-
-1. **Số key** — `**5.000 tỷ**`, `**67%**`, `**3,5%/năm**`
-2. **Tên ticker/tổ chức nổi bật** — `**Vietcombank**`, `**Big4**`, `**NHNN**`
-3. **Verb hành động sắc** — `**ăn lãi**`, `**khoe**`, `**dồn tiền**`, `**xén cổ tức**`
-4. **Phán quyết closing** — `**phù hợp NĐT giá trị**`, `**không phù hợp short-term**`
-
-### Anti-pattern V7
-
-- Bold cả câu dài (>10 từ) → mất signal value
-- Bold từ chung chung ("**lợi nhuận**", "**doanh thu**") không kèm số
-- Bold lập đi lập lại 1 từ — 3 lần "**VCB**" trong 1 bullet không add scan value
+Mechanical gate `check_bold_density` reads `bold_density_min` từ `data/format_registry.yaml`:
+- flash_qa: ≥3 absolute
+- standard_qa: ≥4%
+- standard_listicle: ≥5% (densest)
+- standard_narrative: ≥3% (prose OK)
 
 ---
 
-## Em dash density (V5.1.2 PATCH preserved)
+## V8 — Sentence richness (V1.4 mechanical)
 
-- **flash_qa**: max 1 em dash / bài
-- **standard_qa / listicle / narrative**: max 1 em dash / 100 từ
-- Em dash trong title BANNED (AI-tell signal — feedback_no_em_dash_title.md)
+`check_min_sentence_richness` rejects body >20% câu <10 từ (excluding bullet headers).
 
-Implementation: `lib.quality_gates.check_em_dash_density`.
+Pattern: tail fragments như "Ngành chia hai phe đi ngược chiều." 7 từ → merge với main sentence dùng connector (vì/khi/khiến/do/nhờ).
+
+---
+
+## V9 — Hán-Việt formal avoid (V1.5-lite NEW)
+
+Mechanical gate `check_han_viet_formal` rejects body ≥2 terms từ `HAN_VIET_FORMAL_BAN`:
+
+| Hán-Việt formal | Bình dân |
+|---|---|
+| độc bản | duy nhất / chỉ có 1 |
+| hội đủ | đủ |
+| chưa hội đủ | chưa đủ |
+| tái định giá | định giá lại |
+| cấu trúc vốn | cơ cấu vốn |
+| cấu trúc sở hữu | cơ cấu sở hữu |
+| phương án xử lý | cách xử lý |
+| triển khai đồng bộ | làm đồng bộ |
+| tích cực triển khai | đang đẩy |
+| ban hành nghị quyết | ra nghị quyết |
+| thông qua nghị quyết | chốt nghị quyết |
+| đã được phê duyệt | đã duyệt |
+| đã được thông qua | đã chốt |
+| dự kiến đạt | nhắm tới |
+| hoàn thành kế hoạch | đạt kế hoạch |
+| phấn đấu đạt | cố đạt |
+| thực hiện chiến lược | làm chiến lược |
+| chế tài xử lý | chế độ phạt |
+| khả năng huy động | khả năng gọi vốn |
+| tiến hành triển khai | đang làm |
+
+1 occurrence OK (factual context), ≥2 = formal pile-on.
+
+---
+
+## V10 — Abbreviation expand (V1.5-lite NEW)
+
+Mechanical gate `check_abbreviation_expanded` requires:
+- 3-4 letter uppercase first occurrence MUST be followed by `(<expansion>)` OR preceded by `<expansion> (...)`.
+- Exception: NATURALIZED_FINANCE_TERMS allowlist (ESOP / NIM / ROE / ROA / EPS / IPO / CASA / NPL / LNTT / LNST / CAR / LDR / COF / ESG / ETF / SPO).
+- Exception: Tickers in Finpath universe (auto-skipped).
+
+Examples:
+- ✅ "Bộ Công An (BCA) nhận 50% vốn. BCA nắm đa số" — first expanded, subsequent bare OK
+- ✅ "GRDP" trong title bị reject — phải "Tổng sản phẩm địa bàn (GRDP)" body
+- ❌ "BCA ôm 50% vốn" — bare first occurrence
+
+---
+
+## V11 — Price realistic (V1.5-lite NEW)
+
+Mechanical gate `check_price_realistic` for closing price targets:
+- Fetch current price từ Finpath API
+- Each price target trong closing MUST be within ±50% current
+- Degrades to pass with warning if Finpath unavailable
+
+Master Step 0.5 BEFORE writing closing:
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+from lib.finpath_api import FinpathAPI
+api = FinpathAPI()
+overview = api.get_overview()
+for s in overview.get('stocks', []):
+    if s.get('c') == '<TICKER>':
+        print(f\"Current price: {s.get('p')}đ\")
+        break
+"
+```
+
+Target price trong ±50% current. NEVER fabricate price.
+
+---
+
+## Em dash density (V5.1.2 preserved)
+
+- flash_qa: max 1 em dash / bài
+- standard_qa / listicle / narrative: max 1 em dash / 100 từ
+- Em dash trong title BANNED (V1.1)
 
 ---
 
 ## Cross-reference
 
-- V1 stance → `stance-directive-handler.md`
-- V3 actionable closing → `lib.quality_gates.check_actionable_closing` + `lib.voice_rules.STANCE_VERBS` + `CLOSING_VAGUE_BAN`
-- V6 body voice → `lib.voice_rules.BAO_CHI_BODY_VERBS` + `PREFERRED_BODY_VERBS` + `METAPHOR_MARKERS`
+- V3 actionable closing → `lib.quality_gates.check_actionable_closing` + `CLOSING_VAGUE_BAN` + `STANCE_VERBS`
+- V6 voice intent → Master prompt 'DO NOT invent' examples (Task 8)
 - V7 bold density → `data/format_registry.yaml.formats.*.bold_density_min`
+- V8 sentence richness → `lib.quality_gates.check_min_sentence_richness`
+- V9 Hán-Việt → `lib.voice_rules.HAN_VIET_FORMAL_BAN` + `check_han_viet_formal`
+- V10 abbreviation → `check_abbreviation_expanded` + `NATURALIZED_FINANCE_TERMS`
+- V11 price realistic → `check_price_realistic` + `lib.finpath_api.FinpathAPI.get_overview`
 - 4 format pattern → `format-bodies/{flash-qa,standard-qa,standard-listicle,standard-narrative}.md`
