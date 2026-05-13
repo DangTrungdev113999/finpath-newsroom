@@ -687,7 +687,22 @@ def check_min_sentence_richness(body: str) -> dict[str, Any]:
     - All bullet headers → pass
     """
     cleaned = _clean(body).strip()
-    sentences = _split_sentences(cleaned)
+    # V1.5-lite fix: drop bullet header lines (e.g. "- **Foo**:") before
+    # sentence splitting. _split_sentences splits on .!? only — won't catch
+    # multi-bullet-header bodies. Filter line-by-line first.
+    lines_kept = []
+    bullet_header_re = re.compile(r"^\s*[-*]\s+\*\*[^*]+\*\*:?\s*$")
+    for line in cleaned.split("\n"):
+        if bullet_header_re.match(line):
+            continue  # skip bullet-header-only line
+        lines_kept.append(line)
+    cleaned_no_headers = "\n".join(lines_kept).strip()
+
+    if not cleaned_no_headers:
+        # All lines were bullet headers → 0 countable
+        return {"pass": True, "reason": "", "short_count": 0, "total": 0}
+
+    sentences = _split_sentences(cleaned_no_headers)
     countable = [s for s in sentences if not _is_bullet_label(s)]
 
     if not countable:

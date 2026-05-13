@@ -84,3 +84,15 @@ def test_dropped_concrete_question_subjects():
     """V1.5-lite drops CONCRETE_QUESTION_SUBJECTS (force 'nào sai' patterns)."""
     import lib.voice_rules as vr
     assert not hasattr(vr, "CONCRETE_QUESTION_SUBJECTS")
+
+
+def test_dropped_rubric_label_leak():
+    """V1.5-lite drops RUBRIC_LABEL_LEAK (Headline rubric concern, moved to local)."""
+    import lib.voice_rules as vr
+    assert not hasattr(vr, "RUBRIC_LABEL_LEAK")
+
+
+def test_dropped_bao_chi_quarter_pattern():
+    """V1.5-lite drops BAO_CHI_QUARTER_PATTERN (regex moved to local in headline_scorer)."""
+    import lib.voice_rules as vr
+    assert not hasattr(vr, "BAO_CHI_QUARTER_PATTERN")

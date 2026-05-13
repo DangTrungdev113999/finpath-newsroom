@@ -41,6 +41,8 @@ STANCE_VERBS = [
 # V1.5-lite — Hán-Việt formal vocabulary ban (term → bình dân replacement).
 # Reader bình dân không hiểu / cảm thấy formal. Master phải dùng bình dân
 # equivalent. Mechanical gate check_han_viet_formal rejects body chứa ≥2 terms.
+# TODO Task 2: implement check_han_viet_formal in lib/quality_gates.py
+# that consumes this dict.
 HAN_VIET_FORMAL_BAN = {
     "độc bản": "duy nhất",
     "hội đủ": "đủ",
