@@ -17,31 +17,39 @@ def test_format_ids_constant_matches_registry():
 
 
 def test_get_format_flash_qa_fields():
+    """V1.5-lite revert: flash_qa 80-120 → 100-150."""
     fmt = get_format("flash_qa")
-    # V1.3: shrunk from [100, 150] → [80, 120] (Twitter style)
-    assert fmt["length_range"] == [80, 120]
-    assert fmt["length_target"] == 100
+    assert fmt["length_range"] == [100, 150]
+    assert fmt["length_target"] == 130
     assert fmt["structure"] == "paragraph_only"
     assert fmt["bullets_count"] == [0, 0]
 
 
-def test_v1_3_length_ranges():
-    """V1.3 shrunk ~20% across all 4 formats."""
-    assert get_format("flash_qa")["length_range"] == [80, 120]
-    assert get_format("standard_qa")["length_range"] == [180, 240]
-    assert get_format("standard_listicle")["length_range"] == [220, 280]
-    assert get_format("standard_narrative")["length_range"] == [220, 280]
+def test_v1_5_lite_length_ranges():
+    """V1.5-lite revert all 4 formats to V5.0 ranges."""
+    assert get_format("flash_qa")["length_range"] == [100, 150]
+    assert get_format("standard_qa")["length_range"] == [200, 300]
+    assert get_format("standard_listicle")["length_range"] == [250, 350]
+    assert get_format("standard_narrative")["length_range"] == [250, 350]
 
 
-def test_v1_3_bold_density_min_present():
-    """V1.3 added bold_density_min per format."""
+def test_v1_5_lite_length_targets():
+    """V1.5-lite revert length_target to V5.0."""
+    assert get_format("flash_qa")["length_target"] == 130
+    assert get_format("standard_qa")["length_target"] == 250
+    assert get_format("standard_listicle")["length_target"] == 300
+    assert get_format("standard_narrative")["length_target"] == 300
+
+
+def test_v1_5_lite_bold_density_min_preserved():
+    """V1.4 bold_density_min field preserved (mechanical gate stays)."""
     for fid in ["flash_qa", "standard_qa", "standard_listicle", "standard_narrative"]:
         fmt = get_format(fid)
         assert "bold_density_min" in fmt
         assert fmt["bold_density_min"]["mode"] in ("absolute", "ratio")
         assert fmt["bold_density_min"]["value"] > 0
 
-    # flash_qa absolute mode (Twitter style)
+    # flash_qa absolute mode
     assert get_format("flash_qa")["bold_density_min"]["mode"] == "absolute"
     assert get_format("flash_qa")["bold_density_min"]["value"] == 3
 

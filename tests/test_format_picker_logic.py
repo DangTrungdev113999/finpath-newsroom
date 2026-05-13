@@ -21,8 +21,8 @@ def test_paradox_picks_standard_qa():
     result = pick_format_for_option(_option(category="paradox"), market_data=None)
     assert result["format_id"] == "standard_qa"
     assert result["tone_bias"] == "neutral"
-    # V1.3: length_target shrunk from 250 → 210
-    assert result["length_target"] == 210
+    # V1.5-lite revert: length_target 210 → 250
+    assert result["length_target"] == 250
 
 
 def test_why_now_picks_standard_qa():

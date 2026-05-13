@@ -507,15 +507,15 @@ def test_per_format_flash_qa_word_count():
     assert check_word_count_per_format(body_200w, "flash_qa")["pass"] is False
 
 
-def test_per_format_standard_qa_word_count_v1_3():
-    """V1.3 standard_qa range shrunk from [200, 300] → [180, 240]."""
+def test_per_format_standard_qa_word_count_v1_5_lite():
+    """V1.5-lite: standard_qa range reverted to V5.0 [200, 300]."""
     from lib.quality_gates import check_word_count_per_format
-    body_210w = " ".join(["word"] * 210)  # mid-range
-    assert check_word_count_per_format(body_210w, "standard_qa")["pass"] is True
+    body_250w = " ".join(["word"] * 250)
+    assert check_word_count_per_format(body_250w, "standard_qa")["pass"] is True
     body_100w = " ".join(["word"] * 100)
     assert check_word_count_per_format(body_100w, "standard_qa")["pass"] is False
-    body_260w = " ".join(["word"] * 260)  # over max
-    assert check_word_count_per_format(body_260w, "standard_qa")["pass"] is False
+    body_350w = " ".join(["word"] * 350)
+    assert check_word_count_per_format(body_350w, "standard_qa")["pass"] is False
 
 
 def test_per_format_flash_qa_body_pattern_no_bullets():
