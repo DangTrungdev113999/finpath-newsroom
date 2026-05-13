@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-05-13T04:41:51.961210+00:00",
+  "built_at": "2026-05-13T04:49:43.514716+00:00",
   "sessions": [
     {
       "session_id": "CA37C59A-ED79-47F4-BCA2-56661F213DD2",
@@ -127,19 +127,19 @@
                 "source": "Tuổi Trẻ",
                 "url": "https://tuoitre.vn/petrolimex-cai-so-lui-loi-nhuan-2026-lan-dau-len-tieng-truoc-ap-luc-tu-xe-dien-20260405123509795.htm",
                 "published": "2026-04-05",
-                "reason": "OK — accepted_hypothesis: true. Title: <PLACEHOLDER — Headline agent fills>"
+                "reason": "OK — accepted_hypothesis: true. Title: PLX vì sao bán thêm 10% mà lợi nhuận vẫn teo?"
               },
               {
                 "source": "VnEconomy",
                 "url": "https://vneconomy.vn/petrolimex-gop-35-ty-thanh-lap-cong-ty-sac-o-to-dien.htm",
                 "published": "2026-05-10",
-                "reason": "OK — accepted_hypothesis: true. Title: <PLACEHOLDER — Headline agent fills>"
+                "reason": "OK — accepted_hypothesis: true. Title: PLX lỗ 1.000 tỷ xăng dầu mà vẫn lấn sang xe điện, vì sao?"
               },
               {
                 "source": "CafeF",
                 "url": "https://cafef.vn/petrolimex-chinh-thuc-cong-bo-so-lo-quy-1-2026-188260504215537198.chn",
                 "published": "2026-05-04",
-                "reason": "OK — accepted_hypothesis: true. Title: <PLACEHOLDER — Headline agent fills>"
+                "reason": "OK — accepted_hypothesis: true. Title: Vì sao PLX thu 98.724 tỷ mà vẫn ăn lỗ 662 tỷ?"
               }
             ],
             "rejected": [

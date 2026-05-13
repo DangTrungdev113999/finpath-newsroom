@@ -34,6 +34,39 @@
       "format_id": "standard_qa"
     },
     {
+      "id": "plx-20260513-0437-plx-vi-sao-ban-them-10-ma-loi-nhuan-van-teo",
+      "ticker": "PLX",
+      "sector": "oilGas",
+      "title": "PLX vì sao bán thêm 10% mà lợi nhuận vẫn teo?",
+      "crawled_at": "2026-05-13T04:01:40.724232+00:00",
+      "key_view": "thận trọng",
+      "word_count": 238,
+      "category": "paradox",
+      "format_id": "standard_qa"
+    },
+    {
+      "id": "plx-20260513-0429-plx-lo-1-000-ty-xang-dau-ma-van-lan-sang-xe-dien-vi-sao",
+      "ticker": "PLX",
+      "sector": "oilGas",
+      "title": "PLX lỗ 1.000 tỷ xăng dầu mà vẫn lấn sang xe điện, vì sao?",
+      "crawled_at": "2026-05-13T04:01:40.723326+00:00",
+      "key_view": "lạc quan",
+      "word_count": 238,
+      "category": "why_now",
+      "format_id": "standard_qa"
+    },
+    {
+      "id": "plx-20260513-0424-vi-sao-plx-thu-98-724-ty-ma-van-an-lo-662-ty",
+      "ticker": "PLX",
+      "sector": "oilGas",
+      "title": "Vì sao PLX thu 98.724 tỷ mà vẫn ăn lỗ 662 tỷ?",
+      "crawled_at": "2026-05-13T04:01:40.721884+00:00",
+      "key_view": "trung lập",
+      "word_count": 224,
+      "category": "paradox",
+      "format_id": "standard_qa"
+    },
+    {
       "id": "msn-ba-buoc-ngoat-thoi-diem-tai-dinh-gia-202605131104",
       "ticker": "MSN",
       "sector": "fb",
