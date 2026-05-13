@@ -164,20 +164,22 @@ Master quyền free reformulate question text khi sử dụng trong body.
 
 Body pattern phụ thuộc `format_id` của picked option. 4 formats hợp lệ:
 
-| format_id | Word range | Pattern |
-|---|---|---|
-| `flash_qa` | 80-200 | Opening 2-3 câu + 1-2 bullets ngắn (HOẶC tight narrative). Compact. |
-| `standard_qa` | 200-400 | Opening paragraph (≥30 từ) + 3-7 substantive bullets (≥20 từ + bold) + closing |
-| `standard_listicle` | 200-400 | Opening + 4-7 bullets (mỗi bullet = 1 luận điểm độc lập) + closing |
-| `standard_narrative` | 200-400 | Opening + 2-4 paragraphs narrative (KHÔNG bullet) + closing |
+| format_id | Word range (V1.3) | Pattern | Bold target (V1.3) |
+|---|---|---|---|
+| `flash_qa` | **80-120** | Single paragraph 1-2 câu (Twitter style, KHÔNG bullet) | ≥3 bold absolute |
+| `standard_qa` | **180-240** | Opening (≥30 từ) + 3-6 substantive bullets (≥20 từ + bold) + closing | ≥4% density |
+| `standard_listicle` | **220-280** | Opening (≤20 từ) + 4-7 dense bullets (≥25 từ) + closing | ≥5% (densest) |
+| `standard_narrative` | **220-280** | Opening + 2-3 paragraphs narrative + 0-2 bullets + closing | ≥3% (prose OK) |
 
 Reference `data/format_registry.yaml` cho structure detail per format_id.
+
+V1.3 PATCH (2026-05-13): word ranges shrunk ~20% from V5.0. Bold density target NEW. Bình dân voice MANDATORY — read `voice-layer-rules.md` V6 (bao_chi ban) + V7 (bold density) + V3 tighten (actionable closing).
 
 **MUST đọc `.claude/skills/finpath-newsroom-master-ck/references/bullet-examples.md` TRƯỚC khi viết bullet-style format** — CK-themed examples (cho vay ký quỹ, thị phần môi giới, tự doanh, ngân hàng đầu tư).
 
 KHÔNG `## Cần để ý` section. Caveats merge vào bullets hoặc closing.
 
-### 8. Quality gates V5.0 + V5.1 PATCH (8 gates via check_all_v5)
+### 8. Quality gates V5.1.2 + V1.3 PATCH (11 gates via check_all_v5)
 
 ```bash
 cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
@@ -185,14 +187,21 @@ import json
 from lib.quality_gates import check_all_v5
 body = '''<MASTER BODY HERE>'''
 format_id = '<FORMAT_ID FROM OPTION>'
-# Extract direction from stance_directive object
 stance = '<STANCE_DIRECTIVE.DIRECTION FROM PICKED OPTION>'
 results = check_all_v5(body, format_id=format_id, stance=stance)
 print(json.dumps(results, ensure_ascii=False, indent=2))
 "
 ```
 
-8 gates: 6 universal (no_english_jargon, no_metadata_leak, no_hedging, verdict_line, stance_consistency, sentence_density) + 2 per-format (word_count, body_pattern).
+**11 gates** (V5.1.2 + V1.3):
+- Universal (9): `no_english_jargon`, `no_metadata_leak`, `no_hedging`, `verdict_line` (V1.3 composes `actionable_closing`), `stance_consistency`, `sentence_density`, `em_dash_density`, `bao_chi_body` (V1.3 NEW), `bold_density` (V1.3 NEW).
+- Per-format (2): `word_count`, `body_pattern`.
+
+V1.3 PATCH (2026-05-13):
+- `bao_chi_body` — reject body chứa ≥2 báo chí verbs (bàn giao/ghi nhận/công bố/dự kiến/phát hành). Use bình dân alternatives (ăn/khoe/dồn/xén/gom/bơm) per `voice-layer-rules.md` V6.
+- `bold_density` — per-format target (flash_qa ≥3 absolute, standard_qa ≥4%, listicle ≥5%, narrative ≥3%). Read `data/format_registry.yaml` field `bold_density_min`.
+- `verdict_line` TIGHTEN — now composes `check_actionable_closing` (stance verb + quantified trigger + no vague phrase "cần theo dõi/làm chỉ báo").
+- `sentence_density` bonus — METAPHOR_MARKERS count as specific element (ưu tiên ví von "gấp X lần / như / kiểu / thật ra" hơn raw numbers).
 
 V5.1 PATCH: title_pattern check removed — moved to Plan C Headline agent's `lib/headline_scorer.py`.
 

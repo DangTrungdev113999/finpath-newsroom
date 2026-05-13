@@ -20,7 +20,7 @@ Ticker ngoài 6 mã trên → `master_decision: reject_no_data`, `master_note: t
 
 ## HARD RULE
 
-- Pass 8 quality gates V5.1.2 BEFORE persist (`lib/quality_gates.py`)
+- Pass 11 quality gates V5.1.2 + V1.3 BEFORE persist (`lib/quality_gates.py`)
 - Receive `stance_directive` từ Story Editor brief — write theo direction
 - 5 Voice Layer rules apply (Stance / No-hedging / Verdict / Title delegate / Contrarian-OK)
 - KHÔNG generate title (delegated to Headline Craft Spec C)
@@ -76,23 +76,31 @@ Master tự research như analyst thuỷ sản thật. Web search query patterns
 ### Step 6: Write body per format_id
 
 Body pattern theo format:
-- `flash_qa`: 100-150 từ (1 paragraph + closing, không bullet)
-- `standard_qa`: 200-300 từ (opening + 3-6 bullets + closing)
-- `standard_listicle`: 250-350 từ (opening + 4-7 bullets + closing)
-- `standard_narrative`: 250-350 từ (opening + 2-3 flow paragraphs + 0-2 bullets + closing)
+- `flash_qa`: **80-120 từ** (V1.3 — Twitter style) (1 paragraph + closing, không bullet)
+- `standard_qa`: **180-240 từ** (V1.3) (opening + 3-6 bullets + closing)
+- `standard_listicle`: **220-280 từ** (V1.3) (opening + 4-7 bullets + closing)
+- `standard_narrative`: **220-280 từ** (V1.3) (opening + 2-3 flow paragraphs + 0-2 bullets + closing)
 
-### Step 7: Self-check 8 gates V5.1.2
+### Step 7: Self-check 11 gates V5.1.2 + V1.3
 
 Run `lib/quality_gates.check_all_v5(body, format_id, stance_directive)`:
 
+**Universal (9)**:
 1. No English jargon (mapping cứng — see `references/jargon-mapping.md`)
 2. No metadata leak (không leak `paradox/why_now/hidden_mechanism` enum vào body)
 3. No-hedging (LLM-as-judge)
-4. Verdict line (closing có direction + timeframe + holder action)
+4. Verdict line (V1.3 composes `actionable_closing`: stance + quantified trigger + no vague)
 5. Stance consistency (body align stance_directive)
-6. Em dash density body
-7. Word count per format
-8. Body pattern per format
+6. Sentence density (V1.3: METAPHOR_MARKERS bonus — ưu tiên ví von)
+7. Em dash density body
+8. **`bao_chi_body` (V1.3 NEW)** — reject ≥2 báo chí verbs (bàn giao/ghi nhận/công bố/dự kiến/phát hành). Use bình dân (ăn/khoe/dồn/xén/gom/bơm).
+9. **`bold_density` (V1.3 NEW)** — per format: flash_qa ≥3 absolute, standard_qa ≥4%, listicle ≥5%, narrative ≥3%.
+
+**Per-format (2)**:
+10. Word count (V1.3 ranges: flash 80-120 / qa 180-240 / listicle 220-280 / narrative 220-280)
+11. Body pattern
+
+V1.3 voice MANDATORY: read `references/voice-layer-rules.md` V6 (bao_chi ban + bình dân verbs + metaphor) + V7 (bold density) + V3 tighten (actionable closing).
 
 Reject + rewrite if any gate fails. KHÔNG persist nếu fail.
 
