@@ -517,15 +517,10 @@ def check_em_dash_density(body: str) -> dict[str, Any]:
 # V1.3 BODY VOICE GATES (bình dân xuồng xã nguy hiểm)
 # ============================================================
 
-# Per-format bold density thresholds (V1.3).
-# flash_qa: absolute count (Twitter style, short body).
-# Others: ratio = bold_count / word_count.
-_BOLD_DENSITY_MIN = {
-    "flash_qa": {"mode": "absolute", "value": 3},
-    "standard_qa": {"mode": "ratio", "value": 0.04},
-    "standard_listicle": {"mode": "ratio", "value": 0.05},
-    "standard_narrative": {"mode": "ratio", "value": 0.03},
-}
+# Per-format bold density thresholds read from data/format_registry.yaml
+# (V1.3). flash_qa uses absolute count; others use ratio = bold/word.
+# Fallback default if format spec lacks `bold_density_min` field.
+_BOLD_DENSITY_FALLBACK = {"mode": "ratio", "value": 0.04}
 
 _BOLD_RE = re.compile(r"\*\*[^*]+\*\*")
 
@@ -585,7 +580,11 @@ def check_bold_density(body: str, format_id: str) -> dict[str, Any]:
     if word_count == 0:
         return {"pass": True, "reason": "", "bold_count": 0, "density": 0.0}
 
-    config = _BOLD_DENSITY_MIN.get(format_id, {"mode": "ratio", "value": 0.04})
+    try:
+        fmt = get_format(format_id)
+        config = fmt.get("bold_density_min", _BOLD_DENSITY_FALLBACK)
+    except KeyError:
+        config = _BOLD_DENSITY_FALLBACK
     density = bold_count / word_count
 
     if config["mode"] == "absolute":

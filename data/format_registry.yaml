@@ -1,46 +1,61 @@
-# Format Registry V5.0 — source of truth for Master article formats.
+# Format Registry V1.3 — source of truth for Master article formats.
 # Story Editor + Format Director read this; Master applies per-format pattern.
 # Add new formats here without touching agent prose (registry abstraction).
 # V5.1.2: title fields stripped — title decisions belong to Plan C Headline agent.
+# V1.3 (2026-05-13): length_range shrunk ~20% + bold_density_min added.
+#   User feedback: body audit TB bold density 1.83% — too low to scan.
+#   "Bình dân xuồng xã nguy hiểm" voice prefers ngắn + bold key + ví von.
 formats:
   flash_qa:
-    length_range: [100, 150]
-    length_target: 130
+    length_range: [80, 120]   # V1.3: was [100, 150]. Twitter-style short body.
+    length_target: 100        # V1.3: was 130
     structure: paragraph_only
     bullets_count: [0, 0]
     bullet_min_length: 0
+    bold_density_min:
+      mode: absolute          # flash_qa needs absolute count (short body)
+      value: 3
     tags: [factual, short]
     trigger_categories: []  # fallback for factual single Q, not in 5 deep_question category
 
   standard_qa:
-    length_range: [200, 300]
-    length_target: 250
+    length_range: [180, 240]  # V1.3: was [200, 300]
+    length_target: 210        # V1.3: was 250
     structure: opening_bullets_closing
     opening_min: 30
     opening_max: 80
     bullets_count: [3, 6]
     bullet_min_length: 20
+    bold_density_min:
+      mode: ratio
+      value: 0.04             # ≥4% = 1 bold per 25 words
     tags: [insight, paradox]
     trigger_categories: [paradox, why_now, hidden_mechanism]
 
   standard_listicle:
-    length_range: [250, 350]
-    length_target: 300
+    length_range: [220, 280]  # V1.3: was [250, 350]
+    length_target: 250        # V1.3: was 300
     structure: short_opening_dense_bullets
     opening_min: 0
     opening_max: 30
     bullets_count: [4, 7]
     bullet_min_length: 25
+    bold_density_min:
+      mode: ratio
+      value: 0.05             # densest format = ≥5% bold
     tags: [comparison, signals]
     trigger_categories: [comparison_deep, early_signal]
 
   standard_narrative:
-    length_range: [250, 350]
-    length_target: 300
+    length_range: [220, 280]  # V1.3: was [250, 350]
+    length_target: 250        # V1.3: was 300
     structure: flow_paragraphs
     opening_min: 40
     bullets_count: [0, 2]
     bullet_min_length: 20  # if bullet present
+    bold_density_min:
+      mode: ratio
+      value: 0.03             # narrative = some prose flow OK
     tags: [mechanism, time_flow]
     trigger_categories: [hidden_mechanism]
     tie_break_signal: narrative_timeline_markers  # ≥3 → pick narrative over qa
