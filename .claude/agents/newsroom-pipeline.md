@@ -240,6 +240,27 @@ print('observability_merged: model=' + obs['model'] + ' dur_ms=' + str(obs['dura
 
 Observability + failure isolation + variety-guard trade-off: see `references/observability-emit.md` + `references/failure-recovery.md`.
 
+### Step 4.3 — Gemini Writer (Python self-execute, V1.0 2026-05-13)
+
+For EACH persisted article from Step 4, generate a parallel Gemini 2.5 Pro side
+that reuses Claude's `data_trail`. Pipeline-safety: NEVER halts on Gemini
+failure — `gemini_status` records outcome (`success` / `skipped_failure` /
+`skipped_disabled`) and pipeline proceeds to Step 4.5 unchanged.
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -m lib.stages.run_gemini_writer \
+  --article-id <article_id>
+```
+
+Reads `data/secrets.yaml.gemini.api_key`. Missing key → status `skipped_disabled`
+(no API call, no cost). The script writes columns directly via
+`PipelineDB.update_gemini_output()`; no `pipeline_log` step entry is required
+because Gemini is non-blocking and not part of the Claude observability stack.
+
+Web UI exposes a Claude/Gemini toggle on each article view — disabled when
+`gemini_status != 'success'`. See `prompts/gemini_writer.md` for the prompt
+contract (voice principles + 4 format pattern + JSON output schema).
+
 ### Step 4.5 — Headline Craft (spawn dispatch — HARD RULE)
 
 For each persisted article from Step 4:
