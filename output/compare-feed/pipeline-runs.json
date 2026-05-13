@@ -1,6 +1,374 @@
 {
-  "built_at": "2026-05-12T16:12:43.241375+00:00",
+  "built_at": "2026-05-13T04:24:17.224249+00:00",
   "sessions": [
+    {
+      "session_id": "CA37C59A-ED79-47F4-BCA2-56661F213DD2",
+      "trigger_type": "tin",
+      "trigger_args": "GAS",
+      "started_at": "2026-05-13T04:13:10.544871+00:00",
+      "ended_at": "2026-05-13T04:13:10.545520+00:00",
+      "fetched_total": 3,
+      "chosen_total": 0,
+      "rejected_total": 3,
+      "batches": [
+        {
+          "funnel_batch_id": "GAS-20260513-0413",
+          "ticker": "GAS",
+          "sector_code": null,
+          "sector_name": "Phòng thủ",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 3,
+          "chosen_count": 0,
+          "rejected_count": 3,
+          "funnel_detail": {
+            "picked": [],
+            "rejected": [
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/05/vnm-mwg-pow-co-trien-vong-gi-145-1440670.htm",
+                "published": "2026-05-11T11:20:00+07:00",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached — primary ticker là VNM, GAS chỉ xuất hiện như nguồn cung khí hoá lỏng phụ trợ POW. Bài này phù hợp batch VNM/POW chứ không phải angle GAS standalone. Điểm dữ liệu giá 80.100 đồng +4,71% đã trích sang brief a9a6422e cho option hidden_mechanism.",
+                "reason": "sub_event_attached — primary ticker là VNM, GAS chỉ xuất hiện như nguồn cung khí hoá lỏng phụ trợ POW. Bài này phù hợp batch VNM/POW chứ không phải angle GAS standalone. Điểm dữ liệu giá 80.100 đồng +4,71% đã trích sang brief a9a6422e cho option hidden_mechanism."
+              },
+              {
+                "source": "Tin nhanh chứng khoán",
+                "url": "https://www.tinnhanhchungkhoan.vn/pv-gas-giu-vung-nguon-cung-lng-lpg-cho-thi-truong-nang-luong-viet-nam-giua-gian-doan-tai-eo-bien-hormuz-post390145.html",
+                "published": "2026-05-12T09:00:00+07:00",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VietnamFinance",
+                "url": "https://vietnamfinance.vn/pv-gas-giu-vung-nguon-cung-lng-lpg-cho-thi-truong-nang-luong-viet-nam-d144629.html",
+                "published": "2026-05-11T09:58:00+07:00",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event — cùng câu chuyện PV GAS giữ nguồn cung LNG-LPG nhưng phiên bản này thiếu kế hoạch lợi nhuận 2026 và chi tiết gián đoạn Hormuz. Bài a9a6422e đầy đủ hơn.",
+                "reason": "dup_event — cùng câu chuyện PV GAS giữ nguồn cung LNG-LPG nhưng phiên bản này thiếu kế hoạch lợi nhuận 2026 và chi tiết gián đoạn Hormuz. Bài a9a6422e đầy đủ hơn."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "D74EC073-E410-40F9-9EB5-F5B7B52CA629",
+      "trigger_type": "tin",
+      "trigger_args": "FPT",
+      "started_at": "2026-05-13T04:04:22.665778+00:00",
+      "ended_at": "2026-05-13T04:04:22.666174+00:00",
+      "fetched_total": 3,
+      "chosen_total": 0,
+      "rejected_total": 3,
+      "batches": [
+        {
+          "funnel_batch_id": "FPT-20260513-0404",
+          "ticker": "FPT",
+          "sector_code": null,
+          "sector_name": "Phòng thủ",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 3,
+          "chosen_count": 0,
+          "rejected_count": 3,
+          "funnel_detail": {
+            "picked": [],
+            "rejected": [
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/top-3-lanh-dao-but-toc-nghet-tho-tai-cuoc-dua-agm-awards-2026-188260512222620258.chn",
+                "published": "2026-05-12T22:26:00Z",
+                "reject_agent": "story_editor",
+                "reject_label": "Top 3 lãnh đạo AGM Awards là dữ liệu xếp hạng phổ thông, không có cơ chế nhân quả để đào sâu. Không thuộc 5 nhóm câu hỏi sâu hợp lệ.",
+                "reason": "Top 3 lãnh đạo AGM Awards là dữ liệu xếp hạng phổ thông, không có cơ chế nhân quả để đào sâu. Không thuộc 5 nhóm câu hỏi sâu hợp lệ."
+              },
+              {
+                "source": "VietnamBiz",
+                "url": "https://vietnambiz.vn/fpt-telecom-khong-dap-ung-dieu-kien-cong-ty-dai-chung-2026512114834318.htm",
+                "published": "2026-05-12T11:48:00Z",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VietNamNet",
+                "url": "https://vietnamnet.vn/ceo-fpt-de-xuat-mo-hinh-kinh-te-du-lieu-thuc-day-tang-truong-8-10-cho-hue-2514893.html",
+                "published": "2026-05-12T11:08:00Z",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "4CF2ED0C-5AC7-462A-92C6-7BF73B94CC97",
+      "trigger_type": "tin",
+      "trigger_args": "PLX",
+      "started_at": "2026-05-13T04:01:40.721884+00:00",
+      "ended_at": "2026-05-13T04:01:40.725094+00:00",
+      "fetched_total": 9,
+      "chosen_total": 0,
+      "rejected_total": 9,
+      "batches": [
+        {
+          "funnel_batch_id": "PLX-20260513-0401",
+          "ticker": "PLX",
+          "sector_code": null,
+          "sector_name": "Dầu khí",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 9,
+          "chosen_count": 0,
+          "rejected_count": 9,
+          "funnel_detail": {
+            "picked": [],
+            "rejected": [
+              {
+                "source": "BaoMoi",
+                "url": "https://baomoi.com/hai-ong-lon-xang-dau-dan-dat-chuyen-dich-nang-luong-c55112123.epi",
+                "published": "2026-05-07",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Bản BaoMoi tổng hợp VGX và lộ trình 3.000 tủ đổi pin trùng nội dung với brief eaec360a — đã được hấp thụ vào data_trail_preview.",
+                "reason": "sub_event_attached: Bản BaoMoi tổng hợp VGX và lộ trình 3.000 tủ đổi pin trùng nội dung với brief eaec360a — đã được hấp thụ vào data_trail_preview."
+              },
+              {
+                "source": "Tuổi Trẻ",
+                "url": "https://tuoitre.vn/petrolimex-he-lo-chien-luoc-kinh-doanh-khong-tranh-ne-lan-song-xe-dien-20260424183124042.htm",
+                "published": "2026-04-24",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Bài Tuổi Trẻ về chiến lược không né tránh xe điện đã được hấp thụ vào brief eaec360a (VGX) làm bối cảnh đối tác Singapore Hàn Quốc Trung Quốc.",
+                "reason": "sub_event_attached: Bài Tuổi Trẻ về chiến lược không né tránh xe điện đã được hấp thụ vào brief eaec360a (VGX) làm bối cảnh đối tác Singapore Hàn Quốc Trung Quốc."
+              },
+              {
+                "source": "Kinh doanh Phát triển",
+                "url": "https://kinhdoanhvaphattrien.vn/petrolimex-bao-lo-du-doanh-thu-quy-i-2026-tang-manh-47100.html",
+                "published": "2026-05-05",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Trùng sự kiện công bố lỗ quý 1 với bản CafeF chính thức 6d7fb337 — cùng các con số doanh thu 98.724 tỷ và lỗ 662 tỷ.",
+                "reason": "dup_event: Trùng sự kiện công bố lỗ quý 1 với bản CafeF chính thức 6d7fb337 — cùng các con số doanh thu 98.724 tỷ và lỗ 662 tỷ."
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/du-kien-lo-1000-ty-dong-quy-i-vi-sao-co-phieu-petrolimex-plx-van-duoc-khuyen-nghi-mua-188260503211135313.chn",
+                "published": "2026-05-03",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Khuyến nghị ACBS và MBS hạ giá mục tiêu đã được hấp thụ vào brief 54ec5529 làm dữ liệu phối cảnh dài hạn.",
+                "reason": "sub_event_attached: Khuyến nghị ACBS và MBS hạ giá mục tiêu đã được hấp thụ vào brief 54ec5529 làm dữ liệu phối cảnh dài hạn."
+              },
+              {
+                "source": "Tuổi Trẻ",
+                "url": "https://tuoitre.vn/petrolimex-cai-so-lui-loi-nhuan-2026-lan-dau-len-tieng-truoc-ap-luc-tu-xe-dien-20260405123509795.htm",
+                "published": "2026-04-05",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/04/dhdcd-petrolimex-mang-xang-dau-quy-1-lo-hon-1000-ty-dong-sap-ra-mat-cong-ty-moi-lien-quan-pin-va-xe-dien-737-1433379.htm",
+                "published": "2026-04-24",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Chi tiết đại hội cổ đông 24/4 về phụ phí và chi phí tàu đã được hấp thụ vào brief 6d7fb337 (cơ chế quý 1) và brief 54ec5529 (thời điểm công khai cài số lùi).",
+                "reason": "sub_event_attached: Chi tiết đại hội cổ đông 24/4 về phụ phí và chi phí tàu đã được hấp thụ vào brief 6d7fb337 (cơ chế quý 1) và brief 54ec5529 (thời điểm công khai cài số lùi)."
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/petrolimex-gop-35-ty-thanh-lap-cong-ty-sac-o-to-dien.htm",
+                "published": "2026-05-10",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/petrolimex-canh-bao-ve-ket-qua-kinh-doanh-quy-12026.htm",
+                "published": "2026-04-28",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Chi tiết cảnh báo VCSC, cổ tức 1.200 đồng và kế hoạch 2026 đã được hấp thụ vào brief 54ec5529 (khung dài hạn 2026-2030).",
+                "reason": "sub_event_attached: Chi tiết cảnh báo VCSC, cổ tức 1.200 đồng và kế hoạch 2026 đã được hấp thụ vào brief 54ec5529 (khung dài hạn 2026-2030)."
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/petrolimex-chinh-thuc-cong-bo-so-lo-quy-1-2026-188260504215537198.chn",
+                "published": "2026-05-04",
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "47D87441-2CDE-4F76-845C-81AD57E635B2",
+      "trigger_type": "tin",
+      "trigger_args": "MSN",
+      "started_at": "2026-05-13T03:18:33.217727+00:00",
+      "ended_at": "2026-05-13T03:18:33.218831+00:00",
+      "fetched_total": 12,
+      "chosen_total": 5,
+      "rejected_total": 7,
+      "batches": [
+        {
+          "funnel_batch_id": "MSN-20260513-0318",
+          "ticker": "MSN",
+          "sector_code": null,
+          "sector_name": "Tiêu dùng thực phẩm",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 12,
+          "chosen_count": 5,
+          "rejected_count": 7,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "dantri.com.vn",
+                "url": "https://dantri.com.vn/kinh-doanh/ba-buoc-ngoat-hoi-tu-dua-masan-group-buoc-vao-giai-doan-tai-dinh-gia-20260406165956510.htm",
+                "published": "2026-04-06",
+                "reason": "OK — accepted_hypothesis: true. Title: MSN lật nợ ròng 1,7 lần vì sao nhanh thế?"
+              },
+              {
+                "source": "dantri.com.vn",
+                "url": "https://dantri.com.vn/kinh-doanh/ba-buoc-ngoat-hoi-tu-dua-masan-group-buoc-vao-giai-doan-tai-dinh-gia-20260406165956510.htm",
+                "published": "2026-04-06",
+                "reason": "OK — accepted_hypothesis: true. Title: MSN ba bước ngoặt — thời điểm tái định giá"
+              },
+              {
+                "source": "cafef.vn",
+                "url": "https://cafef.vn/ong-danny-le-wincommerce-se-can-moc-5000-cua-hang-tren-toan-quoc-trong-30-ngay-toi-len-ke-hoach-ipo-188260506212601134.chn",
+                "published": "2026-05-06",
+                "reason": "OK — accepted_hypothesis: true. Title: [draft] MSN WinCommerce doanh thu cửa hàng cũ 14% tháng 4"
+              },
+              {
+                "source": "cafef.vn",
+                "url": "https://cafef.vn/ong-danny-le-wincommerce-se-can-moc-5000-cua-hang-tren-toan-quoc-trong-30-ngay-toi-len-ke-hoach-ipo-188260506212601134.chn",
+                "published": "2026-05-06",
+                "reason": "OK — accepted_hypothesis: true. Title: Vì sao MSN vọt 14% doanh thu cửa hàng cũ?"
+              },
+              {
+                "source": "vietnambiz.vn",
+                "url": "https://vietnambiz.vn/ceo-masan-co-the-nang-ke-hoach-loi-nhuan-2026-len-10000-12000-ty-dong-2026571122426.htm",
+                "published": "2026-05-07",
+                "reason": "OK — accepted_hypothesis: true. Title: Vì sao MSN vọt lãi rồi đặt đích 12.000 tỷ?"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "danviet.vn",
+                "url": "https://danviet.vn/masan-group-msn-loi-nhuan-nam-2025-lap-ky-luc-moi-dat-muc-tieu-doanh-thu-gan-100000-ty-dong-nam-2026-d1398902.html",
+                "published": "2026-02-01",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Tin tổng kết KH 2026 doanh thu gần 100K tỷ — nội dung chính đã được nhóm tin ĐHĐCĐ và Q1 result phủ.",
+                "reason": "dup_event: Tin tổng kết KH 2026 doanh thu gần 100K tỷ — nội dung chính đã được nhóm tin ĐHĐCĐ và Q1 result phủ."
+              },
+              {
+                "source": "vietnamnet.vn",
+                "url": "https://vietnamnet.vn/quy-i-2026-masan-consumer-cung-co-vi-the-vien-kim-cuong-gia-bao-cua-masan-2513035.html",
+                "published": "2026-04-28",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: MCH viên kim cương — sub-event, biên 21,2% đã được Brief 1 và Brief 3 phủ làm thành phần.",
+                "reason": "sub_event_attached: MCH viên kim cương — sub-event, biên 21,2% đã được Brief 1 và Brief 3 phủ làm thành phần."
+              },
+              {
+                "source": "baochinhphu.vn",
+                "url": "https://baochinhphu.vn/msn-loi-nhuan-quy-i-cao-nhat-lich-su-va-nen-tang-cho-chien-luoc-von-dai-han-10226050622211431.htm",
+                "published": "2026-05-06",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Báo chính phủ tường thuật Q1 cao nhất + chiến lược vốn dài hạn — dữ liệu đòn bẩy được Brief 1 Q3 dùng làm nguồn.",
+                "reason": "dup_event: Báo chính phủ tường thuật Q1 cao nhất + chiến lược vốn dài hạn — dữ liệu đòn bẩy được Brief 1 Q3 dùng làm nguồn."
+              },
+              {
+                "source": "cafef.vn",
+                "url": "https://cafef.vn/dhdcd-masan-2026-but-pha-voi-muc-tieu-doanh-thu-gan-100000-ty-dong-wincommerce-buoc-vao-chu-ky-hai-qua-188260424100012902.chn",
+                "published": "2026-04-24",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_angle_recent: ĐHĐCĐ Masan 2026 + CEO định thấp 60% — góc tái định giá đã được Brief 1 chọn làm anchor, dữ liệu CEO quote dùng làm data_trail.",
+                "reason": "dup_angle_recent: ĐHĐCĐ Masan 2026 + CEO định thấp 60% — góc tái định giá đã được Brief 1 chọn làm anchor, dữ liệu CEO quote dùng làm data_trail."
+              },
+              {
+                "source": "vietstock.vn",
+                "url": "https://vietstock.vn/2026/05/ceo-danny-le-loi-nhuan-tang-nhanh-hon-doanh-thu-masan-len-ke-hoach-ipo-wincommerce-737-1439078.htm",
+                "published": "2026-05-07",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Vietstock IPO WinCommerce — nội dung trùng với Brief 2 anchor CafeF, dữ liệu được Brief 2 Q2 dùng làm nguồn phụ.",
+                "reason": "dup_event: Vietstock IPO WinCommerce — nội dung trùng với Brief 2 anchor CafeF, dữ liệu được Brief 2 Q2 dùng làm nguồn phụ."
+              },
+              {
+                "source": "vietstock.vn",
+                "url": "https://vietstock.vn/2026/05/masan-buoc-vao-chu-ky-tang-truong-moi-voi-loi-nhuan-quy-1-cao-nhat-lich-su-737-1436839.htm",
+                "published": "2026-05-01",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Vietstock chu kỳ tăng trưởng mới Q1 — tường thuật Q1 result, nội dung trùng với cụm 4 bài LN Q1 cao nhất.",
+                "reason": "dup_event: Vietstock chu kỳ tăng trưởng mới Q1 — tường thuật Q1 result, nội dung trùng với cụm 4 bài LN Q1 cao nhất."
+              },
+              {
+                "source": "cafef.vn",
+                "url": "https://cafef.vn/masan-msn-ghi-nhan-loi-nhuan-quy-1-cao-ky-luc-ky-vong-loi-nhuan-sau-thue-6-thang-dau-nam-dat-4600-ty-dong-188260504090256694.chn",
+                "published": "2026-05-04",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: CafeF LN Q1 cao kỷ lục + kỳ vọng 6 tháng 4.600 tỷ — tường thuật Q1, không có angle riêng so 3 brief đã pick.",
+                "reason": "dup_event: CafeF LN Q1 cao kỷ lục + kỳ vọng 6 tháng 4.600 tỷ — tường thuật Q1, không có angle riêng so 3 brief đã pick."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "0E4A8881-DF2F-4892-8892-4996E8759B87",
+      "trigger_type": "tin",
+      "trigger_args": "STB",
+      "started_at": "2026-05-13T03:02:55.869351+00:00",
+      "ended_at": "2026-05-13T03:02:55.870788+00:00",
+      "fetched_total": 3,
+      "chosen_total": 2,
+      "rejected_total": 1,
+      "batches": [
+        {
+          "funnel_batch_id": "STB-20260513-0302",
+          "ticker": "STB",
+          "sector_code": null,
+          "sector_name": "Bank tư nhân top",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 3,
+          "chosen_count": 2,
+          "rejected_count": 1,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "Giao Thương Kinh Tế",
+                "url": "https://giaothuongkinhte.vn/sacombank-giam-hon-2700-nhan-su-tin-hieu-cho-lan-song-tai-cau-truc-sau-cua-nganh-ngan-hang-a9393.html",
+                "published": "2026-05-07T10:00:00Z",
+                "reason": "OK — accepted_hypothesis: true. Title: Q1 ngành bank phân hóa: STB tống 2.700, VPB+TCB+LPB nhồi thêm 700. Bank nào sai?"
+              },
+              {
+                "source": "Bao Moi",
+                "url": "https://baomoi.com/loat-ngan-hang-thay-doi-nhan-su-cap-cao-truoc-giai-doan-phat-trien-moi-c55138043.epi",
+                "published": "2026-05-13T07:00:00Z",
+                "reason": "OK — accepted_hypothesis: true. Title: STB gom DNA LPBank, lợi nhuận rớt 42%, vì sao chấp nhận?"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "Tiền Phong",
+                "url": "https://tienphong.vn/gan-7-trieu-co-phieu-sang-tay-stb-lap-dinh-post1842736.tpo",
+                "published": "2026-05-12T15:30:00Z",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached + dup_angle_recent. Same 12/5 PTGĐ announcement as Row 2 nhưng wrap trong price action +6,37% mà bài cũ ngày 12/5 đã dùng. Row 2 covers leadership angle với chiều sâu hơn (LPBank migration). Variety guard + dedup loại bài này.",
+                "reason": "sub_event_attached + dup_angle_recent. Same 12/5 PTGĐ announcement as Row 2 nhưng wrap trong price action +6,37% mà bài cũ ngày 12/5 đã dùng. Row 2 covers leadership angle với chiều sâu hơn (LPBank migration). Variety guard + dedup loại bài này."
+              }
+            ]
+          }
+        }
+      ]
+    },
     {
       "session_id": "D066809B-1DD5-4F42-B28A-26AAB4B4548C",
       "trigger_type": "tin-batch",
@@ -27,13 +395,13 @@
                 "source": "Nhịp sống Kinh tế",
                 "url": "https://danviet.vn/dat-xanh-thanh-bluemarq-group-cuoc-thay-ten-doi-ho-lan-khap-he-sinh-thai-d1424831.html",
                 "published": "2026-05-09",
-                "reason": "OK — accepted_hypothesis: true. Title: DXG lao dốc lợi nhuận mẹ dù doanh thu vọt 46%?"
+                "reason": "OK — accepted_hypothesis: true. Title: DXG bán hàng vọt 46%, lãi mẹ tụt 22%. Tiền chạy đâu?"
               },
               {
                 "source": "Vietstock",
                 "url": "https://vietstock.vn/2026/05/tap-doan-dat-xanh-doi-ten-thanh-bluemarq-group-loat-cong-ty-con-doi-theo-ho-moi-737-1439495.htm",
                 "published": "2026-05-07",
-                "reason": "OK — accepted_hypothesis: true. Title: Nghịch lý DXG: rebrand Bluemarq nhưng đầu tư chỉ 20 tỷ?"
+                "reason": "OK — accepted_hypothesis: true. Title: DXG đổi tên Bluemarq, vốn đầu tư mới 20 tỷ?"
               }
             ],
             "rejected": [
@@ -120,13 +488,13 @@
                 "source": "VnEconomy",
                 "url": "https://vneconomy.vn/quy-12026-hpg-lai-hon-9000-ty-dong-va-du-bao-mang-thep-rat-kha-quan.htm",
                 "published": "2026-04-21",
-                "reason": "OK — accepted_hypothesis: true. Title: HPG đặt cược thép ray đường sắt: hy sinh cổ tức 20%?"
+                "reason": "OK — accepted_hypothesis: true. Title: HPG xén cổ tức 20% để xây nhà máy ray đường sắt"
               },
               {
                 "source": "Báo Pháp luật",
                 "url": "https://doanhnhan.baophapluat.vn/dhdcd-hoa-phat-hpg-2026-lai-quy-1-dot-pha-9-000-ty-dong-don-dau-mang-thep-duong-sat-cao-toc-va-don-luc-cho-dung-quat-2.html",
                 "published": "2026-04-21",
-                "reason": "OK — accepted_hypothesis: true. Title: Vì sao HPG lãi 170% nhưng thép cốt lõi chỉ đóng 57%?"
+                "reason": "OK — accepted_hypothesis: true. Title: Thép HPG thật ra chỉ tăng 61%, 170% kia BĐS Phố Nối"
               }
             ],
             "rejected": [
@@ -213,13 +581,13 @@
                 "source": "CafeF",
                 "url": "https://cafef.vn/vinhomes.html",
                 "published": "2026-04-21T09:52:00+07:00",
-                "reason": "OK — accepted_hypothesis: true. Title: VHM đánh đổi gì khi vay 11.000 tỷ lúc lợi nhuận đỉnh?"
+                "reason": "OK — accepted_hypothesis: true. Title: VHM chia cổ tức kỷ lục, vẫn vay 11.000 tỷ. Lạ?"
               },
               {
                 "source": "Báo Đầu tư",
                 "url": "https://baodautu.vn/song-loi-nhuan-dang-cao-tu-cac-doanh-nghiep-dan-dau-thuoc-vn30-d587688.html",
                 "published": "2026-05-05T10:00:00+07:00",
-                "reason": "OK — accepted_hypothesis: true. Title: VHM đánh đổi gì để lãi 25.625 tỷ gấp 3 Vietcombank?"
+                "reason": "OK — accepted_hypothesis: true. Title: VHM Q1 ăn 25.625 tỷ, gấp 3 lần Vietcombank cùng kỳ"
               }
             ],
             "rejected": [
@@ -324,7 +692,7 @@
                 "source": "CafeF",
                 "url": "https://cafef.vn/ssi-du-kien-phat-hanh-10-trieu-co-phieu-esop-cho-295-nguoi-188260509093443431.chn",
                 "published": "2026-05-09",
-                "reason": "OK — accepted_hypothesis: true. Title: SSI đánh đổi 510 triệu cổ phiếu mới để lấy gì?"
+                "reason": "OK — accepted_hypothesis: true. Title: SSI bán ESOP 100 tỷ, nội bộ ăn 180 tỷ ưu đãi"
               }
             ],
             "rejected": [
@@ -387,13 +755,13 @@
                 "source": "CafeF",
                 "url": "https://cafef.vn/chung-khoan-vix-trieu-tap-dhdcd-thuong-nien-nam-2026-188260510214351235.chn",
                 "published": "2026-05-10",
-                "reason": "OK — accepted_hypothesis: true. Title: VIX đặt cược 1.000 tỷ vào VIXEX năm nâng hạng?"
+                "reason": "OK — accepted_hypothesis: true. Title: VIX dồn 1.000 tỷ vào VIXEX năm nâng hạng. Khôn hay liều?"
               },
               {
                 "source": "VietnamFinance",
                 "url": "https://vietnamfinance.vn/khoi-dau-chat-vat-loi-nhuan-cua-vix-nhu-tau-luon-d143591.html",
                 "published": "2026-05-08",
-                "reason": "OK — accepted_hypothesis: true. Title: VIX hy sinh lợi nhuận Q1 để tăng vốn 60%"
+                "reason": "OK — accepted_hypothesis: true. Title: VIX gọi vốn to nhất ngành, ngồi trên tiền, lãi Q1 tụt"
               }
             ],
             "rejected": [
@@ -790,7 +1158,7 @@
                 "source": "Vietstock",
                 "url": "https://tapchicongthuong.vn/loc-hoa-dau-binh-son--bsr-muc-tieu-top-8-nha-may-loc-dau-co-doanh-thu-lon-nhat-khu-vuc-510036.htm",
                 "published": "2026-04-14T00:00:00+07:00",
-                "reason": "OK — accepted_hypothesis: true. Title: BSR đánh đổi kế hoạch thấp 58% để đổi lấy điều gì?"
+                "reason": "OK — accepted_hypothesis: true. Title: Q1 BSR ăn 8.265 tỷ, sếp chỉ hứa 2.162 tỷ cả năm?"
               }
             ],
             "rejected": [
@@ -837,7 +1205,7 @@
           "funnel_batch_id": "BSR-20260512-1330",
           "ticker": "BSR",
           "sector_code": null,
-          "sector_name": null,
+          "sector_name": "Dầu khí",
           "hot_nhom": null,
           "hot_rank": null,
           "fetched_count": 8,
