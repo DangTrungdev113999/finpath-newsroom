@@ -30,7 +30,7 @@ const MAX_REQS_PER_HOUR = 10;
 const SECONDS_PER_HOUR = 3600;
 
 const TICKER_RE = /^[A-Z]{3,4}$/;
-const SLUG_RE = /^[a-z0-9-]+$/;
+const SLUG_RE = /^[A-Za-z0-9-]+$/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 interface FeedbackPayload {
