@@ -1,6 +1,6 @@
 ---
 name: finpath-newsroom-crawler
-description: V3.1 Tavily-primary crawler (agent-fetch + script-persist). Agent invokes mcp__tavily__tavily_search directly (time_range=week + 20-source domain whitelist + max_results=20 + country=Vietnam), captures raw JSON, pipes to lib.tavily_crawler script for parse + persist. Auto-fallback to built-in WebSearch tool if Tavily fails, then to legacy 20-source crawler as last resort. Writes rows to SQLite crawl_log. Pipeline log emits data_trail entry with tier_used (Tavily / WebSearch / Crawler-legacy). NEVER use for non-universe tickers.
+description: V3.2 Tavily-primary crawler (agent-fetch + script-persist). Agent invokes mcp__tavily__tavily_search với query enriched theo sector (vd "Tin mới nhất về HPG Hòa Phát ngành Thép"), max_results=50, time_range=week, 20-source whitelist, include_raw_content=True. Script post-fetch filter: PDF skip + corporate site skip + URL dedup + title relevance (ticker OR full_name diacritic-folded) + 3-day window (optimistic on missing date). Sector_name resolve qua lib/finpath_sectors.FinpathSectors cache. Auto-fallback WebSearch built-in → legacy crawler. Pipeline log emits data_trail entry với tier_used (Tavily / WebSearch / Crawler-legacy).
 ---
 
 # Finpath Newsroom Crawler
@@ -39,20 +39,26 @@ Crawler agent V2.4 — input đầu pipeline Newsroom. Search + fetch tin từ *
 }
 ```
 
-## Workflow V3.1 (agent-fetch + script-persist)
+## Workflow V3.2 (agent-fetch + script-persist)
 
-### 1. Validate ticker + build batch_id + Tavily args
+### 1. Build batch_id + Tavily args (sector-enriched)
 
 ```python
 from lib.tavily_crawler import build_tavily_args
-from lib.stages.run_crawler import FULL_UNIVERSE
-ticker = "TCB"  # from input
-if ticker not in FULL_UNIVERSE:
-    raise ValueError(f"{ticker} not in 61-mã universe")
+ticker = "HPG"  # from input
 batch_id = f"{ticker}-{datetime.now().strftime('%Y%m%d-%H%M')}"
 tavily_args = build_tavily_args(ticker)
-# tavily_args = {"query": "TCB Techcombank tin tức", "time_range": "week", ...}
+# V3.2 sample for HPG:
+#   query = "Tin mới nhất về HPG Hòa Phát ngành Thép"
+#   max_results = 50
+#   time_range = "week"
+#   include_domains = [20 VN news sources]
+#   include_raw_content = True
+# sector_name auto-resolved via lib/finpath_sectors.FinpathSectors cache;
+# unknown sector → query degrades to "Tin mới nhất về <TICKER> <full_name>" (still functional).
 ```
+
+Universe validation deferred to Editor V1 (V5.1.3 — Finpath ~139 cache). Crawler accepts ALL tickers; Editor V1 rejects outside Finpath với `editor_v1_note="ticker_outside_finpath_139"`.
 
 ### 2. Tier 1 — Agent invoke `mcp__tavily__tavily_search` tool
 
@@ -104,6 +110,20 @@ data_trail.append({
 - Free tier Tavily limit 1.000 searches/month. Per Q2=A spec: no usage tracking, fail gracefully via fallback chain.
 - Master Bank/CK/BĐS Step 6 web_search KHÔNG dùng Tavily (per user "tiết kiệm credit").
 - All 3 tiers feed parsed JSON to same script for consistent persistence.
+
+### V3.2 post-fetch filter (all 3 tiers)
+
+`lib.tavily_crawler.filter_results()` applies 5 rules in order. PDF/corporate/dedup là V3.1 baseline; title relevance + date window là V3.2 add-on:
+
+1. **PDF skip** — URL path endswith `.pdf` → reject.
+2. **Corporate site skip** — domain match `_CORPORATE_DOMAINS[ticker]` → reject (vd HPG bài trên `hoaphat.com.vn` skipped).
+3. **URL dedup** — canonical URL (strip `?query`) seen → reject.
+4. **Title relevance (V3.2)** — title phải mention `ticker` OR `full_name` sau diacritic-fold (Hòa Phát/Hoa Phat đều match). Bài chỉ mention sector ("Ngành thép quý 1") → reject. Ticker lookup table `_TICKER_FULL_NAMES` covers ~90 mã (Bank/CK/BĐS + V5.1.3 expansion non-financial large-cap).
+5. **Date window 3 ngày (V3.2)** — parse `result["published_date"]` ISO/YYYY-MM-DD. Older than `now() - 3 days` → reject. **Missing date → optimistic keep** (per design — Tavily đã pre-filter `time_range="week"` ở API level, trust khi missing).
+
+Constants: `DATE_WINDOW_DAYS = 3` ở `lib/tavily_crawler.py`. Override qua `filter_results(date_window_days=N, now=...)` cho tests.
+
+Backward compat: gọi `filter_results(results, ticker)` không pass `full_name` → title relevance không enforce (chỉ PDF + corporate + dedup + date).
 
 ## Constraints
 

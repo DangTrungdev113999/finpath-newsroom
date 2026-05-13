@@ -16,6 +16,7 @@ Idempotent via generated_news.telegram_pushed_at (Phase G T11 schema column).
 Graceful degrade when secrets.yaml missing (returns None publisher).
 """
 from __future__ import annotations
+import fcntl
 import json
 import re
 import time
@@ -27,6 +28,12 @@ from pathlib import Path
 import yaml
 
 VN_TZ = timezone(timedelta(hours=7))
+
+# Cross-process advisory lock — serializes ALL publishers sharing the same bot.
+# Telegram getUpdates queue is destructive (acked updates vanish for other readers),
+# so parallel publishers race on auto-forward detection. fcntl.flock guards the
+# entire post+poll sequence per channel.
+_LOCK_PATH = Path("/tmp/finpath-newsroom-tg-publisher.lock")
 
 
 def _format_duration(ms: int | None) -> str | None:
@@ -49,35 +56,30 @@ def _format_tokens(n: int | None) -> str | None:
 
 def _build_channel_text(title: str, posted_at: datetime, duration_ms: int | None,
                        tokens: int | None, escape_fn) -> str:
-    """Build channel post 2-3 lines (skip line 3 nếu cả duration + tokens None).
+    """Build channel post — always 3 lines for visual consistency.
 
     Format:
         <b>{title}</b>
         [blank line]
         🕐 {posted_at}
-        ⏱️ Thời gian viết bài: {duration} · 🪙 {tokens}    ← line 3 conditional
+        ⏱️ Thời gian viết bài: {duration|chưa đo}[ · 🪙 {tokens}]
 
-    - Cả duration + tokens None → bỏ line 3
-    - Chỉ duration → "⏱️ Thời gian viết bài: 1m 37s"
-    - Chỉ tokens → "🪙 12.500"
-    - Cả 2 → "⏱️ Thời gian viết bài: 1m 37s · 🪙 12.500"
+    Line 3 ALWAYS present — duration falls back to "chưa đo" when null
+    so feed renders consistently regardless of upstream timing logs.
     """
-    duration_str = _format_duration(duration_ms)
+    duration_str = _format_duration(duration_ms) or "chưa đo"
     tokens_str = _format_tokens(tokens)
 
-    parts = []
-    if duration_str:
-        parts.append(f"⏱️ Thời gian viết bài: {duration_str}")
+    parts = [f"⏱️ Thời gian viết bài: {duration_str}"]
     if tokens_str:
         parts.append(f"🪙 {tokens_str}")
 
     lines = [
         f"<b>{escape_fn(title)}</b>",
-        "",  # blank line cho thoáng giữa title và metadata
+        "",
         f"🕐 {posted_at.strftime('%d/%m/%Y %H:%M:%S')}",
+        " · ".join(parts),
     ]
-    if parts:
-        lines.append(" · ".join(parts))
     return "\n".join(lines)
 
 
@@ -186,6 +188,37 @@ class TelegramPublisher:
         if posted_at is None:
             posted_at = datetime.now(VN_TZ)
 
+        # Serialize via cross-process advisory lock — parallel publishers sharing
+        # the same bot race on getUpdates queue (destructive ack). Lock spans
+        # drain + send + poll so each post's auto-forward is detected cleanly.
+        with _LOCK_PATH.open("a") as lockfile:
+            fcntl.flock(lockfile.fileno(), fcntl.LOCK_EX)
+            try:
+                return self._publish_locked(
+                    title=title,
+                    body=body,
+                    public_slug=public_slug,
+                    posted_at=posted_at,
+                    write_duration_ms=write_duration_ms,
+                    tokens=tokens,
+                    max_poll_attempts=max_poll_attempts,
+                    poll_interval_sec=poll_interval_sec,
+                )
+            finally:
+                fcntl.flock(lockfile.fileno(), fcntl.LOCK_UN)
+
+    def _publish_locked(
+        self,
+        title: str,
+        body: str,
+        public_slug: str,
+        posted_at: datetime,
+        write_duration_ms: int | None,
+        tokens: int | None,
+        max_poll_attempts: int,
+        poll_interval_sec: float,
+    ) -> dict:
+        """Internal — runs inside cross-process lock acquired by caller."""
         # Step 0: drain stale getUpdates
         offset = self._drain_offset()
 
@@ -296,9 +329,16 @@ class TelegramPublisher:
     ) -> int | None:
         """Poll getUpdates; return msg_id of auto-forwarded post in linked group.
 
-        Match criteria:
+        Match criteria (STRICT — fwd_msg must equal this channel_msg_id):
         - chat.id == self.linked_group_chat_id
-        - is_automatic_forward == True OR forward_from_message_id == channel_msg_id
+        - forward_from_message_id == channel_msg_id
+
+        Why strict: the previous `is_automatic_forward OR fwd_msg == X` raced when
+        parallel publishers shared the bot — `is_auto=True` short-circuited to the
+        FIRST forward in the poll window regardless of which channel msg spawned it.
+        Requiring fwd_msg equality makes detection deterministic per-post even under
+        concurrency. is_automatic_forward is still implied (only auto-forwards from
+        linked channel carry the same forward_from_message_id semantics).
         """
         current_offset = offset
         for _ in range(max_attempts):
@@ -312,9 +352,7 @@ class TelegramPublisher:
                 chat_id = str(msg.get("chat", {}).get("id", ""))
                 if chat_id != str(self.linked_group_chat_id):
                     continue
-                is_auto = msg.get("is_automatic_forward", False)
-                fwd_msg = msg.get("forward_from_message_id")
-                if is_auto or fwd_msg == channel_msg_id:
+                if msg.get("forward_from_message_id") == channel_msg_id:
                     return msg["message_id"]
         return None
 

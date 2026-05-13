@@ -254,6 +254,52 @@ def test_thread_publish_no_thread_detected():
     assert "auto-forward not detected" in result["error"]
 
 
+def test_wait_for_auto_forward_strict_match_under_race():
+    """Regression: when getUpdates returns auto-forwards from MULTIPLE channel msgs
+    (parallel publishers race), this publisher must match ONLY its own channel_msg_id.
+
+    Pre-fix bug: `is_auto OR fwd_msg == X` short-circuited via is_auto=True →
+    matched FIRST forward (50) instead of own (100), causing replies to land in
+    the wrong thread. Fix: require fwd_msg == channel_msg_id strictly.
+    """
+    p = TelegramPublisher("t", "c", "http://x", linked_group_chat_id="g-1")
+    responses = [
+        # drain
+        {"ok": True, "result": []},
+        # channel post succeeds → msg 100
+        {"ok": True, "result": {"message_id": 100}},
+        # poll returns 3 auto-forwards: 50 (someone else's), 100 (ours), 200 (someone else's)
+        {"ok": True, "result": [
+            {"update_id": 1, "message": {
+                "message_id": 500, "chat": {"id": "g-1"},
+                "is_automatic_forward": True, "forward_from_message_id": 50,
+            }},
+            {"update_id": 2, "message": {
+                "message_id": 501, "chat": {"id": "g-1"},
+                "is_automatic_forward": True, "forward_from_message_id": 100,
+            }},
+            {"update_id": 3, "message": {
+                "message_id": 502, "chat": {"id": "g-1"},
+                "is_automatic_forward": True, "forward_from_message_id": 200,
+            }},
+        ]},
+        # thread reply 1 — body
+        {"ok": True, "result": {"message_id": 600}},
+        # thread reply 2 — link
+        {"ok": True, "result": {"message_id": 601}},
+    ]
+    with patch("lib.telegram_publisher.time.sleep"):
+        with patch("lib.telegram_publisher.urllib.request.urlopen",
+                   side_effect=_mock_urlopen_factory(responses)):
+            result = p.publish_article_with_thread_body("T", "B", "s")
+    assert result["status"] == "pushed"
+    assert result["telegram_message_id"] == 100
+    # Must pick 501 (forward of 100) — NOT 500 (forward of 50, the first in poll)
+    assert result["thread_message_id"] == 501
+    assert result["body_message_id"] == 600
+    assert result["link_message_id"] == 601
+
+
 def test_thread_publish_channel_post_fails():
     """Channel post itself fails → status=failed (no thread attempt)."""
     p = TelegramPublisher("t", "c", "http://x", linked_group_chat_id="g-1")
@@ -330,27 +376,28 @@ def test_build_channel_text_duration_only_tokens_none():
 
 
 def test_build_channel_text_tokens_only_duration_none():
+    """Duration null → fallback 'chưa đo'; tokens present → joined với ' · '."""
     text = _build_channel_text("Title", FIXED_TIME, None, 8500, ESCAPE_NOOP)
     assert text == (
         "<b>Title</b>\n"
         "\n"
         "🕐 10/05/2026 22:30:45\n"
-        "🪙 8.500"
+        "⏱️ Thời gian viết bài: chưa đo · 🪙 8.500"
     )
 
 
-def test_build_channel_text_both_none_skips_line3():
-    """Phase G T16: cả duration + tokens None → chỉ 2 dòng (title + timestamp), KHÔNG '—'."""
+def test_build_channel_text_both_none_uses_fallback():
+    """Line 3 ALWAYS present for visual consistency — duration falls back to 'chưa đo'."""
     text = _build_channel_text("Title", FIXED_TIME, None, 0, ESCAPE_NOOP)
     assert text == (
         "<b>Title</b>\n"
         "\n"
-        "🕐 10/05/2026 22:30:45"
+        "🕐 10/05/2026 22:30:45\n"
+        "⏱️ Thời gian viết bài: chưa đo"
     )
-    # No "⏱️" hoặc "🪙" hoặc "—" trong output
-    assert "⏱️" not in text
-    assert "🪙" not in text
-    assert "—" not in text
+    assert "⏱️" in text  # line 3 emitted
+    assert "🪙" not in text  # tokens absent → no token chunk
+    assert "—" not in text  # no em dash placeholder
 
 
 def test_build_channel_text_escapes_title():

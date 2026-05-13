@@ -114,35 +114,143 @@ def test_filter_results_dedups_by_url():
     assert len(filtered) == 2
 
 
-def test_build_tavily_args_basic():
-    """Build Tavily search args dict cho ticker."""
+def test_build_tavily_args_v3_2_with_sector():
+    """V3.2 — query enriched với sector name; max_results=50; include_raw_content=True."""
     from lib.tavily_crawler import build_tavily_args, SOURCES_WHITELIST
-    args = build_tavily_args("TCB")
-    assert args["query"] == "TCB Techcombank tin tức"
-    assert args["max_results"] == 20
+    args = build_tavily_args("TCB", sector_name="Ngân hàng")
+    assert args["query"] == "Tin mới nhất về TCB Techcombank ngành Ngân hàng"
+    assert args["max_results"] == 50
     assert args["search_depth"] == "advanced"
     assert args["time_range"] == "week"
     assert args["country"] == "Vietnam"
-    # All 20 sources in include_domains
+    assert args["include_raw_content"] is True
     expected_domains = list(SOURCES_WHITELIST.values())
     assert sorted(args["include_domains"]) == sorted(expected_domains)
 
 
-def test_parse_tavily_response_happy():
-    """Tavily response → list of rows after filter + parse."""
+def test_build_tavily_args_v3_2_ticker_without_full_name_no_dup():
+    """V3.2 — khi ticker == fallback name (vd SSI), không duplicate trong query."""
+    from lib.tavily_crawler import build_tavily_args
+    args = build_tavily_args("SSI", sector_name="Chứng khoán")
+    assert args["query"] == "Tin mới nhất về SSI ngành Chứng khoán"
+
+
+def test_build_tavily_args_v3_2_no_sector_falls_back_to_company_only():
+    """V3.2 — sector resolve fail → query degrade to company-only (still functional)."""
+    from lib.tavily_crawler import build_tavily_args
+    args = build_tavily_args("HPG", sector_name="")
+    assert args["query"] == "Tin mới nhất về HPG Hòa Phát"
+
+
+def test_fold_vn_strips_diacritics():
+    """V3.2 — Vietnamese diacritic-folded for substring match."""
+    from lib.tavily_crawler import fold_vn
+    assert fold_vn("Hòa Phát") == "hoa phat"
+    assert fold_vn("Ngân hàng") == "ngan hang"
+    assert fold_vn("Đất Xanh") == "dat xanh"
+    assert fold_vn("") == ""
+
+
+def test_filter_results_v3_2_title_relevance_keep_ticker_or_full_name():
+    """V3.2 — title must mention ticker OR full_name (diacritic-folded)."""
+    from datetime import datetime, timezone
+    from lib.tavily_crawler import filter_results
+    now = datetime(2026, 5, 13, 10, 0, tzinfo=timezone.utc)
+    results = [
+        {"url": "https://cafef.vn/a.html", "title": "HPG lãi Q1", "published_date": "2026-05-12"},
+        {"url": "https://vnexpress.net/b.html", "title": "Hòa Phát khánh thành", "published_date": "2026-05-12"},
+        {"url": "https://vietstock.vn/c.html", "title": "Hoa Phat ASCII fold match", "published_date": "2026-05-12"},
+        {"url": "https://baodautu.vn/d.html", "title": "Ngành thép quý 1", "published_date": "2026-05-12"},
+    ]
+    out = filter_results(results, "HPG", full_name="Hòa Phát", now=now)
+    titles = {r["title"] for r in out}
+    assert titles == {"HPG lãi Q1", "Hòa Phát khánh thành", "Hoa Phat ASCII fold match"}
+
+
+def test_filter_results_v3_2_date_window_rejects_old():
+    """V3.2 — published_date older than 3 days → reject."""
+    from datetime import datetime, timezone
+    from lib.tavily_crawler import filter_results
+    now = datetime(2026, 5, 13, 10, 0, tzinfo=timezone.utc)
+    results = [
+        {"url": "https://cafef.vn/a.html", "title": "HPG hôm qua", "published_date": "2026-05-12"},  # 1 day
+        {"url": "https://cafef.vn/b.html", "title": "HPG tuần trước", "published_date": "2026-04-30"},  # 13 days → reject
+    ]
+    out = filter_results(results, "HPG", full_name="Hòa Phát", now=now)
+    assert len(out) == 1
+    assert out[0]["title"] == "HPG hôm qua"
+
+
+def test_filter_results_v3_2_date_missing_optimistic_keep():
+    """V3.2 — published_date null → optimistic keep (per design decision)."""
+    from datetime import datetime, timezone
+    from lib.tavily_crawler import filter_results
+    now = datetime(2026, 5, 13, 10, 0, tzinfo=timezone.utc)
+    results = [
+        {"url": "https://cafef.vn/no-date.html", "title": "HPG không date", "published_date": None},
+        {"url": "https://vietstock.vn/empty.html", "title": "HPG empty date", "published_date": ""},
+    ]
+    out = filter_results(results, "HPG", full_name="Hòa Phát", now=now)
+    assert len(out) == 2
+
+
+def test_filter_results_v3_2_combined_with_existing_filters():
+    """V3.2 + V3.1 stack: PDF + corporate + dedup + title + date all apply."""
+    from datetime import datetime, timezone
+    from lib.tavily_crawler import filter_results
+    now = datetime(2026, 5, 13, 10, 0, tzinfo=timezone.utc)
+    results = [
+        # keep: recent + title match
+        {"url": "https://cafef.vn/hpg.html", "title": "HPG Q1 báo lãi", "published_date": "2026-05-12"},
+        # PDF reject
+        {"url": "https://cafef.vn/hpg.pdf", "title": "HPG PDF", "published_date": "2026-05-13"},
+        # dup canonical URL with first → reject
+        {"url": "https://cafef.vn/hpg.html?utm=x", "title": "HPG dup", "published_date": "2026-05-12"},
+        # old date → reject
+        {"url": "https://vietstock.vn/old.html", "title": "HPG cũ", "published_date": "2026-04-01"},
+        # sector only → reject (title relevance)
+        {"url": "https://vnexpress.net/sector.html", "title": "Ngành thép phân tích", "published_date": "2026-05-13"},
+    ]
+    out = filter_results(results, "HPG", full_name="Hòa Phát", now=now)
+    assert len(out) == 1
+    assert out[0]["title"] == "HPG Q1 báo lãi"
+
+
+def test_filter_results_backward_compat_no_full_name():
+    """Backward compat — caller skips full_name → title relevance not enforced."""
+    from datetime import datetime, timezone
+    from lib.tavily_crawler import filter_results
+    now = datetime(2026, 5, 13, 10, 0, tzinfo=timezone.utc)
+    results = [
+        {"url": "https://cafef.vn/x.html", "title": "T1 doesn't mention ticker", "published_date": "2026-05-12"},
+        {"url": "https://example.com/y.pdf", "title": "PDF", "published_date": "2026-05-12"},
+    ]
+    out = filter_results(results, "TCB", now=now)
+    # No title enforcement when full_name=None; only date+PDF+dedup apply
+    assert len(out) == 1
+    assert out[0]["title"] == "T1 doesn't mention ticker"
+
+
+def test_parse_tavily_response_happy_v3_2():
+    """parse_tavily_response wires V3.2 filter — title relevance enforced via full_name lookup."""
+    from datetime import datetime, timezone, timedelta
     from lib.tavily_crawler import parse_tavily_response
+    today = (datetime.now(timezone.utc) - timedelta(days=1)).date().isoformat()
     response = {
         "results": [
-            {"url": "https://cafef.vn/x.chn", "title": "T1", "content": "B1"},
-            {"url": "https://example.com/skip.pdf", "title": "PDF", "content": "X"},
-            {"url": "https://vietstock.vn/y.htm", "title": "T2", "content": "B2"},
+            {"url": "https://cafef.vn/x.chn", "title": "TCB Techcombank lãi Q1", "content": "B1", "published_date": today},
+            {"url": "https://example.com/skip.pdf", "title": "TCB PDF", "content": "X", "published_date": today},
+            {"url": "https://vietstock.vn/y.htm", "title": "Techcombank chia cổ tức", "content": "B2", "published_date": today},
+            {"url": "https://vnexpress.net/z.htm", "title": "Ngân hàng nói chung", "content": "B3", "published_date": today},
         ]
     }
     rows = parse_tavily_response(response, ticker="TCB", batch_id="TCB-20260512-1500")
-    assert len(rows) == 2  # PDF filtered
+    # Keep: TCB + Techcombank rows. Reject: PDF + sector-only.
+    assert len(rows) == 2
+    titles = {r["title"] for r in rows}
+    assert titles == {"TCB Techcombank lãi Q1", "Techcombank chia cổ tức"}
     assert rows[0]["ticker"] == "TCB"
     assert rows[0]["funnel_batch_id"] == "TCB-20260512-1500"
-    assert rows[0]["source_name"] == "CafeF"
 
 
 def test_parse_tavily_response_empty():

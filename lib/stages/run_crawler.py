@@ -167,12 +167,23 @@ def main() -> int:
         print(json.dumps({"error": "candidates JSON must be a list"}))
         return 1
 
+    # V3.2 filter — converge legacy candidate path with lib/tavily_crawler.
+    # Legacy candidates use `published_time` field; tavily_crawler.filter_results
+    # reads `published_date`. Normalize before filtering.
+    from lib.tavily_crawler import filter_results as _filter_v3_2, get_full_name
+    full_name = get_full_name(ticker)
+    for c in candidates:
+        if "published_date" not in c and "published_time" in c:
+            c["published_date"] = c["published_time"]
+    filtered_candidates = _filter_v3_2(candidates, ticker, full_name=full_name)
+    candidates_dropped = len(candidates) - len(filtered_candidates)
+
     funnel_batch_id = make_funnel_batch_id(ticker)
     rows_written = []
     rows_skipped = 0
     errors = []
 
-    for c in candidates:
+    for c in filtered_candidates:
         c.setdefault("ticker", ticker)
         if "url" not in c or "source_name" not in c:
             errors.append({"candidate": c, "error": "missing url or source_name"})
@@ -194,6 +205,7 @@ def main() -> int:
         "funnel_batch_id": funnel_batch_id,
         "rows_written": rows_written,
         "rows_skipped_dedupe": rows_skipped,
+        "candidates_dropped_v3_2_filter": candidates_dropped,
         "errors": errors,
     }, ensure_ascii=False, indent=2))
     return 0

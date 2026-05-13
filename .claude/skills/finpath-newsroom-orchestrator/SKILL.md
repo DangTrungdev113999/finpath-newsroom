@@ -94,7 +94,8 @@ Detail beyond core flow above — load when needed:
 - `references/db-persist-patterns.md` — SQLite write patterns via `PipelineDB` API (Step 4 insert, batch-level deferred emits, Step 6-9 persist)
 - `references/failure-recovery.md` — per-step failure handling (soft vs hard fail), brief-level isolation, batch survival, idempotency
 - `references/step-1-5-market-snapshot.md` — Market Snapshot Python helper detail (soft-fetch contract, downstream tone_bias)
-- `references/step-3-5-format-director.md` — Format Director Task dispatch detail (input/output contract, schema validation, variety check)
+- `references/spawn-step-agent.md` — V5.1.5 transport: `lib/stages/spawn_step_agent.py` dispatch (claude -p --agent fresh process) thay Task tool. Pattern per step, model presets, parsing, failure modes.
+- `references/step-3-5-format-director.md` — Format Director dispatch detail (input/output contract, schema validation, variety check)
 - `references/step-4-5-headline-craft.md` — Headline Craft dispatch (Plan C — PLACEHOLDER, TBD)
 - `references/compare-feed-layout.md` — Compare Feed prepend layout 2 cột
 - `references/pipeline-log-format.md` — Pipeline log Step 1-4 format

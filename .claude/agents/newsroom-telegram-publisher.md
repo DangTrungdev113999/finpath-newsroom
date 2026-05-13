@@ -137,22 +137,25 @@ Return `result` JSON tới caller (orchestrator).
 }
 ```
 
-## Channel post format (T16 conditional 2-3 lines)
+## Channel post format (3 lines — always)
 
 ```
 <b>{title}</b>
 [blank line cho thoáng]
 🕐 {posted_at:%d/%m/%Y %H:%M:%S}
-⏱️ Thời gian viết bài: {duration} · 🪙 {tokens}    ← line 3 conditional
+⏱️ Thời gian viết bài: {duration|chưa đo}[ · 🪙 {tokens}]
 ```
 
-**Conditional line 3** (T16):
-- Cả duration + tokens None → bỏ line 3 entirely (chỉ 2 lines)
-- Chỉ duration → `⏱️ Thời gian viết bài: 1m 37s`
-- Chỉ tokens → `🪙 12.500`
-- Cả 2 → `⏱️ Thời gian viết bài: 1m 37s · 🪙 12.500`
+**Line 3 ALWAYS present** for visual consistency across feed:
+- Duration null → fallback "chưa đo"
+- Tokens null → tokens chunk omitted (no `· 🪙 —` placeholder)
+- Examples:
+  - Both: `⏱️ Thời gian viết bài: 1m 37s · 🪙 12.500`
+  - Duration only: `⏱️ Thời gian viết bài: 1m 37s`
+  - Tokens only: `⏱️ Thời gian viết bài: chưa đo · 🪙 8.500`
+  - Neither: `⏱️ Thời gian viết bài: chưa đo`
 
-KHÔNG hiển thị `"—"` placeholder — empty values bỏ field.
+KHÔNG hiển thị `"—"` placeholder anywhere.
 
 ## Thread message format (2 replies)
 
@@ -183,6 +186,17 @@ Status semantics:
 - secrets.yaml MUST gitignored (Phase G T13)
 - KHÔNG persist telegram_pushed_at nếu status=failed (next pipeline retries)
 - KHÔNG escape title/body locally — TelegramPublisher xử lý HTML escape + Markdown→HTML conversion
+
+## Concurrency safety
+
+Parallel publishers (vd `/tin-batch` dispatch N publishers cùng lúc) auto-serialize qua
+cross-process advisory lock `/tmp/finpath-newsroom-tg-publisher.lock` bên trong
+`publish_article_with_thread_body`. Lock spans drain + send + poll cho mỗi article,
+nên auto-forward detection deterministic per-post (KHÔNG còn race như V4.0 pre-fix
+mà 3 publishers parallel cùng match auto-forward đầu tiên).
+
+Detection criteria strict: `forward_from_message_id == channel_msg_id` only —
+bỏ `is_automatic_forward` short-circuit để chống race ngay cả khi lock fail.
 
 ## Telegram setup prerequisites (1-time)
 
