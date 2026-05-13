@@ -1,6 +1,95 @@
 {
-  "built_at": "2026-05-13T04:49:43.514716+00:00",
+  "built_at": "2026-05-13T07:11:33.689763+00:00",
   "sessions": [
+    {
+      "session_id": "9DF9047E-86BA-46CC-9F3D-86B600BB0919",
+      "trigger_type": "tin",
+      "trigger_args": "PVS",
+      "started_at": "2026-05-13T06:37:42.505192+00:00",
+      "ended_at": "2026-05-13T06:37:42.506063+00:00",
+      "fetched_total": 8,
+      "chosen_total": 2,
+      "rejected_total": 6,
+      "batches": [
+        {
+          "funnel_batch_id": "PVS-20260513-0637",
+          "ticker": "PVS",
+          "sector_code": null,
+          "sector_name": "Dầu khí",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 8,
+          "chosen_count": 2,
+          "rejected_count": 6,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "nhadautu.vn",
+                "url": "https://nhadautu.vn/pvs-lai-quy-i-tang-45-trich-lap-du-phong-bao-hanh-tang-manh-d104741.html",
+                "published": null,
+                "reason": "OK — accepted_hypothesis: true. Title: PVS kế hoạch giảm 48% nhưng Q1 đã ăn 44%: khoản 282 tỷ che gì?"
+              },
+              {
+                "source": "vietnambiz.vn",
+                "url": "https://vietnambiz.vn/pvs-so-huu-hon-16000-ty-tien-mat-bang-82-von-hoa-cong-ty-20265135812551.htm",
+                "published": null,
+                "reason": "OK — accepted_hypothesis: true. Title: PVS biên gộp lên 9,8% nhưng tiền mặt 14.000 tỷ còn mắc Lô B?"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "tnktvmblog2.wordpress.com",
+                "url": "https://tnktvmblog2.wordpress.com/2026/05/06/pvs-lai-quy-i-tang-45-trich-lap-du-phong-bao-hanh-tang-manh/",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Trùng cụm tin Q1 với nhadautu.vn (brief 1) - bản wordpress blog tóm tắt",
+                "reason": "dup_event: Trùng cụm tin Q1 với nhadautu.vn (brief 1) - bản wordpress blog tóm tắt"
+              },
+              {
+                "source": "mekongasean.vn",
+                "url": "https://mekongasean.vn/trien-vong-nganh-dau-khi-nam-2026-50474.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "low_insight_potential: Bài triển vọng ngành 2026 tổng quan từ trang aggregator, không có data đặc thù PVS đủ làm bài insight",
+                "reason": "low_insight_potential: Bài triển vọng ngành 2026 tổng quan từ trang aggregator, không có data đặc thù PVS đủ làm bài insight"
+              },
+              {
+                "source": "suckhoedoisong.vn",
+                "url": "https://suckhoedoisong.vn/vpbanks-duy-tri-gia-muc-tieu-48200-dong-voi-co-phieu-pvs-169260324055943358.htm",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_angle_recent: Báo cáo VPBankS giá mục tiêu 48.200đ - tham chiếu đã fold vào brief 1 option 3 (bóc tách biên lãi ròng lõi) và brief 2",
+                "reason": "dup_angle_recent: Báo cáo VPBankS giá mục tiêu 48.200đ - tham chiếu đã fold vào brief 1 option 3 (bóc tách biên lãi ròng lõi) và brief 2"
+              },
+              {
+                "source": "stockbiz.vn",
+                "url": "https://stockbiz.vn/tin-tuc/pvs-quy-i2026-khoi-sac-dau-nam-loi-nhuan-tang-manh-nho-mang-co-khi-va-dich-vu/39738875",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Trùng cụm tin Q1 với nhadautu.vn (brief 1) - bản stockbiz tóm tắt",
+                "reason": "dup_event: Trùng cụm tin Q1 với nhadautu.vn (brief 1) - bản stockbiz tóm tắt"
+              },
+              {
+                "source": "dnse.com.vn",
+                "url": "https://www.dnse.com.vn/senses/tin-tuc/ptsc-ghi-nhan-loi-nhuan-gop-tang-hon-3-lan-trong-quy-dau-nam-35222483",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Trùng cụm tin Q1 với nhadautu.vn (brief 1) - bản dnse với góc lợi nhuận gộp x3",
+                "reason": "dup_event: Trùng cụm tin Q1 với nhadautu.vn (brief 1) - bản dnse với góc lợi nhuận gộp x3"
+              },
+              {
+                "source": "theinvestor.vn",
+                "url": "https://theinvestor.vn/pvs-q1-profit-rises-45-warranty-provisions-surge-d19005.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Trùng cụm tin Q1 với nhadautu.vn (brief 1) - bản tiếng Anh theinvestor.vn",
+                "reason": "dup_event: Trùng cụm tin Q1 với nhadautu.vn (brief 1) - bản tiếng Anh theinvestor.vn"
+              }
+            ]
+          }
+        }
+      ]
+    },
     {
       "session_id": "CA37C59A-ED79-47F4-BCA2-56661F213DD2",
       "trigger_type": "tin",
@@ -84,7 +173,7 @@
                 "source": "VietNamNet",
                 "url": "https://vietnamnet.vn/ceo-fpt-de-xuat-mo-hinh-kinh-te-du-lieu-thuc-day-tang-truong-8-10-cho-hue-2514893.html",
                 "published": "2026-05-12T11:08:00Z",
-                "reason": "OK — accepted_hypothesis: true. Title: FPT bơm 89 triệu USD vào Huế, không phải TPHCM – vì sao?"
+                "reason": "OK — accepted_hypothesis: true. Title: Vì sao FPT đổ 89 triệu đô vào Huế thay vì siêu đô thị?"
               }
             ],
             "rejected": [

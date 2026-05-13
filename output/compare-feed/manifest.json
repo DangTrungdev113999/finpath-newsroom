@@ -1,13 +1,35 @@
 {
   "articles": [
     {
+      "id": "pvs-20260513-0657-pvs-ke-hoach-giam-48-nhung-q1-da-an-44-khoan-282-ty-che-gi",
+      "ticker": "PVS",
+      "sector": "oilGas",
+      "title": "PVS kế hoạch giảm 48% nhưng Q1 đã ăn 44%: khoản 282 tỷ che gì?",
+      "crawled_at": "2026-05-13T06:37:42.505909+00:00",
+      "key_view": "lạc quan",
+      "word_count": 232,
+      "category": null,
+      "format_id": "standard_qa"
+    },
+    {
+      "id": "pvs-20260513-0703-pvs-bien-gop-len-9-8-nhung-tien-mat-14-000-ty-con-mac-lo-b",
+      "ticker": "PVS",
+      "sector": "oilGas",
+      "title": "PVS biên gộp lên 9,8% nhưng tiền mặt 14.000 tỷ còn mắc Lô B?",
+      "crawled_at": "2026-05-13T06:37:42.505797+00:00",
+      "key_view": "phân hoá",
+      "word_count": 285,
+      "category": "comparison_deep",
+      "format_id": "standard_listicle"
+    },
+    {
       "id": "gas-doanh-thu-len-lai-rut-22-phan-tram-hormuz-lng-xen-bien",
       "ticker": "GAS",
       "sector": "Phòng thủ",
       "title": "GAS đánh đổi 22% lợi nhuận để nhập khí hoá lỏng giá cao?",
       "crawled_at": "2026-05-13T04:13:10.545428+00:00",
       "key_view": "paradox:GAS doanh thu len 5% nhung lai tut 22% — chuyen dich co cau sang LNG nhap bien mong",
-      "word_count": 239,
+      "word_count": 269,
       "category": null,
       "format_id": "standard_qa"
     },
@@ -18,7 +40,7 @@
       "title": "BCA ôm 50% vốn FOX, FPT mẹ nguy 2.330 tỷ vì sao?",
       "crawled_at": "2026-05-13T04:04:22.666082+00:00",
       "key_view": "Điểm nghẽn cơ cấu sở hữu chạm phần đóng góp lớn nhất",
-      "word_count": 238,
+      "word_count": 248,
       "category": null,
       "format_id": "standard_qa"
     },
@@ -26,10 +48,10 @@
       "id": "fpt-bom-89-trieu-usd-vao-hue-khong-phai-tphcm-vi-sao",
       "ticker": "FPT",
       "sector": "Phòng thủ",
-      "title": "FPT bơm 89 triệu USD vào Huế, không phải TPHCM – vì sao?",
+      "title": "Vì sao FPT đổ 89 triệu đô vào Huế thay vì siêu đô thị?",
       "crawled_at": "2026-05-13T04:04:22.665778+00:00",
       "key_view": "trung lập",
-      "word_count": 232,
+      "word_count": 255,
       "category": null,
       "format_id": "standard_qa"
     },
@@ -40,7 +62,7 @@
       "title": "PLX vì sao bán thêm 10% mà lợi nhuận vẫn teo?",
       "crawled_at": "2026-05-13T04:01:40.724232+00:00",
       "key_view": "thận trọng",
-      "word_count": 238,
+      "word_count": 263,
       "category": "paradox",
       "format_id": "standard_qa"
     },
@@ -51,7 +73,7 @@
       "title": "PLX lỗ 1.000 tỷ xăng dầu mà vẫn lấn sang xe điện, vì sao?",
       "crawled_at": "2026-05-13T04:01:40.723326+00:00",
       "key_view": "lạc quan",
-      "word_count": 238,
+      "word_count": 242,
       "category": "why_now",
       "format_id": "standard_qa"
     },
@@ -62,7 +84,7 @@
       "title": "Vì sao PLX thu 98.724 tỷ mà vẫn ăn lỗ 662 tỷ?",
       "crawled_at": "2026-05-13T04:01:40.721884+00:00",
       "key_view": "trung lập",
-      "word_count": 224,
+      "word_count": 227,
       "category": "paradox",
       "format_id": "standard_qa"
     },
@@ -73,7 +95,7 @@
       "title": "MSN ăn 1.974 tỷ kỷ lục: tại sao 2024 không phải điểm lật?",
       "crawled_at": "2026-05-13T03:18:33.218723+00:00",
       "key_view": "Ba bước ngoặt hội tụ - Masan vào chu kỳ tái định giá Q2/2026",
-      "word_count": 238,
+      "word_count": 244,
       "category": null,
       "format_id": "standard_qa"
     },
@@ -84,7 +106,7 @@
       "title": "MSN WinCommerce vọt 14% doanh thu cũ: bán lẻ Việt hồi phục thật?",
       "crawled_at": "2026-05-13T03:18:33.218668+00:00",
       "key_view": "trung lập",
-      "word_count": 260,
+      "word_count": 266,
       "category": null,
       "format_id": "standard_listicle"
     },
@@ -117,7 +139,7 @@
       "title": "Q1 ngành bank phân hóa: STB tống 2.700, VPB+TCB+LPB nhồi thêm 700. Bank nào sai?",
       "crawled_at": "2026-05-13T03:02:55.870788+00:00",
       "key_view": "phân hoá",
-      "word_count": 250,
+      "word_count": 256,
       "category": null,
       "format_id": "standard_listicle"
     },
@@ -128,7 +150,7 @@
       "title": "STB gom DNA LPBank, lợi nhuận rớt 42%, vì sao chấp nhận?",
       "crawled_at": "2026-05-13T03:02:55.870312+00:00",
       "key_view": "lạc quan",
-      "word_count": 276,
+      "word_count": 292,
       "category": "hidden_mechanism",
       "format_id": "standard_narrative"
     },
