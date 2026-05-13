@@ -1,6 +1,50 @@
 {
   "articles": [
     {
+      "id": "STB-20260513-1200-pending-headline",
+      "ticker": "STB",
+      "sector": "Bank",
+      "title": "STB xén 85% mà ngành còn lại vẫn tuyển?",
+      "crawled_at": "2026-05-13T03:02:55.870788+00:00",
+      "key_view": "phân hoá",
+      "word_count": 280,
+      "category": "comparison_deep",
+      "format_id": "standard_listicle"
+    },
+    {
+      "id": "STB-20260513-1200-stb-xen-85-ma-nganh-con-lai-van-tuyen",
+      "ticker": "STB",
+      "sector": "Bank",
+      "title": "STB xén 85% mà ngành còn lại vẫn tuyển?",
+      "crawled_at": "2026-05-13T03:02:55.870788+00:00",
+      "key_view": "phân hoá",
+      "word_count": 280,
+      "category": "comparison_deep",
+      "format_id": "standard_listicle"
+    },
+    {
+      "id": "stb-20260513-1900-pending-headline",
+      "ticker": "STB",
+      "sector": "Bank",
+      "title": "STB gom DNA LPBank, lợi nhuận rớt 42%, vì sao chấp nhận?",
+      "crawled_at": "2026-05-13T03:02:55.870312+00:00",
+      "key_view": "lạc quan",
+      "word_count": 276,
+      "category": "hidden_mechanism",
+      "format_id": "standard_narrative"
+    },
+    {
+      "id": "STB-20260513-1900-stb-gom-dna-lpbank-loi-nhuan-rot-42-vi-sao-chap-nhan",
+      "ticker": "STB",
+      "sector": "Bank",
+      "title": "STB gom DNA LPBank, lợi nhuận rớt 42%, vì sao chấp nhận?",
+      "crawled_at": "2026-05-13T03:02:55.870312+00:00",
+      "key_view": "lạc quan",
+      "word_count": 276,
+      "category": "hidden_mechanism",
+      "format_id": "standard_narrative"
+    },
+    {
       "id": "vhm-co-tuc-60pct-11000-ty-trai-phieu-co-che-tai-chinh-co-chu-dich",
       "ticker": "VHM",
       "sector": "bds",
