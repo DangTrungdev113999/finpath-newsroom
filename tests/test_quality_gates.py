@@ -574,19 +574,21 @@ def test_check_all_v5_dispatches_per_format(monkeypatch):
         "Tích cực dài hạn cho VCB nhờ chiến lược ổn định nhờ kỷ luật rủi ro. NĐT đang cầm nên giữ 12 tháng vì chiến lược phòng thủ Q1 sẽ thành lợi thế tăng trưởng."
     )
     results = check_all_v5(body, format_id="standard_qa", stance="bullish")
-    # 11 keys expected (V1.3 added bao_chi_body + bold_density)
+    # V1.5-lite: 13 keys (11 universal + 2 per-format, +1 conditional price_realistic when ticker)
     assert set(results.keys()) == {
         "no_english_jargon", "no_metadata_leak", "no_hedging",
         "verdict_line", "stance_consistency", "sentence_density",
         "em_dash_density",
-        "bao_chi_body", "bold_density",
+        "bold_density", "min_sentence_richness",
+        "han_viet_formal", "abbreviation_expanded",
         "word_count", "body_pattern",
     }
     # title_pattern NOT in results
     assert "title_pattern" not in results
-    # bold_density may fail for this legacy fixture (low bold count) — V1.3 ramp,
-    # acceptable for retroactive fixtures. New articles MUST pass via Master.
-    failed = [(k, v) for k, v in results.items() if not v["pass"] and k != "bold_density"]
+    # bold_density / han_viet_formal / abbreviation_expanded may fail for legacy
+    # fixtures — V1.5-lite ramp; new articles MUST pass via Master.
+    failed = [(k, v) for k, v in results.items() if not v["pass"]
+              and k not in ("bold_density", "han_viet_formal", "abbreviation_expanded")]
     assert not failed, f"Unexpected failures: {failed}"
 
 
@@ -643,7 +645,12 @@ def test_check_all_v5_includes_em_dash_density(monkeypatch):
     )
     results = check_all_v5(body, format_id="standard_qa", stance="bullish")
     assert "em_dash_density" in results
-    assert len(results) == 11  # 7 universal + 2 V1.3 (bao_chi_body, bold_density) + 2 per-format
-    # bold_density may fail for legacy fixture (low bold count) — V1.3 ramp.
-    failed = [(k, v) for k, v in results.items() if not v["pass"] and k != "bold_density"]
+    # V1.5-lite: 13 = 11 universal + 2 per-format (price_realistic NOT added when no ticker)
+    # no_english_jargon + no_metadata_leak + no_hedging + verdict_line +
+    # stance_consistency + sentence_density + em_dash_density + bold_density +
+    # min_sentence_richness + han_viet_formal + abbreviation_expanded + word_count + body_pattern
+    assert len(results) == 13
+    # bold_density / han_viet_formal / abbreviation_expanded may fail — legacy fixture, V1.5-lite ramp
+    failed = [(k, v) for k, v in results.items() if not v["pass"]
+              and k not in ("bold_density", "han_viet_formal", "abbreviation_expanded")]
     assert not failed, f"Unexpected failures: {failed}"

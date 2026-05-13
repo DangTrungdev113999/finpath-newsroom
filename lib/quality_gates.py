@@ -533,41 +533,6 @@ _QUANTIFIED_TRIGGER_RE = re.compile(
 )
 
 
-def check_bao_chi_body(body: str) -> dict[str, Any]:
-    """V1.3 — ban ≥2 báo chí verb occurrences in body.
-
-    Parallel V1.2 title `is_bao_chi`. Audit top 3 verbs: bàn giao (6x) ·
-    ghi nhận · phát hành · công bố · dự kiến. 1 occurrence = factual
-    reporting OK; ≥2 = thông cáo style.
-
-    Skeptic section + pipeline log stripped before check.
-    """
-    # V1.5-lite: BAO_CHI_BODY_VERBS dropped from voice_rules. Local copy kept
-    # here until Task 2 drops check_bao_chi_body entirely.
-    BAO_CHI_BODY_VERBS = [
-        "bàn giao", "ghi nhận", "công bố", "dự kiến đạt", "dự kiến đạt được",
-        "phát hành thành công", "đang tiến hành", "tiếp tục triển khai",
-        "đặt mục tiêu", "hoàn thành kế hoạch", "phấn đấu", "phấn đấu đạt",
-        "thông qua nghị quyết", "đã được phê duyệt", "đã được thông qua",
-        "ban hành", "triển khai đồng bộ", "tích cực triển khai",
-    ]
-
-    cleaned = _clean(body).lower()
-    leaked = []
-    for verb in BAO_CHI_BODY_VERBS:
-        # Count occurrences of this verb in cleaned body
-        occurrences = cleaned.count(verb)
-        if occurrences > 0:
-            leaked.extend([verb] * occurrences)
-
-    if len(leaked) >= 2:
-        return {
-            "pass": False,
-            "reason": f"Báo chí body voice: {len(leaked)} occurrences of {set(leaked)}",
-            "leaked_verbs": leaked,
-        }
-    return {"pass": True, "reason": "", "leaked_verbs": leaked}
-
 
 def check_bold_density(body: str, format_id: str) -> dict[str, Any]:
     """V1.3 — per-format markdown bold density target.
@@ -828,23 +793,205 @@ def check_body_pattern_per_format(body: str, format_id: str) -> dict[str, Any]:
     return {"pass": False, "reason": f"Unknown structure: {structure}"}
 
 
-def check_all_v5(body: str, format_id: str, stance: str) -> dict[str, dict[str, Any]]:
-    """Run V5.0 + V5.1 + V5.1.2 + V1.3 + V1.4 gates.
+# ============================================================
+# V1.5-lite NEW gates (mechanical bans)
+# ============================================================
 
-    V5.1 PATCH: title_pattern dropped (moved to Plan C lib/headline_scorer.py).
-    V5.1.2 PATCH (B-30): em_dash_density wired in (was standalone in B-5).
-    V1.3 PATCH (2026-05-13): bao_chi_body + bold_density added. verdict_line
-    now composes actionable_closing (no separate key — covered by verdict_line).
-    V1.4 PATCH (2026-05-13 PM): min_sentence_richness added — reject body >20%
-    câu <10 từ (user feedback "cụt cụt" sau V1.3 length shrink).
+from lib.voice_rules import HAN_VIET_FORMAL_BAN, NATURALIZED_FINANCE_TERMS
 
-    Universal (10): no_english_jargon, no_metadata_leak, no_hedging, verdict_line
-                    (composes actionable_closing), stance_consistency, sentence_density,
-                    em_dash_density, bao_chi_body (V1.3), bold_density (V1.3),
-                    min_sentence_richness (V1.4 NEW).
+
+def check_han_viet_formal(body: str) -> dict[str, Any]:
+    """V1.5-lite — reject body chứa ≥2 Hán-Việt formal terms.
+
+    User feedback 2026-05-13: "độc bản / hội đủ / tái định giá" reads as
+    formal/báo chí, not bình dân. 1 occurrence OK (factual context),
+    ≥2 = formal pile-on.
+
+    Skeptic section + pipeline log stripped before check.
+    """
+    cleaned = _clean(body).lower()
+    found = []
+    for term in HAN_VIET_FORMAL_BAN:
+        if term in cleaned:
+            found.append(term)
+    if len(found) >= 2:
+        replacements = {t: HAN_VIET_FORMAL_BAN[t] for t in found}
+        return {
+            "pass": False,
+            "reason": f"Hán-Việt formal pile-on: {len(found)} terms — {replacements}",
+            "found_terms": found,
+        }
+    return {"pass": True, "reason": "", "found_terms": found}
+
+
+_ABBREV_PATTERN = re.compile(r"\b[A-Z]{3,4}\b")
+_ABBREV_EXPANSION_PATTERN = re.compile(r"\(([^)]+)\)")
+
+
+def _is_ticker(token: str) -> bool:
+    """Check token có phải Finpath ticker không (cached lookup)."""
+    try:
+        from lib.pipeline_db import PipelineDB
+        from lib.finpath_sectors import FinpathSectors
+        db = PipelineDB("data/pipeline.db")
+        fs = FinpathSectors(db)
+        cached = fs.get_all_cached_tickers()
+        db.close()
+        return token in cached
+    except Exception:
+        from lib.headline_scorer import ALL_TICKERS
+        return token in ALL_TICKERS
+
+
+def check_abbreviation_expanded(body: str) -> dict[str, Any]:
+    """V1.5-lite — 3-4 letter uppercase MUST be expanded on first occurrence
+    OR in NATURALIZED_FINANCE_TERMS allowlist OR is a ticker.
+
+    User feedback 2026-05-13: BCA / GRDP / SCIC reader bình dân không hiểu.
+    Force "Bộ Công An (BCA)" first mention pattern.
+
+    Returns {pass, missing_expansions: [list of unexpanded abbreviations]}
+    """
+    cleaned = _clean(body)
+    tokens = _ABBREV_PATTERN.findall(cleaned)
+    if not tokens:
+        return {"pass": True, "reason": "", "missing_expansions": []}
+
+    unique_abbrev = []
+    seen = set()
+    for tok in tokens:
+        if tok in seen:
+            continue
+        seen.add(tok)
+        unique_abbrev.append(tok)
+
+    missing = []
+    for abbrev in unique_abbrev:
+        if abbrev.lower() in NATURALIZED_FINANCE_TERMS:
+            continue
+        if _is_ticker(abbrev):
+            continue
+        first_idx = cleaned.find(abbrev)
+        if first_idx < 0:
+            continue
+        # Look ahead 30 chars for "(<expansion>)" pattern
+        window = cleaned[first_idx + len(abbrev):first_idx + len(abbrev) + 30]
+        if _ABBREV_EXPANSION_PATTERN.search(window):
+            continue
+        # Also check "<expansion> (ABBREV)" form — look 50 chars before
+        before_window = cleaned[max(0, first_idx - 50):first_idx]
+        if before_window.rstrip().endswith("("):
+            continue
+        missing.append(abbrev)
+
+    if missing:
+        return {
+            "pass": False,
+            "reason": f"Abbreviations not expanded on first mention: {missing}",
+            "missing_expansions": missing,
+        }
+    return {"pass": True, "reason": "", "missing_expansions": []}
+
+
+def _fetch_current_price(ticker: str) -> float:
+    """Fetch current stock price from Finpath API. Helper for testability."""
+    from lib.finpath_api import FinpathAPI
+    api = FinpathAPI()
+    overview = api.get_overview()
+    if not isinstance(overview, dict):
+        raise ConnectionError("Finpath overview returned non-dict")
+    stocks = overview.get("stocks", [])
+    for s in stocks:
+        if s.get("c") == ticker:
+            price = s.get("p")
+            if price is not None and price > 0:
+                return float(price)
+    raise ValueError(f"Ticker {ticker} not in Finpath overview")
+
+
+_PRICE_TARGET_RE = re.compile(
+    r"(\d+(?:[.,]\d+)?)\s*(?:nghìn(?:/cp|\s*đồng)?|nghìn|k\b)",
+    re.IGNORECASE,
+)
+
+
+def check_price_realistic(body: str, ticker: str) -> dict[str, Any]:
+    """V1.5-lite — closing price target MUST be within ±50% Finpath current.
+
+    User feedback 2026-05-13: FPT bài closing said 145 nghìn/cp khi thực tế
+    ~70 nghìn. Master hallucinated price target.
+
+    Extracts price targets from closing paragraph (last block). Fetches
+    current price from Finpath API. Asserts each target within ±50% current.
+
+    Degrades gracefully: if Finpath unavailable, return pass with warning.
+    """
+    try:
+        current = _fetch_current_price(ticker)
+    except Exception as e:
+        return {
+            "pass": True,
+            "reason": f"warning: Finpath unavailable — skipped price check ({e})",
+            "degraded": True,
+        }
+
+    cleaned = _clean(body).strip()
+    blocks = [b.strip() for b in re.split(r"\n\s*\n", cleaned) if b.strip()]
+    closing = "\n".join(blocks[-2:]) if len(blocks) >= 2 else cleaned
+
+    targets = []
+    for m in _PRICE_TARGET_RE.finditer(closing):
+        raw = m.group(1).replace(",", ".")
+        try:
+            val = float(raw) * 1000  # nghìn → đồng
+            targets.append(val)
+        except ValueError:
+            continue
+
+    if not targets:
+        return {"pass": True, "reason": "", "current_price": current, "targets_found": []}
+
+    out_of_range = []
+    lo = current * 0.5
+    hi = current * 1.5
+    for t in targets:
+        if t < lo or t > hi:
+            out_of_range.append(t)
+
+    if out_of_range:
+        return {
+            "pass": False,
+            "reason": (
+                f"Price target out of ±50% range — current={current:.0f}đ, "
+                f"targets={[int(t) for t in targets]}, "
+                f"out_of_range={[int(t) for t in out_of_range]}"
+            ),
+            "current_price": current,
+            "targets_found": targets,
+            "out_of_range": out_of_range,
+        }
+    return {
+        "pass": True,
+        "reason": "",
+        "current_price": current,
+        "targets_found": targets,
+    }
+
+
+def check_all_v5(body: str, format_id: str, stance: str, ticker: str = "") -> dict[str, dict[str, Any]]:
+    """Run V5.0 + V5.1.2 + V1.4 + V1.5-lite gates (12-13 total).
+
+    V1.5-lite (2026-05-13 PM): DROP check_bao_chi_body (replaced Master prompt).
+    ADD check_han_viet_formal + check_abbreviation_expanded + check_price_realistic.
+
+    Universal (11): no_english_jargon, no_metadata_leak, no_hedging, verdict_line,
+                    stance_consistency, sentence_density, em_dash_density,
+                    bold_density, min_sentence_richness (V1.4),
+                    han_viet_formal (V1.5 NEW), abbreviation_expanded (V1.5 NEW).
+    Conditional (1): price_realistic (V1.5 NEW — requires ticker).
     Per-format (2): word_count, body_pattern.
     """
-    return {
+    result = {
         "no_english_jargon": check_no_english_jargon(body),
         "no_metadata_leak": check_no_metadata_leak(body),
         "no_hedging": check_no_hedging(body),
@@ -852,9 +999,13 @@ def check_all_v5(body: str, format_id: str, stance: str) -> dict[str, dict[str, 
         "stance_consistency": check_stance_consistency(body, stance),
         "sentence_density": check_sentence_density(body),
         "em_dash_density": check_em_dash_density(body),
-        "bao_chi_body": check_bao_chi_body(body),
         "bold_density": check_bold_density(body, format_id),
         "min_sentence_richness": check_min_sentence_richness(body),
+        "han_viet_formal": check_han_viet_formal(body),
+        "abbreviation_expanded": check_abbreviation_expanded(body),
         "word_count": check_word_count_per_format(body, format_id),
         "body_pattern": check_body_pattern_per_format(body, format_id),
     }
+    if ticker:
+        result["price_realistic"] = check_price_realistic(body, ticker)
+    return result
