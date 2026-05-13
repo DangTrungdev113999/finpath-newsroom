@@ -1,6 +1,111 @@
 {
-  "built_at": "2026-05-13T07:29:23.178515+00:00",
+  "built_at": "2026-05-13T09:32:52.177735+00:00",
   "sessions": [
+    {
+      "session_id": "39782809-a007-46ac-b651-676679d32e00",
+      "trigger_type": "tin",
+      "trigger_args": "VHM",
+      "started_at": "2026-05-13T09:10:23.281616+00:00",
+      "ended_at": "2026-05-13T09:10:23.284538+00:00",
+      "fetched_total": 10,
+      "chosen_total": 2,
+      "rejected_total": 8,
+      "batches": [
+        {
+          "funnel_batch_id": "VHM-20260513-0910",
+          "ticker": "VHM",
+          "sector_code": null,
+          "sector_name": "BDS VIC3",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 10,
+          "chosen_count": 2,
+          "rejected_count": 8,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/chu-tich-vinhomes-noi-gi-ve-thi-truong-bat-dong-san-trong-nam-2026-188260414152443615.chn",
+                "published": null,
+                "reason": "OK — accepted_hypothesis: true. Title: Bất động sản 2026 phân đôi: VHM tăng 133%, NVL còn kẹt pháp lý"
+              },
+              {
+                "source": "VietnamBiz",
+                "url": "https://vietnambiz.vn/dhdcd-vinhomes-doanh-so-pre-sales-nam-2026-du-kien-300000-350000-ty-dong-mo-ban-ba-du-an-tai-da-nang-quang-ninh-va-tp-hcm-2026420142531869.htm",
+                "published": null,
+                "reason": "OK — accepted_hypothesis: true. Title: VHM lần đầu bán ngoài Hà Nội: cược 300.000 tỷ vào ba vùng mới"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "Dân Việt",
+                "url": "https://danviet.vn/co-phieu-bat-dong-san-vinhomes-tang-kich-tran-truoc-them-dhdcd-2026-vn-index-tang-gan-20-diem-d1420122.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "low_insight_potential: Cổ phiếu tăng kịch trần trước đại hội là phản ứng thị trường thường gặp, không có cơ chế đào sâu cho người đầu tư.",
+                "reason": "low_insight_potential: Cổ phiếu tăng kịch trần trước đại hội là phản ứng thị trường thường gặp, không có cơ chế đào sâu cho người đầu tư."
+              },
+              {
+                "source": "VnExpress",
+                "url": "https://vnexpress.net/chu-tich-vinhomes-thi-truong-bat-dong-san-buoc-vao-giai-doan-phuc-hoi-co-chon-loc-5061981.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Cùng tin chủ tịch VHM phát biểu phục hồi có chọn lọc với nguồn cafef đã chọn làm anchor cho brief 1.",
+                "reason": "dup_event: Cùng tin chủ tịch VHM phát biểu phục hồi có chọn lọc với nguồn cafef đã chọn làm anchor cho brief 1."
+              },
+              {
+                "source": "Tuổi Trẻ",
+                "url": "https://tuoitre.vn/vinhomes-dieu-chinh-muc-tieu-lai-nam-2026-tang-them-10-000-ti-dong-mot-con-so-ky-luc-20260420125427338.htm",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Nâng mục tiêu lãi 2026 thêm 10.000 tỷ đã được cover trong bài VHM lãi 25.600 tỷ Q1 nâng thêm 10.000 tỷ giữa chừng.",
+                "reason": "dup_event: Nâng mục tiêu lãi 2026 thêm 10.000 tỷ đã được cover trong bài VHM lãi 25.600 tỷ Q1 nâng thêm 10.000 tỷ giữa chừng."
+              },
+              {
+                "source": "BaoMoi",
+                "url": "https://baomoi.com/vinhomes-nang-loi-nhuan-ke-hoach-nam-2026-len-60-000-ty-dong-c54980232.epi",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Cùng tin nâng mục tiêu lợi nhuận 60.000 tỷ đã viết trong bài tuần trước.",
+                "reason": "dup_event: Cùng tin nâng mục tiêu lợi nhuận 60.000 tỷ đã viết trong bài tuần trước."
+              },
+              {
+                "source": "Người Đưa Tin",
+                "url": "https://www.nguoiduatin.vn/vinhomes-ghi-nhan-doanh-so-81700-ty-dong-trong-3-thang-dau-nam-204260429101010125.htm",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Doanh số 81.700 tỷ quý 1 là con số phụ trong tin lãi Q1 25.625 tỷ đã viết, không có angle độc lập.",
+                "reason": "sub_event_attached: Doanh số 81.700 tỷ quý 1 là con số phụ trong tin lãi Q1 25.625 tỷ đã viết, không có angle độc lập."
+              },
+              {
+                "source": "VietnamBiz",
+                "url": "https://vietnambiz.vn/thong-diep-cua-chu-tich-vinhomes-thi-truong-bat-dong-san-2026-se-phuc-hoi-co-chon-loc-20264148212138.htm",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Cùng thông điệp chủ tịch VHM với nguồn cafef đã chọn làm anchor brief 1.",
+                "reason": "dup_event: Cùng thông điệp chủ tịch VHM với nguồn cafef đã chọn làm anchor brief 1."
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/vinhomes-phat-hanh-3000-ty-trai-phieu-188260513.chn",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Trái phiếu 3.000 tỷ đã được cover trong bài VHM chia cổ tức kỷ lục vẫn vay 11.000 tỷ.",
+                "reason": "dup_event: Trái phiếu 3.000 tỷ đã được cover trong bài VHM chia cổ tức kỷ lục vẫn vay 11.000 tỷ."
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/vinhomes-bao-lai-quy-1-hon-25600-ty-vo-dich-san-chung-khoan-188260428142457232.chn",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Lãi Q1 25.600 tỷ vô địch sàn đã viết trong bài VHM Q1 ăn 25.625 tỷ gấp 3 Vietcombank.",
+                "reason": "dup_event: Lãi Q1 25.600 tỷ vô địch sàn đã viết trong bài VHM Q1 ăn 25.625 tỷ gấp 3 Vietcombank."
+              }
+            ]
+          }
+        }
+      ]
+    },
     {
       "session_id": "9DF9047E-86BA-46CC-9F3D-86B600BB0919",
       "trigger_type": "tin",
@@ -27,13 +132,13 @@
                 "source": "nhadautu.vn",
                 "url": "https://nhadautu.vn/pvs-lai-quy-i-tang-45-trich-lap-du-phong-bao-hanh-tang-manh-d104741.html",
                 "published": null,
-                "reason": "OK — accepted_hypothesis: true. Title: PVS kế hoạch giảm 48% nhưng Q1 đã ăn 44%: khoản 282 tỷ che gì?"
+                "reason": "OK — accepted_hypothesis: true. Title: PVS trích 282 tỷ bảo hành khi cùng kỳ bằng 0, tính toán gì?"
               },
               {
                 "source": "vietnambiz.vn",
                 "url": "https://vietnambiz.vn/pvs-so-huu-hon-16000-ty-tien-mat-bang-82-von-hoa-cong-ty-20265135812551.htm",
                 "published": null,
-                "reason": "OK — accepted_hypothesis: true. Title: PVS biên gộp lên 9,8% nhưng tiền mặt 14.000 tỷ còn mắc Lô B?"
+                "reason": "OK — accepted_hypothesis: true. Title: PVS: giữ núi tiền mặt nhưng thị trường vẫn không tin"
               }
             ],
             "rejected": [
@@ -116,7 +221,7 @@
                 "source": "Tin nhanh chứng khoán",
                 "url": "https://www.tinnhanhchungkhoan.vn/pv-gas-giu-vung-nguon-cung-lng-lpg-cho-thi-truong-nang-luong-viet-nam-giua-gian-doan-tai-eo-bien-hormuz-post390145.html",
                 "published": "2026-05-12T09:00:00+07:00",
-                "reason": "OK — accepted_hypothesis: true. Title: GAS đánh đổi 22% lợi nhuận để nhập khí hoá lỏng giá cao?"
+                "reason": "OK — accepted_hypothesis: true. Title: Vì sao PV GAS tăng doanh thu nhưng lãi lại giảm 22% năm 2026?"
               }
             ],
             "rejected": [
@@ -167,13 +272,13 @@
                 "source": "VietnamBiz",
                 "url": "https://vietnambiz.vn/fpt-telecom-khong-dap-ung-dieu-kien-cong-ty-dai-chung-2026512114834318.htm",
                 "published": "2026-05-12T11:48:00Z",
-                "reason": "OK — accepted_hypothesis: true. Title: Bộ Công an ôm 50% vốn FPT Telecom, FPT mẹ nguy 2.330 tỷ?"
+                "reason": "OK — accepted_hypothesis: true. Title: FPT Telecom lãi hai chữ số nhưng sắp mất chuẩn công ty đại chúng"
               },
               {
                 "source": "VietNamNet",
                 "url": "https://vietnamnet.vn/ceo-fpt-de-xuat-mo-hinh-kinh-te-du-lieu-thuc-day-tang-truong-8-10-cho-hue-2514893.html",
                 "published": "2026-05-12T11:08:00Z",
-                "reason": "OK — accepted_hypothesis: true. Title: Vì sao FPT đổ 89 triệu đô vào Huế thay vì siêu đô thị?"
+                "reason": "OK — accepted_hypothesis: true. Title: FPT biến Huế thành \"mỏ dữ liệu\" AI đầu tiên Việt Nam"
               }
             ],
             "rejected": [
@@ -216,19 +321,19 @@
                 "source": "Tuổi Trẻ",
                 "url": "https://tuoitre.vn/petrolimex-cai-so-lui-loi-nhuan-2026-lan-dau-len-tieng-truoc-ap-luc-tu-xe-dien-20260405123509795.htm",
                 "published": "2026-04-05",
-                "reason": "OK — accepted_hypothesis: true. Title: PLX vì sao bán thêm 10% mà lợi nhuận vẫn teo?"
+                "reason": "OK — accepted_hypothesis: true. Title: Petrolimex chiếm 50% thị phần xăng nhưng tại sao không thể định giá?"
               },
               {
                 "source": "VnEconomy",
                 "url": "https://vneconomy.vn/petrolimex-gop-35-ty-thanh-lap-cong-ty-sac-o-to-dien.htm",
                 "published": "2026-05-10",
-                "reason": "OK — accepted_hypothesis: true. Title: PLX lỗ 1.000 tỷ xăng dầu mà vẫn lấn sang xe điện, vì sao?"
+                "reason": "OK — accepted_hypothesis: true. Title: PLX lỗ xăng dầu mà bắt tay Selex, vì sao không tự xây như VinFast?"
               },
               {
                 "source": "CafeF",
                 "url": "https://cafef.vn/petrolimex-chinh-thuc-cong-bo-so-lo-quy-1-2026-188260504215537198.chn",
                 "published": "2026-05-04",
-                "reason": "OK — accepted_hypothesis: true. Title: Vì sao PLX thu 98.724 tỷ mà vẫn ăn lỗ 662 tỷ?"
+                "reason": "OK — accepted_hypothesis: true. Title: PLX lỗ 662 tỷ nhưng không mất tiền thật - dự phòng 6.500 tỷ hoàn nhập?"
               }
             ],
             "rejected": [
@@ -311,25 +416,25 @@
                 "source": "dantri.com.vn",
                 "url": "https://dantri.com.vn/kinh-doanh/ba-buoc-ngoat-hoi-tu-dua-masan-group-buoc-vao-giai-doan-tai-dinh-gia-20260406165956510.htm",
                 "published": "2026-04-06",
-                "reason": "OK — accepted_hypothesis: true. Title: MSN lật nợ ròng 1,7 lần vì sao nhanh thế?"
+                "reason": "OK — accepted_hypothesis: true. Title: MSN vừa hạ nợ vừa giữ 12.200 tỷ tiền mặt - làm thế nào?"
               },
               {
                 "source": "dantri.com.vn",
                 "url": "https://dantri.com.vn/kinh-doanh/ba-buoc-ngoat-hoi-tu-dua-masan-group-buoc-vao-giai-doan-tai-dinh-gia-20260406165956510.htm",
                 "published": "2026-04-06",
-                "reason": "OK — accepted_hypothesis: true. Title: MSN ăn 1.974 tỷ kỷ lục: tại sao 2024 không phải điểm lật?"
+                "reason": "OK — accepted_hypothesis: true. Title: MSN lãi kỷ lục 1.974 tỷ nhưng vì sao 2024 không phải thời điểm?"
               },
               {
                 "source": "cafef.vn",
                 "url": "https://cafef.vn/ong-danny-le-wincommerce-se-can-moc-5000-cua-hang-tren-toan-quoc-trong-30-ngay-toi-len-ke-hoach-ipo-188260506212601134.chn",
                 "published": "2026-05-06",
-                "reason": "OK — accepted_hypothesis: true. Title: MSN WinCommerce vọt 14% doanh thu cũ: bán lẻ Việt hồi phục thật?"
+                "reason": "OK — accepted_hypothesis: true. Title: WinCommerce lãi gấp 3,5 lần, từ gánh nặng thành át chủ bài MSN"
               },
               {
                 "source": "vietnambiz.vn",
                 "url": "https://vietnambiz.vn/ceo-masan-co-the-nang-ke-hoach-loi-nhuan-2026-len-10000-12000-ty-dong-2026571122426.htm",
                 "published": "2026-05-07",
-                "reason": "OK — accepted_hypothesis: true. Title: Vì sao Danny Le nâng kế hoạch MSN lên 12.000 tỷ ngay quý 1?"
+                "reason": "OK — accepted_hypothesis: true. Title: Vì sao Danny Le ép thị trường nhìn MSN như cỗ máy lãi 12.000 tỷ?"
               }
             ],
             "rejected": [
@@ -420,13 +525,13 @@
                 "source": "Giao Thương Kinh Tế",
                 "url": "https://giaothuongkinhte.vn/sacombank-giam-hon-2700-nhan-su-tin-hieu-cho-lan-song-tai-cau-truc-sau-cua-nganh-ngan-hang-a9393.html",
                 "published": "2026-05-07T10:00:00Z",
-                "reason": "OK — accepted_hypothesis: true. Title: Q1 ngành bank phân hóa: STB tống 2.700, VPB+TCB+LPB nhồi thêm 700. Bank nào sai?"
+                "reason": "OK — accepted_hypothesis: true. Title: STB cắt 16% nhân sự, VPB ngược chiều tuyển 362: Q1 ngành bank ai đúng?"
               },
               {
                 "source": "Bao Moi",
                 "url": "https://baomoi.com/loat-ngan-hang-thay-doi-nhan-su-cap-cao-truoc-giai-doan-phat-trien-moi-c55138043.epi",
                 "published": "2026-05-13T07:00:00Z",
-                "reason": "OK — accepted_hypothesis: true. Title: STB rước cả ê-kíp LPBank: lợi nhuận rớt Q1 có phải giá mua người tài?"
+                "reason": "OK — accepted_hypothesis: true. Title: STB trả 7,59% ROE để rước mô hình LPBank, canh bạc có xứng?"
               }
             ],
             "rejected": [
