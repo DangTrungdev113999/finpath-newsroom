@@ -7,7 +7,7 @@ crawled_at: '2026-05-12T15:41:18.588127+00:00'
 funnel_batch_id: VHM-20260512-1541
 left_meta:
   author: Chuyên gia
-  word_count: 327
+  word_count: 180
   key_view: 'VHM vừa chia cổ tức kỷ lục vừa phát hành 11.000 tỷ đồng trái phiếu không
     phải mâu thuẫn mà là cơ chế tài chính có chủ đích: trả cổ tức từ lợi nhuận đỉnh
     chu kỳ, dùng trái phiếu tài trợ mở rộng Điện Biên và Hải Vân Bay. Tổng tài sản
@@ -153,13 +153,14 @@ format_director:
 
 <!-- left -->
 
-Vinhomes vừa phát hành 11.000 tỷ đồng trái phiếu trong 2 tháng, vừa chi 24.644 tỷ đồng trả cổ tức tiền mặt 60%, đồng thời đặt mục tiêu 60.000 tỷ đồng lợi nhuận sau thuế cao nhất lịch sử. Không phải mâu thuẫn, đây là cơ chế tài chính có chủ đích.
+**VHM bơm 11.000 tỷ trái phiếu** 2 tháng, đồng thời **xén 24.644 tỷ trả cổ tức 60%**, lại khoe đích **60.000 tỷ lãi cả năm 2026**. Vừa vay vừa chia kỷ lục, lạ?
 
-Lý do VHM vừa chia cổ tức khủng vừa đi vay thêm nằm ở chỗ hai khoản tiền phục vụ hai mục đích hoàn toàn tách biệt. Cổ tức tiền mặt 60% (6.000 đồng mỗi cổ phiếu) được trả từ lợi nhuận Q1/2026 kỷ lục 25.625 tỷ đồng và lợi nhuận Q4/2025 đạt 26.800 tỷ đồng, tổng cộng hai quý đã vượt 52.000 tỷ đồng. Trả 24.644 tỷ đồng cổ tức là bài toán tài chính hoàn toàn ổn khi lợi nhuận tích lũy vừa chạm đỉnh.
+- **Cổ tức 60% (6.000 đồng/cp)**: trả từ lợi nhuận Q1 **25.625 tỷ** + Q4/2025 **26.800 tỷ**, hai quý đã vượt **52.000 tỷ**, dư thừa để chia.
+- **6.000 tỷ trái phiếu VHM12601 tháng 4** (30 tháng) + **5.000 tỷ tháng 5** (36 tháng): cơ cấu lại nợ + dồn vốn cho khu đô thị Điện Biên 23.600 tỷ, 228,5ha, chuẩn bị cho đợt giao 4-5 năm tới.
+- **Hải Vân Bay Q2/2026** mở bán: lần đầu thâm nhập thị trường ngoài Hà Nội/TP.HCM, kiểu test xem mô hình đại đô thị nhân ra được không.
+- **Tổng tài sản 869.975 tỷ tăng 10%**, tiền mặt **tụt 27% còn 35.838 tỷ**: đẩy mạnh ra dự án thay vì ngồi trên tiền.
 
-Trong khi đó, 11.000 tỷ đồng trái phiếu tài trợ cho hai mặt trận mở rộng. Tháng 4/2026, Vinhomes phát hành 6.000 tỷ đồng mã VHM12601 kỳ hạn 30 tháng. Tháng 5/2026, thêm 5.000 tỷ đồng kỳ hạn 36 tháng để cơ cấu lại nợ. Song song, Vinhomes khởi công khu đô thị Điện Biên 23.600 tỷ đồng, 228,5ha, đặt nền cho đợt bàn giao 4-5 năm sau. Hải Vân Bay tại Đà Nẵng mở bán Q2/2026 là thử nghiệm đầu tiên thâm nhập thị trường ngoài vùng lõi. Tổng tài sản Q1/2026 đạt 869.975 tỷ đồng, tăng 10%, trong khi tiền mặt giảm 27% xuống 35.838 tỷ đồng.
-
-Tín hiệu tích cực cho nhà đầu tư dài hạn: VHM đã hoàn thành 43% mục tiêu lợi nhuận sau thuế 60.000 tỷ đồng năm 2026 chỉ sau quý I. Nhà đầu tư đang giữ trung hạn và dài hạn theo dõi tốc độ hấp thụ Hải Vân Bay Q2/2026, đây là chỉ báo sớm cho khả năng nhân rộng mô hình đại đô thị ra ngoài Hà Nội và Thành phố Hồ Chí Minh trong giai đoạn 2027-2028.
+NĐT đang cầm nên giữ 12-18 tháng vùng 75-80 nghìn nếu Hải Vân Bay hấp thụ **>40% Q3/2026**; cắt 30% vị thế nếu chậm **dưới 25%**.
 
 <!-- right -->
 

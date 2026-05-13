@@ -7,7 +7,7 @@ crawled_at: '2026-05-12T15:41:18.587891+00:00'
 funnel_batch_id: VHM-20260512-1541
 left_meta:
   author: Chuyên gia
-  word_count: 339
+  word_count: 211
   key_view: VHM bứt phá trong BĐS phân hóa Q1/2026 nhờ cơ chế bàn giao đại đô thị
     tích lũy 3-4 năm đổ vào một kỳ. Mô hình này tạo lợi thế cấu trúc không thể san
     phẳng trong 24 tháng. Pipeline Điện Biên và Hải Vân Bay là chỉ báo sớm cho chu
@@ -141,14 +141,14 @@ format_director:
 
 <!-- left -->
 
-BĐS dân cư Việt Nam tách đôi Q1/2026: VHM lợi nhuận tăng 866% so cùng kỳ, gấp gần 3 lần Vietcombank, nhóm còn lại chưa có hàng để bàn giao.
+**VHM Q1 ăn 25.625 tỷ lợi nhuận**, gấp 3 lần Vietcombank cùng kỳ, doanh thu **vọt 65.114 tỷ tăng 314%**. Vì sao 1 doanh nghiệp BĐS đè đầu cả nhóm bank Big4?
 
-- **Bàn giao hàng loạt Ocean City và Royal Island tạo khoảng cách cấu trúc**: Vinhomes Ocean City và Vinhomes Royal Island bước vào đợt bàn giao đồng loạt Q1/2026, đổ trực tiếp doanh số chờ ghi nhận tích lũy 3-4 năm vào một kỳ. Lợi nhuận sau thuế đạt 25.625 tỷ đồng, doanh thu đạt 65.114 tỷ đồng, tăng 314% so cùng kỳ. Đây là lợi thế cấu trúc không doanh nghiệp dự án nhỏ lẻ nào tái tạo được trong 24 tháng.
-- **Mô hình đại đô thị tạo đường cong doanh thu bất đối xứng**: doanh số chờ ghi nhận tích lũy đổ vào 2-3 quý liên tiếp khi bàn giao, tạo cú tăng lợi nhuận rất lớn. VHM ghi nhận lợi nhuận 285 tỷ đồng mỗi ngày trong Q1/2026. Khu đô thị Điện Biên 23.600 tỷ đồng, 228,5ha, vừa khởi công tháng 5/2026, tạo đợt bàn giao tương tự sau 4-5 năm.
-- **Nền Q1/2025 khuếch đại 869% nhưng tăng trưởng là thật**: Q4/2025 VHM đạt kỷ lục 26.800 tỷ đồng khi nền so sánh không thấp. Tăng trưởng dài hạn được neo vào pipeline bàn giao thực, không chỉ hiệu ứng cơ sở.
-- **Doanh số 2025 đạt 205.000 tỷ đồng, pipeline Q2/2026 vẫn mạnh**: bán sỉ Green Paradise (Cần Giờ) và Global Gate đảm bảo dòng tiền ổn định. Hải Vân Bay Đà Nẵng dự kiến mở bán Q2/2026 là cơ hội đầu tiên thử nghiệm hấp thụ tại thị trường ngoài vùng lõi.
+- **Ocean City + Royal Island giao đồng loạt Q1**: đổ doanh số chờ tích lũy 3-4 năm vào 1 kỳ — như nắn 3-4 năm bán vào 90 ngày.
+- **Lợi nhuận 285 tỷ/ngày**: mô hình đại đô thị tạo đường cong bất đối xứng, doanh số dồn vào 2-3 quý liên tiếp khi giao. Khu đô thị Điện Biên **23.600 tỷ, 228,5ha** vừa khởi công tháng 5, đợt giao tương tự sau 4-5 năm.
+- **Nền Q1/2025 thấp khuếch đại 869%, nhưng tăng trưởng là thật**: Q4/2025 vẫn ăn kỷ lục **26.800 tỷ** khi nền so sánh không thấp. Pipeline giao thật neo tăng trưởng dài hạn.
+- **Doanh số 2025 vọt 205.000 tỷ**: bán sỉ Green Paradise (Cần Giờ) + Global Gate giữ dòng tiền ổn. **Hải Vân Bay Đà Nẵng Q2/2026** là test đầu tiên thâm nhập ngoài vùng lõi.
 
-Cơ hội tăng trưởng dài hạn VHM vẫn đáng chú ý khi mục tiêu 60.000 tỷ lợi nhuận sau thuế năm 2026 đã hoàn thành 43% sau quý I. Nhà đầu tư đang giữ theo dõi tốc độ hấp thụ Hải Vân Bay Q2/2026 và tiến độ bàn giao Royal Island H2/2026 làm chỉ báo sớm cho năm 2027.
+VHM hoàn thành **43% mục tiêu 60.000 tỷ** sau 1 quý. NĐT đang cầm nên giữ 12-18 tháng vùng 75-80 nghìn nếu Hải Vân Bay hấp thụ **>40% Q3/2026**; cắt 30% nếu chậm **dưới 25%**.
 
 <!-- right -->
 
