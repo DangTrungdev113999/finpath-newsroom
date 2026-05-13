@@ -448,8 +448,12 @@ def check_stance_consistency(body: str, stance: str) -> dict[str, Any]:
 
 
 # Sentence density: each sentence must contain ≥1 specific element.
-# V1.3 PATCH: added metaphor/analogy markers — encourages "ví von" voice over
-# raw numbers, parallel V1.2 title bình dân nguy hiểm.
+# V1.8 (2026-05-13): dropped metaphor marker group (như/kiểu/thật ra/chẳng khác/...).
+# AI was gamifying gate by sprinkling decorative phrases without substance —
+# user feedback "ưu tiên ví von" prescription caused mannerism. Now sentence
+# must contain CONCRETE substance: number, ticker, comparative, time anchor,
+# causal verb, or action verb. Metaphor when natural still passes via these
+# concrete elements (e.g. "gấp 3 lần" matches comparative group).
 SPECIFIC_ELEMENT_RE = re.compile(
     r"(\d+([.,]\d+)?(%|đ|tỷ|nghìn|triệu)?|"
     r"\b(VCB|TCB|MBB|CTG|BID|VPB|HDB|STB|SHB|EIB|TPB|MSB|LPB|OCB|VIB|ACB|"
@@ -459,9 +463,7 @@ SPECIFIC_ELEMENT_RE = re.compile(
     r"(cao hơn|thấp hơn|gấp|vượt|hơn|thấp nhất|cao nhất|so với|so cùng kỳ)|"
     r"(Q[1-4]|năm \d{4}|tháng \d|quý|tuần|YTD|YoY|QoQ|hôm nay)|"
     r"(do|vì|nhờ|khiến|dẫn đến|kéo theo|bổ sung|trở thành|chuyển|tích lũy|đánh đổi)|"
-    r"(rút|chuyển|duy trì|phòng thủ|lấn sang|tăng|giảm|đi chậm|nới|co)|"
-    r"(như một|kiểu|ví như|tựa|nói nôm na|nói cách khác|thật ra|thực ra|"
-    r"kỳ thực|tương đương|ngang ngửa|ngang với|tựa hồ|chẳng khác|khác nào))",
+    r"(rút|chuyển|duy trì|phòng thủ|lấn sang|tăng|giảm|đi chậm|nới|co))",
     re.IGNORECASE,
 )
 

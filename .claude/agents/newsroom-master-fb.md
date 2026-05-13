@@ -89,7 +89,7 @@ Run `lib/quality_gates.check_all_v5(body, format_id, stance_directive)`:
 3. No-hedging (LLM-as-judge)
 4. Verdict line (V1.3 composes `actionable_closing`: stance + quantified trigger + no vague)
 5. Stance consistency (body align stance_directive)
-6. Sentence density (V1.3: METAPHOR_MARKERS bonus — ưu tiên ví von)
+6. Sentence density (mỗi câu nội dung phải có số/ticker/comparative/causal verb — không gamify bằng từ ngữ pháp)
 7. Em dash density body
 8. **`bao_chi_body` (V1.3 NEW)** — reject ≥2 báo chí verbs (bàn giao/ghi nhận/công bố/dự kiến/phát hành). Dùng verb tự nhiên theo ngữ cảnh, KHÔNG ép theo list cố định nào.
 9. **`bold_density` (V1.3 NEW)** — per format: flash_qa ≥3 absolute, standard_qa ≥4%, listicle ≥5%, narrative ≥3%.

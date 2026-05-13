@@ -201,7 +201,6 @@ V1.3 PATCH (2026-05-13):
 - `bao_chi_body` — reject body chứa ≥2 báo chí verbs (bàn giao/ghi nhận/công bố/dự kiến/phát hành). Dùng verb tự nhiên theo ngữ cảnh, KHÔNG ép theo preferred-verb list (gây AI-mannerism).
 - `bold_density` — per-format target (flash_qa ≥3 absolute, standard_qa ≥4%, listicle ≥5%, narrative ≥3%). Read `data/format_registry.yaml` field `bold_density_min`.
 - `verdict_line` TIGHTEN — now composes `check_actionable_closing` (stance verb + quantified trigger + no vague phrase "cần theo dõi/làm chỉ báo").
-- `sentence_density` bonus — METAPHOR_MARKERS count as specific element (ưu tiên ví von "gấp X lần / như / kiểu / thật ra" hơn raw numbers).
 
 V5.1 PATCH: title_pattern check removed — moved to Plan C Headline agent's `lib/headline_scorer.py`.
 

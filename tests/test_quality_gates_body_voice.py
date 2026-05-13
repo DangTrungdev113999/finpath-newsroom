@@ -160,19 +160,37 @@ def test_verdict_line_fails_when_actionable_closing_fails():
 
 
 # =====================================================================
-# check_sentence_density — METAPHOR_MARKERS bonus (TIGHTEN)
+# check_sentence_density — V1.8 dropped metaphor markers (anti-gamify)
 # =====================================================================
 
-def test_sentence_density_accepts_metaphor_as_specific_element():
-    """Sentence with 'gấp X lần' or 'như Y' counts toward density."""
+def test_sentence_density_pass_with_concrete_elements():
+    """Sentences with concrete elements (number/ticker/comparative/causal/action verb)
+    pass density regardless of metaphor decoration. V1.8: metaphor markers dropped
+    from specific element regex — must have substance, not just 'thật ra/kiểu'.
+    """
     body = (
         "VHM Q1 ăn 25.625 tỷ, gấp 3 lần Vietcombank cùng kỳ. "
-        "Cách viết này như một cú đập trực diện vào nhóm tài chính. "
-        "Thật ra nhóm BĐS dẫn đầu cả index năm nay. "
-        "Trái phiếu 11.000 tỷ bơm Hải Vân Bay Q2/2026."
+        "Mảng BĐS dẫn đầu index năm nay nhờ trái phiếu 11.000 tỷ bơm Hải Vân Bay. "
+        "Q2/2026 sẽ là phép thử khả năng hấp thụ. "
+        "Trái phiếu cấu trúc dài hạn kéo dòng tiền chậm hơn."
     )
     result = check_sentence_density(body)
     assert result["pass"] is True
+
+
+def test_sentence_density_rejects_metaphor_only_fluff():
+    """V1.8: sentences with ONLY metaphor markers (no number/ticker/comparative)
+    no longer pass — prevents 'thật ra X kiểu Y chẳng khác Z' gamification.
+    """
+    body = (
+        "VHM Q1 lãi 25.625 tỷ vọt mạnh. "  # has number — pass
+        "Thật ra chuyện này như một cú đập. "  # only metaphor — fail
+        "Kiểu đó chẳng khác gì bàn cờ vây. "  # only metaphor — fail
+        "Nói cách khác, tương đương rất khác biệt."  # only metaphor — fail
+    )
+    result = check_sentence_density(body)
+    # 1/4 pass = 25% < 80% threshold → fail
+    assert result["pass"] is False
 
 
 # =====================================================================
