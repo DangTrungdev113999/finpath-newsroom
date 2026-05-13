@@ -308,6 +308,17 @@ def test_han_viet_formal_strips_skeptic_section():
     assert result["pass"] is True
 
 
+def test_han_viet_formal_substring_dedup():
+    """V1.5-lite fix: 'chưa hội đủ' should NOT double-count as 'hội đủ' + 'chưa hội đủ'."""
+    from lib.quality_gates import check_han_viet_formal
+    body = "VCB chưa hội đủ điều kiện công ty đại chúng."
+    result = check_han_viet_formal(body)
+    # Only 1 unique Hán-Việt term ("chưa hội đủ") found → pass
+    assert result["pass"] is True
+    assert len(result["found_terms"]) == 1
+    assert "chưa hội đủ" in result["found_terms"]
+
+
 # =====================================================================
 # V1.5-lite check_abbreviation_expanded — 3-4 letter upper must be expanded
 # =====================================================================
@@ -402,3 +413,19 @@ def test_price_realistic_no_price_in_closing_passes(monkeypatch):
     body = "NĐT nên cầm FPT 12 tháng nếu margin >35K tỷ Q3/2026."
     result = check_price_realistic(body, ticker="FPT")
     assert result["pass"] is True
+
+
+def test_price_realistic_ignores_K_magnitude_in_closing(monkeypatch):
+    """V1.5-lite fix: '35K tỷ' is margin magnitude, not price target — skip."""
+    from lib.quality_gates import check_price_realistic
+    def fake_get_price(ticker):
+        return 70_000
+    monkeypatch.setattr("lib.quality_gates._fetch_current_price", fake_get_price)
+    body = (
+        "ACB Q1 ăn 5.200 tỷ.\n\n"
+        "NĐT đang cầm nên giữ 12 tháng nếu margin duy trì trên 35K tỷ Q3/2026."
+    )
+    result = check_price_realistic(body, ticker="ACB")
+    # '35K tỷ' is magnitude not price → no target extracted → pass
+    assert result["pass"] is True
+    assert result["targets_found"] == []

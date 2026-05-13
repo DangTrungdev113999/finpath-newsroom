@@ -10,6 +10,7 @@ Gates:
 from __future__ import annotations
 import os
 import re
+from functools import lru_cache
 from typing import Any
 
 ENGLISH_JARGON = {
@@ -807,13 +808,32 @@ def check_han_viet_formal(body: str) -> dict[str, Any]:
     formal/báo chí, not bình dân. 1 occurrence OK (factual context),
     ≥2 = formal pile-on.
 
+    Substring dedup: if "chưa hội đủ" matches, "hội đủ" inside same span
+    doesn't double-count.
+
     Skeptic section + pipeline log stripped before check.
     """
     cleaned = _clean(body).lower()
-    found = []
-    for term in HAN_VIET_FORMAL_BAN:
-        if term in cleaned:
+    # Sort by length desc so longer phrases match first.
+    sorted_terms = sorted(HAN_VIET_FORMAL_BAN.keys(), key=len, reverse=True)
+    # Track positions already covered by longer matches → skip shorter substrings.
+    covered_ranges: list[tuple[int, int]] = []
+    found: list[str] = []
+    for term in sorted_terms:
+        start = 0
+        while True:
+            idx = cleaned.find(term, start)
+            if idx < 0:
+                break
+            end = idx + len(term)
+            # Skip if overlapping with already-found longer term
+            if any(idx >= rs and end <= re_ for rs, re_ in covered_ranges):
+                start = end
+                continue
             found.append(term)
+            covered_ranges.append((idx, end))
+            start = end
+            break  # only count first occurrence per term
     if len(found) >= 2:
         replacements = {t: HAN_VIET_FORMAL_BAN[t] for t in found}
         return {
@@ -828,8 +848,9 @@ _ABBREV_PATTERN = re.compile(r"\b[A-Z]{3,4}\b")
 _ABBREV_EXPANSION_PATTERN = re.compile(r"\(([^)]+)\)")
 
 
-def _is_ticker(token: str) -> bool:
-    """Check token có phải Finpath ticker không (cached lookup)."""
+@lru_cache(maxsize=1)
+def _get_ticker_set() -> frozenset[str]:
+    """Cached Finpath ticker set. Resolved once per process."""
     try:
         from lib.pipeline_db import PipelineDB
         from lib.finpath_sectors import FinpathSectors
@@ -837,10 +858,15 @@ def _is_ticker(token: str) -> bool:
         fs = FinpathSectors(db)
         cached = fs.get_all_cached_tickers()
         db.close()
-        return token in cached
+        return frozenset(cached)
     except Exception:
         from lib.headline_scorer import ALL_TICKERS
-        return token in ALL_TICKERS
+        return frozenset(ALL_TICKERS)
+
+
+def _is_ticker(token: str) -> bool:
+    """Check token có phải Finpath ticker không (cached lookup)."""
+    return token in _get_ticker_set()
 
 
 def check_abbreviation_expanded(body: str) -> dict[str, Any]:
@@ -909,8 +935,10 @@ def _fetch_current_price(ticker: str) -> float:
     raise ValueError(f"Ticker {ticker} not in Finpath overview")
 
 
+# V1.5-lite fix: avoid matching K in magnitude expressions like "35K tỷ" / "10K triệu"
+# (used for revenue/margin). Negative lookahead excludes those.
 _PRICE_TARGET_RE = re.compile(
-    r"(\d+(?:[.,]\d+)?)\s*(?:nghìn(?:/cp|\s*đồng)?|nghìn|k\b)",
+    r"(\d+(?:[.,]\d+)?)\s*(?:nghìn(?:/cp|\s*đồng)?|nghìn|k(?!\s*(?:tỷ|triệu))\b)",
     re.IGNORECASE,
 )
 
@@ -979,7 +1007,7 @@ def check_price_realistic(body: str, ticker: str) -> dict[str, Any]:
 
 
 def check_all_v5(body: str, format_id: str, stance: str, ticker: str = "") -> dict[str, dict[str, Any]]:
-    """Run V5.0 + V5.1.2 + V1.4 + V1.5-lite gates (12-13 total).
+    """Run V5.0 + V5.1.2 + V1.4 + V1.5-lite gates (13-14 total).
 
     V1.5-lite (2026-05-13 PM): DROP check_bao_chi_body (replaced Master prompt).
     ADD check_han_viet_formal + check_abbreviation_expanded + check_price_realistic.
