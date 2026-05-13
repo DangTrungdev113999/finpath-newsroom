@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-05-13T04:24:17.224249+00:00",
+  "built_at": "2026-05-13T04:41:30.908590+00:00",
   "sessions": [
     {
       "session_id": "CA37C59A-ED79-47F4-BCA2-56661F213DD2",
@@ -8,8 +8,8 @@
       "started_at": "2026-05-13T04:13:10.544871+00:00",
       "ended_at": "2026-05-13T04:13:10.545520+00:00",
       "fetched_total": 3,
-      "chosen_total": 0,
-      "rejected_total": 3,
+      "chosen_total": 1,
+      "rejected_total": 2,
       "batches": [
         {
           "funnel_batch_id": "GAS-20260513-0413",
@@ -19,10 +19,17 @@
           "hot_nhom": null,
           "hot_rank": null,
           "fetched_count": 3,
-          "chosen_count": 0,
-          "rejected_count": 3,
+          "chosen_count": 1,
+          "rejected_count": 2,
           "funnel_detail": {
-            "picked": [],
+            "picked": [
+              {
+                "source": "Tin nhanh chứng khoán",
+                "url": "https://www.tinnhanhchungkhoan.vn/pv-gas-giu-vung-nguon-cung-lng-lpg-cho-thi-truong-nang-luong-viet-nam-giua-gian-doan-tai-eo-bien-hormuz-post390145.html",
+                "published": "2026-05-12T09:00:00+07:00",
+                "reason": "OK — accepted_hypothesis: true. Title: GAS đánh đổi 22% lợi nhuận để nhập khí hoá lỏng giá cao?"
+              }
+            ],
             "rejected": [
               {
                 "source": "Vietstock",
@@ -31,14 +38,6 @@
                 "reject_agent": "story_editor",
                 "reject_label": "sub_event_attached — primary ticker là VNM, GAS chỉ xuất hiện như nguồn cung khí hoá lỏng phụ trợ POW. Bài này phù hợp batch VNM/POW chứ không phải angle GAS standalone. Điểm dữ liệu giá 80.100 đồng +4,71% đã trích sang brief a9a6422e cho option hidden_mechanism.",
                 "reason": "sub_event_attached — primary ticker là VNM, GAS chỉ xuất hiện như nguồn cung khí hoá lỏng phụ trợ POW. Bài này phù hợp batch VNM/POW chứ không phải angle GAS standalone. Điểm dữ liệu giá 80.100 đồng +4,71% đã trích sang brief a9a6422e cho option hidden_mechanism."
-              },
-              {
-                "source": "Tin nhanh chứng khoán",
-                "url": "https://www.tinnhanhchungkhoan.vn/pv-gas-giu-vung-nguon-cung-lng-lpg-cho-thi-truong-nang-luong-viet-nam-giua-gian-doan-tai-eo-bien-hormuz-post390145.html",
-                "published": "2026-05-12T09:00:00+07:00",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
               },
               {
                 "source": "VietnamFinance",
@@ -60,8 +59,8 @@
       "started_at": "2026-05-13T04:04:22.665778+00:00",
       "ended_at": "2026-05-13T04:04:22.666174+00:00",
       "fetched_total": 3,
-      "chosen_total": 0,
-      "rejected_total": 3,
+      "chosen_total": 2,
+      "rejected_total": 1,
       "batches": [
         {
           "funnel_batch_id": "FPT-20260513-0404",
@@ -71,10 +70,23 @@
           "hot_nhom": null,
           "hot_rank": null,
           "fetched_count": 3,
-          "chosen_count": 0,
-          "rejected_count": 3,
+          "chosen_count": 2,
+          "rejected_count": 1,
           "funnel_detail": {
-            "picked": [],
+            "picked": [
+              {
+                "source": "VietnamBiz",
+                "url": "https://vietnambiz.vn/fpt-telecom-khong-dap-ung-dieu-kien-cong-ty-dai-chung-2026512114834318.htm",
+                "published": "2026-05-12T11:48:00Z",
+                "reason": "OK — accepted_hypothesis: true. Title: BCA ôm 50% vốn FOX, FPT mẹ nguy 2.330 tỷ vì sao?"
+              },
+              {
+                "source": "VietNamNet",
+                "url": "https://vietnamnet.vn/ceo-fpt-de-xuat-mo-hinh-kinh-te-du-lieu-thuc-day-tang-truong-8-10-cho-hue-2514893.html",
+                "published": "2026-05-12T11:08:00Z",
+                "reason": "OK — accepted_hypothesis: true. Title: FPT bơm 89 triệu USD vào Huế, không phải TPHCM – vì sao?"
+              }
+            ],
             "rejected": [
               {
                 "source": "CafeF",
@@ -83,22 +95,6 @@
                 "reject_agent": "story_editor",
                 "reject_label": "Top 3 lãnh đạo AGM Awards là dữ liệu xếp hạng phổ thông, không có cơ chế nhân quả để đào sâu. Không thuộc 5 nhóm câu hỏi sâu hợp lệ.",
                 "reason": "Top 3 lãnh đạo AGM Awards là dữ liệu xếp hạng phổ thông, không có cơ chế nhân quả để đào sâu. Không thuộc 5 nhóm câu hỏi sâu hợp lệ."
-              },
-              {
-                "source": "VietnamBiz",
-                "url": "https://vietnambiz.vn/fpt-telecom-khong-dap-ung-dieu-kien-cong-ty-dai-chung-2026512114834318.htm",
-                "published": "2026-05-12T11:48:00Z",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
-              },
-              {
-                "source": "VietNamNet",
-                "url": "https://vietnamnet.vn/ceo-fpt-de-xuat-mo-hinh-kinh-te-du-lieu-thuc-day-tang-truong-8-10-cho-hue-2514893.html",
-                "published": "2026-05-12T11:08:00Z",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
               }
             ]
           }
@@ -112,8 +108,8 @@
       "started_at": "2026-05-13T04:01:40.721884+00:00",
       "ended_at": "2026-05-13T04:01:40.725094+00:00",
       "fetched_total": 9,
-      "chosen_total": 0,
-      "rejected_total": 9,
+      "chosen_total": 3,
+      "rejected_total": 6,
       "batches": [
         {
           "funnel_batch_id": "PLX-20260513-0401",
@@ -123,10 +119,29 @@
           "hot_nhom": null,
           "hot_rank": null,
           "fetched_count": 9,
-          "chosen_count": 0,
-          "rejected_count": 9,
+          "chosen_count": 3,
+          "rejected_count": 6,
           "funnel_detail": {
-            "picked": [],
+            "picked": [
+              {
+                "source": "Tuổi Trẻ",
+                "url": "https://tuoitre.vn/petrolimex-cai-so-lui-loi-nhuan-2026-lan-dau-len-tieng-truoc-ap-luc-tu-xe-dien-20260405123509795.htm",
+                "published": "2026-04-05",
+                "reason": "OK — accepted_hypothesis: true. Title: <PLACEHOLDER — Headline agent fills>"
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/petrolimex-gop-35-ty-thanh-lap-cong-ty-sac-o-to-dien.htm",
+                "published": "2026-05-10",
+                "reason": "OK — accepted_hypothesis: true. Title: <PLACEHOLDER — Headline agent fills>"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/petrolimex-chinh-thuc-cong-bo-so-lo-quy-1-2026-188260504215537198.chn",
+                "published": "2026-05-04",
+                "reason": "OK — accepted_hypothesis: true. Title: <PLACEHOLDER — Headline agent fills>"
+              }
+            ],
             "rejected": [
               {
                 "source": "BaoMoi",
@@ -161,14 +176,6 @@
                 "reason": "sub_event_attached: Khuyến nghị ACBS và MBS hạ giá mục tiêu đã được hấp thụ vào brief 54ec5529 làm dữ liệu phối cảnh dài hạn."
               },
               {
-                "source": "Tuổi Trẻ",
-                "url": "https://tuoitre.vn/petrolimex-cai-so-lui-loi-nhuan-2026-lan-dau-len-tieng-truoc-ap-luc-tu-xe-dien-20260405123509795.htm",
-                "published": "2026-04-05",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
-              },
-              {
                 "source": "Vietstock",
                 "url": "https://vietstock.vn/2026/04/dhdcd-petrolimex-mang-xang-dau-quy-1-lo-hon-1000-ty-dong-sap-ra-mat-cong-ty-moi-lien-quan-pin-va-xe-dien-737-1433379.htm",
                 "published": "2026-04-24",
@@ -178,27 +185,11 @@
               },
               {
                 "source": "VnEconomy",
-                "url": "https://vneconomy.vn/petrolimex-gop-35-ty-thanh-lap-cong-ty-sac-o-to-dien.htm",
-                "published": "2026-05-10",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
-              },
-              {
-                "source": "VnEconomy",
                 "url": "https://vneconomy.vn/petrolimex-canh-bao-ve-ket-qua-kinh-doanh-quy-12026.htm",
                 "published": "2026-04-28",
                 "reject_agent": "story_editor",
                 "reject_label": "sub_event_attached: Chi tiết cảnh báo VCSC, cổ tức 1.200 đồng và kế hoạch 2026 đã được hấp thụ vào brief 54ec5529 (khung dài hạn 2026-2030).",
                 "reason": "sub_event_attached: Chi tiết cảnh báo VCSC, cổ tức 1.200 đồng và kế hoạch 2026 đã được hấp thụ vào brief 54ec5529 (khung dài hạn 2026-2030)."
-              },
-              {
-                "source": "CafeF",
-                "url": "https://cafef.vn/petrolimex-chinh-thuc-cong-bo-so-lo-quy-1-2026-188260504215537198.chn",
-                "published": "2026-05-04",
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
               }
             ]
           }
@@ -211,8 +202,8 @@
       "trigger_args": "MSN",
       "started_at": "2026-05-13T03:18:33.217727+00:00",
       "ended_at": "2026-05-13T03:18:33.218831+00:00",
-      "fetched_total": 12,
-      "chosen_total": 5,
+      "fetched_total": 11,
+      "chosen_total": 4,
       "rejected_total": 7,
       "batches": [
         {
@@ -222,8 +213,8 @@
           "sector_name": "Tiêu dùng thực phẩm",
           "hot_nhom": null,
           "hot_rank": null,
-          "fetched_count": 12,
-          "chosen_count": 5,
+          "fetched_count": 11,
+          "chosen_count": 4,
           "rejected_count": 7,
           "funnel_detail": {
             "picked": [
@@ -237,25 +228,19 @@
                 "source": "dantri.com.vn",
                 "url": "https://dantri.com.vn/kinh-doanh/ba-buoc-ngoat-hoi-tu-dua-masan-group-buoc-vao-giai-doan-tai-dinh-gia-20260406165956510.htm",
                 "published": "2026-04-06",
-                "reason": "OK — accepted_hypothesis: true. Title: MSN ba bước ngoặt — thời điểm tái định giá"
+                "reason": "OK — accepted_hypothesis: true. Title: MSN ăn 1.974 tỷ kỷ lục: tại sao 2024 không phải điểm lật?"
               },
               {
                 "source": "cafef.vn",
                 "url": "https://cafef.vn/ong-danny-le-wincommerce-se-can-moc-5000-cua-hang-tren-toan-quoc-trong-30-ngay-toi-len-ke-hoach-ipo-188260506212601134.chn",
                 "published": "2026-05-06",
-                "reason": "OK — accepted_hypothesis: true. Title: [draft] MSN WinCommerce doanh thu cửa hàng cũ 14% tháng 4"
-              },
-              {
-                "source": "cafef.vn",
-                "url": "https://cafef.vn/ong-danny-le-wincommerce-se-can-moc-5000-cua-hang-tren-toan-quoc-trong-30-ngay-toi-len-ke-hoach-ipo-188260506212601134.chn",
-                "published": "2026-05-06",
-                "reason": "OK — accepted_hypothesis: true. Title: Vì sao MSN vọt 14% doanh thu cửa hàng cũ?"
+                "reason": "OK — accepted_hypothesis: true. Title: MSN WinCommerce vọt 14% doanh thu cũ: bán lẻ Việt hồi phục thật?"
               },
               {
                 "source": "vietnambiz.vn",
                 "url": "https://vietnambiz.vn/ceo-masan-co-the-nang-ke-hoach-loi-nhuan-2026-len-10000-12000-ty-dong-2026571122426.htm",
                 "published": "2026-05-07",
-                "reason": "OK — accepted_hypothesis: true. Title: Vì sao MSN vọt lãi rồi đặt đích 12.000 tỷ?"
+                "reason": "OK — accepted_hypothesis: true. Title: Vì sao Danny Le vọt đích MSN lên 12.000 tỷ ngay quý 1?"
               }
             ],
             "rejected": [

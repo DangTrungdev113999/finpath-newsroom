@@ -1,5 +1,5 @@
 ---
-title: Vì sao MSN vọt lãi rồi đặt đích 12.000 tỷ?
+title: Vì sao Danny Le vọt đích MSN lên 12.000 tỷ ngay quý 1?
 ticker: MSN
 sector: fb
 sector_icon: 📰

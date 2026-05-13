@@ -34,6 +34,17 @@
       "format_id": "standard_qa"
     },
     {
+      "id": "msn-wincommerce-doanh-thu-cua-hang-cu-vot-14-chi-dau-som-chu",
+      "ticker": "MSN",
+      "sector": "fb",
+      "title": "MSN WinCommerce vọt 14% doanh thu cũ: bán lẻ Việt hồi phục thật?",
+      "crawled_at": "2026-05-13T03:18:33.218668+00:00",
+      "key_view": "trung lập",
+      "word_count": 260,
+      "category": null,
+      "format_id": "standard_listicle"
+    },
+    {
       "id": "msn-wincommerce-14-thang-4-cua-hang-cu-vot",
       "ticker": "MSN",
       "sector": "fb",
@@ -48,7 +59,7 @@
       "id": "msn-nang-dich-lai-2026-len-10-000-12-000-ty",
       "ticker": "MSN",
       "sector": "fb",
-      "title": "Vì sao MSN vọt lãi rồi đặt đích 12.000 tỷ?",
+      "title": "Vì sao Danny Le vọt đích MSN lên 12.000 tỷ ngay quý 1?",
       "crawled_at": "2026-05-13T03:18:33.218546+00:00",
       "key_view": "Sếp Masan Danny Le nâng đích lãi 38-65% ngay sau quý 1 là cú neo định giá — ký mức nền lãi mới chứ không phản ứng quý đột biến. NĐT giá trị tích lũy 12-18 tháng dưới 80.000.",
       "word_count": 235,

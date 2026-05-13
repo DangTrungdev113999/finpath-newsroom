@@ -1,5 +1,5 @@
 ---
-title: MSN ba bước ngoặt — thời điểm tái định giá
+title: 'MSN ăn 1.974 tỷ kỷ lục: tại sao 2024 không phải điểm lật?'
 ticker: MSN
 sector: fb
 sector_icon: 📰
