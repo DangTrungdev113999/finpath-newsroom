@@ -542,7 +542,15 @@ def check_bao_chi_body(body: str) -> dict[str, Any]:
 
     Skeptic section + pipeline log stripped before check.
     """
-    from lib.voice_rules import BAO_CHI_BODY_VERBS
+    # V1.5-lite: BAO_CHI_BODY_VERBS dropped from voice_rules. Local copy kept
+    # here until Task 2 drops check_bao_chi_body entirely.
+    BAO_CHI_BODY_VERBS = [
+        "bàn giao", "ghi nhận", "công bố", "dự kiến đạt", "dự kiến đạt được",
+        "phát hành thành công", "đang tiến hành", "tiếp tục triển khai",
+        "đặt mục tiêu", "hoàn thành kế hoạch", "phấn đấu", "phấn đấu đạt",
+        "thông qua nghị quyết", "đã được phê duyệt", "đã được thông qua",
+        "ban hành", "triển khai đồng bộ", "tích cực triển khai",
+    ]
 
     cleaned = _clean(body).lower()
     leaked = []
@@ -652,6 +660,61 @@ def check_actionable_closing(body: str) -> dict[str, Any]:
     return {"pass": True, "reason": ""}
 
 
+# V1.4 — Body sentence richness threshold
+_MIN_SENTENCE_WORDS = 10
+_MAX_SHORT_RATIO = 0.20
+
+
+def check_min_sentence_richness(body: str) -> dict[str, Any]:
+    """V1.4 — reject body khi >20% câu nội dung <10 từ.
+
+    User feedback STB bài 1 manual: 3/11 sentences ≤9 từ (27%) → feel cụt cụt
+    (tail fragments like "Ngành chia hai phe đi ngược chiều." 7 từ standalone).
+
+    Root cause: V1.3 length cap -20% squeeze → Master/writer xé câu thành
+    tail fragments để fit budget. V1.4 enforce flow: force compound sentences
+    with connectives (vì/khi/khiến/do/nhờ) thay vì split.
+
+    Counting rules:
+    - Strip Skeptic + pipeline_log sections (`_clean`)
+    - Split by sentence terminators (`_split_sentences`)
+    - Exclude bullet-header-only lines (`_is_bullet_label`)
+    - Threshold: <10 words = short
+    - Fail if short_ratio > 20%
+
+    Edge cases:
+    - 0 countable sentences → pass (no division by zero)
+    - All bullet headers → pass
+    """
+    cleaned = _clean(body).strip()
+    sentences = _split_sentences(cleaned)
+    countable = [s for s in sentences if not _is_bullet_label(s)]
+
+    if not countable:
+        return {"pass": True, "reason": "", "short_count": 0, "total": 0}
+
+    short = [s for s in countable if len(s.split()) < _MIN_SENTENCE_WORDS]
+    ratio = len(short) / len(countable)
+
+    if ratio > _MAX_SHORT_RATIO:
+        return {
+            "pass": False,
+            "reason": (
+                f"Sentence richness fail: {len(short)}/{len(countable)} "
+                f"câu <{_MIN_SENTENCE_WORDS} từ ({ratio:.0%} > {_MAX_SHORT_RATIO:.0%}). "
+                f"Tail fragments: {[s[:60] for s in short[:3]]}"
+            ),
+            "short_count": len(short),
+            "total": len(countable),
+        }
+    return {
+        "pass": True,
+        "reason": "",
+        "short_count": len(short),
+        "total": len(countable),
+    }
+
+
 # === V5.0 Phase 1.6 — per-format gates ===
 # Note: check_title_per_format dropped per V5.1 PATCH — title decisions
 # belong to Plan C Headline agent (lib/headline_scorer.py).
@@ -751,16 +814,19 @@ def check_body_pattern_per_format(body: str, format_id: str) -> dict[str, Any]:
 
 
 def check_all_v5(body: str, format_id: str, stance: str) -> dict[str, dict[str, Any]]:
-    """Run V5.0 + V5.1 + V5.1.2 + V1.3 gates.
+    """Run V5.0 + V5.1 + V5.1.2 + V1.3 + V1.4 gates.
 
     V5.1 PATCH: title_pattern dropped (moved to Plan C lib/headline_scorer.py).
     V5.1.2 PATCH (B-30): em_dash_density wired in (was standalone in B-5).
     V1.3 PATCH (2026-05-13): bao_chi_body + bold_density added. verdict_line
     now composes actionable_closing (no separate key — covered by verdict_line).
+    V1.4 PATCH (2026-05-13 PM): min_sentence_richness added — reject body >20%
+    câu <10 từ (user feedback "cụt cụt" sau V1.3 length shrink).
 
-    Universal (9): no_english_jargon, no_metadata_leak, no_hedging, verdict_line
-                   (composes actionable_closing), stance_consistency, sentence_density,
-                   em_dash_density, bao_chi_body (V1.3), bold_density (V1.3).
+    Universal (10): no_english_jargon, no_metadata_leak, no_hedging, verdict_line
+                    (composes actionable_closing), stance_consistency, sentence_density,
+                    em_dash_density, bao_chi_body (V1.3), bold_density (V1.3),
+                    min_sentence_richness (V1.4 NEW).
     Per-format (2): word_count, body_pattern.
     """
     return {
@@ -773,6 +839,7 @@ def check_all_v5(body: str, format_id: str, stance: str) -> dict[str, dict[str, 
         "em_dash_density": check_em_dash_density(body),
         "bao_chi_body": check_bao_chi_body(body),
         "bold_density": check_bold_density(body, format_id),
+        "min_sentence_richness": check_min_sentence_richness(body),
         "word_count": check_word_count_per_format(body, format_id),
         "body_pattern": check_body_pattern_per_format(body, format_id),
     }

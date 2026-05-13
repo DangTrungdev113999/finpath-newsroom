@@ -19,19 +19,82 @@ from __future__ import annotations
 import re
 from typing import Any
 
-# V1.3: voice constants moved to lib/voice_rules.py for title + body sharing.
-# Re-export at module level for backward compat (existing tests + downstream
-# code import these names from headline_scorer).
-from lib.voice_rules import (
-    TITLE_TENSION_WORDS,
-    DRAMATIC_VERBS,
-    PR_CLICKBAIT_WORDS,
-    BAO_CHI_FORMULAIC_PHRASES,
-    NATURALIZED_FINANCE_TERMS,
-    BAO_CHI_QUARTER_PATTERN,
-    RUBRIC_LABEL_LEAK,
-    CONCRETE_QUESTION_SUBJECTS,
+# V1.5-lite: dropped V1.2 word lists. Keep only naturalized terms allowlist
+# (used by has_english for jargon check exception).
+from lib.voice_rules import NATURALIZED_FINANCE_TERMS
+
+# V1.5-lite local copies — these were removed from voice_rules because they
+# caused Pattern A pile-on in Master body. Kept here ONLY for headline scoring
+# functions until Task 3 refactors headline_scorer fully.
+# TODO Task 3: replace/remove these local copies.
+TITLE_TENSION_WORDS = [
+    "hy sinh", "đánh đổi", "nghịch lý", "vì sao", "đổi lấy",
+    "không phải", "bù lại", "thay vì", "chấp nhận",
+]
+
+DRAMATIC_VERBS = [
+    "hy sinh", "đánh đổi", "đặt cược", "lội ngược",
+    "rút khỏi", "vượt mặt", "tung đòn", "đặt cọc",
+    "chấp nhận thua", "tự chậm lại", "đập cửa", "thoát hiểm",
+    "chấp nhận hi sinh", "đánh cược", "đổ vỡ", "vực dậy",
+    "tiếp đà", "phá kỷ lục", "soán ngôi", "lấn sang", "rơi vào",
+    "ăn lãi", "ăn ưu đãi", "ăn lời", "ăn được", "ăn ", "ăn,",
+    "khoe lãi", "khoe ",
+    "dồn tiền", "dồn ", "xén cổ tức", "xén ",
+    "gom hàng", "gom ", "bơm vốn", "bơm ",
+    "đẻ ra", "ngồi trên tiền", "ngồi trên",
+    "chạy đâu", "đi vay", "đi đâu",
+    "đổi tên", "đổi hướng", "đổi mô hình",
+    "gọi vốn", "gọi tiền",
+    "chia cổ tức", "chia kỷ lục",
+    "vọt", "tụt", "rớt", "nhảy",
+    "bán hàng", "bán ESOP", "bán nội bộ",
+    "thật ra", "thực ra", "thật chỉ",
+    "tống ", "nhồi ", "nhồi thêm",
+    "sa thải", "lùa ", "rước ",
+    "phân hóa", "ngược chiều",
+    "cắt sâu", "cắt mạnh",
+]
+
+PR_CLICKBAIT_WORDS = [
+    "cú nổ", "bí mật", "sốc", "hot", "thông tin nóng",
+    "không thể tin nổi", "cú twist", "kỳ tích", "hé lộ",
+    "kỳ tích", "kỷ tích",
+]
+
+BAO_CHI_FORMULAIC_PHRASES = [
+    "đánh đổi gì", "đánh đổi để", "đánh đổi nào", "đánh đổi để lấy",
+    "hy sinh để", "hy sinh nhằm", "hy sinh lợi nhuận",
+    "để đổi lấy", "để lấy gì", "đổi lấy gì", "đổi lấy điều gì",
+    "đặt cược vào", "đặt cược để",
+    "đặt mục tiêu", "đặt kế hoạch", "công bố kế hoạch",
+    "đã công bố", "ghi nhận", "thông qua nghị quyết",
+    "phấn đấu", "dự kiến đạt",
+    "lao dốc", "bứt phá", "lập kỷ lục",
+]
+
+BAO_CHI_QUARTER_PATTERN = re.compile(
+    r"^(Q[1-4]/?\d{0,4}|năm \d{4})\s+\w+\s+(lãi|lợi nhuận|doanh thu|công bố|ghi nhận)",
+    re.IGNORECASE,
 )
+
+RUBRIC_LABEL_LEAK = {
+    "question", "declarative tension", "quote", "contrast verb",
+    "lối question", "lối declarative", "lối quote", "lối contrast",
+}
+
+CONCRETE_QUESTION_SUBJECTS = [
+    "ai gom", "ai trả", "ai bán", "ai đẩy", "ai chạy", "ai đang",
+    "ai vừa", "ai mua", "ai thoát",
+    "đi đâu", "chạy đâu", "tiền đâu", "tiền chạy",
+    "sợ gì", "đáng sợ", "lo gì", "ngại gì",
+    "khôn hay liều", "khôn hay dại", "đúng hay sai",
+    "bao giờ", "khi nào", "đến bao giờ",
+    "trước ngày", "trước kỳ", "sau tháng",
+    " lạ?", " thật?", " thật vậy?",
+    "nào sai", "nào đúng", "ai thắng", "ai thua", "bên nào",
+    "kẻ nào", "phe nào", "nhóm nào",
+]
 
 # Universe — synced with lib/finpath_sectors (139 tickers V5.1.3 cached).
 # Hardcoded subset for hot-path Headline detection (fallback if cache miss).
