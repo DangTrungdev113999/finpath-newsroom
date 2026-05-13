@@ -1,4 +1,4 @@
-# Format: standard_narrative (250-350 từ)
+# Format: standard_narrative (220-280 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-fb`. Apply khi `format_id == "standard_narrative"`.
 
@@ -6,72 +6,74 @@
 
 Deep question category = hidden_mechanism + brief có ≥3 timeline markers (sự kiện theo trình tự thời gian). Câu chuyện cần kể flow, không liệt kê — bullets phá nhịp narrative.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening paragraph ≥40 từ — context lịch sử + tension/setup, dẫn vào câu chuyện]
+[Opening paragraph ≥40 từ — context lịch sử + tension, dẫn câu chuyện]
 
-[Flow paragraph 1 (60-100 từ) — diễn biến phase 1, có thể end timeline marker]
+[Flow paragraph 1 (50-80 từ) — diễn biến phase 1, end timeline marker]
 
-[Flow paragraph 2 (60-100 từ) — diễn biến phase 2, đẩy tension]
+[Flow paragraph 2 (50-80 từ) — diễn biến phase 2, đẩy tension]
 
 - **Bold highlight (optional)**: 0-2 bullets cho key number / verdict
 - **Bold highlight (optional)**: bullet thứ 2 nếu cần
 
-[Closing paragraph 30-50 từ — phân loại NĐT + outlook]
+[Closing paragraph 25-40 từ — 5-element actionable verdict + 1 caveat tối đa]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 0-2 bullets MAX (narrative chính là paragraphs)
-- ≥3 timeline markers trong body (vd "2019", "Q1/2024", "quý 1/2026")
-- Max 1 em dash / 100 từ (V5.1.2 em_dash_density)
+- 0-2 bullets MAX (narrative = paragraphs)
+- ≥3 timeline markers trong body (vd "2022", "Q3/2024", "Q1/2026")
+- Max 1 em dash / 100 từ
+- **Bold density ≥3%** (V1.3 — prose flow OK, nhưng vẫn cần visual anchor)
 
 ## Word count
 
-- Total: 250-350 từ HARD CAP. <250 fail word_count. >350 fail word_count.
+- Total: **220-280 từ** HARD CAP (V1.3 shrunk from 250-350)
 - Opening: ≥40 từ
-- Flow paragraphs: 60-100 từ each
+- Flow paragraphs: 50-80 từ each
 - Bullets (nếu có): ≥25 từ each
-- Closing: 30-50 từ
+- Closing: 25-40 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-≥3 bold `**...**` rải đều paragraphs + bullets (vì không có bullet structure, bold đảm nhận role visual anchor).
+- **Bold density ≥3%** (rải đều paragraphs + bullets)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm
+- **Ưu tiên ví von** (V6.3): metaphor markers BẮT BUỘC ≥1 (thật ra/như/gấp X lần/ví như) vì narrative cần feel + nhịp
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — FB sector
 
-Closing paragraph MUST có verdict — Voice Rule 3 (direction + timeframe + holder action). Khác standard_qa/listicle: closing là paragraph 30-50 từ (không phải 1 câu ngắn) cho phép thêm 1 caveat ngắn nếu confidence medium.
-
-## Examples sector fb
-
-### Example 1: SAB chuyển kênh narrative 2019-2026 (325 từ)
-
-Title: `Sabeco hy sinh kênh tại chỗ để đổi lấy điều gì cho 2026?`
+### ✅ Example 1: TCB BĐS chuyển hướng narrative (260 từ)
 
 Body:
-> Sabeco năm **2019** đỉnh doanh thu **37.000 tỷ** với cơ cấu kênh tiêu dùng tại chỗ chiếm **58%**, kênh mang về **42%**. Ngay tháng **1/2020**, Nghị định 100 áp dụng kiểm soát nồng độ cồn cộng với COVID đã đẩy doanh thu rớt xuống **27.000 tỷ năm 2021**, lãi sau thuế chỉ còn **3.900 tỷ**. Câu hỏi 6 năm sau: SAB đã chấp nhận đánh đổi gì để phục hồi?
+> Techcombank **2022** vẫn neo tỷ trọng BĐS **31%** bất chấp thị trường đóng băng. Ba năm sau, ban điều hành xén tỷ trọng xuống dưới **25%** trong kế hoạch 2026, chấp nhận hy sinh ước tính 5.000 tỷ doanh thu lãi vay. Vì sao timing là bây giờ?
 >
-> Trong **2020-2022**, Sabeco chọn đẩy mạnh đầu tư kênh tiêu dùng mang về thay vì cố giữ kênh tại chỗ. Bao bì lon nhôm tăng tỷ trọng từ **35% lên 52%**, hệ thống tủ mát cho tạp hóa lắp thêm hơn **40.000 điểm**. Sài Gòn Đỏ và 333 được tái định vị làm dòng phổ thông phổ biến tại nhà, không còn ưu tiên tủ lạnh nhà hàng. Cấu trúc tiêu dùng vĩnh viễn dịch chuyển.
+> Trong **Q1-2/2023** khi VPB và NVL nợ xấu BĐS bùng, TCB chọn đứng lại với danh mục. Logic ban điều hành: khách hàng phát triển dự án của TCB là top tier, chỉ cần chu kỳ hồi sẽ thanh khoản. Lãi suất NHNN giảm 4 lần trong 6 tháng cuối **2023** chứng minh phần — buffer dự phòng vọt từ **145% → 226%** nhưng chưa cần dùng.
 >
-> Đến **quý 1/2026**, tỷ trọng kênh tiêu dùng mang về đạt **58%** — đảo ngược hoàn toàn so với cấu trúc 2019. Doanh thu phục hồi về **31.000 tỷ năm 2025**, vẫn thấp hơn đỉnh **6.000 tỷ**, nhưng biên lợi nhuận gộp **38%** đã hồi từ vùng đáy **33%** năm 2021. Đây không phải defensive — đây là re-positioning chủ động khi cấu trúc tiêu dùng đã thay đổi.
+> Đến **Q4/2025**, tín dụng tiêu dùng TCB đã ăn thêm **28%** trong 18 tháng, đẻ ra nguồn thay thế BĐS. Cộng Thông tư 22 NHNN siết hệ số rủi ro BĐS từ **2027**, ban điều hành chốt rút sớm 12 tháng để dồn vốn cấp 1. Đây không phải defensive — đây là re-positioning chủ động.
 >
-> - **Cổ tức tiền mặt 35%/năm** đều đặn 2023-2025 chứng minh dòng tiền ổn định dù doanh thu chưa quay lại đỉnh.
-> - **Thị phần phổ thông tăng 2,8 điểm phần trăm** từ Heineken cho thấy chuyển kênh đi đôi với giành thị phần.
+> - **Lãi Q1/2026 vẫn tăng 22%** — chứng minh chuyển hướng không xén thu nhập ngắn hạn.
+> - **P/B 1,3 lần thấp hơn TB 5 năm 1,7**: ban điều hành nhắm re-rate TCB như bank cân bằng.
 >
-> Mã phù hợp NĐT giá trị giữ trên 24 tháng tin chiến lược cấu trúc mới, chấp nhận đỉnh phục hồi sẽ thấp hơn 2019 và thuế tiêu thụ đặc biệt là rủi ro chính chu kỳ tiếp theo.
+> NĐT giá trị nên cầm 24-36 tháng vùng dưới 35, mục tiêu re-rate 50-55 nếu BĐS tụt dưới 25% Q4/2026; cắt 30% nếu chậm hơn lịch.
 
-### Example 2: MSN transformation 2019-2026 (310 từ)
-
-Title: `Masan thâu tóm VinMart 2019 đến tách Masan Consumer 2026: chuyển hướng đúng hay sai?`
+### ✅ Example 2: VPB credit room story (250 từ)
 
 Body:
-> Tháng **12/2019**, Masan thâu tóm VinCommerce từ Vingroup trong giao dịch trị giá **5 tỷ đô**, chuyển từ tập đoàn hàng tiêu dùng nhanh thuần sang đa ngành bán lẻ. Quyết định gây tranh cãi vì VinCommerce đang lỗ nặng, và mì gói Omachi + gia vị Chinsu đủ tạo dòng tiền mạnh. Bài học sau 6 năm là gì?
+> VPB tại ĐHĐCĐ **tháng 4/2026** khoe tăng trưởng tín dụng **35%** cả năm — gấp đôi room NHNN cấp đợt 1 là **16%**. Lời hứa lớn này từ đâu, và VPB có lịch sử thực hiện được không?
 >
-> Trong **2020-2022**, VinCommerce đổi tên thành WinCommerce, lỗ trung bình **5.000 tỷ/năm** kéo lãi consolidated giảm hơn nửa. Masan Consumer phải gánh tiền nuôi mạng lưới bán lẻ, biên lợi nhuận gộp tập đoàn từ **30% xuống 23%**. Cổ đông phản ứng tiêu cực, giá cổ phiếu rớt 40% từ đỉnh 2021. SK Group bơm **1,5 tỷ đô** vào Masan Consumer kèm điều khoản tách niêm yết trước cuối 2027.
+> Quay lại **2023**, VPB cũng khoe **30%** tại ĐHĐCĐ. Cuối năm chỉ ăn **17%** vì NHNN không cấp room đợt 2. Năm **2024**, VPB xén kỳ vọng xuống **22%**, ăn **19%** — sát hơn. **2025** hứa **25%**, ăn **24%** nhờ NHNN nới room **28/8/2024** kèm điều kiện chuyển tiền cho FE Credit.
 >
-> Đến **2024-2025**, WinCommerce đóng cửa hàng yếu còn **3.600 cửa hàng**, mở lại format WinMart+ nhỏ hơn 80m². Lần đầu báo lãi gộp dương 2024. Masan Consumer doanh thu **33.000 tỷ** năm 2025, biên lợi nhuận gộp **45%**, định giá pure-play có thể đạt **5-6 tỷ đô** khi niêm yết riêng cuối **2026**.
+> Pattern 3 năm: VPB over-promise **8-13 điểm phần trăm**, nhưng khoảng cách thu hẹp dần — thật ra hứa đang sát thực tế hơn. Hứa **35%** 2026 có 2 lớp support: room đợt 1 cấp **16%** ngày 15/2/2026 + VPB Securities đã bơm 1.500 tỷ về bank bổ sung vốn cấp 2.
 >
-> - **Hệ số PE forward MSN consolidated 18 lần** thấp hơn trung bình ngành hàng tiêu dùng nhanh 22 lần, ban điều hành muốn re-rate khi tách.
-> - **Cổ đông SK Group bỏ phiếu đồng thuận tách** tại đại hội cổ đông tháng 4/2026, lộ trình IPO rõ ràng.
+> - **Tín dụng Q1 ăn 4,8%** lũy kế năm, on track 19,2% half-year nếu giữ tốc độ.
 >
-> Mã phù hợp NĐT giá trị giữ trên 24 tháng tin chiến lược tách, chấp nhận thị trường chưa re-rate ngay đến khi Masan Consumer IPO hoàn tất và WinCommerce có lãi sau thuế dương ổn định.
+> NĐT chấp nhận biến động nên cầm 12-18 tháng vùng dưới 30, scenario base về **22-26%** không phải 35% như hứa; cắt 50% nếu room đợt 2 không nới Q3.
+
+### ❌ Example xấu V1.3 reject
+
+> Techcombank công bố kế hoạch giảm tỷ trọng cho vay BĐS từ 31% xuống dưới 25% trong năm 2026. Ngân hàng đặt mục tiêu hoàn thành kế hoạch trước Thông tư 22 của NHNN có hiệu lực từ 2027. Lợi nhuận quý 1/2026 ghi nhận tăng 22% so cùng kỳ. Buffer dự phòng được duy trì ở mức 226%. Nhà đầu tư cần theo dõi diễn biến các quý tới làm chỉ báo cho năm 2027.
+
+→ Fail: 4 báo chí verbs (công bố + đặt mục tiêu + hoàn thành + ghi nhận) + 0 bold + 0 metaphor + closing "cần theo dõi làm chỉ báo" vague.

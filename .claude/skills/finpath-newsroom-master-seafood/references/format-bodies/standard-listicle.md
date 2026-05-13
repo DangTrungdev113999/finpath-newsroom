@@ -1,4 +1,4 @@
-# Format: standard_listicle (250-350 từ)
+# Format: standard_listicle (220-280 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-seafood`. Apply khi `format_id == "standard_listicle"`.
 
@@ -6,69 +6,71 @@
 
 Deep question category ∈ {comparison_deep, early_signal} + data_richness ≥ medium. Người đọc cần so sánh hoặc liệt kê signals — nội dung chia thành mảnh độc lập, không phải narrative chảy.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening ≤30 từ — context + question (ngắn, dẫn vào list)]
+[Opening ≤20 từ — context + question (ngắn, dẫn vào list)]
 
-- **Bold highlight 1**: bullet ≥25 từ với mechanism + số bold
+- **Bold highlight 1**: bullet ≥25 từ + mechanism + số bold
 - **Bold highlight 2**: bullet ≥25 từ
-- **Bold highlight 3**: bullet ≥25 từ
+- **Bold highlight 3**: bullet ≥25 từ + ví von/analogy
 - **Bold highlight 4**: bullet ≥25 từ
-- ... 4-7 bullets total (listicle dày hơn standard_qa)
+- ... 4-7 bullets total
 
-[Closing — 1 câu phân loại NĐT]
+[Closing — 5-element actionable verdict ≤30 từ]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 4-7 bullets (listicle pattern — nhiều bullets hơn standard_qa)
-- Mỗi bullet ≥25 từ (substantive hơn standard_qa do listicle ngắn opening)
-- Max 1 em dash / 100 từ (V5.1.2 em_dash_density)
+- 4-7 bullets (listicle pattern)
+- Mỗi bullet ≥25 từ
+- Max 1 em dash / 100 từ
+- **Bold density ≥5%** (V1.3 — densest format, ~1 bold per 20 từ)
 
 ## Word count
 
-- Total: 250-350 từ HARD CAP. <250 fail word_count. >350 fail word_count.
-- Opening: ≤30 từ (compact)
+- Total: **220-280 từ** HARD CAP (V1.3 shrunk from 250-350)
+- Opening: ≤20 từ (compact để vào list nhanh)
 - Each bullet: ≥25 từ
-- Closing: 1 câu (≤30 từ)
+- Closing: 1 câu ≤30 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-Mỗi bullet MUST có ≥1 bold `**...**`. Highlight contrast number / verdict word. Listicle nhấn nhiều bold hơn standard_qa do format scan.
+- **Bold density ≥5%** (densest — listicle scan needs visible signals)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm/lùa
+- **Ưu tiên ví von** (V6.3): comparison MUST use analogy markers (gấp X lần / tương đương / như / ngang ngửa)
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — Seafood sector
 
-Closing verdict — Voice Rule 3 (3 elements: direction + timeframe + holder action).
-
-## Examples Thuỷ sản sector
-
-### Example 1: comparison_deep — Cá tra vs Tôm quý 1/2026 (320 từ)
-
-Title: `Cá tra vs tôm quý 1/2026: nhóm nào đang đặt cược đúng hơn?`
+### ✅ Example 1: comparison_deep — Big4 vs tư nhân Q1/2026 (270 từ)
 
 Body:
-> Cá tra (VHC + ANV + IDI) và tôm (MPC + FMC + CMX) quý 1/2026 đi hai hướng rõ rệt. Nhóm nào chọn đúng cho 12 tháng tới?
+> **Big4 và tư nhân top Q1/2026 đi hai hướng**. Ai đặt cọc đúng cho 12 tháng tới?
 >
-> - **Doanh thu nhóm cá tra trung bình tăng 14%** trong khi nhóm tôm chỉ +3%, cá tra hưởng lợi từ mùa Chay châu Âu peak Q1 cùng thuế chống bán phá giá Mỹ kỳ rà soát mới hạ mức cho VHC + ANV.
-> - **Biên lợi nhuận gộp nhóm cá tra 22% trung bình** so nhóm tôm chỉ 8%, chênh lệch 14 điểm phần trăm vì tôm vẫn chịu cạnh tranh giá khốc liệt từ Ấn Độ và Ecuador tại Mỹ.
-> - **VHC giá bán trung bình 3,4 đô-la mỗi kg** tăng nhẹ so quý 4/2025 nhờ hợp đồng EU mới, trong khi MPC chỉ giữ 6,3 đô-la mỗi kg ở Mỹ tầm trung, không nâng giá được.
-> - **Sản lượng xuất khẩu tôm Mỹ giảm 8%** so cùng kỳ do Ecuador đẩy thêm 22% nguồn cung, nhóm tôm Việt buộc nhường thị phần kênh tầm trung để giữ kênh cao cấp Nhật.
-> - **Vòng quay tồn kho nhóm cá tra 42 ngày** so nhóm tôm 68 ngày, tồn kho tôm cao phản ánh sức mua trầm cùng áp lực cạnh tranh khu vực chưa hạ nhiệt.
-> - **Định giá theo lợi nhuận nhóm cá tra 9 lần** so nhóm tôm 14 lần, thị trường vẫn trả thưởng cho nhóm tôm dù chỉ số xấu hơn — kỳ vọng phục hồi 2027 chưa được rút lại.
+> - **Big4 tín dụng ăn 4,3%** trung bình, tư nhân chỉ vọt 1,9%. Big4 gom được room cấp đợt 1 với khách hàng trial bị tư nhân từ chối — như Big4 đang ăn chỗ tư nhân chừa.
+> - **TCB MBB ACB dùng dưới 30% room**: nhóm tư nhân top chủ động xén tốc độ chờ chất lượng khách hàng cải thiện nửa cuối năm — chiến lược "hái sau khi chín".
+> - **Biên lãi vay Big4 nới 18 điểm cơ bản** lên 3,2% nhờ huy động giá rẻ. Tư nhân chỉ nới 5 điểm cơ bản, kẹt cuộc đua lãi tiết kiệm — gấp 3,6 lần khoảng cách.
+> - **Nợ xấu Big4 0,9% vs tư nhân 1,4%**: chiến lược trial của Big4 chưa lộ rủi ro, nhưng cũng có nghĩa Big4 đang dồn vào nhóm khách hàng tốt hơn tư nhân từ chối.
+> - **P/B Big4 1,9 lần đắt gấp 1,5 lần tư nhân 1,3**: thị trường thưởng Big4 nhờ vùng đệm dự phòng dày 200%+ — premium này có thể co nếu cycle tư nhân hồi.
 >
-> Mã cá tra phù hợp NĐT giá trị giữ trên 12 tháng ưu tiên dữ liệu hiện tại, mã tôm phù hợp NĐT chấp nhận biến động chờ chu kỳ cạnh tranh khu vực hạ nhiệt nửa cuối 2026.
+> NĐT giá trị nên cầm Big4 18+ tháng vùng dưới 95; phù hợp tư nhân top short-medium 12 tháng khi P/B tụt dưới 1,2.
 
-### Example 2: early_signal — FMC tăng tốc Q4 2024 (300 từ)
-
-Title: `FMC tăng tốc quý 4/2024: chỉ số nào quyết định 2026?`
+### ✅ Example 2: early_signal — TCB CASA tụt Q1 (260 từ)
 
 Body:
-> Sao Ta ghi nhận lãi sau thuế quý 4/2024 tăng 38% so cùng kỳ sau giai đoạn 3 quý đầu năm chỉ tăng 8-12%. Dấu hiệu sớm cho cả năm 2026?
+> **TCB tỷ lệ CASA tụt từ 38% → 33% Q1**. Chỉ số nào quyết định 2026?
 >
-> - **Lãi quý 4 tăng 38%** trong khi doanh thu chỉ +14% phản ánh biên lợi nhuận gộp nới rộng từ 6,2% quý 3 lên 9,1% quý 4, nhờ giá tôm nguyên liệu khu vực giảm 9% trong 3 tháng.
-> - **Thuế chống bán phá giá Mỹ áp cho tôm Việt 1,8%** so Ấn Độ 4,6% và Trung Quốc 5,1%, chênh lệch 2,8-3,3 điểm phần trăm tạo ưu thế giá ổn định cho FMC tại kênh hiện đại Mỹ.
-> - **Đơn hàng kênh hiện đại Mỹ tăng 26%** quý 4 sau khi khách hàng chính chuyển bớt đơn từ Ấn Độ sang Việt Nam, ổn định chuỗi cung trước rủi ro chính sách kế tiếp.
-> - **Tôm thẻ chế biến sâu chiếm 41%** doanh thu FMC quý 4, tăng từ 33% quý 3, hiệu suất chế biến cải thiện cùng giá bán cao hơn 22% so tôm đông lạnh thông thường.
-> - **Vòng quay tồn kho rút từ 72 ngày xuống 55 ngày** quý 4, dấu hiệu rõ rằng khách hàng tiêu thụ nhanh, không tích trữ — chu kỳ đặt hàng mới sớm hơn dự kiến.
+> - **Tỷ lệ tụt 5 điểm phần trăm** trong 1 quý chưa từng thấy 8 quý gần nhất — khách hàng cá nhân lùa sang tiết kiệm lãi 5,5-6%, kiểu "chạy theo lãi cao".
+> - **Chi phí vốn nhảy 12 điểm cơ bản** lên 3,8%, biên lãi vay sẽ xén nếu xu hướng kéo thêm 2 quý — gấp 2,4 lần biến động trung bình quý.
+> - **Khách hàng trẻ 25-35** chiếm 60% lực rút — nhóm này nhạy lãi nhất, có thể quay lại nhanh nếu TCB bơm lãi tiết kiệm online ngang ngửa MBB.
+> - **App TCB Mobile traffic tụt 8%** Q1: engagement giảm song song CASA, không chỉ vấn đề lãi mà còn trải nghiệm sản phẩm — như khách hàng đang quay lưng cùng lúc.
+> - **MBB ACB tỷ lệ ổn định 35-37%**: vấn đề riêng TCB, không phải xu hướng cả nhóm tư nhân top.
 >
-> Mã phù hợp NĐT giá trị giữ trên 18 tháng tin chu kỳ tôm dịch chuyển từ Ấn-Ecuador về Việt Nam, theo dõi sát mức thuế kỳ rà soát Mỹ kế tiếp.
+> NĐT đang cầm nên xén 30% vị thế vùng trên 35, mục tiêu mua lại dưới 28 nếu Q2 CASA tụt thêm dưới 30%.
+
+### ❌ Example xấu V1.3 reject
+
+> TCB ghi nhận tỷ lệ tiền gửi không kỳ hạn giảm từ 38% xuống 33% trong quý 1/2026. Ngân hàng công bố chiến lược điều chỉnh, đặt mục tiêu khôi phục tỷ lệ trong các quý tiếp theo. Khách hàng cá nhân được ghi nhận có xu hướng chuyển sang tiền gửi có kỳ hạn. Nhà đầu tư cần thận trọng theo dõi diễn biến làm chỉ báo sớm cho năm 2026.
+
+→ Fail: 4 báo chí verbs (ghi nhận x2 + công bố + đặt mục tiêu) + 0 bold + closing "thận trọng theo dõi làm chỉ báo" vague.

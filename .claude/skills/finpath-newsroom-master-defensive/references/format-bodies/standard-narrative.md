@@ -1,4 +1,4 @@
-# Format: standard_narrative (250-350 từ)
+# Format: standard_narrative (220-280 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-defensive`. Apply khi `format_id == "standard_narrative"`.
 
@@ -6,72 +6,74 @@
 
 Deep question category = hidden_mechanism + brief có ≥3 timeline markers (sự kiện theo trình tự thời gian). Câu chuyện cần kể flow, không liệt kê — bullets phá nhịp narrative.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening paragraph ≥40 từ — context lịch sử + tension/setup, dẫn vào câu chuyện]
+[Opening paragraph ≥40 từ — context lịch sử + tension, dẫn câu chuyện]
 
-[Flow paragraph 1 (60-100 từ) — diễn biến phase 1, có thể end timeline marker]
+[Flow paragraph 1 (50-80 từ) — diễn biến phase 1, end timeline marker]
 
-[Flow paragraph 2 (60-100 từ) — diễn biến phase 2, đẩy tension]
+[Flow paragraph 2 (50-80 từ) — diễn biến phase 2, đẩy tension]
 
 - **Bold highlight (optional)**: 0-2 bullets cho key number / verdict
 - **Bold highlight (optional)**: bullet thứ 2 nếu cần
 
-[Closing paragraph 30-50 từ — phân loại NĐT + outlook]
+[Closing paragraph 25-40 từ — 5-element actionable verdict + 1 caveat tối đa]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 0-2 bullets MAX (narrative chính là paragraphs)
-- ≥3 timeline markers trong body (vd "2022", "Q3/2024", "quý 1/2026")
-- Max 1 em dash / 100 từ (V5.1.2 em_dash_density)
+- 0-2 bullets MAX (narrative = paragraphs)
+- ≥3 timeline markers trong body (vd "2022", "Q3/2024", "Q1/2026")
+- Max 1 em dash / 100 từ
+- **Bold density ≥3%** (V1.3 — prose flow OK, nhưng vẫn cần visual anchor)
 
 ## Word count
 
-- Total: 250-350 từ HARD CAP. <250 fail word_count. >350 fail word_count.
+- Total: **220-280 từ** HARD CAP (V1.3 shrunk from 250-350)
 - Opening: ≥40 từ
-- Flow paragraphs: 60-100 từ each
+- Flow paragraphs: 50-80 từ each
 - Bullets (nếu có): ≥25 từ each
-- Closing: 30-50 từ
+- Closing: 25-40 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-≥3 bold `**...**` rải đều paragraphs + bullets (vì không có bullet structure, bold đảm nhận role visual anchor).
+- **Bold density ≥3%** (rải đều paragraphs + bullets)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm
+- **Ưu tiên ví von** (V6.3): metaphor markers BẮT BUỘC ≥1 (thật ra/như/gấp X lần/ví như) vì narrative cần feel + nhịp
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — Defensive sector
 
-Closing paragraph MUST có verdict — Voice Rule 3 (direction + timeframe + holder action). Khác standard_qa/listicle: closing là paragraph 30-50 từ (không phải 1 câu ngắn) cho phép thêm 1 caveat ngắn nếu confidence medium.
-
-## Examples Defensive sector (Tech / Utility / Pharma mixed)
-
-### Example 1: FPT outsourcing growth narrative (Tech, 330 từ)
-
-Title: `FPT chuyển từ gia công Nhật sang Mỹ 6 năm: vì sao bây giờ mới thấy quả ngọt?`
+### ✅ Example 1: TCB BĐS chuyển hướng narrative (260 từ)
 
 Body:
-> FPT năm **2018** mới có doanh thu gia công Mỹ ở mức **80 triệu USD**, bằng 1/4 mảng Nhật cùng thời điểm. Đến quý 1/2026, mảng Mỹ vượt mảng Nhật để trở thành lớn nhất với **480 triệu USD/quý**. Hành trình 6 năm này không phải tăng tự nhiên — đây là cuộc đặt cược chiến lược của ban điều hành. Vì sao bây giờ mới thấy đỉnh điểm?
+> Techcombank **2022** vẫn neo tỷ trọng BĐS **31%** bất chấp thị trường đóng băng. Ba năm sau, ban điều hành xén tỷ trọng xuống dưới **25%** trong kế hoạch 2026, chấp nhận hy sinh ước tính 5.000 tỷ doanh thu lãi vay. Vì sao timing là bây giờ?
 >
-> Năm **2019-2020**, FPT mở văn phòng tại San Francisco và Atlanta, tuyển 200 kỹ sư người Việt sang Mỹ. Chi phí tăng 35% trong khi doanh thu chỉ tăng 18%, biên gia công Mỹ rớt xuống **12%**, thấp hơn Nhật **18%**. Thị trường phạt cổ phiếu, P/E giảm từ 18 lần xuống 12 lần. Ban điều hành kiên định.
+> Trong **Q1-2/2023** khi VPB và NVL nợ xấu BĐS bùng, TCB chọn đứng lại với danh mục. Logic ban điều hành: khách hàng phát triển dự án của TCB là top tier, chỉ cần chu kỳ hồi sẽ thanh khoản. Lãi suất NHNN giảm 4 lần trong 6 tháng cuối **2023** chứng minh phần — buffer dự phòng vọt từ **145% → 226%** nhưng chưa cần dùng.
 >
-> Đến **quý 3/2024**, làn sóng ngân hàng Mỹ chuyển khỏi Ấn Độ do căng thẳng địa chính trị và chi phí kỹ sư Ấn tăng 28% trong 3 năm. FPT trở thành lựa chọn rẻ hơn 15% với chất lượng tương đương. **Đơn hàng tồn đọng Mỹ tăng từ 600 triệu lên 2,4 tỷ USD** trong 18 tháng. Biên Mỹ hồi lên **22%** vượt Nhật **18%** lần đầu tiên.
+> Đến **Q4/2025**, tín dụng tiêu dùng TCB đã ăn thêm **28%** trong 18 tháng, đẻ ra nguồn thay thế BĐS. Cộng Thông tư 22 NHNN siết hệ số rủi ro BĐS từ **2027**, ban điều hành chốt rút sớm 12 tháng để dồn vốn cấp 1. Đây không phải defensive — đây là re-positioning chủ động.
 >
-> - **Tỷ trọng doanh thu Mỹ 47%** quý 1/2026 vượt Nhật **41%**, chuyển dịch không thể đảo ngược trong 24 tháng tới.
-> - **ROE 28% năm 2025** cao nhất 8 năm gần nhất, nhờ biên Mỹ kéo biên hợp nhất hồi sau 5 năm áp lực.
+> - **Lãi Q1/2026 vẫn tăng 22%** — chứng minh chuyển hướng không xén thu nhập ngắn hạn.
+> - **P/B 1,3 lần thấp hơn TB 5 năm 1,7**: ban điều hành nhắm re-rate TCB như bank cân bằng.
 >
-> Mã phù hợp NĐT giá trị giữ trên 24 tháng tin xu hướng chuyển dịch outsourcing toàn cầu, chấp nhận thị trường có thể chưa định giá lại ngay nếu chưa thấy proof point từ tỷ trọng Mỹ vượt 55%.
+> NĐT giá trị nên cầm 24-36 tháng vùng dưới 35, mục tiêu re-rate 50-55 nếu BĐS tụt dưới 25% Q4/2026; cắt 30% nếu chậm hơn lịch.
 
-### Example 2: PC1 grid expansion narrative (Utility, 300 từ)
-
-Title: `PC1 mở rộng lưới điện 2 năm: vì sao biên xây lắp đang bị nén?`
+### ✅ Example 2: VPB credit room story (250 từ)
 
 Body:
-> PC1 năm **2023** ký được hợp đồng xây lắp lưới điện 500kV Bắc-Nam giai đoạn 2 trị giá **18.000 tỷ** với EVN, kỳ vọng đẩy doanh thu **2024-2026** lên 12.000 tỷ/năm. Hai năm vào dự án, biên xây lắp lại đang co thắt. Câu chuyện đằng sau biên này là gì?
+> VPB tại ĐHĐCĐ **tháng 4/2026** khoe tăng trưởng tín dụng **35%** cả năm — gấp đôi room NHNN cấp đợt 1 là **16%**. Lời hứa lớn này từ đâu, và VPB có lịch sử thực hiện được không?
 >
-> Trong **quý 1-3/2024**, dự án 500kV chạy nhanh nhờ giải phóng mặt bằng thuận lợi, doanh thu xây lắp đạt **3.200 tỷ** quý cao kỷ lục. Biên xây lắp giữ **9,2%** ổn định, ROE PC1 leo lên **18,5%**. Thị trường định giá lại từ P/E 8 lên 14 lần trong 6 tháng.
+> Quay lại **2023**, VPB cũng khoe **30%** tại ĐHĐCĐ. Cuối năm chỉ ăn **17%** vì NHNN không cấp room đợt 2. Năm **2024**, VPB xén kỳ vọng xuống **22%**, ăn **19%** — sát hơn. **2025** hứa **25%**, ăn **24%** nhờ NHNN nới room **28/8/2024** kèm điều kiện chuyển tiền cho FE Credit.
 >
-> Đến **quý 4/2025 - quý 1/2026**, dự án vào giai đoạn dây dẫn và móng tháp cao, vật tư thép và nhôm tăng **22%** so cùng kỳ. PC1 đã ký giá thầu cố định với EVN từ 2023, không thể điều chỉnh. Biên xây lắp giảm xuống **7,1%**, mức thấp nhất 6 quý. Doanh thu vẫn tăng nhưng lãi co lại — đây là rủi ro mô hình lump-sum không phải PC1 quản lý kém.
+> Pattern 3 năm: VPB over-promise **8-13 điểm phần trăm**, nhưng khoảng cách thu hẹp dần — thật ra hứa đang sát thực tế hơn. Hứa **35%** 2026 có 2 lớp support: room đợt 1 cấp **16%** ngày 15/2/2026 + VPB Securities đã bơm 1.500 tỷ về bank bổ sung vốn cấp 2.
 >
-> - **Đơn hàng tồn đọng 24.000 tỷ** vẫn lớn nhất sector xây lắp điện, đảm bảo doanh thu 2026-2028.
-> - **Mảng năng lượng tái tạo 38% biên gộp** đang bù cho mảng xây lắp đang nén, đa dạng hóa chiến lược dài hạn.
+> - **Tín dụng Q1 ăn 4,8%** lũy kế năm, on track 19,2% half-year nếu giữ tốc độ.
 >
-> Mã phù hợp NĐT giá trị giữ 18-24 tháng chấp nhận biên xây lắp nén tạm thời, đặt cược mảng năng lượng tái tạo PC1 đang xây dần đủ lớn bù cho cycle xây lắp.
+> NĐT chấp nhận biến động nên cầm 12-18 tháng vùng dưới 30, scenario base về **22-26%** không phải 35% như hứa; cắt 50% nếu room đợt 2 không nới Q3.
+
+### ❌ Example xấu V1.3 reject
+
+> Techcombank công bố kế hoạch giảm tỷ trọng cho vay BĐS từ 31% xuống dưới 25% trong năm 2026. Ngân hàng đặt mục tiêu hoàn thành kế hoạch trước Thông tư 22 của NHNN có hiệu lực từ 2027. Lợi nhuận quý 1/2026 ghi nhận tăng 22% so cùng kỳ. Buffer dự phòng được duy trì ở mức 226%. Nhà đầu tư cần theo dõi diễn biến các quý tới làm chỉ báo cho năm 2027.
+
+→ Fail: 4 báo chí verbs (công bố + đặt mục tiêu + hoàn thành + ghi nhận) + 0 bold + 0 metaphor + closing "cần theo dõi làm chỉ báo" vague.

@@ -1,4 +1,4 @@
-# Format: standard_qa (200-300 từ)
+# Format: standard_qa (180-240 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-defensive`. Apply khi `format_id == "standard_qa"`.
 
@@ -6,68 +6,68 @@
 
 Deep question category ∈ {paradox, why_now, hidden_mechanism} + data_richness ≥ medium. Người đọc cần mechanism reasoning nhưng không cần liệt kê chi tiết.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening paragraph 30-80 từ — sự kiện + tension/setup, có thể end với câu hỏi]
+[Opening paragraph 30-60 từ — sự kiện + tension/setup, end câu hỏi sắc]
 
-- **Bold highlight 1**: substantive bullet ≥20 từ với connector + mechanism reasoning
-- **Bold highlight 2**: bullet ≥20 từ
-- **Bold highlight 3**: bullet ≥20 từ
-- ... up to 6 bullets
+- **Bold highlight 1**: bullet ≥20 từ với connector + mechanism
+- **Bold highlight 2**: bullet ≥20 từ + 1-2 số bold
+- **Bold highlight 3**: bullet ≥20 từ + analogy/metaphor
+- ... up to 6 bullets total (3-6)
 
-[Closing — 1 câu phân loại NĐT phù hợp]
+[Closing — 5-element actionable verdict ≤30 từ]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 3-6 bullets (substantive, mechanism + bold number)
-- Max 1 em dash / 100 từ (V5.1.2 PATCH em_dash_density)
+- 3-6 bullets (dense, mechanism + bold number)
+- Max 1 em dash / 100 từ
+- **Bold density ≥4%** (V1.3 — ~1 bold per 25 từ)
 
 ## Word count
 
-- Total: 200-300 từ HARD CAP. <200 fail word_count. >300 fail word_count.
-- Opening: 30-80 từ
+- Total: **180-240 từ** HARD CAP (V1.3 shrunk from 200-300)
+- Opening: 30-60 từ
 - Each bullet: ≥20 từ
-- Closing: 1 câu (≤30 từ), không bullet, không heading
+- Closing: 1 câu ≤30 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-Mỗi bullet MUST có ≥1 bold `**...**`. Bold số (vd `**doanh thu định kỳ 18%**`) hoặc verdict word (vd `**hy sinh**`, `**đánh đổi**`).
+- **Bold density** ≥4% (≥1 bold per 25 từ)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm
+- **Ưu tiên ví von** (V6.3): metaphor markers ≥2 (như/kiểu/ví như/gấp X lần)
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — Defensive sector
 
-Closing MUST có verdict cho NĐT phân loại (Voice Rule 3):
-- 3 elements: direction + timeframe + holder action
-- Tốt: "Mã phù hợp NĐT giá trị giữ trên 18 tháng, ưu tiên dòng tiền định kỳ"
-- Xấu: "Tùy quan điểm NĐT đánh giá" (ba phải, fail Voice V2)
-
-## Examples Defensive sector (Tech / Utility / Pharma mixed)
-
-### Example 1: paradox — FPT đánh đổi biên (Tech, 240 từ)
-
-Title: `FPT chấp nhận biên gia công giảm 80 điểm cơ bản để đổi lấy điều gì?`
+### ✅ Example 1: paradox — VCB hy sinh tăng trưởng (210 từ)
 
 Body:
-> FPT công bố biên lợi nhuận gia công công nghệ quý 1/2026 giảm từ 21% xuống 20,2%, mức thấp nhất 8 quý gần nhất, nhưng doanh thu lại tăng 24%. Vì sao FPT chọn cách hy sinh biên thay vì giữ giá?
+> **Vietcombank ăn tín dụng quý 1 chỉ 1,8%** trong khi cả nhóm tư nhân lùa thêm 4-5%, nhưng giá vẫn vững trên 95.000 đồng. Vì sao to nhất lại đi chậm nhất, và cổ đông trả tiền cho cái gì?
 >
-> - **Doanh thu gia công 9.800 tỷ** quý 1 tăng 24% so cùng kỳ chủ yếu nhờ ký mới với 3 ngân hàng Mỹ đang chuyển khỏi Ấn Độ, FPT chấp nhận chiết khấu 8-12% để chốt khách dài hạn.
-> - **Đơn hàng tồn đọng 2,4 tỷ USD** tăng 41% so cùng kỳ tương đương 14 tháng doanh thu, chứng minh chiến lược trade-off thực sự thu hút khách lock-in chứ không chỉ ngắn hạn.
-> - **Biên mảng Nhật 18%** ổn định nhờ khách hàng cũ tăng quy mô, không phải kéo biên hợp nhất xuống — biên thấp đến từ contract Mỹ năm đầu.
-> - **Số nhân sự +18%** quý 1 phản ánh FPT tin chiến lược mở rộng quy mô đủ bù biên co lại, đặc biệt khi nhân sự gia công Việt vẫn rẻ hơn Ấn 35%.
+> - **Tín dụng 1,8% vs ngành 3,1%**: VCB giữ chất khách hàng top, không chạy doanh số quý đầu năm — ngược với tư nhân đua tăng để khoe quý.
+> - **Nợ xấu 0,9% thấp nhất 27 mã**: giảm 12 điểm cơ bản so cùng kỳ, kết quả thực tế của chiến lược screen khắt khe 18 tháng qua.
+> - **ROE 22,3% vẫn dẫn Big4**: quy mô cộng giá vốn rẻ đang bù cho tốc độ — như xe to chạy chậm vẫn mạnh hơn xe nhỏ tăng tốc.
+> - **Vùng đệm dự phòng 226%**: gấp 1,8 lần ngưỡng NHNN, sẵn sàng hấp thụ shock TPDN BĐS nếu chu kỳ tái cơ cấu kéo dài sang 2027.
 >
-> Mã phù hợp NĐT giá trị giữ trên 24 tháng, chấp nhận biên ngắn hạn co để đổi lấy thị phần outsourcing toàn cầu.
+> NĐT giá trị nên cầm vùng 92-98, mục tiêu 105-110 trong 18 tháng; không phù hợp NĐT short-term tham gia momentum.
 
-### Example 2: why_now — REE đầu tư điện gió 2026 (Utility, 270 từ)
-
-Title: `Vì sao REE chọn đẩy điện gió 2026, không phải 2024 đỉnh giá điện?`
+### ✅ Example 2: why_now — TCB rút BĐS 2026 (230 từ)
 
 Body:
-> REE công bố kế hoạch đầu tư 4.200 tỷ vào điện gió Bến Tre giai đoạn 2026-2028, trong khi 2023-2024 vẫn ưu tiên trả cổ tức cao 22%. Vì sao timing là bây giờ, không phải lúc giá điện FIT còn cao?
+> **Techcombank xén tỷ trọng BĐS** từ 31% xuống dưới 25% trong kế hoạch 2026, sau gần 3 năm vẫn neo cao bất chấp khủng hoảng 2022-2023. Vì sao timing là bây giờ, không phải đỉnh khủng hoảng?
 >
-> - **Cơ chế DPPA hợp đồng mua điện trực tiếp** vừa được ban hành tháng 7/2024, cho phép REE bán điện thẳng cho khu công nghiệp với giá thỏa thuận, không phụ thuộc EVN — điều kiện không có trong 2024.
-> - **Lợi suất trái phiếu 10 năm 5,8%** đẩy chi phí vốn lên, REE muốn chốt khoản đầu tư vốn ODA Nhật lãi suất **2,3%** trước khi cycle lãi suất đảo chiều.
-> - **Tỷ lệ nợ trên vốn chủ 0,38** thấp hơn trung bình ngành 0,52, REE có dư địa vay thêm 3.000 tỷ mà vẫn giữ rating BB+ — chỉ số này yếu hơn năm 2024 khi nợ ròng âm.
-> - **Cổ tức giảm xuống 16%** năm 2026 để bảo toàn dòng tiền đầu tư, ban điều hành đặt cược thị trường định giá lại REE từ utility cổ tức sang utility tăng trưởng.
-> - **Khách hàng FDI sản xuất chip** Bến Tre đã ký LOI 280 MW điện gió DPPA, đảm bảo tải tiêu thụ ngay khi nhà máy vận hành 2028.
+> - **BĐS 31% năm 2022 không giảm**: TCB chấp nhận chịu nợ xấu nhóm 2 tăng để giữ khách hàng phát triển dự án — đặt cọc ngành sẽ hồi.
+> - **Lãi Q1/2026 vẫn ăn 22% YoY**: buffer dự phòng đã đủ dày để rút mà không tổn thương thu nhập — điều kiện không có 2023.
+> - **Tín dụng tiêu dùng vọt 28%** trong 18 tháng qua đã đẻ ra nguồn thay thế, TCB không còn phụ thuộc BĐS cho tăng trưởng.
+> - **NHNN siết Thông tư 22 từ 2027**: TCB rút sớm 12 tháng để dồn vốn cấp 1 — chuẩn bị trước thay vì chạy theo.
+> - **P/B 1,3 lần thấp hơn TB 5 năm**: ban điều hành nhắm re-rate khi thị trường nhìn TCB như bank cân bằng, không phải BĐS bank.
 >
-> Mã phù hợp NĐT giá trị giữ 24-36 tháng tin chiến lược chuyển hướng tăng trưởng, chấp nhận tỷ suất cổ tức ngắn hạn xuống dưới 2,5%.
+> NĐT giá trị tin chiến lược chuyển hướng nên cầm 24-36 tháng vùng dưới 35; cắt 30% nếu BĐS không tụt dưới 27% Q4/2026.
+
+### ❌ Example xấu V1.3 reject
+
+> Techcombank vừa công bố kế hoạch giảm tỷ trọng cho vay BĐS từ 31% xuống dưới 25% trong năm 2026. Ngân hàng đặt mục tiêu hoàn thành kế hoạch sớm 12 tháng để đáp ứng Thông tư 22 mới của NHNN. Lợi nhuận quý 1 ghi nhận tăng 22% so cùng kỳ, đáng theo dõi diễn biến các quý tới.
+
+→ Fail: 4 báo chí verbs (công bố + đặt mục tiêu + hoàn thành + ghi nhận), 0 bold, closing vague "đáng theo dõi".

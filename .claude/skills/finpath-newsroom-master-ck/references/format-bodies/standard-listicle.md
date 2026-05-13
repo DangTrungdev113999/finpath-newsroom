@@ -1,4 +1,4 @@
-# Format: standard_listicle (250-350 từ)
+# Format: standard_listicle (220-280 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-ck`. Apply khi `format_id == "standard_listicle"`.
 
@@ -6,69 +6,71 @@
 
 Deep question category ∈ {comparison_deep, early_signal} + data_richness ≥ medium. Người đọc cần so sánh hoặc liệt kê signals — nội dung chia thành mảnh độc lập, không phải narrative chảy.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening ≤30 từ — context + question (ngắn, dẫn vào list)]
+[Opening ≤20 từ — context + question (ngắn, dẫn vào list)]
 
-- **Bold highlight 1**: bullet ≥25 từ với mechanism + số bold
+- **Bold highlight 1**: bullet ≥25 từ + mechanism + số bold
 - **Bold highlight 2**: bullet ≥25 từ
-- **Bold highlight 3**: bullet ≥25 từ
+- **Bold highlight 3**: bullet ≥25 từ + ví von/analogy
 - **Bold highlight 4**: bullet ≥25 từ
-- ... 4-7 bullets total (listicle dày hơn standard_qa)
+- ... 4-7 bullets total
 
-[Closing — 1 câu phân loại NĐT]
+[Closing — 5-element actionable verdict ≤30 từ]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 4-7 bullets (listicle pattern — nhiều bullets hơn standard_qa)
-- Mỗi bullet ≥25 từ (substantive hơn standard_qa do listicle ngắn opening)
-- Max 1 em dash / 100 từ (V5.1.2 em_dash_density)
+- 4-7 bullets (listicle pattern)
+- Mỗi bullet ≥25 từ
+- Max 1 em dash / 100 từ
+- **Bold density ≥5%** (V1.3 — densest format, ~1 bold per 20 từ)
 
 ## Word count
 
-- Total: 250-350 từ HARD CAP. <250 fail word_count. >350 fail word_count.
-- Opening: ≤30 từ (compact)
+- Total: **220-280 từ** HARD CAP (V1.3 shrunk from 250-350)
+- Opening: ≤20 từ (compact để vào list nhanh)
 - Each bullet: ≥25 từ
-- Closing: 1 câu (≤30 từ)
+- Closing: 1 câu ≤30 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-Mỗi bullet MUST có ≥1 bold `**...**`. Highlight contrast number / verdict word. Listicle nhấn nhiều bold hơn standard_qa do format scan.
+- **Bold density ≥5%** (densest — listicle scan needs visible signals)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm/lùa
+- **Ưu tiên ví von** (V6.3): comparison MUST use analogy markers (gấp X lần / tương đương / như / ngang ngửa)
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — CK sector
 
-Closing verdict — Voice Rule 3 (3 elements: direction + timeframe + holder action).
-
-## Examples CK sector
-
-### Example 1: comparison_deep — Big5 vs nhỏ Q1/2026 (330 từ)
-
-Title: `Big5 chứng khoán vs nhóm nhỏ quý 1/2026: ai chọn đúng cho FTSE 9/2026?`
+### ✅ Example 1: comparison_deep — Big4 vs tư nhân Q1/2026 (270 từ)
 
 Body:
-> Big5 và nhóm công ty chứng khoán nhỏ quý 1/2026 đi hai hướng rõ rệt trước FTSE nâng hạng. Ai chọn đúng?
+> **Big4 và tư nhân top Q1/2026 đi hai hướng**. Ai đặt cọc đúng cho 12 tháng tới?
 >
-> - **Big5 thị phần HOSE 52,4%** trung bình quý 1 tăng nhẹ 0,8 điểm so quý trước, Big5 đang ăn được phần khách hàng tổ chức chuẩn bị cho FTSE nâng hạng.
-> - **MBS SHS BVS thị phần dưới 3% mỗi mã**, nhóm nhỏ chủ động hạ phí xuống 0,06-0,08% giữ khách lẻ nhưng đường ống ngân hàng đầu tư hạn chế.
-> - **Doanh thu ngân hàng đầu tư SSI VND VCI tăng trung bình 35%** so cùng kỳ, nhóm nhỏ chỉ +12% — Big5 hưởng lợi đường ống tăng vốn 2026 từ doanh nghiệp lớn.
-> - **Dư nợ cho vay ký quỹ Big5 trung bình 11.500 tỷ** so nhóm nhỏ 1.800 tỷ, Big5 có vốn chủ đủ lớn duy trì tăng trưởng ký quỹ dưới trần 200% theo Thông tư 121/2020.
-> - **Định giá P/B Big5 1,8 lần** đắt hơn nhóm nhỏ 1,0 lần do thị trường thưởng Big5 nhờ đường ống ngân hàng đầu tư và năng lực bảo lãnh phát hành.
-> - **Tỷ suất sinh lời vốn chủ Big5 trung bình 19%** so nhóm nhỏ 12%, Big5 chấp nhận biên môi giới co được vì các mảng khác bù.
+> - **Big4 tín dụng ăn 4,3%** trung bình, tư nhân chỉ vọt 1,9%. Big4 gom được room cấp đợt 1 với khách hàng trial bị tư nhân từ chối — như Big4 đang ăn chỗ tư nhân chừa.
+> - **TCB MBB ACB dùng dưới 30% room**: nhóm tư nhân top chủ động xén tốc độ chờ chất lượng khách hàng cải thiện nửa cuối năm — chiến lược "hái sau khi chín".
+> - **Biên lãi vay Big4 nới 18 điểm cơ bản** lên 3,2% nhờ huy động giá rẻ. Tư nhân chỉ nới 5 điểm cơ bản, kẹt cuộc đua lãi tiết kiệm — gấp 3,6 lần khoảng cách.
+> - **Nợ xấu Big4 0,9% vs tư nhân 1,4%**: chiến lược trial của Big4 chưa lộ rủi ro, nhưng cũng có nghĩa Big4 đang dồn vào nhóm khách hàng tốt hơn tư nhân từ chối.
+> - **P/B Big4 1,9 lần đắt gấp 1,5 lần tư nhân 1,3**: thị trường thưởng Big4 nhờ vùng đệm dự phòng dày 200%+ — premium này có thể co nếu cycle tư nhân hồi.
 >
-> Mã Big5 phù hợp NĐT giá trị giữ trên 18 tháng đón FTSE nâng hạng, mã nhóm nhỏ phù hợp NĐT chấp nhận biến động chờ ngành tái hợp nhất.
+> NĐT giá trị nên cầm Big4 18+ tháng vùng dưới 95; phù hợp tư nhân top short-medium 12 tháng khi P/B tụt dưới 1,2.
 
-### Example 2: early_signal — MBS bứt phá Q1 (295 từ)
-
-Title: `MBS bứt phá quý 1/2026: chỉ số nào quyết định Big6 cuối năm?`
+### ✅ Example 2: early_signal — TCB CASA tụt Q1 (260 từ)
 
 Body:
-> MBS ghi nhận doanh thu môi giới +38% quý 1/2026 trong khi nhóm nhỏ trung bình chỉ +12%, dấu hiệu sớm cho Big6 cuối năm?
+> **TCB tỷ lệ CASA tụt từ 38% → 33% Q1**. Chỉ số nào quyết định 2026?
 >
-> - **Thị phần MBS lên 4,1%** từ 3,4% quý trước, lần đầu vượt mốc 4% trong 8 quý gần nhất, phản ánh khách hàng tổ chức chuyển từ nhóm nhỏ sang MBS.
-> - **Vốn chủ MBS 5.200 tỷ** sau phát hành 1.000 tỷ Q4/2025 đủ điều kiện tăng dư nợ cho vay ký quỹ lên 8.500 tỷ, mở dư địa cạnh tranh Big5.
-> - **Doanh thu ngân hàng đầu tư +85%** so cùng kỳ chủ yếu từ mảng tư vấn tăng vốn cho 2 doanh nghiệp công nghệ niêm yết, đường ống Q2-Q3 đầy hơn.
-> - **MB Bank giới thiệu cross-sell** từ nền tảng 5,8 triệu khách hàng cá nhân đang sang dùng App MBS, MBS có lợi thế phân phối mà nhóm nhỏ không có.
-> - **SSI VND VCI thị phần HOSE đi ngang** quý 1 sau 2 quý tăng liên tục, cho thấy Big5 truyền thống đang nhường phần thị phần cho thách thức MBS.
+> - **Tỷ lệ tụt 5 điểm phần trăm** trong 1 quý chưa từng thấy 8 quý gần nhất — khách hàng cá nhân lùa sang tiết kiệm lãi 5,5-6%, kiểu "chạy theo lãi cao".
+> - **Chi phí vốn nhảy 12 điểm cơ bản** lên 3,8%, biên lãi vay sẽ xén nếu xu hướng kéo thêm 2 quý — gấp 2,4 lần biến động trung bình quý.
+> - **Khách hàng trẻ 25-35** chiếm 60% lực rút — nhóm này nhạy lãi nhất, có thể quay lại nhanh nếu TCB bơm lãi tiết kiệm online ngang ngửa MBB.
+> - **App TCB Mobile traffic tụt 8%** Q1: engagement giảm song song CASA, không chỉ vấn đề lãi mà còn trải nghiệm sản phẩm — như khách hàng đang quay lưng cùng lúc.
+> - **MBB ACB tỷ lệ ổn định 35-37%**: vấn đề riêng TCB, không phải xu hướng cả nhóm tư nhân top.
 >
-> Mã phù hợp NĐT giá trị giữ 12-18 tháng theo dõi 2 quý tới, scenario base case MBS chính thức gia nhập Big6 cuối năm 2026.
+> NĐT đang cầm nên xén 30% vị thế vùng trên 35, mục tiêu mua lại dưới 28 nếu Q2 CASA tụt thêm dưới 30%.
+
+### ❌ Example xấu V1.3 reject
+
+> TCB ghi nhận tỷ lệ tiền gửi không kỳ hạn giảm từ 38% xuống 33% trong quý 1/2026. Ngân hàng công bố chiến lược điều chỉnh, đặt mục tiêu khôi phục tỷ lệ trong các quý tiếp theo. Khách hàng cá nhân được ghi nhận có xu hướng chuyển sang tiền gửi có kỳ hạn. Nhà đầu tư cần thận trọng theo dõi diễn biến làm chỉ báo sớm cho năm 2026.
+
+→ Fail: 4 báo chí verbs (ghi nhận x2 + công bố + đặt mục tiêu) + 0 bold + closing "thận trọng theo dõi làm chỉ báo" vague.

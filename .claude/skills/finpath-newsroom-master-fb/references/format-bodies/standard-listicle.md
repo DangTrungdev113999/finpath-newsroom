@@ -1,75 +1,76 @@
-# Format: standard_listicle (250-350 từ)
+# Format: standard_listicle (220-280 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-fb`. Apply khi `format_id == "standard_listicle"`.
 
 ## Khi nào dùng
 
-Deep question category ∈ {comparison_deep, early_signal} + data_richness ≥ medium. Người đọc cần so sánh hoặc liệt kê tín hiệu — nội dung chia thành mảnh độc lập, không phải narrative chảy.
+Deep question category ∈ {comparison_deep, early_signal} + data_richness ≥ medium. Người đọc cần so sánh hoặc liệt kê signals — nội dung chia thành mảnh độc lập, không phải narrative chảy.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening ≤30 từ — context + question (ngắn, dẫn vào list)]
+[Opening ≤20 từ — context + question (ngắn, dẫn vào list)]
 
-- **Bold highlight 1**: bullet ≥25 từ với mechanism + số bold
+- **Bold highlight 1**: bullet ≥25 từ + mechanism + số bold
 - **Bold highlight 2**: bullet ≥25 từ
-- **Bold highlight 3**: bullet ≥25 từ
+- **Bold highlight 3**: bullet ≥25 từ + ví von/analogy
 - **Bold highlight 4**: bullet ≥25 từ
-- ... 4-7 bullets total (listicle dày hơn standard_qa)
+- ... 4-7 bullets total
 
-[Closing — 1 câu phân loại NĐT]
+[Closing — 5-element actionable verdict ≤30 từ]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 4-7 bullets (listicle pattern — nhiều bullets hơn standard_qa)
-- Mỗi bullet ≥25 từ (substantive hơn standard_qa do listicle ngắn opening)
-- Max 1 em dash / 100 từ (V5.1.2 em_dash_density)
+- 4-7 bullets (listicle pattern)
+- Mỗi bullet ≥25 từ
+- Max 1 em dash / 100 từ
+- **Bold density ≥5%** (V1.3 — densest format, ~1 bold per 20 từ)
 
 ## Word count
 
-- Total: 250-350 từ HARD CAP. <250 fail word_count. >350 fail word_count.
-- Opening: ≤30 từ (compact)
+- Total: **220-280 từ** HARD CAP (V1.3 shrunk from 250-350)
+- Opening: ≤20 từ (compact để vào list nhanh)
 - Each bullet: ≥25 từ
-- Closing: 1 câu (≤30 từ)
+- Closing: 1 câu ≤30 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-Mỗi bullet MUST có ≥1 bold `**...**`. Highlight contrast number / verdict word. Listicle nhấn nhiều bold hơn standard_qa do format scan.
+- **Bold density ≥5%** (densest — listicle scan needs visible signals)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm/lùa
+- **Ưu tiên ví von** (V6.3): comparison MUST use analogy markers (gấp X lần / tương đương / như / ngang ngửa)
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — FB sector
 
-Closing verdict — Voice Rule 3 (3 elements: direction + timeframe + holder action).
-
-## Examples sector fb
-
-### Example 1: comparison_deep — Sữa premium VNM vs MCM Q1/2026 (315 từ)
-
-Title: `Sữa premium quý 1/2026: Vinamilk hay Mộc Châu thắng cuộc đua biên?`
+### ✅ Example 1: comparison_deep — Big4 vs tư nhân Q1/2026 (270 từ)
 
 Body:
-> Vinamilk và Mộc Châu Milk quý 1/2026 đi hai hướng. Ai đang ăn được phần lợi premiumization?
+> **Big4 và tư nhân top Q1/2026 đi hai hướng**. Ai đặt cọc đúng cho 12 tháng tới?
 >
-> - **VNM biên lợi nhuận gộp 42,5%** quý 1 lên từ 41,2% quý trước nhờ giá sữa bột nguyên liệu thế giới giảm, nhưng vẫn thấp hơn đỉnh 47% năm 2020 do cạnh tranh giá kéo dài.
-> - **MCM biên lợi nhuận gộp 48,3%** cao hơn VNM 5,8 điểm phần trăm nhờ định vị niche cao nguyên Mộc Châu, sữa tươi 100% không pha sữa bột nguyên liệu nhập khẩu.
-> - **VNM sản lượng nội địa tăng 4,5%** trở lại sau 4 năm đi ngang, dấu hiệu sớm rằng kế hoạch mở rộng nông thôn 2024-2025 bắt đầu có kết quả thực tế.
-> - **MCM sản lượng tăng 12% so cùng kỳ** nhờ mở rộng hệ thống phân phối ra ngoài Hà Nội, nhưng cơ sở so sánh thấp nên không nói lên thị phần mở rộng đáng kể.
-> - **VNM cổ tức tiền mặt 50%** trên mệnh giá năm 2025, MCM chỉ 22% vì đang đầu tư mở rộng đàn bò; cổ đông MCM nhận phần re-rate giá thay vì tiền mặt.
-> - **VNM định giá hệ số PE 17 lần** thấp hơn trung bình 5 năm 22 lần, MCM hệ số PE 24 lần đã reflect kỳ vọng cao tăng trưởng; rủi ro nếu MCM không đạt sản lượng 2027 mục tiêu.
+> - **Big4 tín dụng ăn 4,3%** trung bình, tư nhân chỉ vọt 1,9%. Big4 gom được room cấp đợt 1 với khách hàng trial bị tư nhân từ chối — như Big4 đang ăn chỗ tư nhân chừa.
+> - **TCB MBB ACB dùng dưới 30% room**: nhóm tư nhân top chủ động xén tốc độ chờ chất lượng khách hàng cải thiện nửa cuối năm — chiến lược "hái sau khi chín".
+> - **Biên lãi vay Big4 nới 18 điểm cơ bản** lên 3,2% nhờ huy động giá rẻ. Tư nhân chỉ nới 5 điểm cơ bản, kẹt cuộc đua lãi tiết kiệm — gấp 3,6 lần khoảng cách.
+> - **Nợ xấu Big4 0,9% vs tư nhân 1,4%**: chiến lược trial của Big4 chưa lộ rủi ro, nhưng cũng có nghĩa Big4 đang dồn vào nhóm khách hàng tốt hơn tư nhân từ chối.
+> - **P/B Big4 1,9 lần đắt gấp 1,5 lần tư nhân 1,3**: thị trường thưởng Big4 nhờ vùng đệm dự phòng dày 200%+ — premium này có thể co nếu cycle tư nhân hồi.
 >
-> Mã VNM phù hợp NĐT giá trị giữ trên 24 tháng ưu tiên cổ tức tiền mặt ổn định, mã MCM phù hợp NĐT chấp nhận biến động chờ premiumization niche 18-30 tháng.
+> NĐT giá trị nên cầm Big4 18+ tháng vùng dưới 95; phù hợp tư nhân top short-medium 12 tháng khi P/B tụt dưới 1,2.
 
-### Example 2: early_signal — SAB tiêu dùng mang về 2026 (295 từ)
-
-Title: `Tiêu dùng mang về của Sabeco quý 1/2026: chỉ số nào quyết định phục hồi?`
+### ✅ Example 2: early_signal — TCB CASA tụt Q1 (260 từ)
 
 Body:
-> SAB quý 1 doanh thu kênh tiêu dùng mang về tăng 14% nhưng tại chỗ vẫn giảm 6%, dấu hiệu cấu trúc?
+> **TCB tỷ lệ CASA tụt từ 38% → 33% Q1**. Chỉ số nào quyết định 2026?
 >
-> - **Tỷ trọng tiêu dùng mang về 58%** quý 1/2026 lên từ 42% năm 2019 trước Nghị định 100, chứng minh kênh đã chuyển vĩnh viễn không quay lại cấu trúc cũ.
-> - **Tại chỗ giảm 6% so cùng kỳ** dù lực kiểm tra Nghị định 100 không tăng thêm, cho thấy thói quen người uống đã thay đổi và quán không thể đẩy biên lợi nhuận gộp như trước.
-> - **Sài Gòn Đỏ giành thị phần 2,8 điểm phần trăm** từ Heineken phân khúc phổ thông miền Nam, nhờ chiến lược giá ổn định và phủ điểm bán nông thôn mở rộng.
-> - **Biên lợi nhuận gộp 38%** quý 1 thấp hơn đỉnh 42% năm 2019 nhưng cao hơn vùng đáy 33% năm 2021, phục hồi đều nhưng không thể về cấu trúc cũ.
-> - **Chi phí mạch nha úc tăng 8%** quý 1 do thời tiết bất lợi mùa thu hoạch, SAB pass-through giá bán trung bình tăng 3,5% giữ biên.
-> - **Cổ tức tiền mặt 35%** trên mệnh giá năm 2025 ổn định, Thaibev duy trì payout vì không có dự án mở rộng lớn trong 2026.
+> - **Tỷ lệ tụt 5 điểm phần trăm** trong 1 quý chưa từng thấy 8 quý gần nhất — khách hàng cá nhân lùa sang tiết kiệm lãi 5,5-6%, kiểu "chạy theo lãi cao".
+> - **Chi phí vốn nhảy 12 điểm cơ bản** lên 3,8%, biên lãi vay sẽ xén nếu xu hướng kéo thêm 2 quý — gấp 2,4 lần biến động trung bình quý.
+> - **Khách hàng trẻ 25-35** chiếm 60% lực rút — nhóm này nhạy lãi nhất, có thể quay lại nhanh nếu TCB bơm lãi tiết kiệm online ngang ngửa MBB.
+> - **App TCB Mobile traffic tụt 8%** Q1: engagement giảm song song CASA, không chỉ vấn đề lãi mà còn trải nghiệm sản phẩm — như khách hàng đang quay lưng cùng lúc.
+> - **MBB ACB tỷ lệ ổn định 35-37%**: vấn đề riêng TCB, không phải xu hướng cả nhóm tư nhân top.
 >
-> Mã phù hợp NĐT thận trọng theo dõi 2 quý tới, chưa khẳng định phục hồi bền nếu chưa thấy tại chỗ ngừng giảm hoặc thuế tiêu thụ đặc biệt chưa tăng.
+> NĐT đang cầm nên xén 30% vị thế vùng trên 35, mục tiêu mua lại dưới 28 nếu Q2 CASA tụt thêm dưới 30%.
+
+### ❌ Example xấu V1.3 reject
+
+> TCB ghi nhận tỷ lệ tiền gửi không kỳ hạn giảm từ 38% xuống 33% trong quý 1/2026. Ngân hàng công bố chiến lược điều chỉnh, đặt mục tiêu khôi phục tỷ lệ trong các quý tiếp theo. Khách hàng cá nhân được ghi nhận có xu hướng chuyển sang tiền gửi có kỳ hạn. Nhà đầu tư cần thận trọng theo dõi diễn biến làm chỉ báo sớm cho năm 2026.
+
+→ Fail: 4 báo chí verbs (ghi nhận x2 + công bố + đặt mục tiêu) + 0 bold + closing "thận trọng theo dõi làm chỉ báo" vague.

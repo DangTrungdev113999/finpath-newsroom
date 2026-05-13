@@ -1,4 +1,4 @@
-# Format: standard_narrative (250-350 từ)
+# Format: standard_narrative (220-280 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-ck`. Apply khi `format_id == "standard_narrative"`.
 
@@ -6,72 +6,74 @@
 
 Deep question category = hidden_mechanism + brief có ≥3 timeline markers (sự kiện theo trình tự thời gian). Câu chuyện cần kể flow, không liệt kê — bullets phá nhịp narrative.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening paragraph ≥40 từ — context lịch sử + tension/setup, dẫn vào câu chuyện]
+[Opening paragraph ≥40 từ — context lịch sử + tension, dẫn câu chuyện]
 
-[Flow paragraph 1 (60-100 từ) — diễn biến phase 1, có thể end timeline marker]
+[Flow paragraph 1 (50-80 từ) — diễn biến phase 1, end timeline marker]
 
-[Flow paragraph 2 (60-100 từ) — diễn biến phase 2, đẩy tension]
+[Flow paragraph 2 (50-80 từ) — diễn biến phase 2, đẩy tension]
 
 - **Bold highlight (optional)**: 0-2 bullets cho key number / verdict
 - **Bold highlight (optional)**: bullet thứ 2 nếu cần
 
-[Closing paragraph 30-50 từ — phân loại NĐT + outlook]
+[Closing paragraph 25-40 từ — 5-element actionable verdict + 1 caveat tối đa]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 0-2 bullets MAX (narrative chính là paragraphs)
-- ≥3 timeline markers trong body (vd "2022", "Q3/2024", "quý 1/2026")
-- Max 1 em dash / 100 từ (V5.1.2 em_dash_density)
+- 0-2 bullets MAX (narrative = paragraphs)
+- ≥3 timeline markers trong body (vd "2022", "Q3/2024", "Q1/2026")
+- Max 1 em dash / 100 từ
+- **Bold density ≥3%** (V1.3 — prose flow OK, nhưng vẫn cần visual anchor)
 
 ## Word count
 
-- Total: 250-350 từ HARD CAP. <250 fail word_count. >350 fail word_count.
+- Total: **220-280 từ** HARD CAP (V1.3 shrunk from 250-350)
 - Opening: ≥40 từ
-- Flow paragraphs: 60-100 từ each
+- Flow paragraphs: 50-80 từ each
 - Bullets (nếu có): ≥25 từ each
-- Closing: 30-50 từ
+- Closing: 25-40 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-≥3 bold `**...**` rải đều paragraphs + bullets (vì không có bullet structure, bold đảm nhận role visual anchor).
+- **Bold density ≥3%** (rải đều paragraphs + bullets)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm
+- **Ưu tiên ví von** (V6.3): metaphor markers BẮT BUỘC ≥1 (thật ra/như/gấp X lần/ví như) vì narrative cần feel + nhịp
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — CK sector
 
-Closing paragraph MUST có verdict — Voice Rule 3 (direction + timeframe + holder action). Khác standard_qa/listicle: closing là paragraph 30-50 từ (không phải 1 câu ngắn) cho phép thêm 1 caveat ngắn nếu confidence medium.
-
-## Examples CK sector
-
-### Example 1: VND chuyển hướng ngân hàng đầu tư 2025-2026 narrative (325 từ)
-
-Title: `VND hy sinh tăng trưởng môi giới quý 1 để đổi lấy điều gì cho 2026?`
+### ✅ Example 1: TCB BĐS chuyển hướng narrative (260 từ)
 
 Body:
-> Chứng khoán VND năm **2021** vẫn dẫn đầu thị phần môi giới HOSE ở **7,8%** nhờ sóng F0, doanh thu môi giới chiếm **68%** tổng. Ba năm sau, ban điều hành công bố cơ cấu lại bộ máy 2026 với nâng mảng ngân hàng đầu tư từ **15%** lên **30%** tổng doanh thu, chấp nhận hy sinh tăng trưởng môi giới quý 1. Vì sao timing là bây giờ?
+> Techcombank **2022** vẫn neo tỷ trọng BĐS **31%** bất chấp thị trường đóng băng. Ba năm sau, ban điều hành xén tỷ trọng xuống dưới **25%** trong kế hoạch 2026, chấp nhận hy sinh ước tính 5.000 tỷ doanh thu lãi vay. Vì sao timing là bây giờ?
 >
-> Trong **2022-2023**, khi phí giao dịch ngành rơi nhanh từ 0,15% xuống 0,10%, VND chọn đứng lại với chiến lược môi giới cá nhân và bị TCBS DNSE miễn phí gặm thị phần. Logic ban điều hành lúc đó: khách hàng trung thành, chỉ cần chu kỳ thanh khoản phục hồi sẽ bù được biên co. Sóng F0 không quay lại trong **2023-2024** đã chứng minh chiến lược không bền — thị phần VND tụt từ 7,8% xuống 5,2%.
+> Trong **Q1-2/2023** khi VPB và NVL nợ xấu BĐS bùng, TCB chọn đứng lại với danh mục. Logic ban điều hành: khách hàng phát triển dự án của TCB là top tier, chỉ cần chu kỳ hồi sẽ thanh khoản. Lãi suất NHNN giảm 4 lần trong 6 tháng cuối **2023** chứng minh phần — buffer dự phòng vọt từ **145% → 226%** nhưng chưa cần dùng.
 >
-> Đến **quý 4/2025**, vốn chủ VND tăng **1.500 tỷ** từ phát hành riêng lẻ, đủ điều kiện bảo lãnh phát hành quy mô lớn. Cộng với FTSE nâng hạng thị trường mới nổi tháng **9/2026** mở đường cho IPO + tăng vốn doanh nghiệp lớn, ban điều hành chốt chuyển hướng. Đây không phải phòng thủ — đây là tái định vị chủ động.
+> Đến **Q4/2025**, tín dụng tiêu dùng TCB đã ăn thêm **28%** trong 18 tháng, đẻ ra nguồn thay thế BĐS. Cộng Thông tư 22 NHNN siết hệ số rủi ro BĐS từ **2027**, ban điều hành chốt rút sớm 12 tháng để dồn vốn cấp 1. Đây không phải defensive — đây là re-positioning chủ động.
 >
-> - **Doanh thu ngân hàng đầu tư Q1/2026 đạt 420 tỷ** chứng minh đường ống đã sẵn sàng, không phải lời hứa.
-> - **Định giá P/B 1,1 lần** thấp hơn trung bình 5 năm 1,6 lần, ban điều hành muốn thị trường re-rate VND như công ty đa dạng nguồn thu.
+> - **Lãi Q1/2026 vẫn tăng 22%** — chứng minh chuyển hướng không xén thu nhập ngắn hạn.
+> - **P/B 1,3 lần thấp hơn TB 5 năm 1,7**: ban điều hành nhắm re-rate TCB như bank cân bằng.
 >
-> Mã phù hợp NĐT giá trị giữ 24-36 tháng tin chiến lược chuyển hướng, chấp nhận thị trường có thể chưa re-rate ngay trong 2026 nếu chưa thấy proof point từ ngân hàng đầu tư tiếp tục tăng quý 2-3.
+> NĐT giá trị nên cầm 24-36 tháng vùng dưới 35, mục tiêu re-rate 50-55 nếu BĐS tụt dưới 25% Q4/2026; cắt 30% nếu chậm hơn lịch.
 
-### Example 2: SSI tăng vốn 4.155 tỷ story (295 từ)
-
-Title: `SSI tăng vốn 4.155 tỷ năm 2026: vì sao đúng lúc thị trường co?`
+### ✅ Example 2: VPB credit room story (250 từ)
 
 Body:
-> SSI tại ĐHĐCĐ **tháng 4/2026** công bố kế hoạch tăng vốn **4.155 tỷ** qua phát hành cho cổ đông hiện hữu, cao gấp đôi lần tăng vốn gần nhất **2.020 tỷ** năm 2024. Vì sao SSI chọn tăng vốn lớn lúc thị trường vẫn dao động dưới VN-Index 1.300, thay vì đợi nâng hạng FTSE rõ ràng hơn?
+> VPB tại ĐHĐCĐ **tháng 4/2026** khoe tăng trưởng tín dụng **35%** cả năm — gấp đôi room NHNN cấp đợt 1 là **16%**. Lời hứa lớn này từ đâu, và VPB có lịch sử thực hiện được không?
 >
-> Quay lại **2020-2021**, SSI tăng vốn 2 lần liên tiếp tổng **2.500 tỷ** đón sóng F0, kết quả: dư nợ cho vay ký quỹ tăng từ 5.200 tỷ lên 14.800 tỷ trong 18 tháng và doanh thu 2021 +85%. Năm **2024**, SSI tăng vốn **2.020 tỷ** trước thềm Thông tư 68/2024 mở đường tổ chức nước ngoài giao dịch không ký quỹ trước — chuẩn bị cho FTSE.
+> Quay lại **2023**, VPB cũng khoe **30%** tại ĐHĐCĐ. Cuối năm chỉ ăn **17%** vì NHNN không cấp room đợt 2. Năm **2024**, VPB xén kỳ vọng xuống **22%**, ăn **19%** — sát hơn. **2025** hứa **25%**, ăn **24%** nhờ NHNN nới room **28/8/2024** kèm điều kiện chuyển tiền cho FE Credit.
 >
-> Pattern 2 lần cho thấy SSI tăng vốn **trước** chu kỳ chứ không phải **sau**, ưu tiên năng lực chứ không phải vốn nhàn rỗi. Cam kết **4.155 tỷ** năm 2026 có 2 lớp logic support: dư nợ cho vay ký quỹ đã chạm **78%** trần 200% vốn chủ theo Thông tư 121/2020, và đường ống bảo lãnh phát hành 2026-2028 cần buffer vốn cấp 2.
+> Pattern 3 năm: VPB over-promise **8-13 điểm phần trăm**, nhưng khoảng cách thu hẹp dần — thật ra hứa đang sát thực tế hơn. Hứa **35%** 2026 có 2 lớp support: room đợt 1 cấp **16%** ngày 15/2/2026 + VPB Securities đã bơm 1.500 tỷ về bank bổ sung vốn cấp 2.
 >
-> - **Dư nợ ký quỹ Q1/2026 đạt 16.200 tỷ** tăng 9% so quý trước, on track chạm trần nếu giữ tốc độ thêm 2 quý.
-> - **Thị phần môi giới 9,8%** giữ top 1 HOSE, SSI cần vốn để vừa giữ thị phần vừa mở rộng ngân hàng đầu tư.
+> - **Tín dụng Q1 ăn 4,8%** lũy kế năm, on track 19,2% half-year nếu giữ tốc độ.
 >
-> Mã phù hợp NĐT chấp nhận biến động giữ 12-18 tháng theo dõi FTSE 9/2026, scenario base case SSI hưởng lợi đầu tiên từ vốn ngoại thụ động đổ vào.
+> NĐT chấp nhận biến động nên cầm 12-18 tháng vùng dưới 30, scenario base về **22-26%** không phải 35% như hứa; cắt 50% nếu room đợt 2 không nới Q3.
+
+### ❌ Example xấu V1.3 reject
+
+> Techcombank công bố kế hoạch giảm tỷ trọng cho vay BĐS từ 31% xuống dưới 25% trong năm 2026. Ngân hàng đặt mục tiêu hoàn thành kế hoạch trước Thông tư 22 của NHNN có hiệu lực từ 2027. Lợi nhuận quý 1/2026 ghi nhận tăng 22% so cùng kỳ. Buffer dự phòng được duy trì ở mức 226%. Nhà đầu tư cần theo dõi diễn biến các quý tới làm chỉ báo cho năm 2027.
+
+→ Fail: 4 báo chí verbs (công bố + đặt mục tiêu + hoàn thành + ghi nhận) + 0 bold + 0 metaphor + closing "cần theo dõi làm chỉ báo" vague.

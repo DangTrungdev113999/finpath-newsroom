@@ -1,4 +1,4 @@
-# Format: standard_listicle (250-350 từ)
+# Format: standard_listicle (220-280 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-defensive`. Apply khi `format_id == "standard_listicle"`.
 
@@ -6,69 +6,71 @@
 
 Deep question category ∈ {comparison_deep, early_signal} + data_richness ≥ medium. Người đọc cần so sánh hoặc liệt kê signals — nội dung chia thành mảnh độc lập, không phải narrative chảy.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening ≤30 từ — context + question (ngắn, dẫn vào list)]
+[Opening ≤20 từ — context + question (ngắn, dẫn vào list)]
 
-- **Bold highlight 1**: bullet ≥25 từ với mechanism + số bold
+- **Bold highlight 1**: bullet ≥25 từ + mechanism + số bold
 - **Bold highlight 2**: bullet ≥25 từ
-- **Bold highlight 3**: bullet ≥25 từ
+- **Bold highlight 3**: bullet ≥25 từ + ví von/analogy
 - **Bold highlight 4**: bullet ≥25 từ
-- ... 4-7 bullets total (listicle dày hơn standard_qa)
+- ... 4-7 bullets total
 
-[Closing — 1 câu phân loại NĐT]
+[Closing — 5-element actionable verdict ≤30 từ]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 4-7 bullets (listicle pattern — nhiều bullets hơn standard_qa)
-- Mỗi bullet ≥25 từ (substantive hơn standard_qa do listicle ngắn opening)
-- Max 1 em dash / 100 từ (V5.1.2 em_dash_density)
+- 4-7 bullets (listicle pattern)
+- Mỗi bullet ≥25 từ
+- Max 1 em dash / 100 từ
+- **Bold density ≥5%** (V1.3 — densest format, ~1 bold per 20 từ)
 
 ## Word count
 
-- Total: 250-350 từ HARD CAP. <250 fail word_count. >350 fail word_count.
-- Opening: ≤30 từ (compact)
+- Total: **220-280 từ** HARD CAP (V1.3 shrunk from 250-350)
+- Opening: ≤20 từ (compact để vào list nhanh)
 - Each bullet: ≥25 từ
-- Closing: 1 câu (≤30 từ)
+- Closing: 1 câu ≤30 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-Mỗi bullet MUST có ≥1 bold `**...**`. Highlight contrast number / verdict word. Listicle nhấn nhiều bold hơn standard_qa do format scan.
+- **Bold density ≥5%** (densest — listicle scan needs visible signals)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm/lùa
+- **Ưu tiên ví von** (V6.3): comparison MUST use analogy markers (gấp X lần / tương đương / như / ngang ngửa)
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — Defensive sector
 
-Closing verdict — Voice Rule 3 (3 elements: direction + timeframe + holder action).
-
-## Examples Defensive sector (Tech / Utility / Pharma mixed)
-
-### Example 1: comparison_deep — FPT vs REE vs TRA chiến lược cổ tức 2026 (330 từ)
-
-Title: `FPT vs REE vs TRA quý 1/2026: ai chọn đúng giữa tăng trưởng và cổ tức?`
+### ✅ Example 1: comparison_deep — Big4 vs tư nhân Q1/2026 (270 từ)
 
 Body:
-> Ba mã phòng thủ top sector chọn ba hướng khác nhau cho 2026. Ai đặt cược đúng cho NĐT giữ dài hạn?
+> **Big4 và tư nhân top Q1/2026 đi hai hướng**. Ai đặt cọc đúng cho 12 tháng tới?
 >
-> - **FPT tăng cổ tức từ 20% lên 25%** dù lãi quý 1 tăng 27%, ban điều hành tin dòng tiền gia công ngoài đủ vững để vừa chia vừa đầu tư AI data center 1.500 tỷ.
-> - **REE giảm cổ tức từ 22% xuống 16%** để bảo toàn vốn đầu tư điện gió 4.200 tỷ, đánh đổi tỷ suất cổ tức ngắn hạn lấy tăng trưởng tài sản phát điện 1.800 MW.
-> - **TRA giữ cổ tức 18% ổn định 4 năm liên tiếp**, không hy sinh cũng không tăng, chiến lược chậm và đều phù hợp ngành thuốc generic biên 35% ít cyclical.
-> - **Tỷ suất cổ tức tại thị giá FPT 1,8%** thấp nhất nhóm vì giá đã tăng 42% so cùng kỳ, REE **2,1%** trung bình, TRA **5,3%** cao nhất sector phòng thủ.
-> - **Tỷ lệ nợ trên vốn chủ FPT 0,28** thấp nhất, REE **0,38** trung bình, TRA **0,12** gần như không nợ — phản ánh 3 mô hình kinh doanh hoàn toàn khác nhau.
-> - **ROE 2025 FPT 28%** dẫn đầu nhờ outsourcing, REE **18%** ổn định, TRA **22%** nhờ biên cao và quay vốn nhanh ngành thuốc generic không tồn kho lâu.
+> - **Big4 tín dụng ăn 4,3%** trung bình, tư nhân chỉ vọt 1,9%. Big4 gom được room cấp đợt 1 với khách hàng trial bị tư nhân từ chối — như Big4 đang ăn chỗ tư nhân chừa.
+> - **TCB MBB ACB dùng dưới 30% room**: nhóm tư nhân top chủ động xén tốc độ chờ chất lượng khách hàng cải thiện nửa cuối năm — chiến lược "hái sau khi chín".
+> - **Biên lãi vay Big4 nới 18 điểm cơ bản** lên 3,2% nhờ huy động giá rẻ. Tư nhân chỉ nới 5 điểm cơ bản, kẹt cuộc đua lãi tiết kiệm — gấp 3,6 lần khoảng cách.
+> - **Nợ xấu Big4 0,9% vs tư nhân 1,4%**: chiến lược trial của Big4 chưa lộ rủi ro, nhưng cũng có nghĩa Big4 đang dồn vào nhóm khách hàng tốt hơn tư nhân từ chối.
+> - **P/B Big4 1,9 lần đắt gấp 1,5 lần tư nhân 1,3**: thị trường thưởng Big4 nhờ vùng đệm dự phòng dày 200%+ — premium này có thể co nếu cycle tư nhân hồi.
 >
-> Mã FPT phù hợp NĐT giá trị tăng trưởng giữ 24 tháng, REE phù hợp NĐT chu kỳ năng lượng giữ 36 tháng, TRA phù hợp NĐT thu nhập cổ tức giữ 18 tháng.
+> NĐT giá trị nên cầm Big4 18+ tháng vùng dưới 95; phù hợp tư nhân top short-medium 12 tháng khi P/B tụt dưới 1,2.
 
-### Example 2: early_signal — TRA chuyển dịch generic mạnh hơn 2026 (Pharma, 300 từ)
-
-Title: `TRA thị phần thuốc generic Q1 tăng 4 điểm: dấu hiệu nào cho cả năm 2026?`
+### ✅ Example 2: early_signal — TCB CASA tụt Q1 (260 từ)
 
 Body:
-> TRA ghi nhận thị phần thuốc generic kênh nhà thuốc tăng từ 8,2% lên 12,1% quý 1/2026, dấu hiệu sớm cho cả năm?
+> **TCB tỷ lệ CASA tụt từ 38% → 33% Q1**. Chỉ số nào quyết định 2026?
 >
-> - **Thị phần tăng 4 điểm phần trăm** trong 1 quý là mức cao nhất 12 quý, chủ yếu từ kênh nhà thuốc tư nhân chuyển khỏi nhập khẩu Ấn Độ do tỷ giá rupee tăng.
-> - **Doanh thu thuốc generic 1.200 tỷ** quý 1 tăng 28% so cùng kỳ, biên gộp ổn định 42% chứng minh không phải tăng nhờ chiết khấu giá mà nhờ volume thực.
-> - **Đơn hàng tồn đọng nhà thuốc** ước tính 4 tháng doanh thu so với 2,5 tháng đầu năm 2025, phản ánh nhà thuốc tích trữ trước khi Bộ Y tế ban hành quy chuẩn quản lý thuốc nhập khẩu mới quý 3/2026.
-> - **Kênh bệnh viện công 35% doanh thu** chưa thấy thay đổi rõ vì cơ chế đấu thầu thuốc quốc gia hai năm, TRA sẽ chỉ thấy hiệu ứng trên kênh này từ quý 1/2027.
-> - **DBD và IMP cùng quý** thị phần tăng lần lượt 1,8 và 2,4 điểm phần trăm, chứng minh đây là xu hướng cả nhóm thuốc Việt, không chỉ TRA — đây là chỉ dấu macro ngành.
+> - **Tỷ lệ tụt 5 điểm phần trăm** trong 1 quý chưa từng thấy 8 quý gần nhất — khách hàng cá nhân lùa sang tiết kiệm lãi 5,5-6%, kiểu "chạy theo lãi cao".
+> - **Chi phí vốn nhảy 12 điểm cơ bản** lên 3,8%, biên lãi vay sẽ xén nếu xu hướng kéo thêm 2 quý — gấp 2,4 lần biến động trung bình quý.
+> - **Khách hàng trẻ 25-35** chiếm 60% lực rút — nhóm này nhạy lãi nhất, có thể quay lại nhanh nếu TCB bơm lãi tiết kiệm online ngang ngửa MBB.
+> - **App TCB Mobile traffic tụt 8%** Q1: engagement giảm song song CASA, không chỉ vấn đề lãi mà còn trải nghiệm sản phẩm — như khách hàng đang quay lưng cùng lúc.
+> - **MBB ACB tỷ lệ ổn định 35-37%**: vấn đề riêng TCB, không phải xu hướng cả nhóm tư nhân top.
 >
-> Mã phù hợp NĐT giá trị giữ 18-24 tháng, theo dõi quý 2 và 3 xem thị phần generic có duy trì 12%+ khi Bộ Y tế ban hành quy chuẩn chính thức.
+> NĐT đang cầm nên xén 30% vị thế vùng trên 35, mục tiêu mua lại dưới 28 nếu Q2 CASA tụt thêm dưới 30%.
+
+### ❌ Example xấu V1.3 reject
+
+> TCB ghi nhận tỷ lệ tiền gửi không kỳ hạn giảm từ 38% xuống 33% trong quý 1/2026. Ngân hàng công bố chiến lược điều chỉnh, đặt mục tiêu khôi phục tỷ lệ trong các quý tiếp theo. Khách hàng cá nhân được ghi nhận có xu hướng chuyển sang tiền gửi có kỳ hạn. Nhà đầu tư cần thận trọng theo dõi diễn biến làm chỉ báo sớm cho năm 2026.
+
+→ Fail: 4 báo chí verbs (ghi nhận x2 + công bố + đặt mục tiêu) + 0 bold + closing "thận trọng theo dõi làm chỉ báo" vague.

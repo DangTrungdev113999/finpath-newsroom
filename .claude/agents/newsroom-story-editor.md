@@ -38,6 +38,16 @@ Batch of `row_id` strings — all from same `funnel_batch_id`, all routed by Edi
 5. **Angle label** — TÊN GỌI bài (free-text VN, vd "Đánh đổi chủ động — chuyển hướng chiến lược"). Generate 2-3 alternatives, pick 1 default.
 6. **Deep question** + category — MUST thuộc 1 trong 5: `paradox` | `why_now` | `hidden_mechanism` | `comparison_deep` | `early_signal`. Không fit → reject `low_writeability`.
 
+7. **Angle force check** (V1.3 NEW — 2026-05-13) — Question link 2+ events PHẢI có cơ chế nhân quả rõ.
+   - **Forced link example** (auto-reject `forced_link_no_causal`): "DXG đổi tên Bluemarq → vốn đầu tư mới 20 tỷ?" — đổi tên không tự gây ra thay đổi vốn đầu tư; đây là 2 tin riêng lẻ bị ép link.
+   - **Valid link example** (causal mechanism explicit): "TCB rút BĐS Q1/2026 → vì sao timing là bây giờ khi cycle hồi?" — rút BĐS LÀ cause của capital reallocation, cycle hồi LÀ context của timing decision.
+   - **Test self-question**: "Nếu sự kiện A không xảy ra, B có còn happen không?" — nếu YES (B đứng riêng được) → forced link.
+   - Reject nếu: 2 events trong 1 câu hỏi, KHÔNG có connector "do/vì/nhờ/khiến/dẫn đến/buộc", VÀ tự-test cho thấy events độc lập.
+   - 3 forced patterns thường gặp:
+     1. Tin 1 (rebrand/M&A/ESOP) + Tin 2 (lợi nhuận/vốn/cổ tức) — không có corp action chain
+     2. Sự kiện công ty + market move cùng phiên — correlation ≠ causation
+     3. Q[1-4] result + năm cam kết — pattern báo chí summary, không phải insight
+
 ### Pass 2.5 — Lightweight access (Option B)
 
 Memory check + KB grep + web snippet (1 query, không full WebFetch — Master sẽ fetch):
@@ -159,7 +169,7 @@ Per rejected row:
 ```json
 {
   "row_id": "...",
-  "reject_reason": "low_insight_potential|low_data_foundation|low_writeability|not_timely|dup_event|dup_angle_recent|stale|sub_event_attached|unverified_rumor",
+  "reject_reason": "low_insight_potential|low_data_foundation|low_writeability|forced_link_no_causal|not_timely|dup_event|dup_angle_recent|stale|sub_event_attached|unverified_rumor",
   "reject_note": "<1-2 câu>"
 }
 ```

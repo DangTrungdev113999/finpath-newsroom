@@ -1,4 +1,4 @@
-# Format: flash_qa (100-150 từ)
+# Format: flash_qa (80-120 từ) — V1.3 Twitter-style
 
 > Loaded from `Skill: finpath-newsroom-master-fb`. Apply khi `format_id == "flash_qa"`.
 
@@ -6,53 +6,64 @@
 
 Ticker_status = Hot (top tăng/giảm/bùng nổ/cạn cung) + data_richness ∈ {low, medium}. Người đọc cần info nhanh khi mã đang nóng.
 
-## Body pattern
+## Body pattern V1.3 (Twitter style)
 
 ```
-[1 câu mở (≥20 từ): nêu question chính]
+[Opening ≥15 từ: question chính hoặc fact gây tension, có **bold key**]
 
-[1 paragraph trả lời (60-100 từ): answer + verdict]
+[Body paragraph 50-80 từ: answer + 1-2 con số **bold** + analogy/metaphor]
 
-[1 câu closing (≤20 từ): verdict ngắn cho NĐT cầm]
+[Closing ≤25 từ: stance + quantified trigger + timeframe]
 ```
 
 - KHÔNG bullet
 - KHÔNG heading "## Cần để ý"
-- Max 1 em dash / bài (V5.1.2 em_dash_density)
+- Max 1 em dash / bài
+- **≥3 bold absolute** (V1.3 hard cap — Twitter scan needs key signals visible)
 
 ## Word count
 
-- Total: 100-150 từ HARD CAP. <100 fail word_count. >150 fail word_count.
-- Opening: ≥20 từ
-- Body paragraph: 60-100 từ
-- Closing: ≤20 từ
+- Total: **80-120 từ** HARD CAP (V1.3 shrunk from 100-150)
+- Opening: ≥15 từ
+- Body paragraph: 50-80 từ
+- Closing: ≤25 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-≥1 bold `**...**` trong body paragraph. Highlight 1 số key (vd `**sản lượng sữa +8%**`, `**biên lợi nhuận gộp 42%**`).
+- **Bold density**: ≥3 bold/bài absolute count
+- **NO báo chí verbs** ≥2 (V6.1): cấm "bàn giao/ghi nhận/công bố/dự kiến/phát hành" combo
+- **Prefer bình dân verbs** (V6.2): "ăn/khoe/dồn/xén/gom/bơm/ngồi trên"
+- **Closing actionable** (V3): stance + số/condition + timeframe — không "cần theo dõi"
 
-## Verdict line
+## Examples V1.3 — FB sector
 
-Closing MUST có verdict cho NĐT phân loại (Voice Rule 3):
-- Tốt: "Mã phù hợp NĐT giá trị giữ trên 12 tháng, chấp nhận biến động ngắn hạn"
-- Xấu: "Cần thêm thông tin để đánh giá" (ba phải, fail Voice Rule 2)
+### ✅ Example 1: VCB +6.8% Hot (110 từ)
 
-## Examples sector fb
-
-### Example 1: VNM +6.2% Hot
-
-Body (135 từ):
-> Vinamilk tăng kịch trần 6,2% phiên sáng 12/5 sau khi công bố lãi quý 1 vượt 9% so cùng kỳ và sản lượng sữa nội địa tăng trở lại sau 4 năm đi ngang, vì sao thị trường phản ứng mạnh?
+> **Vietcombank vọt 6,8%** sáng 12/5 sau khi **ăn lãi quý 1 vượt 11%** so cùng kỳ. Vì sao thị trường phản ứng mạnh đến vậy?
 >
-> Lãi tăng nhờ kết hợp hai chiều: **sản lượng sữa nước nội địa tăng 4,5%** đảo chiều khỏi vùng đáy 2018-2022, đồng thời giá bán trung bình nhích thêm 2,8% nhờ đẩy dòng sữa hữu cơ. Biên lợi nhuận gộp lên 42,5%, hồi từ vùng 40,2% quý 4/2025. Phía sau con số: VNM đang gặp đà mở rộng nông thôn cộng với chu kỳ giá sữa bột nguyên liệu thế giới giảm, không phải tăng giá khuyến mại ngắn hạn.
+> Lãi nhảy nhờ **biên lãi vay nới từ 3,1% lên 3,3%**, huy động giá rẻ kéo nguồn về. Nợ xấu **0,9%**, tỷ suất sinh lời tài sản giữ ổn định 1,8%. **Tín dụng quý 1 tăng 3,5%** cao hơn ngành. Thực ra VCB đang ăn được phần lợi chu kỳ NHNN nới — không phải tăng nóng tín dụng.
 >
-> Mã phù hợp NĐT giá trị giữ trên 18 tháng, chấp nhận biến động ngắn hạn theo phiên.
+> NĐT giá trị nên cầm trên 92.000, mục tiêu 100-105 trong 12 tháng.
 
-### Example 2: SAB -5.8% Cold panic
+### ✅ Example 2: TCB -6.5% Cold panic (115 từ)
 
-Body (130 từ):
-> Sabeco giảm sàn 5,8% phiên sáng nay sau tin Bộ Tài chính đề xuất tăng thuế tiêu thụ đặc biệt rượu bia từ 65% lên 80% giai đoạn 2027-2030, vì sao thị trường panic dù chính sách chưa thông qua?
+> **Techcombank tụt sàn 6,5%** sau tin **nợ xấu nhóm 2 nhảy 2,4%**, vì sao thị trường panic dù lãi quý vẫn tăng?
 >
-> Phản ứng panic chủ yếu do lo ngại đè kéo dài đỉnh phục hồi vốn đã chậm sau Nghị định 100. Nhưng dữ liệu thực tế: **doanh thu quý 1 vẫn tăng 6,3%** so cùng kỳ nhờ tiêu dùng mang về phát triển, và lộ trình thuế giãn 4 năm cho phép SAB điều chỉnh giá bán dần. Buffer biên lợi nhuận gộp 38% vẫn dày hơn BHN. Phía sau panic: SAB đang chấp nhận hy sinh dư địa tăng giá để giữ thị phần miền Nam.
+> Panic chủ yếu lo lan sang nhóm 3-4. Nhưng thật ra **nợ xấu nhóm 2 từ 1,8% → 2,4%** chủ yếu là BĐS tái cơ cấu, không phải tín dụng tiêu dùng mới. **Buffer dự phòng +28% Q1**. TCB đang xén lãi ngắn hạn để gia cố vùng đệm trước rủi ro chu kỳ.
 >
-> Mã phù hợp NĐT giá trị chấp nhận chu kỳ phục hồi chậm 24-36 tháng, không phù hợp NĐT short-term tham gia panic.
+> NĐT giá trị tin chiến lược phòng thủ nên cầm 18 tháng; short-term FOMO nên tránh dưới 32.
+
+### ❌ Example xấu V1.3 reject
+
+> Vietcombank ghi nhận lợi nhuận quý 1/2026 vượt 11% so cùng kỳ, đồng thời công bố tăng trưởng tín dụng 3,5%. Ngân hàng đặt mục tiêu hoàn thành kế hoạch 8% năm 2026 và dự kiến đạt tăng trưởng nợ vay tốt. Nhà đầu tư cần theo dõi diễn biến quý 2 làm chỉ báo sớm cho quyết định đầu tư.
+
+→ Fail: 4 báo chí verbs (ghi nhận, công bố, đặt mục tiêu, dự kiến đạt) + closing vague "cần theo dõi làm chỉ báo" + 0 bold.
+
+## Verdict line (V3)
+
+Closing MUST có 5 elements:
+1. Stance ("nên cầm/giảm/cắt/thoát") HOẶC "phù hợp NĐT X / không phù hợp NĐT Y"
+2. Quantified trigger (giá / percent / điều kiện)
+3. Timeframe (12 tháng / Q3/2026 / ngắn-dài hạn)
+4. Holder context
+5. NO `CLOSING_VAGUE_BAN` ("cần theo dõi" / "làm chỉ báo" / "đánh giá thêm")

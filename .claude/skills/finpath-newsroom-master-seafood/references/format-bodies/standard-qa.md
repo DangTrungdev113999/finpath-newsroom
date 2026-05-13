@@ -1,4 +1,4 @@
-# Format: standard_qa (200-300 từ)
+# Format: standard_qa (180-240 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-seafood`. Apply khi `format_id == "standard_qa"`.
 
@@ -6,68 +6,68 @@
 
 Deep question category ∈ {paradox, why_now, hidden_mechanism} + data_richness ≥ medium. Người đọc cần mechanism reasoning nhưng không cần liệt kê chi tiết.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening paragraph 30-80 từ — sự kiện + tension/setup, có thể end với câu hỏi]
+[Opening paragraph 30-60 từ — sự kiện + tension/setup, end câu hỏi sắc]
 
-- **Bold highlight 1**: substantive bullet ≥20 từ với connector + mechanism reasoning
-- **Bold highlight 2**: bullet ≥20 từ
-- **Bold highlight 3**: bullet ≥20 từ
-- ... up to 6 bullets
+- **Bold highlight 1**: bullet ≥20 từ với connector + mechanism
+- **Bold highlight 2**: bullet ≥20 từ + 1-2 số bold
+- **Bold highlight 3**: bullet ≥20 từ + analogy/metaphor
+- ... up to 6 bullets total (3-6)
 
-[Closing — 1 câu phân loại NĐT phù hợp]
+[Closing — 5-element actionable verdict ≤30 từ]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 3-6 bullets (substantive, mechanism + bold number)
-- Max 1 em dash / 100 từ (V5.1.2 PATCH em_dash_density)
+- 3-6 bullets (dense, mechanism + bold number)
+- Max 1 em dash / 100 từ
+- **Bold density ≥4%** (V1.3 — ~1 bold per 25 từ)
 
 ## Word count
 
-- Total: 200-300 từ HARD CAP. <200 fail word_count. >300 fail word_count.
-- Opening: 30-80 từ
+- Total: **180-240 từ** HARD CAP (V1.3 shrunk from 200-300)
+- Opening: 30-60 từ
 - Each bullet: ≥20 từ
-- Closing: 1 câu (≤30 từ), không bullet, không heading
+- Closing: 1 câu ≤30 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-Mỗi bullet MUST có ≥1 bold `**...**`. Bold số (vd `**giá bán trung bình 3,4 đô-la mỗi kg**`) hoặc verdict word (vd `**hy sinh**`, `**đánh đổi**`).
+- **Bold density** ≥4% (≥1 bold per 25 từ)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm
+- **Ưu tiên ví von** (V6.3): metaphor markers ≥2 (như/kiểu/ví như/gấp X lần)
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — Seafood sector
 
-Closing MUST có verdict cho NĐT phân loại (Voice Rule 3):
-- 3 elements: direction + timeframe + holder action
-- Tốt: "Mã phù hợp NĐT giá trị giữ trên 12 tháng, ưu tiên doanh nghiệp đa thị trường"
-- Xấu: "Tùy quan điểm NĐT đánh giá" (ba phải, fail Voice V2)
-
-## Examples Thuỷ sản sector
-
-### Example 1: paradox — VHC hy sinh sản lượng Mỹ để đổi lấy gì (240 từ)
-
-Title: `VHC hy sinh sản lượng Mỹ để đánh đổi lấy điều gì?`
+### ✅ Example 1: paradox — VCB hy sinh tăng trưởng (210 từ)
 
 Body:
-> Vĩnh Hoàn công bố sản lượng xuất khẩu sang Mỹ quý 1 chỉ tăng 4%, thấp hơn nhiều so kỳ vọng 12-15% sau khi Mỹ hạ thuế chống bán phá giá kỳ rà soát mới. Trong khi đó, sản lượng cá tra xuất EU tăng 21%. Vì sao VHC chủ động đẩy EU thay vì tận dụng cơ hội Mỹ?
+> **Vietcombank ăn tín dụng quý 1 chỉ 1,8%** trong khi cả nhóm tư nhân lùa thêm 4-5%, nhưng giá vẫn vững trên 95.000 đồng. Vì sao to nhất lại đi chậm nhất, và cổ đông trả tiền cho cái gì?
 >
-> - **Sản lượng EU tăng 21%** trong khi Mỹ chỉ +4% phản ánh VHC chọn ưu tiên hợp đồng mùa Chay châu Âu với giá bán trung bình cao hơn 0,4 đô-la mỗi kg so kênh Mỹ tầm trung.
-> - **Giá bán trung bình EU đạt 3,8 đô-la mỗi kg** so Mỹ 3,2 đô-la, chênh lệch 19% bù cho sản lượng EU thấp hơn, biên lợi nhuận gộp EU ước tính 26% so Mỹ 18%.
-> - **Tồn kho khách hàng Mỹ vẫn cao** từ giai đoạn tích trữ 2024, VHC nhận định hợp đồng Mỹ giá tốt chỉ về từ quý 3 trở đi, không vội đẩy doanh số quý 1.
-> - **Hiệu suất chế biến chế biến sâu EU đạt 38%** tăng 6 điểm phần trăm so cùng kỳ, sản phẩm cao cấp đóng góp doanh thu cao hơn 15% so sản phẩm phi-lê truyền thống.
+> - **Tín dụng 1,8% vs ngành 3,1%**: VCB giữ chất khách hàng top, không chạy doanh số quý đầu năm — ngược với tư nhân đua tăng để khoe quý.
+> - **Nợ xấu 0,9% thấp nhất 27 mã**: giảm 12 điểm cơ bản so cùng kỳ, kết quả thực tế của chiến lược screen khắt khe 18 tháng qua.
+> - **ROE 22,3% vẫn dẫn Big4**: quy mô cộng giá vốn rẻ đang bù cho tốc độ — như xe to chạy chậm vẫn mạnh hơn xe nhỏ tăng tốc.
+> - **Vùng đệm dự phòng 226%**: gấp 1,8 lần ngưỡng NHNN, sẵn sàng hấp thụ shock TPDN BĐS nếu chu kỳ tái cơ cấu kéo dài sang 2027.
 >
-> Mã phù hợp NĐT giá trị giữ trên 18 tháng, ưu tiên doanh nghiệp đa thị trường hơn doanh nghiệp phụ thuộc một thị trường lớn duy nhất.
+> NĐT giá trị nên cầm vùng 92-98, mục tiêu 105-110 trong 18 tháng; không phù hợp NĐT short-term tham gia momentum.
 
-### Example 2: why_now — MPC chuyển hướng Nhật Bản 2026 (270 từ)
-
-Title: `Vì sao MPC chọn đẩy mạnh Nhật Bản năm 2026, không phải 2023?`
+### ✅ Example 2: why_now — TCB rút BĐS 2026 (230 từ)
 
 Body:
-> Minh Phú công bố kế hoạch 2026 nâng tỷ trọng xuất khẩu Nhật Bản từ 22% lên 30% tổng doanh thu xuất khẩu, trong khi vẫn neo Mỹ ở mức 35%. Sau 3 năm đối phó với cạnh tranh Ấn Độ và Ecuador tại Mỹ, vì sao MPC chọn timing là 2026 thay vì 2023?
+> **Techcombank xén tỷ trọng BĐS** từ 31% xuống dưới 25% trong kế hoạch 2026, sau gần 3 năm vẫn neo cao bất chấp khủng hoảng 2022-2023. Vì sao timing là bây giờ, không phải đỉnh khủng hoảng?
 >
-> - **Thị phần Nhật Bản đạt 22% năm 2024** sau khi giảm từ 28% giai đoạn 2021-2022, MPC chấp nhận hy sinh thị phần Nhật để dồn lực vào Mỹ vì tin chu kỳ tôm thẻ Mỹ sẽ hồi.
-> - **Biên lợi nhuận gộp Nhật Bản đạt 14%** so Mỹ tầm trung chỉ 6%, chênh lệch 8 điểm phần trăm chứng minh kênh cao cấp Nhật ít chịu áp lực cạnh tranh khu vực Ấn-Ecuador.
-> - **Ấn Độ và Ecuador không vào được Nhật** do tiêu chuẩn kiểm dịch + chứng nhận khắt khe hơn Mỹ, MPC có lợi thế kéo dài 24-36 tháng tới khi đối thủ chưa kịp thích nghi.
-> - **Hợp đồng Nhật mới ký giá 8,5 đô-la mỗi kg** cho tôm thẻ chế biến sâu, cao hơn 35% so Mỹ tầm trung 6,3 đô-la, cải thiện cơ cấu doanh thu rõ rệt nếu chuyển hướng thành công.
-> - **Nhật Bản tiêu dùng tôm tăng 6% năm 2025** sau giai đoạn trầm 2020-2023, nhu cầu phục hồi cùng MPC quay lại đẩy thị trường giúp giành lại thị phần đã mất.
+> - **BĐS 31% năm 2022 không giảm**: TCB chấp nhận chịu nợ xấu nhóm 2 tăng để giữ khách hàng phát triển dự án — đặt cọc ngành sẽ hồi.
+> - **Lãi Q1/2026 vẫn ăn 22% YoY**: buffer dự phòng đã đủ dày để rút mà không tổn thương thu nhập — điều kiện không có 2023.
+> - **Tín dụng tiêu dùng vọt 28%** trong 18 tháng qua đã đẻ ra nguồn thay thế, TCB không còn phụ thuộc BĐS cho tăng trưởng.
+> - **NHNN siết Thông tư 22 từ 2027**: TCB rút sớm 12 tháng để dồn vốn cấp 1 — chuẩn bị trước thay vì chạy theo.
+> - **P/B 1,3 lần thấp hơn TB 5 năm**: ban điều hành nhắm re-rate khi thị trường nhìn TCB như bank cân bằng, không phải BĐS bank.
 >
-> Mã phù hợp NĐT giá trị tin chiến lược chuyển hướng 24-36 tháng, chấp nhận biến động ngắn hạn theo chu kỳ cạnh tranh khu vực.
+> NĐT giá trị tin chiến lược chuyển hướng nên cầm 24-36 tháng vùng dưới 35; cắt 30% nếu BĐS không tụt dưới 27% Q4/2026.
+
+### ❌ Example xấu V1.3 reject
+
+> Techcombank vừa công bố kế hoạch giảm tỷ trọng cho vay BĐS từ 31% xuống dưới 25% trong năm 2026. Ngân hàng đặt mục tiêu hoàn thành kế hoạch sớm 12 tháng để đáp ứng Thông tư 22 mới của NHNN. Lợi nhuận quý 1 ghi nhận tăng 22% so cùng kỳ, đáng theo dõi diễn biến các quý tới.
+
+→ Fail: 4 báo chí verbs (công bố + đặt mục tiêu + hoàn thành + ghi nhận), 0 bold, closing vague "đáng theo dõi".

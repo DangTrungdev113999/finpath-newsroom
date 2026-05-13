@@ -1,4 +1,4 @@
-# Format: standard_listicle (250-350 từ)
+# Format: standard_listicle (220-280 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-apparel`. Apply khi `format_id == "standard_listicle"`.
 
@@ -6,70 +6,71 @@
 
 Deep question category ∈ {comparison_deep, early_signal} + data_richness ≥ medium. Người đọc cần so sánh hoặc liệt kê signals — nội dung chia thành mảnh độc lập, không phải narrative chảy.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening ≤30 từ — context + question (ngắn, dẫn vào list)]
+[Opening ≤20 từ — context + question (ngắn, dẫn vào list)]
 
-- **Bold highlight 1**: bullet ≥25 từ với mechanism + số bold
+- **Bold highlight 1**: bullet ≥25 từ + mechanism + số bold
 - **Bold highlight 2**: bullet ≥25 từ
-- **Bold highlight 3**: bullet ≥25 từ
+- **Bold highlight 3**: bullet ≥25 từ + ví von/analogy
 - **Bold highlight 4**: bullet ≥25 từ
-- ... 4-7 bullets total (listicle dày hơn standard_qa)
+- ... 4-7 bullets total
 
-[Closing — 1 câu phân loại NĐT]
+[Closing — 5-element actionable verdict ≤30 từ]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 4-7 bullets (listicle pattern — nhiều bullets hơn standard_qa)
-- Mỗi bullet ≥25 từ (substantive hơn standard_qa do listicle ngắn opening)
-- Max 1 em dash / 100 từ (V5.1.2 em_dash_density)
+- 4-7 bullets (listicle pattern)
+- Mỗi bullet ≥25 từ
+- Max 1 em dash / 100 từ
+- **Bold density ≥5%** (V1.3 — densest format, ~1 bold per 20 từ)
 
 ## Word count
 
-- Total: 250-350 từ HARD CAP. <250 fail word_count. >350 fail word_count.
-- Opening: ≤30 từ (compact)
+- Total: **220-280 từ** HARD CAP (V1.3 shrunk from 250-350)
+- Opening: ≤20 từ (compact để vào list nhanh)
 - Each bullet: ≥25 từ
-- Closing: 1 câu (≤30 từ)
+- Closing: 1 câu ≤30 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-Mỗi bullet MUST có ≥1 bold `**...**`. Highlight contrast number / verdict word. Listicle nhấn nhiều bold hơn standard_qa do format scan.
+- **Bold density ≥5%** (densest — listicle scan needs visible signals)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm/lùa
+- **Ưu tiên ví von** (V6.3): comparison MUST use analogy markers (gấp X lần / tương đương / như / ngang ngửa)
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — Apparel sector
 
-Closing verdict — Voice Rule 3 (3 elements: direction + timeframe + holder action).
-
-## Examples Apparel sector
-
-### Example 1: comparison_deep — TCM tích hợp dọc vs MSH/TNG thuần may quý 1/2026 (320 từ)
-
-Title: `TCM tích hợp dọc vs MSH/TNG thuần may quý 1/2026: ai đặt cược đúng hơn?`
+### ✅ Example 1: comparison_deep — Big4 vs tư nhân Q1/2026 (270 từ)
 
 Body:
-> Khi giá bông giảm 18% quý 1/2026, TCM và MSH/TNG đi hai hướng rõ rệt. Ai chọn đúng cho 12 tháng tới?
+> **Big4 và tư nhân top Q1/2026 đi hai hướng**. Ai đặt cọc đúng cho 12 tháng tới?
 >
-> - **Biên gộp MSH/TNG quý 1 nới rộng lên 12-13%** từ mức 10-11% năm 2024, hưởng lợi trực tiếp từ vải Trung Quốc rẻ hơn 15% sau khi giá bông giảm và hàng tồn kho Trung Quốc tăng.
-> - **Biên gộp TCM mảng sợi co từ 7% xuống 5%** vì sợi tự sản xuất bị kẹp giá — bông đầu vào giảm chậm hơn vải đầu ra do hợp đồng mua bông Mỹ ký từ quý 4/2025 với giá cao.
-> - **Sổ đơn hàng MSH 5 tháng phía trước** với khách Nike/Columbia/GAP đã ký dài hạn, trong khi TCM chỉ 3 tháng do mảng sợi phụ thuộc khách dệt nội bộ chưa hồi phục đồng pha.
-> - **Tỷ trọng đơn giá xuất xưởng MSH lên 75%** từ 70% năm trước, hỗ trợ biên gộp; TCM giữ ở 73% do mảng sợi tạo doanh thu nội bộ làm pha loãng tỷ trọng.
-> - **USD/VND quý 1 tăng 2,5%** hỗ trợ cả 3 mã, nhưng MSH/TNG hưởng nhiều hơn do hơn 95% doanh thu USD, trong khi TCM chỉ 85% do có doanh thu sợi nội địa.
-> - **Định giá P/E MSH 9 lần** so với TCM 7 lần và TNG 8 lần, thị trường đã thưởng MSH nhờ thuần may + khách phổ thông phục hồi sớm.
+> - **Big4 tín dụng ăn 4,3%** trung bình, tư nhân chỉ vọt 1,9%. Big4 gom được room cấp đợt 1 với khách hàng trial bị tư nhân từ chối — như Big4 đang ăn chỗ tư nhân chừa.
+> - **TCB MBB ACB dùng dưới 30% room**: nhóm tư nhân top chủ động xén tốc độ chờ chất lượng khách hàng cải thiện nửa cuối năm — chiến lược "hái sau khi chín".
+> - **Biên lãi vay Big4 nới 18 điểm cơ bản** lên 3,2% nhờ huy động giá rẻ. Tư nhân chỉ nới 5 điểm cơ bản, kẹt cuộc đua lãi tiết kiệm — gấp 3,6 lần khoảng cách.
+> - **Nợ xấu Big4 0,9% vs tư nhân 1,4%**: chiến lược trial của Big4 chưa lộ rủi ro, nhưng cũng có nghĩa Big4 đang dồn vào nhóm khách hàng tốt hơn tư nhân từ chối.
+> - **P/B Big4 1,9 lần đắt gấp 1,5 lần tư nhân 1,3**: thị trường thưởng Big4 nhờ vùng đệm dự phòng dày 200%+ — premium này có thể co nếu cycle tư nhân hồi.
 >
-> Mã MSH/TNG phù hợp NĐT giá trị giữ trên 12 tháng ưu tiên thuần may hưởng lợi giá vải rẻ, mã TCM phù hợp NĐT chấp nhận biến động 1-2 quý chờ mảng sợi hồi giá.
+> NĐT giá trị nên cầm Big4 18+ tháng vùng dưới 95; phù hợp tư nhân top short-medium 12 tháng khi P/B tụt dưới 1,2.
 
-### Example 2: early_signal — TNG nhà máy Bangladesh signal đầu tiên (288 từ)
-
-Title: `TNG nhà máy Bangladesh đi vào hoạt động quý 4/2024: chỉ số nào quyết định 2026?`
+### ✅ Example 2: early_signal — TCB CASA tụt Q1 (260 từ)
 
 Body:
-> TNG công bố nhà máy Bangladesh chạm sản lượng 10% tổng quý 1/2026, dấu hiệu sớm cho cả chiến lược đa quốc gia 2026?
+> **TCB tỷ lệ CASA tụt từ 38% → 33% Q1**. Chỉ số nào quyết định 2026?
 >
-> - **Tỷ lệ sử dụng công suất nhà máy Bangladesh đạt 78%** quý 1 đầu năm, vượt kỳ vọng ban đầu 65-70%, cho thấy đơn hàng từ Decathlon đã chuyển sang nhà máy mới ổn định.
-> - **Biên gộp Bangladesh ước 11,5%** so với 8,2% Việt Nam quý 1, chênh lệch 3,3 điểm phần trăm bù được chi phí vận hành nhà máy mới năm đầu sau khấu hao.
-> - **Doanh thu Decathlon chiếm 32% TNG quý 1** tăng từ 28% năm 2024, khách lớn nhất đẩy đơn vào Bangladesh trước, các khách khác Costco/Walmart vẫn để Việt Nam.
-> - **Chi phí lao động Bangladesh thấp hơn Việt Nam 32%** quý 1 đo lường thực tế, gần khớp kỳ vọng 30% công bố từ 2023, mô hình đa quốc gia bắt đầu chứng minh.
-> - **Lương tối thiểu vùng Việt Nam tăng 6,5% từ 1/7/2026** sẽ thử thách lại biên gộp Việt Nam, đẩy tỷ trọng Bangladesh có thể vượt 15% trong nửa cuối năm.
-> - **TCM/MSH chưa có kế hoạch Bangladesh** nửa đầu 2026, TNG là mã duy nhất đã làm — lợi thế đi trước trong cuộc đua đa quốc gia dệt may VN.
+> - **Tỷ lệ tụt 5 điểm phần trăm** trong 1 quý chưa từng thấy 8 quý gần nhất — khách hàng cá nhân lùa sang tiết kiệm lãi 5,5-6%, kiểu "chạy theo lãi cao".
+> - **Chi phí vốn nhảy 12 điểm cơ bản** lên 3,8%, biên lãi vay sẽ xén nếu xu hướng kéo thêm 2 quý — gấp 2,4 lần biến động trung bình quý.
+> - **Khách hàng trẻ 25-35** chiếm 60% lực rút — nhóm này nhạy lãi nhất, có thể quay lại nhanh nếu TCB bơm lãi tiết kiệm online ngang ngửa MBB.
+> - **App TCB Mobile traffic tụt 8%** Q1: engagement giảm song song CASA, không chỉ vấn đề lãi mà còn trải nghiệm sản phẩm — như khách hàng đang quay lưng cùng lúc.
+> - **MBB ACB tỷ lệ ổn định 35-37%**: vấn đề riêng TCB, không phải xu hướng cả nhóm tư nhân top.
 >
-> Mã phù hợp NĐT giá trị giữ trên 24 tháng tin chiến lược đa quốc gia, chưa khẳng định bền nếu chưa thấy quý 2-3 tỷ lệ Bangladesh vượt 15% và biên gộp ổn định.
+> NĐT đang cầm nên xén 30% vị thế vùng trên 35, mục tiêu mua lại dưới 28 nếu Q2 CASA tụt thêm dưới 30%.
+
+### ❌ Example xấu V1.3 reject
+
+> TCB ghi nhận tỷ lệ tiền gửi không kỳ hạn giảm từ 38% xuống 33% trong quý 1/2026. Ngân hàng công bố chiến lược điều chỉnh, đặt mục tiêu khôi phục tỷ lệ trong các quý tiếp theo. Khách hàng cá nhân được ghi nhận có xu hướng chuyển sang tiền gửi có kỳ hạn. Nhà đầu tư cần thận trọng theo dõi diễn biến làm chỉ báo sớm cho năm 2026.
+
+→ Fail: 4 báo chí verbs (ghi nhận x2 + công bố + đặt mục tiêu) + 0 bold + closing "thận trọng theo dõi làm chỉ báo" vague.

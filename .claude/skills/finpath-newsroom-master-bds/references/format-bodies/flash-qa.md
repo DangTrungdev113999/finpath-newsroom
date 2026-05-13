@@ -1,4 +1,4 @@
-# Format: flash_qa (100-150 từ)
+# Format: flash_qa (80-120 từ) — V1.3 Twitter-style
 
 > Loaded from `Skill: finpath-newsroom-master-bds`. Apply khi `format_id == "flash_qa"`.
 
@@ -6,59 +6,64 @@
 
 Ticker_status = Hot (top tăng/giảm/bùng nổ/cạn cung) + data_richness ∈ {low, medium}. Người đọc cần info nhanh khi mã đang nóng.
 
-## Body pattern
+## Body pattern V1.3 (Twitter style)
 
 ```
-[1 câu mở (≥20 từ): nêu question chính]
+[Opening ≥15 từ: question chính hoặc fact gây tension, có **bold key**]
 
-[1 paragraph trả lời (60-100 từ): answer + verdict]
+[Body paragraph 50-80 từ: answer + 1-2 con số **bold** + analogy/metaphor]
 
-[1 câu closing (≤20 từ): verdict ngắn cho NĐT cầm]
+[Closing ≤25 từ: stance + quantified trigger + timeframe]
 ```
 
 - KHÔNG bullet
 - KHÔNG heading "## Cần để ý"
-- Max 1 em dash / bài (V5.1.2 PATCH em_dash_density gate)
+- Max 1 em dash / bài
+- **≥3 bold absolute** (V1.3 hard cap — Twitter scan needs key signals visible)
 
 ## Word count
 
-- Total: 100-150 từ HARD CAP. <100 fail word_count. >150 fail word_count.
-- Opening: ≥20 từ
-- Body paragraph: 60-100 từ
-- Closing: ≤20 từ
+- Total: **80-120 từ** HARD CAP (V1.3 shrunk from 100-150)
+- Opening: ≥15 từ
+- Body paragraph: 50-80 từ
+- Closing: ≤25 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-≥1 bold `**...**` trong body paragraph. Highlight 1 số key (vd `**doanh số bán trước +28%**`).
+- **Bold density**: ≥3 bold/bài absolute count
+- **NO báo chí verbs** ≥2 (V6.1): cấm "bàn giao/ghi nhận/công bố/dự kiến/phát hành" combo
+- **Prefer bình dân verbs** (V6.2): "ăn/khoe/dồn/xén/gom/bơm/ngồi trên"
+- **Closing actionable** (V3): stance + số/condition + timeframe — không "cần theo dõi"
 
-## Verdict line
+## Examples V1.3 — BĐS sector
 
-Closing MUST có verdict cho NĐT phân loại (Voice Rule 3):
-- Tốt: "Mã phù hợp NĐT giá trị giữ trên 18 tháng, chấp nhận biến động ngắn hạn"
-- Xấu: "Cần thêm thông tin để đánh giá" (ba phải, fail Voice Rule 2)
+### ✅ Example 1: VCB +6.8% Hot (110 từ)
 
-Voice BĐS cẩn trọng — verdict luôn nhắc context chu kỳ (ngành đã trầm 2008/2011-2013/2022), không bull thuần.
-
-## Examples BĐS sector
-
-### Example 1: VHM +5.4% Hot
-
-Title: `VHM tăng 5,4% sau tin bàn giao Ocean City: vì sao thị trường ngả mạnh?`
-
-Body (132 từ):
-> Vinhomes tăng 5,4% phiên sáng 12/5 sau khi công bố bàn giao 8.500 căn Ocean City quý 1 với doanh thu ghi nhận **30.200 tỷ**, vì sao thị trường phản ứng mạnh đến vậy?
+> **Vietcombank vọt 6,8%** sáng 12/5 sau khi **ăn lãi quý 1 vượt 11%** so cùng kỳ. Vì sao thị trường phản ứng mạnh đến vậy?
 >
-> Lãi quý 1 ghi nhận **5.200 tỷ** tăng 18% so cùng kỳ, lợi nhuận chủ yếu từ phase 2 Ocean City đã pháp lý sạch. Doanh số bán trước Q1 thêm **18.500 tỷ** nhờ phân khúc trung-cao cấp Hà Nội tiếp tục bán tốt. Phía sau con số: VHM đang ăn được phần demand phục hồi của phân khúc pháp lý sạch, nhưng quý 2 doanh thu sẽ trầm do không có dự án bàn giao lớn (mẫu hình doanh thu lồi theo quý).
+> Lãi nhảy nhờ **biên lãi vay nới từ 3,1% lên 3,3%**, huy động giá rẻ kéo nguồn về. Nợ xấu **0,9%**, tỷ suất sinh lời tài sản giữ ổn định 1,8%. **Tín dụng quý 1 tăng 3,5%** cao hơn ngành. Thực ra VCB đang ăn được phần lợi chu kỳ NHNN nới — không phải tăng nóng tín dụng.
 >
-> Mã phù hợp NĐT giá trị giữ trên 18 tháng, chấp nhận quý 2 doanh thu trầm theo chu kỳ bàn giao.
+> NĐT giá trị nên cầm trên 92.000, mục tiêu 100-105 trong 12 tháng.
 
-### Example 2: NVL -6.7% Cold panic
+### ✅ Example 2: TCB -6.5% Cold panic (115 từ)
 
-Title: `NVL giảm sàn 6,7% sau tin trái phiếu Q2: panic có chính đáng không?`
-
-Body (138 từ):
-> Novaland giảm sàn 6,7% phiên sáng nay sau tin 5.800 tỷ trái phiếu doanh nghiệp đáo hạn Q2/2026 chưa rõ phương án, vì sao thị trường panic dù NVL đã rollover 2023-2025?
+> **Techcombank tụt sàn 6,5%** sau tin **nợ xấu nhóm 2 nhảy 2,4%**, vì sao thị trường panic dù lãi quý vẫn tăng?
 >
-> Phản ứng panic chủ yếu do lo ngại lặp lại pattern 2022. Nhưng dữ liệu thực tế: **dư nợ trái phiếu NVL từ 62.757 tỷ cuối 2022 xuống 38.400 tỷ cuối 2025**, phần lớn đã rollover thoả thuận với trái chủ. 5.800 tỷ Q2 là phần còn lại theo lịch tái cơ cấu hoàn thành cuối 2026. Aqua City vẫn vướng pháp lý — doanh số chờ ghi nhận chuyển đổi chỉ 12%. Phía sau panic: NVL đang trong giai đoạn cuối tái cơ cấu, không phải khủng hoảng mới.
+> Panic chủ yếu lo lan sang nhóm 3-4. Nhưng thật ra **nợ xấu nhóm 2 từ 1,8% → 2,4%** chủ yếu là BĐS tái cơ cấu, không phải tín dụng tiêu dùng mới. **Buffer dự phòng +28% Q1**. TCB đang xén lãi ngắn hạn để gia cố vùng đệm trước rủi ro chu kỳ.
 >
-> Mã có rủi ro với NĐT short-term FOMO; NĐT giá trị nên đợi proof point pháp lý Aqua City.
+> NĐT giá trị tin chiến lược phòng thủ nên cầm 18 tháng; short-term FOMO nên tránh dưới 32.
+
+### ❌ Example xấu V1.3 reject
+
+> Vietcombank ghi nhận lợi nhuận quý 1/2026 vượt 11% so cùng kỳ, đồng thời công bố tăng trưởng tín dụng 3,5%. Ngân hàng đặt mục tiêu hoàn thành kế hoạch 8% năm 2026 và dự kiến đạt tăng trưởng nợ vay tốt. Nhà đầu tư cần theo dõi diễn biến quý 2 làm chỉ báo sớm cho quyết định đầu tư.
+
+→ Fail: 4 báo chí verbs (ghi nhận, công bố, đặt mục tiêu, dự kiến đạt) + closing vague "cần theo dõi làm chỉ báo" + 0 bold.
+
+## Verdict line (V3)
+
+Closing MUST có 5 elements:
+1. Stance ("nên cầm/giảm/cắt/thoát") HOẶC "phù hợp NĐT X / không phù hợp NĐT Y"
+2. Quantified trigger (giá / percent / điều kiện)
+3. Timeframe (12 tháng / Q3/2026 / ngắn-dài hạn)
+4. Holder context
+5. NO `CLOSING_VAGUE_BAN` ("cần theo dõi" / "làm chỉ báo" / "đánh giá thêm")

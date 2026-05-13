@@ -1,4 +1,4 @@
-# Format: standard_listicle (250-350 từ)
+# Format: standard_listicle (220-280 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-bds`. Apply khi `format_id == "standard_listicle"`.
 
@@ -6,69 +6,71 @@
 
 Deep question category ∈ {comparison_deep, early_signal} + data_richness ≥ medium. Người đọc cần so sánh hoặc liệt kê signals — nội dung chia thành mảnh độc lập, không phải narrative chảy.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening ≤30 từ — context + question (ngắn, dẫn vào list)]
+[Opening ≤20 từ — context + question (ngắn, dẫn vào list)]
 
-- **Bold highlight 1**: bullet ≥25 từ với mechanism + số bold
+- **Bold highlight 1**: bullet ≥25 từ + mechanism + số bold
 - **Bold highlight 2**: bullet ≥25 từ
-- **Bold highlight 3**: bullet ≥25 từ
+- **Bold highlight 3**: bullet ≥25 từ + ví von/analogy
 - **Bold highlight 4**: bullet ≥25 từ
-- ... 4-7 bullets total (listicle dày hơn standard_qa)
+- ... 4-7 bullets total
 
-[Closing — 1 câu phân loại NĐT]
+[Closing — 5-element actionable verdict ≤30 từ]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 4-7 bullets (listicle pattern — nhiều bullets hơn standard_qa)
-- Mỗi bullet ≥25 từ (substantive hơn standard_qa do listicle ngắn opening)
-- Max 1 em dash / 100 từ (V5.1.2 em_dash_density)
+- 4-7 bullets (listicle pattern)
+- Mỗi bullet ≥25 từ
+- Max 1 em dash / 100 từ
+- **Bold density ≥5%** (V1.3 — densest format, ~1 bold per 20 từ)
 
 ## Word count
 
-- Total: 250-350 từ HARD CAP. <250 fail word_count. >350 fail word_count.
-- Opening: ≤30 từ (compact)
+- Total: **220-280 từ** HARD CAP (V1.3 shrunk from 250-350)
+- Opening: ≤20 từ (compact để vào list nhanh)
 - Each bullet: ≥25 từ
-- Closing: 1 câu (≤30 từ)
+- Closing: 1 câu ≤30 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-Mỗi bullet MUST có ≥1 bold `**...**`. Highlight contrast number / verdict word. Listicle nhấn nhiều bold hơn standard_qa do format scan.
+- **Bold density ≥5%** (densest — listicle scan needs visible signals)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm/lùa
+- **Ưu tiên ví von** (V6.3): comparison MUST use analogy markers (gấp X lần / tương đương / như / ngang ngửa)
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — BĐS sector
 
-Closing verdict — Voice Rule 3 (3 elements: direction + timeframe + holder action). Voice BĐS cẩn trọng — luôn neo chu kỳ lịch sử.
-
-## Examples BĐS sector
-
-### Example 1: comparison_deep — 4 mã BĐS hồi phục 2026 (335 từ)
-
-Title: `4 mã BĐS dân cư phục hồi 2026: ai pháp lý sạch nhất, ai còn căng?`
+### ✅ Example 1: comparison_deep — Big4 vs tư nhân Q1/2026 (270 từ)
 
 Body:
-> VHM, NVL, KDH, DXG quý 1/2026 đi 4 hướng rõ rệt. Ai pháp lý sạch để phục hồi sớm?
+> **Big4 và tư nhân top Q1/2026 đi hai hướng**. Ai đặt cọc đúng cho 12 tháng tới?
 >
-> - **VHM doanh thu Q1 30.200 tỷ** từ bàn giao Ocean City phase 2 pháp lý sạch toàn bộ, doanh số bán trước Q1 thêm **18.500 tỷ** dẫn đầu ngành, ban điều hành neo phân khúc trung-cao cấp Hà Nội ổn định.
-> - **KDH biên lợi nhuận gộp 56%** dẫn đầu nhóm nhờ quỹ đất TP HCM 600 héc-ta giá vốn thấp tích lũy 2014-2018, **tỷ lệ tổng nợ trên vốn chủ 0,8x** thấp nhất nhóm giúp chi phí lãi vay thấp.
-> - **DXG hoàn tất tái cơ cấu trái phiếu cuối 2025**, dư nợ trái phiếu doanh nghiệp xuống **1.800 tỷ** từ đỉnh 4.200 tỷ năm 2022, sẵn sàng mở quỹ đất 250 héc-ta năm 2026 với ngân sách 6.500 tỷ.
-> - **NVL doanh số chờ ghi nhận 60.000 tỷ giấy nhưng chuyển đổi thực chỉ 12%** do Aqua City vẫn vướng pháp lý, dư nợ trái phiếu còn **38.400 tỷ** với 5.800 tỷ đáo hạn Q2/2026.
-> - **Định giá P/B nhóm**: VHM 1,8 lần dẫn đầu, KDH 1,5 lần ổn, DXG 0,9 lần đáy phục hồi, NVL 0,4 lần thấp nhất phản ánh rủi ro tái cơ cấu chưa xong.
-> - **Cổ tức 2025 trả 2026**: VHM 22%, KDH 18%, DXG 8%, NVL 0% — phân hóa rõ giữa nhóm pháp lý sạch và nhóm vẫn ưu tiên giữ tiền tái cơ cấu.
+> - **Big4 tín dụng ăn 4,3%** trung bình, tư nhân chỉ vọt 1,9%. Big4 gom được room cấp đợt 1 với khách hàng trial bị tư nhân từ chối — như Big4 đang ăn chỗ tư nhân chừa.
+> - **TCB MBB ACB dùng dưới 30% room**: nhóm tư nhân top chủ động xén tốc độ chờ chất lượng khách hàng cải thiện nửa cuối năm — chiến lược "hái sau khi chín".
+> - **Biên lãi vay Big4 nới 18 điểm cơ bản** lên 3,2% nhờ huy động giá rẻ. Tư nhân chỉ nới 5 điểm cơ bản, kẹt cuộc đua lãi tiết kiệm — gấp 3,6 lần khoảng cách.
+> - **Nợ xấu Big4 0,9% vs tư nhân 1,4%**: chiến lược trial của Big4 chưa lộ rủi ro, nhưng cũng có nghĩa Big4 đang dồn vào nhóm khách hàng tốt hơn tư nhân từ chối.
+> - **P/B Big4 1,9 lần đắt gấp 1,5 lần tư nhân 1,3**: thị trường thưởng Big4 nhờ vùng đệm dự phòng dày 200%+ — premium này có thể co nếu cycle tư nhân hồi.
 >
-> Mã VHM/KDH phù hợp NĐT giá trị giữ trên 24 tháng, mã DXG phù hợp NĐT chấp nhận biến động chờ chu kỳ phục hồi, NVL chỉ phù hợp NĐT tin tái cơ cấu hoàn tất cuối 2026.
+> NĐT giá trị nên cầm Big4 18+ tháng vùng dưới 95; phù hợp tư nhân top short-medium 12 tháng khi P/B tụt dưới 1,2.
 
-### Example 2: early_signal — 5 chỉ báo chu kỳ trầm 2026 (310 từ)
-
-Title: `5 chỉ báo nào quyết định chu kỳ BĐS dân cư 2026-2027 đảo chiều?`
+### ✅ Example 2: early_signal — TCB CASA tụt Q1 (260 từ)
 
 Body:
-> Sau chu kỳ trầm 2022-2024, BĐS dân cư VN có 5 chỉ báo sớm cần theo dõi. Cái nào đảo chiều trước?
+> **TCB tỷ lệ CASA tụt từ 38% → 33% Q1**. Chỉ số nào quyết định 2026?
 >
-> - **Tỷ lệ hấp thụ phân khúc trung cấp Hà Nội Q1/2026 lên 68%** từ đáy 32% năm 2023, dấu hiệu rõ ràng demand thực đã quay lại, không phải đầu cơ.
-> - **Lãi suất cho vay mua nhà NHNN trung bình 7,8%** quý 1 từ đỉnh 10,5% cuối 2022, giảm xuống dưới 8% là ngưỡng demand cá nhân bật mạnh trong các chu kỳ trước.
-> - **Cấp phép xây dựng TP HCM Q1/2026 tăng 42% so cùng kỳ**, dấu hiệu chủ đầu tư đã chuẩn bị triển khai chu kỳ mới sau giai đoạn pháp lý đứng yên 2022-2024.
-> - **Trái phiếu doanh nghiệp BĐS phát hành mới Q1/2026 đạt 28.500 tỷ**, gấp 3,2 lần cùng kỳ 2024 — kênh huy động đã mở lại sau Nghị định 08/2023 và 3 luật mới 2024 hiệu lực.
-> - **VN-Index ngành BĐS Q1/2026 lên 1.180 điểm** từ đáy 720 điểm năm 2022, P/B ngành trở lại trung bình lịch sử **1,3 lần** từ đáy 0,8 lần — thị trường đã re-rate cơ bản.
+> - **Tỷ lệ tụt 5 điểm phần trăm** trong 1 quý chưa từng thấy 8 quý gần nhất — khách hàng cá nhân lùa sang tiết kiệm lãi 5,5-6%, kiểu "chạy theo lãi cao".
+> - **Chi phí vốn nhảy 12 điểm cơ bản** lên 3,8%, biên lãi vay sẽ xén nếu xu hướng kéo thêm 2 quý — gấp 2,4 lần biến động trung bình quý.
+> - **Khách hàng trẻ 25-35** chiếm 60% lực rút — nhóm này nhạy lãi nhất, có thể quay lại nhanh nếu TCB bơm lãi tiết kiệm online ngang ngửa MBB.
+> - **App TCB Mobile traffic tụt 8%** Q1: engagement giảm song song CASA, không chỉ vấn đề lãi mà còn trải nghiệm sản phẩm — như khách hàng đang quay lưng cùng lúc.
+> - **MBB ACB tỷ lệ ổn định 35-37%**: vấn đề riêng TCB, không phải xu hướng cả nhóm tư nhân top.
 >
-> Mã VHM/KDH phù hợp NĐT giá trị giữ trên 24 tháng đón chu kỳ, mã NVL/DXG phù hợp NĐT chấp nhận biến động chờ 2 quý tới confirm xu hướng.
+> NĐT đang cầm nên xén 30% vị thế vùng trên 35, mục tiêu mua lại dưới 28 nếu Q2 CASA tụt thêm dưới 30%.
+
+### ❌ Example xấu V1.3 reject
+
+> TCB ghi nhận tỷ lệ tiền gửi không kỳ hạn giảm từ 38% xuống 33% trong quý 1/2026. Ngân hàng công bố chiến lược điều chỉnh, đặt mục tiêu khôi phục tỷ lệ trong các quý tiếp theo. Khách hàng cá nhân được ghi nhận có xu hướng chuyển sang tiền gửi có kỳ hạn. Nhà đầu tư cần thận trọng theo dõi diễn biến làm chỉ báo sớm cho năm 2026.
+
+→ Fail: 4 báo chí verbs (ghi nhận x2 + công bố + đặt mục tiêu) + 0 bold + closing "thận trọng theo dõi làm chỉ báo" vague.

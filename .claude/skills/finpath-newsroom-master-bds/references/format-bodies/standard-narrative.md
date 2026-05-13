@@ -1,4 +1,4 @@
-# Format: standard_narrative (250-350 từ)
+# Format: standard_narrative (220-280 từ) — V1.3
 
 > Loaded from `Skill: finpath-newsroom-master-bds`. Apply khi `format_id == "standard_narrative"`.
 
@@ -6,72 +6,74 @@
 
 Deep question category = hidden_mechanism + brief có ≥3 timeline markers (sự kiện theo trình tự thời gian). Câu chuyện cần kể flow, không liệt kê — bullets phá nhịp narrative.
 
-## Body pattern
+## Body pattern V1.3
 
 ```
-[Opening paragraph ≥40 từ — context lịch sử + tension/setup, dẫn vào câu chuyện]
+[Opening paragraph ≥40 từ — context lịch sử + tension, dẫn câu chuyện]
 
-[Flow paragraph 1 (60-100 từ) — diễn biến phase 1, có thể end timeline marker]
+[Flow paragraph 1 (50-80 từ) — diễn biến phase 1, end timeline marker]
 
-[Flow paragraph 2 (60-100 từ) — diễn biến phase 2, đẩy tension]
+[Flow paragraph 2 (50-80 từ) — diễn biến phase 2, đẩy tension]
 
 - **Bold highlight (optional)**: 0-2 bullets cho key number / verdict
 - **Bold highlight (optional)**: bullet thứ 2 nếu cần
 
-[Closing paragraph 30-50 từ — phân loại NĐT + outlook]
+[Closing paragraph 25-40 từ — 5-element actionable verdict + 1 caveat tối đa]
 ```
 
 - KHÔNG heading "## Cần để ý"
-- 0-2 bullets MAX (narrative chính là paragraphs)
-- ≥3 timeline markers trong body (vd "2022", "Q3/2024", "quý 1/2026")
-- Max 1 em dash / 100 từ (V5.1.2 em_dash_density)
+- 0-2 bullets MAX (narrative = paragraphs)
+- ≥3 timeline markers trong body (vd "2022", "Q3/2024", "Q1/2026")
+- Max 1 em dash / 100 từ
+- **Bold density ≥3%** (V1.3 — prose flow OK, nhưng vẫn cần visual anchor)
 
 ## Word count
 
-- Total: 250-350 từ HARD CAP. <250 fail word_count. >350 fail word_count.
+- Total: **220-280 từ** HARD CAP (V1.3 shrunk from 250-350)
 - Opening: ≥40 từ
-- Flow paragraphs: 60-100 từ each
+- Flow paragraphs: 50-80 từ each
 - Bullets (nếu có): ≥25 từ each
-- Closing: 30-50 từ
+- Closing: 25-40 từ
 
-## Bold highlight
+## Voice (V6 + V7 + V3 enforced)
 
-≥3 bold `**...**` rải đều paragraphs + bullets (vì không có bullet structure, bold đảm nhận role visual anchor).
+- **Bold density ≥3%** (rải đều paragraphs + bullets)
+- **NO báo chí verbs** ≥2 (V6.1)
+- **Prefer bình dân verbs** (V6.2): ăn/khoe/dồn/xén/gom/bơm
+- **Ưu tiên ví von** (V6.3): metaphor markers BẮT BUỘC ≥1 (thật ra/như/gấp X lần/ví như) vì narrative cần feel + nhịp
+- **Closing actionable** (V3): stance + quantified trigger + no vague
 
-## Verdict line
+## Examples V1.3 — BĐS sector
 
-Closing paragraph MUST có verdict — Voice Rule 3 (direction + timeframe + holder action). Voice BĐS cẩn trọng → closing thường neo lịch sử chu kỳ trầm (2008/2011-2013/2022) + caveat có chủ đích.
-
-## Examples BĐS sector
-
-### Example 1: VHM Vinhomes Royal Park 2024-2027 narrative (335 từ)
-
-Title: `VHM đặt cược 50.000 tỷ Royal Park giai đoạn 2024-2027: liệu chu kỳ có ủng hộ?`
+### ✅ Example 1: TCB BĐS chuyển hướng narrative (260 từ)
 
 Body:
-> Vinhomes năm **2022** vẫn neo doanh thu chủ yếu Ocean City + Smart City Hà Nội, doanh số bán trước **65.000 tỷ** dẫn đầu ngành dù toàn thị trường đóng băng. Ba năm sau, ban điều hành công bố dự án Vinhomes Royal Park 270 héc-ta Hưng Yên với tổng đầu tư **50.000 tỷ** giai đoạn **2024-2027**, mở quỹ đất lớn nhất từ niêm yết 2018. Vì sao VHM chọn quy mô lớn ở phân khúc trung cấp?
+> Techcombank **2022** vẫn neo tỷ trọng BĐS **31%** bất chấp thị trường đóng băng. Ba năm sau, ban điều hành xén tỷ trọng xuống dưới **25%** trong kế hoạch 2026, chấp nhận hy sinh ước tính 5.000 tỷ doanh thu lãi vay. Vì sao timing là bây giờ?
 >
-> Trong **quý 1-2/2023**, khi NVL DXG vướng trái phiếu doanh nghiệp, VHM chọn không mở rộng quỹ đất mà tập trung bán hết tồn kho Ocean City + Smart City. Logic ban điều hành lúc đó: chu kỳ đáy chưa rõ, vốn chủ giữ buffer chứ không đặt cược. Đến **quý 4/2024** khi 3 luật BĐS mới hiệu lực **1/8/2024** và tỷ lệ hấp thụ phân khúc trung cấp Hà Nội phục hồi từ 32% lên 51%, VHM mới chốt khởi công Royal Park.
+> Trong **Q1-2/2023** khi VPB và NVL nợ xấu BĐS bùng, TCB chọn đứng lại với danh mục. Logic ban điều hành: khách hàng phát triển dự án của TCB là top tier, chỉ cần chu kỳ hồi sẽ thanh khoản. Lãi suất NHNN giảm 4 lần trong 6 tháng cuối **2023** chứng minh phần — buffer dự phòng vọt từ **145% → 226%** nhưng chưa cần dùng.
 >
-> Đến **quý 1/2026**, doanh số bán trước Royal Park phase 1 đã đạt **8.200 tỷ** sau 4 tháng mở bán, tỷ lệ hấp thụ **64%** dù phân khúc trung cấp giá **42-58 triệu/m2** thay vì cao cấp. Pattern khác với chu kỳ 2008-2011: VHM không bán đỉnh giá mà bán dài chu kỳ. Đây không phải đặt cược chu kỳ ngắn — đây là tái định vị phân khúc.
+> Đến **Q4/2025**, tín dụng tiêu dùng TCB đã ăn thêm **28%** trong 18 tháng, đẻ ra nguồn thay thế BĐS. Cộng Thông tư 22 NHNN siết hệ số rủi ro BĐS từ **2027**, ban điều hành chốt rút sớm 12 tháng để dồn vốn cấp 1. Đây không phải defensive — đây là re-positioning chủ động.
 >
-> - **Quỹ đất pháp lý sạch 16.000 héc-ta** đủ buffer 8-10 năm phát triển, VHM không phải mua quỹ đất giá đắt giữa chu kỳ.
-> - **Định giá P/B 1,8 lần** vẫn cao hơn 5-year average 1,5 lần, thị trường đã price-in một phần story Royal Park.
+> - **Lãi Q1/2026 vẫn tăng 22%** — chứng minh chuyển hướng không xén thu nhập ngắn hạn.
+> - **P/B 1,3 lần thấp hơn TB 5 năm 1,7**: ban điều hành nhắm re-rate TCB như bank cân bằng.
 >
-> Mã phù hợp NĐT giá trị giữ 24-36 tháng tin chu kỳ phục hồi đến 2028, lưu ý lịch sử ngành 3 chu kỳ trầm (2008/2011-2013/2022) — kịch bản trầm có thể lặp nếu lãi suất NHNN siết bất ngờ.
+> NĐT giá trị nên cầm 24-36 tháng vùng dưới 35, mục tiêu re-rate 50-55 nếu BĐS tụt dưới 25% Q4/2026; cắt 30% nếu chậm hơn lịch.
 
-### Example 2: NVL phục hồi 2022-2026 narrative (315 từ)
-
-Title: `NVL tái cơ cấu 4 năm 2022-2026: hồi sinh hay vẫn còn trong rừng?`
+### ✅ Example 2: VPB credit room story (250 từ)
 
 Body:
-> Novaland cuối **2022** ghi nhận dư nợ trái phiếu doanh nghiệp đỉnh **62.757 tỷ** sau khủng hoảng Vạn Thịnh Phát + Tân Hoàng Minh, doanh số bán trước Aqua City đứng yên do pháp lý tắc. Ban điều hành công bố mục tiêu tái cơ cấu hoàn tất cuối **2026**. Bốn năm sau, NVL ở đâu trong hành trình?
+> VPB tại ĐHĐCĐ **tháng 4/2026** khoe tăng trưởng tín dụng **35%** cả năm — gấp đôi room NHNN cấp đợt 1 là **16%**. Lời hứa lớn này từ đâu, và VPB có lịch sử thực hiện được không?
 >
-> Trong **2023**, Nghị định 08/2023 cho phép gia hạn trái phiếu 24 tháng đã giúp NVL rollover **18.500 tỷ** thoả thuận với trái chủ. Logic lúc đó: mua thời gian chờ pháp lý Aqua City. Đến **cuối 2024**, dư nợ trái phiếu xuống **48.200 tỷ** sau khi NVL hoán đổi 8.700 tỷ sang cổ phiếu + bất động sản. Aqua City vẫn vướng giấy phép bán hàng đầy đủ.
+> Quay lại **2023**, VPB cũng khoe **30%** tại ĐHĐCĐ. Cuối năm chỉ ăn **17%** vì NHNN không cấp room đợt 2. Năm **2024**, VPB xén kỳ vọng xuống **22%**, ăn **19%** — sát hơn. **2025** hứa **25%**, ăn **24%** nhờ NHNN nới room **28/8/2024** kèm điều kiện chuyển tiền cho FE Credit.
 >
-> Đến **quý 1/2026**, dư nợ trái phiếu xuống **38.400 tỷ** nhưng doanh số chờ ghi nhận **60.000 tỷ giấy chỉ chuyển đổi 12%** do Aqua City phase 1 chưa hoàn tất pháp lý sau 4 năm hứa hẹn. **5.800 tỷ Q2/2026** là phần cuối lịch tái cơ cấu, nhưng cam kết "pháp lý sắp xong" ban điều hành nhắc từ 2022 đã không thành — hệ số nghi ngờ ×2 vẫn áp dụng.
+> Pattern 3 năm: VPB over-promise **8-13 điểm phần trăm**, nhưng khoảng cách thu hẹp dần — thật ra hứa đang sát thực tế hơn. Hứa **35%** 2026 có 2 lớp support: room đợt 1 cấp **16%** ngày 15/2/2026 + VPB Securities đã bơm 1.500 tỷ về bank bổ sung vốn cấp 2.
 >
-> - **Vốn chủ tăng 4.200 tỷ Q1/2026** từ phát hành riêng lẻ cho cổ đông chiến lược, đủ buffer thanh toán 5.800 tỷ Q2 nếu pháp lý vẫn chậm.
-> - **Định giá P/B 0,4 lần** đáy ngành phản ánh rủi ro pháp lý Aqua City + lịch sử cam kết không đúng hẹn 4 năm liên tiếp.
+> - **Tín dụng Q1 ăn 4,8%** lũy kế năm, on track 19,2% half-year nếu giữ tốc độ.
 >
-> Mã phù hợp NĐT giá trị tin tái cơ cấu hoàn tất cuối 2026 + đặt niềm tin Aqua City có giấy phép bán hàng phase 1 trong 2026, chấp nhận downside lịch sử BĐS dân cư từng vỡ nợ chu kỳ 2008-2011 và 2022-2023.
+> NĐT chấp nhận biến động nên cầm 12-18 tháng vùng dưới 30, scenario base về **22-26%** không phải 35% như hứa; cắt 50% nếu room đợt 2 không nới Q3.
+
+### ❌ Example xấu V1.3 reject
+
+> Techcombank công bố kế hoạch giảm tỷ trọng cho vay BĐS từ 31% xuống dưới 25% trong năm 2026. Ngân hàng đặt mục tiêu hoàn thành kế hoạch trước Thông tư 22 của NHNN có hiệu lực từ 2027. Lợi nhuận quý 1/2026 ghi nhận tăng 22% so cùng kỳ. Buffer dự phòng được duy trì ở mức 226%. Nhà đầu tư cần theo dõi diễn biến các quý tới làm chỉ báo cho năm 2027.
+
+→ Fail: 4 báo chí verbs (công bố + đặt mục tiêu + hoàn thành + ghi nhận) + 0 bold + 0 metaphor + closing "cần theo dõi làm chỉ báo" vague.
