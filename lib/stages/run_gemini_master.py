@@ -162,7 +162,7 @@ def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], paylo
         stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M")
         new_slug = f"{ticker}-{stamp}-{hook}"
 
-    db.update_generated_news(article["article_id"], {
+    update_payload = {
         "title": title,
         "body": body,
         "word_count": payload.get("word_count"),
@@ -176,7 +176,13 @@ def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], paylo
         # writer orchestrators didn't.
         "status": "published",
         "published_at": datetime.now(timezone.utc).isoformat(),
-    })
+    }
+    # V5.1.9.7 — per-article image_concept (bespoke drama scene) emitted by
+    # the writer's JSON output. Read by run_image_gen for unique thumbs.
+    img_concept = payload.get("image_concept")
+    if isinstance(img_concept, str) and img_concept.strip():
+        update_payload["image_concept"] = img_concept.strip()
+    db.update_generated_news(article["article_id"], update_payload)
     # V5.1.9.3: render_compare_feed.py filters anchors by
     # crawl_log.master_decision='write_article'. Step 4.0 placeholder leaves
     # this NULL; without the update, render returns no anchors + pipeline

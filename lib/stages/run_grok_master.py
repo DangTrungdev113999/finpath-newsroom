@@ -153,7 +153,7 @@ def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], paylo
         stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M")
         new_slug = f"{ticker}-{stamp}-{hook}"
 
-    db.update_generated_news(article["article_id"], {
+    update_payload = {
         "title": title,
         "body": body,
         "word_count": payload.get("word_count"),
@@ -164,7 +164,11 @@ def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], paylo
         "primary_writer": writer,
         "status": "published",
         "published_at": datetime.now(timezone.utc).isoformat(),
-    })
+    }
+    img_concept = payload.get("image_concept")
+    if isinstance(img_concept, str) and img_concept.strip():
+        update_payload["image_concept"] = img_concept.strip()
+    db.update_generated_news(article["article_id"], update_payload)
     row_id = article.get("row_id")
     if row_id:
         db.update_crawl_row(row_id, {

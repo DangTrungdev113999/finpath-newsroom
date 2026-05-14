@@ -400,6 +400,11 @@ class PipelineDB:
                 )
         # V5.1.8 Image generation (Step 4.5, opt-in --image flag).
         # NULL when --image not passed OR Imagen failed (status records why).
+        # V5.1.9.7 — `image_concept` TEXT: per-article bespoke visual scene
+        # description crafted by Master (Gemini/Grok), tied to the article's
+        # thesis. Run_image_gen prefers this over sector_motif fallback so
+        # each thumb is unique to the article (no more "every bank article
+        # looks like a vault tower").
         for col, col_type in (
             ("thumb_url", "TEXT"),
             ("thumb_prompt", "TEXT"),
@@ -407,6 +412,7 @@ class PipelineDB:
             ("thumb_generated_at", "TIMESTAMP"),
             ("thumb_status", "TEXT"),
             ("thumb_error", "TEXT"),
+            ("image_concept", "TEXT"),
         ):
             if col not in existing:
                 self.conn.execute(

@@ -148,6 +148,7 @@ NĐT vừa click title đang đứng giữa quyết định đọc tiếp hay đ
   "variety_guard_angle": "<inherit từ angle_label>",
   "format_id_used": "<final post-escalation format_id>",
   "format_escalation_reason": null,
+  "image_concept": "<1-2 câu English mô tả 1 SCENE DRAMA cụ thể gắn THESIS bài (không generic). Vd nếu thesis là 'tuyên bố lãi rồi 21 ngày sau tách công ty' → 'A grand corporate stage at night: left half a triumphant figure under golden spotlight holding a glowing PROFIT trophy; right half — just 21 days later — a heavy steel cleaver slices through the stage and trophy, sparks fly, paperwork scatters mid-air'. Drama metaphor cụ thể, KHÔNG generic tower/skyline. Cinematic chiaroscuro mood.>",
   "data_trail": [
     {
       "source": "Finpath_API/income_statement/VCB",

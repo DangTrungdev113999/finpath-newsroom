@@ -53,7 +53,7 @@ def _load_motifs(path: Path) -> dict[str, str]:
 def _load_article(db: PipelineDB, article_id: str) -> dict[str, Any] | None:
     cur = db.conn.execute(
         """
-        SELECT article_id, title, body, sector, public_slug, ticker
+        SELECT article_id, title, body, sector, public_slug, ticker, image_concept
         FROM generated_news
         WHERE article_id = ?
         """,
@@ -223,7 +223,14 @@ def run_image_gen(
     motifs = _load_motifs(motif_path)
     sector_key = _resolve_sector_key(article.get("sector") or "")
     motif = motifs.get(sector_key) or motifs.get("default") or ""
-    thumb_concept = _extract_thumb_concept(article.get("title") or "", article.get("body") or "")
+    # V5.1.9.7 — prefer per-article image_concept (bespoke drama scene tied to
+    # article thesis). Fall back to title+opening extraction for backward
+    # compat with pre-V5.1.9.7 rows.
+    explicit_concept = article.get("image_concept")
+    if isinstance(explicit_concept, str) and explicit_concept.strip():
+        thumb_concept = explicit_concept.strip()
+    else:
+        thumb_concept = _extract_thumb_concept(article.get("title") or "", article.get("body") or "")
     ticker = article.get("ticker") or ""
     prompt = _build_prompt(prompt_path, motif, thumb_concept, ticker)
 
