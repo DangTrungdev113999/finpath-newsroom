@@ -193,65 +193,86 @@ skeptic_data_trail: []
 raw_article_url: https://baodautu.vn/chung-khoan-phien-135-co-phieu-nhom-vingroup-bien-dong-manh-keo-giam-vn-index-d595005.html
 format_director: null
 grok:
-  title: VIC tách VinFast chỉ 21 ngày sau lời lãi – NĐT quay lại hay chờ
-  body: 'Bạn vừa bán VIC đỉnh 207.200 đồng, giờ nhìn VIC bị bán sàn phiên 13/5, đang
-    lăn tăn có nên nhảy lại. ĐHCĐ 22/4 chủ tịch nói VinFast đã lãi Việt Nam, kế hoạch
-    hòa vốn toàn cầu 2027. Chỉ 21 ngày sau, 13/5, VinFast nộp hồ sơ SEC tách pháp
-    nhân và chuyển nhượng sản xuất Việt Nam cho bên khác. Ba mã VIC-VHM-VRE kéo mất
-    10 điểm VN-Index, khối ngoại bán ròng 1.430 tỷ.
+  title: 'VIC tách VinFast 21 ngày sau tuyên bố lãi: sức khỏe xe điện thế nào?'
+  body: 'Chủ tịch Vingroup tuyên bố VinFast đã lãi tại Việt Nam ngày 22/4. Chỉ 21
+    ngày sau, tập đoàn nộp hồ sơ lên SEC tách pháp nhân và chuyển nhượng hoạt động
+    sản xuất. Bạn đang cầm VIC sau đợt chốt lời đỉnh 207.200 đồng, giờ cân nhắc bắt
+    đáy phiên 13/5, cần nhìn thẳng vào hai con số này.
 
 
-    - Tách pháp nhân thường xảy ra khi mảng cần gọi vốn riêng hoặc cách ly nợ, dù
-    lời lãi được tuyên bố chỉ ba tuần trước.
+    - **Nợ phải trả VIC** đạt 1.024 triệu tỷ đồng quý 1/2026, chiếm **86,9% tổng tài
+    sản**. Con số này tăng 5,8% so đầu kỳ, cho thấy áp lực vay vốn chưa giảm.
 
-    - VHM giảm 4,81%, VRE giảm 6,91% cùng phiên cho thấy lực bán không chỉ nhắm VIC
-    mà lan sang cả bất động sản.
+    - **Tuyên bố lãi** tại ĐHCĐ 22/4 nhắm tới hoà vốn dòng tiền toàn cầu năm 2027,
+    nhưng việc tách pháp nhân chỉ ba tuần sau lại cho thấy mảng xe điện cần cách ly
+    rủi ro trước khi huy động vốn lớn.
 
-    - Nợ phải trả Vingroup đã ở mức 1.024 triệu tỷ, tăng 5,8% so đầu kỳ, áp lực vốn
-    vẫn hiện hữu.
+    - Phiên 13/5, **VHM giảm 4,81%**, **VRE giảm 6,91%**, ba mã VIC-VHM-VRE lấy mất
+    **10 điểm VN-Index**. Khối ngoại bán ròng **1.430 tỷ đồng** riêng hôm đó.
+
+    - Giao dịch VIC vượt **1.300 tỷ đồng**, VHM hơn **1.700 tỷ đồng**, lực bán sàn
+    cho thấy NĐT trong nước cũng không tin vào lời lãi nhanh.
 
 
-    Nếu bạn đang cân nhắc mua lại, hãy đợi VIC về vùng 180.000-185.000 trong quý 2,
-    trigger khi có bằng chứng dòng tiền từ mảng xe điện ổn định hoặc khối ngoại ngừng
-    bán ròng hai phiên liên tiếp. Đừng vội, rủi ro cấu trúc vẫn lớn hơn lời nói.'
+    Nếu bạn đang nghĩ quay lại, chờ quý 2 công bố kết quả thực tế của VinFast Việt
+    Nam trước. Đợi giá VIC về vùng 180.000 đồng hoặc tin tách pháp nhân rõ ràng mới
+    cân nhắc bắt lại.'
   word_count: 248
   model: grok-4.3
-  generated_at: '2026-05-14T07:54:51.198239+00:00'
-  tokens_in: 5258
-  tokens_out: 627
-  cost_usd: 0.025179
+  generated_at: '2026-05-14T08:11:18.718606+00:00'
+  tokens_in: 14557
+  tokens_out: 797
+  cost_usd: 0.055626
   step_log:
     model: grok-4.3
-    duration_ms: 19928
+    duration_ms: 15561
     tokens:
-      prompt_tokens: 5258
-      completion_tokens: 627
-    chosen_question_idx: 0
-    chosen_pick_reason: Câu khai thác trực tiếp căng thẳng 21 ngày giữa lời lãi và
-      hành động tách pháp nhân, phù hợp NĐT đang cân nhắc quay lại sau bán sàn.
+      prompt_tokens: 14557
+      completion_tokens: 797
+    chosen_question_idx: 2
+    chosen_pick_reason: Câu paradox khai thác đúng căng thẳng 21 ngày giữa lời nói
+      và hành động, phù hợp NĐT đang cân nhắc bắt đáy VIC.
     skip_reasons:
-      '1': so sánh khối ngoại quá rộng, thiếu góc nhìn cá nhân
-      '2': thái độ bearish quá mạnh, dễ làm NĐT hoảng
+      '0': Angle why_now quá chung, dễ trùng lặp
+      '1': So sánh khối ngoại cần dữ liệu dòng tiền sâu hơn
     data_trail:
+    - source: Finpath_API/balance_sheet/VIC
+      fetched: Nợ phải trả quý 1/2026 đạt 1.024 triệu tỷ, tỷ lệ nợ/tài sản 86,9%
+      purpose: kiểm chứng áp lực nợ sau tách pháp nhân
+      supports_argument: Bullet 1 + Opening
     - source: Raw news from https://baodautu.vn/chung-khoan-phien-135-co-phieu-nhom-vingroup-bien-dong-manh-keo-giam-vn-index-d595005.html
       fetched: Full article content provided in prompt
       purpose: primary source
       supports_argument: Opening + body backbone
-    tool_history: []
+    tool_history:
+    - name: finpath_balance_sheet
+      args:
+        ticker: VIC
+      ok: true
+      source: Finpath_API/balance_sheet/VIC
+      summary: dict keys=['yearlyProfits', 'quarterlyProfits']
+    - name: web_search
+      args:
+        query: VinFast nộp hồ sơ SEC tách pháp nhân 13/5
+        max_results: 3
+      ok: false
+      source: 'WebSearch: ''VinFast nộp hồ sơ SEC tách pháp nhân 13/5'' (no Tavily
+        key in secrets.yaml)'
+      summary: 'error: tavily_disabled'
     gates_passed: true
     format_id_used: standard_qa
     format_escalation_reason: null
-    insight_final: Lời lãi 22/4 chưa đủ thuyết phục khi hành động 13/5 cho thấy áp
-      lực tài chính vẫn cần cách ly.
+    insight_final: Tách pháp nhân cho thấy rủi ro tài chính mảng xe điện vẫn cao dù
+      có lời tuyên bố.
     key_view: thận trọng
     variety_guard_angle: 21 ngày từ lời tuyên bố lãi tới đơn xin tách pháp nhân
 thumb_url: https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/VIC-20260514-0754-vic-tach-vinfast-chi-21-ngay-sau-loi-lai-ndt-quay-lai-hay-76632114.webp
 costs:
-  grok_tokens_in: 5258
-  grok_tokens_out: 627
-  grok_cost_usd: 0.025179
+  grok_tokens_in: 14557
+  grok_tokens_out: 797
+  grok_cost_usd: 0.055626
   image_cost_usd: 0.04
-  total_cost_usd: 0.065179
+  total_cost_usd: 0.095626
 ---
 
 <!-- left -->

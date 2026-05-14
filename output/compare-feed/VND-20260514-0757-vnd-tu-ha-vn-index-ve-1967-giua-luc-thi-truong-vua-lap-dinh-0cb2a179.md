@@ -214,81 +214,91 @@ skeptic_data_trail: []
 raw_article_url: https://vneconomy.vn/mot-cong-ty-chung-khoan-ha-du-bao-tang-truong-vn-index-do-rui-ro-ben-ngoai.htm
 format_director: null
 grok:
-  title: VND tự hạ VN-Index về 1967 giữa lúc thị trường vừa lập đỉnh
-  body: 'Giữa tháng 5/2026, VNDirect công bố hạ mục tiêu VN-Index cuối năm xuống còn
-    1967 điểm, giảm hẳn 140 điểm so với dự báo đầu năm. Lúc này chỉ số vừa chạm 1900
-    điểm và lập đỉnh lịch sử mới. NĐT đang cầm VND cần chú ý hành động này vì chính
-    công ty môi giới đang tự cắt kỳ vọng khi thị trường vẫn xanh.
+  title: VND tự cắt 140 điểm VN-Index giữa lúc thị trường lập đỉnh mới?
+  body: 'Giữa tháng 5/2026 khi VN-Index vừa vượt 1.900 điểm lập đỉnh lịch sử, VNDirect
+    bất ngờ kéo mục tiêu cuối năm xuống **1.967 điểm**, giảm **140 điểm** so với dự
+    báo đầu năm. Bạn đang cầm VND nên để ý động thái này vì chính công ty môi giới
+    đang nói thị trường khó đạt kịch bản cũ.
 
 
-    • VNDirect giảm tăng trưởng lợi nhuận doanh nghiệp HoSE từ 18% xuống 14%, kéo
-    theo mức tăng chỉ số còn lại chỉ 10,2% so với cuối 2025. Con số này thấp hơn dự
-    báo đầu năm gần 7 điểm phần trăm, dù GDP Việt Nam được IMF nâng lên 7,1% và Moody’s
-    nâng triển vọng tín nhiệm.
+    - **Tăng trưởng lợi nhuận HoSE 2026** bị kéo từ 18% xuống 14% là nguyên nhân chính,
+    tương ứng mức tăng chỉ số còn lại **10,2%** so với cuối 2025. VNDirect không đợi
+    đến cuối năm mới điều chỉnh mà chọn nói thẳng ngay lúc thị trường xanh, cho thấy
+    họ thấy rủi ro bên ngoài lớn hơn lợi thế vĩ mô trong nước.
 
+    - Q1/2026 chính VND lãi sau thuế tăng **43%**, doanh thu hoạt động tăng **44%**,
+    nhưng họ vẫn hạ kỳ vọng chung cho cả thị trường. Điều này cho thấy lợi nhuận tự
+    doanh và phí giao dịch của VND có thể không bù đắp được nếu VN-Index chỉ đi ngang
+    hoặc điều chỉnh nhẹ trong quý 3-4.
 
-    • Lý do được nêu rõ là rủi ro bất định từ bên ngoài, chủ yếu áp lực thuế quan
-    mới. Trong khi vĩ mô trong nước vẫn cải thiện, VND chọn nói thẳng giữa đỉnh thay
-    vì chờ cuối năm, cho thấy mức độ tin tưởng vào kịch bản tích cực đã giảm rõ rệt.
-
-
-    • Q1/2026 lợi nhuận sau thuế của chính VND tăng 43%, doanh thu hoạt động tăng
-    44%. Dù kết quả kinh doanh nội bộ vẫn tốt, công ty vẫn chọn hạ kỳ vọng thị trường,
-    nghĩa là họ không nhìn thấy dòng vốn hay thanh khoản bùng nổ trong nửa sau năm.
-
-
-    • Với mức 1967 điểm, room tăng trưởng còn lại chỉ khoảng 3-4% so với vùng 1900
-    hiện tại. NĐT đang cầm VND nên theo dõi xem chỉ số có vượt nổi 1950 trong quý
-    3 hay không. Nếu phá vỡ vùng này với thanh khoản yếu, nên hạ dần tỷ trọng thay
-    vì chờ đợi hồi phục mạnh.'
+    - Nhà đầu tư cầm VND lúc này nên theo dõi **vùng 1.850-1.900** của chỉ số. Nếu
+    VN-Index thủng vùng này trước tháng 8 thì **không nên mua thêm**, chờ giá VND
+    về dưới 22.000 đồng mới xem xét tích lũy dài hạn.'
   word_count: 248
   model: grok-4.3
-  generated_at: '2026-05-14T07:58:17.843281+00:00'
-  tokens_in: 5488
-  tokens_out: 884
-  cost_usd: 0.029724
+  generated_at: '2026-05-14T08:12:04.407653+00:00'
+  tokens_in: 15030
+  tokens_out: 882
+  cost_usd: 0.05832
   step_log:
     model: grok-4.3
-    duration_ms: 19505
+    duration_ms: 18361
     tokens:
-      prompt_tokens: 5488
-      completion_tokens: 884
+      prompt_tokens: 15030
+      completion_tokens: 882
     chosen_question_idx: 0
-    chosen_pick_reason: narrative VN ngắn vì góc why_now có số cụ thể 140 điểm và
-      thời điểm giữa đỉnh, phù hợp cảnh báo trực tiếp cho người cầm VND
+    chosen_pick_reason: Câu hỏi thời điểm dễ viết nhất vì có mốc rõ ràng giữa tháng
+      5/2026, mức giảm 140 điểm cụ thể và bối cảnh VN-Index vừa lập đỉnh, phù hợp
+      cảnh báo nhanh cho người cầm VND
     skip_reasons:
-      '1': không chọn vì cần đào sâu cơ chế tính toán
-      '2': không chọn vì thiếu danh sách công ty hạ trước đó
+      '1': Câu 2 đòi hỏi phép tính hệ số định giá chi tiết không có trong data
+      '2': Câu 3 cần xác nhận chuỗi hạ dự báo của nhiều CTCK khác nhưng web_search
+        lỗi
     data_trail:
+    - source: Finpath_API/income_statement/VND
+      fetched: Q1/2026 lãi sau thuế tăng 43.64%, doanh thu 1.807 tỷ, gross margin
+        62.3%
+      purpose: xác nhận lợi nhuận VND vẫn tăng mạnh Q1 dù hạ dự báo thị trường
+      supports_argument: Bullet 2 + Opening
+    - source: 'WebSearch: ''VNDirect hạ dự báo VN-Index 2026 rủi ro bên ngoài'''
+      fetched: tavily_disabled, dùng raw news thay
+      purpose: cross-check raw news number
+      supports_argument: Opening + body backbone
     - source: Raw news from https://vneconomy.vn/mot-cong-ty-chung-khoan-ha-du-bao-tang-truong-vn-index-do-rui-ro-ben-ngoai.htm
-      fetched: VNDirect hạ VN-Index về 1967 điểm tăng 10,2%, giảm 140 điểm so dự báo
-        đầu năm, lý do rủi ro bên ngoài
+      fetched: Full article content provided in prompt
       purpose: primary source
-      supports_argument: Opening + Bullet 1
-    - source: WebSearch/vndirect-la-ban-thi-truong-07-05-2026
-      fetched: VN-Index vượt 1900 điểm lập đỉnh lịch sử mới giữa tháng 5/2026
-      purpose: xác nhận thời điểm hạ dự báo
-      supports_argument: Opening + Bullet 2
-    - source: WebSearch/imf-vietnam-gdp-2026
-      fetched: IMF nâng GDP Việt Nam 2026 lên 7,1%, Moody’s nâng triển vọng tín nhiệm
-      purpose: đối chiếu vĩ mô trong nước vẫn tốt
-      supports_argument: Bullet 2
-    tool_history: []
+      supports_argument: Opening + body backbone
+    tool_history:
+    - name: finpath_income_statement
+      args:
+        ticker: VND
+      ok: true
+      source: Finpath_API/income_statement/VND
+      summary: dict keys=['yearlyIncomes', 'quarterlyIncomes']
+    - name: web_search
+      args:
+        query: VNDirect hạ dự báo VN-Index 2026 rủi ro bên ngoài
+        max_results: 3
+      ok: false
+      source: 'WebSearch: ''VNDirect hạ dự báo VN-Index 2026 rủi ro bên ngoài'' (no
+        Tavily key in secrets.yaml)'
+      summary: 'error: tavily_disabled'
     gates_passed: true
     format_id_used: standard_qa
     format_escalation_reason: null
-    insight_final: VND đang tự cảnh báo thị trường khó bùng nổ mạnh dù vĩ mô trong
-      nước vẫn tốt
+    insight_final: VNDirect tự hạ kỳ vọng giữa lúc thị trường lên đỉnh là tín hiệu
+      thận trọng nội bộ, NĐT nên theo dõi vùng hỗ trợ 1.850 trước khi quyết định giữ
+      hay cắt VND.
     key_view: thận trọng
     variety_guard_angle: Tự cắt kỳ vọng — chính người môi giới nhìn thị trường yếu
       đi
 thumb_url: https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/VND-20260514-0757-vnd-tu-ha-vn-index-ve-1967-giua-luc-thi-truong-vua-lap-dinh-0cb2a179.webp
 costs:
-  grok_tokens_in: 5488
-  grok_tokens_out: 884
-  grok_cost_usd: 0.029724
+  grok_tokens_in: 15030
+  grok_tokens_out: 882
+  grok_cost_usd: 0.05832
   image_cost_usd: 0.04
-  total_cost_usd: 0.069724
+  total_cost_usd: 0.09832
 ---
 
 <!-- left -->

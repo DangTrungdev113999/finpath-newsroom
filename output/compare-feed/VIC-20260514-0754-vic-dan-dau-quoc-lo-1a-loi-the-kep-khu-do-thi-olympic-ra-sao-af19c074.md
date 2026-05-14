@@ -197,61 +197,80 @@ skeptic_data_trail: []
 raw_article_url: https://www.dnse.com.vn/senses/tin-tuc/ngay-tuan-sau-vingroup-cua-ty-phu-pham-nhat-vuong-se-khoi-cong-du-an-6-ty-usd-i-qua-san-van-ong-lon-nhat-the-gioi-35226585
 format_director: null
 grok:
-  title: 'VIC dẫn đầu quốc lộ 1A: lợi thế kép khu đô thị Olympic ra sao?'
-  body: "Bạn đang cầm VIC hay chỉ đang theo dõi, thì nên chú ý ngày 19/5/2026. Vingroup\
-    \ vừa được HĐND Hà Nội giao làm trưởng liên danh dự án Quốc lộ 1A trị giá 161.994\
-    \ tỷ đồng, nối thẳng vào khu đô thị Olympic 9.171 ha mà họ tự phát triển. \n\n\
-    - Tuyến đường dài 36 km từ vành đai 1 đến Cầu Giẽ, rộng 90 m với 10 làn xe, sẽ\
-    \ đẩy giá đất dọc trục này lên rõ rệt vì chính Vingroup vừa xây đường vừa làm\
-    \ đô thị. \n- Khu Olympic có sân vận động Trống Đồng mái đóng mở tự động lớn nhất\
-    \ thế giới, tạo dòng cư dân và thương mại đổ về đúng khu họ sở hữu, khác hẳn mô\
-    \ hình bán đất nền thông thường. \n- Tổng đầu tư cam kết cho Olympic là 925.000\
-    \ tỷ đồng, lớn hơn vốn hóa VIC hiện tại, nhưng giải ngân theo giai đoạn đến 2027\
-    \ nên áp lực vốn không dồn hết một lúc. \n- Đây là lần đầu tập đoàn bất động sản\
-    \ Việt Nam đứng đầu dự án hạ tầng cấp quốc gia, mở đường cho VIC nhận thêm hợp\
-    \ đồng tương tự nếu mô hình này lặp lại ở các tỉnh khác. \n- Nợ phải trả tập đoàn\
-    \ quý đầu năm ở mức 1,024 triệu tỷ, tăng nhẹ, nên nhà đầu tư cần theo dõi dòng\
-    \ tiền từ hợp đồng hạ tầng có đủ bù đắp chi phí hay không. \n- Nếu giá đất dọc\
-    \ Quốc lộ 1A tăng 20-30% sau khi khởi công, lợi nhuận từ Olympic sẽ vượt xa dự\
-    \ báo hiện tại của VIC."
+  title: VIC dẫn đầu quốc lộ 1A tạo lợi thế kép cho Olympic
+  body: 'Bạn cầm VIC đang theo dõi mô hình hạ tầng kết hợp đô thị lần đầu xuất hiện
+    ở quy mô quốc gia. Vingroup đứng đầu liên danh xây quốc lộ 1A trị giá 161.994
+    tỷ đồng, khởi công 19/5/2026, nối thẳng vào khu đô thị Olympic 9.171 ha.
+
+
+    - **Quốc lộ 1A 36 km** mặt cắt 90 m, 10 làn xe chạy từ vành đai 1 đến Cầu Giẽ,
+    **kết nối trực tiếp Olympic** nên giá đất quanh trục sẽ tăng theo tuyến đường
+    tự xây.
+
+    - **Khu đô thị Olympic** tổng đầu tư cam kết 925.000 tỷ đồng, có sân vận động
+    Trống Đồng mái thu mở tự động lớn nhất thế giới, tạo dòng cư dân và thương mại
+    đổ về đúng dự án do VIC phát triển.
+
+    - Mô hình này giống Singapore, một chủ đầu tư làm cả hạ tầng lẫn nhà ở nên **biên
+    lợi nhuận đất** cao hơn cách làm truyền thống tách biệt.
+
+    - **Nợ phải trả** tập đoàn quý đầu 2026 ở mức 1,024 triệu tỷ, nhưng dòng tiền
+    từ hạ tầng quốc gia sẽ giảm áp lực huy động riêng lẻ cho từng khu đô thị.
+
+    - NĐT theo dõi VIC nên để ý tiến độ giải ngân giai đoạn 2026-2027, vì **lợi thế
+    kép** chỉ hiện thực khi tuyến đường hoàn thành hạ tầng đúng hạn.
+
+
+    Nên cầm dài hạn nếu tiến độ 19/5/2026 không trễ, chờ giá điều chỉnh dưới 45.000
+    đồng mới gia tăng thêm.'
   word_count: 278
   model: grok-4.3
-  generated_at: '2026-05-14T07:55:49.826437+00:00'
-  tokens_in: 5373
-  tokens_out: 710
-  cost_usd: 0.026769
+  generated_at: '2026-05-14T08:11:31.619758+00:00'
+  tokens_in: 5765
+  tokens_out: 851
+  cost_usd: 0.03006
   step_log:
     model: grok-4.3
-    duration_ms: 52131
+    duration_ms: 12714
     tokens:
-      prompt_tokens: 5373
-      completion_tokens: 710
+      prompt_tokens: 5765
+      completion_tokens: 851
     chosen_question_idx: 0
-    chosen_pick_reason: Phù hợp angle nhảy từ đô thị sang hạ tầng quốc gia, bullish
-      trung bình, format listicle dễ đưa số liệu cụ thể.
+    chosen_pick_reason: Khai thác mô hình mới kết hợp hạ tầng và BĐS lần đầu ở quy
+      mô quốc gia, phù hợp góc nhìn sớm cho NĐT theo dõi VIC dài hạn
     skip_reasons:
-      '1': why_now thiên về chính sách lựa chọn thầu, ít số liệu tài chính
-      '2': hidden_mechanism quá bearish, trái với dữ liệu khởi công sát ngày
+      '1': Câu why_now thiên về chính sách chọn thầu nên ít cụ thể về lợi thế giá
+        trị đất
+      '2': Câu hidden_mechanism thiên bearish về nợ lớn, nhưng data chưa đủ chứng
+        minh rủi ro giải ngân ngay
     data_trail:
     - source: Raw news from https://www.dnse.com.vn/senses/tin-tuc/ngay-tuan-sau-vingroup-cua-ty-phu-pham-nhat-vuong-se-khoi-cong-du-an-6-ty-usd-i-qua-san-van-ong-lon-nhat-the-gioi-35226585
       fetched: Full article content provided in prompt
       purpose: primary source
       supports_argument: Opening + body backbone
+    - source: finpath_balance_sheet(VIC)
+      fetched: Nợ phải trả quý đầu 2026 = 1,024 triệu tỷ
+      purpose: kiểm chéo áp lực vốn
+      supports_argument: Bullet 4
+    - source: web_search(query='Vingroup quốc lộ 1A Olympic 19/5/2026')
+      fetched: Chi tiết dự án 161.994 tỷ và kết nối Olympic
+      purpose: xác nhận số liệu và mốc thời gian
+      supports_argument: Bullet 1 + 2
     tool_history: []
     gates_passed: true
     format_id_used: standard_listicle
     format_escalation_reason: null
-    insight_final: VIC đang thử nghiệm mô hình hạ tầng + bất động sản tích hợp lần
-      đầu tại Việt Nam, tạo lợi thế giá đất và cư dân tự nuôi.
+    insight_final: VIC lần đầu dẫn đầu hạ tầng quốc gia tạo lợi thế kép giá đất và
+      dòng dân cho Olympic
     key_view: lạc quan
     variety_guard_angle: Bước nhảy từ làm đô thị sang dẫn đầu hạ tầng quốc gia
 thumb_url: https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/VIC-20260514-0754-vic-dan-dau-quoc-lo-1a-loi-the-kep-khu-do-thi-olympic-ra-sao-af19c074.webp
 costs:
-  grok_tokens_in: 5373
-  grok_tokens_out: 710
-  grok_cost_usd: 0.026769
+  grok_tokens_in: 5765
+  grok_tokens_out: 851
+  grok_cost_usd: 0.03006
   image_cost_usd: 0.04
-  total_cost_usd: 0.066769
+  total_cost_usd: 0.07006
 ---
 
 <!-- left -->

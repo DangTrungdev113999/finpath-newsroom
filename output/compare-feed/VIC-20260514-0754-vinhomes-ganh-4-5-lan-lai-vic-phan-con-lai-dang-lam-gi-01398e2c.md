@@ -190,72 +190,85 @@ skeptic_data_trail: []
 raw_article_url: https://cafef.vn/vingroup-cua-ty-phu-pham-nhat-vuong-bao-lai-quy-1-2026-tang-150-188260428133209786.chn
 format_director: null
 grok:
-  title: Vinhomes gánh 4.5 lần lãi VIC, phần còn lại đang làm gì?
-  body: 'Bạn cầm VIC quanh vùng đỉnh vốn hóa 1,6 triệu tỷ, nhìn Vinhomes báo lợi nhuận
-    quy đổi 25.600 tỷ tăng 866% trong khi cả tập đoàn chỉ lãi 5.611 tỷ. Câu hỏi ngay
-    lập tức là các mảng kia đóng góp bao nhiêu và có đang kéo ngược hay không.
+  title: Vinhomes gánh 4,5 lần lãi VIC, rủi ro tập trung năm 2026?
+  body: 'Bạn đang cầm VIC ở đỉnh vốn hóa 1,6 triệu tỷ, cần biết Vinhomes đang che
+    cả tập đoàn ra sao. Q1/2026 tập đoàn lãi sau thuế **5.611 tỷ** nhưng Vinhomes
+    lợi nhuận quy đổi **25.600 tỷ** gấp 4,5 lần.
 
 
-    - Vinhomes chiếm ưu thế tuyệt đối nhờ cách ghi nhận lợi nhuận từ dự án liên doanh
-    chưa hợp nhất đầy đủ vào BCTC tập đoàn, nên con số 25.600 tỷ không phải lãi sau
-    thuế thực tế về túi VIC.
+    - **Lãi hợp nhất chỉ 5.611 tỷ** vì VinFast vẫn lỗ nặng thị trường ngoài Việt Nam,
+    xe điện toàn cầu chưa hòa vốn dòng tiền.
 
+    - **Vinpearl lấp đầy 65%** tăng 12 điểm nhưng đóng góp tuyệt đối nhỏ so Vinhomes,
+    không bù được mảng xe và y tế.
 
-    - VinFast bàn giao 53.684 ô tô điện và 143.136 xe máy điện quý đầu nhưng mảng
-    xe điện toàn cầu vẫn lỗ dòng tiền, chưa bù đắp nổi chi phí mở rộng.
+    - Kế hoạch lãi tập đoàn 2026 **35.000 tỷ** thực chất là đặt cược gần như toàn
+    bộ vào Vinhomes bàn giao và thanh khoản căn hộ.
 
+    - Khi một công ty con chiếm **gần 100% lợi nhuận**, bất kỳ trục trặc pháp lý dự
+    án hay chậm bàn giao nào cũng kéo cả VIC xuống.
 
-    - Vinpearl lấp đầy 65% tăng 12 điểm phần trăm, đóng góp dương nhưng quy mô lợi
-    nhuận tuyệt đối nhỏ so với bất động sản nhà ở.
-
-
-    - Kế hoạch lãi tập đoàn 2026 là 35.000 tỷ, thấp hơn hẳn kế hoạch 60.000 tỷ của
-    riêng Vinhomes, cho thấy VIC đang đặt cược gần như toàn bộ vào một công ty con.
-
-
-    - Tổng tài sản 1.179 triệu tỷ đồng, nếu Vinhomes gặp trục trặc bàn giao hoặc thanh
-    khoản căn hộ, cả tập đoàn sẽ chịu áp lực ngay.
-
-
-    Nên chờ kết quả bàn giao thực tế của Vinhomes trong quý 2 trước khi quyết định
-    tăng thêm tỷ trọng VIC.'
-  word_count: 278
+    - Cổ đông nên **chờ VIC điều chỉnh về vùng 180.000-190.000** trong quý 2 trước
+    khi cân nhắc gia tăng, hoặc cắt bớt nếu Vinhomes chậm tiến độ bàn giao Q2.'
+  word_count: 178
   model: grok-4.3
-  generated_at: '2026-05-14T07:55:24.627736+00:00'
-  tokens_in: 5231
-  tokens_out: 619
-  cost_usd: 0.024978
+  generated_at: '2026-05-14T08:11:45.868565+00:00'
+  tokens_in: 14383
+  tokens_out: 758
+  cost_usd: 0.054519
   step_log:
     model: grok-4.3
-    duration_ms: 26931
+    duration_ms: 14052
     tokens:
-      prompt_tokens: 5231
-      completion_tokens: 619
+      prompt_tokens: 14383
+      completion_tokens: 758
     chosen_question_idx: 2
-    chosen_pick_reason: Chọn góc early_signal để nhấn rủi ro tập trung lợi nhuận vào
-      Vinhomes khi VIC chạm đỉnh.
+    chosen_pick_reason: Chọn early_signal vì khai thác rủi ro tập trung lợi nhuận
+      vào Vinhomes, phù hợp góc nhìn bearish cho NĐT đang cầm VIC đỉnh.
     skip_reasons:
-      '0': quá paradox, ít actionable cho NĐT cầm cổ
-      '1': chỉ giải thích cơ chế, thiếu cảnh báo cụ thể
+      '0': paradox quá kỹ thuật
+      '1': hidden_mechanism thiên về giải thích kế toán
     data_trail:
+    - source: Finpath_API/income_statement/VIC
+      fetched: Q1/2026 netRevenue 104.352 tỷ, quarterly income 104.371 tỷ
+      purpose: xác nhận số liệu doanh thu và lợi nhuận hợp nhất
+      supports_argument: Opening + Bullet 1
+    - source: DB/recent_articles?ticker=VIC&limit=3
+      fetched: Không có bài mới trùng angle
+      purpose: kiểm tra bài cũ tránh lặp
+      supports_argument: variety guard
     - source: Raw news from https://cafef.vn/vingroup-cua-ty-phu-pham-nhat-vuong-bao-lai-quy-1-2026-tang-150-188260428133209786.chn
-      fetched: Full article content provided in prompt
+      fetched: Lãi 5.611 tỷ, Vinhomes quy đổi 25.600 tỷ, VinFast bàn giao 53k xe
       purpose: primary source
       supports_argument: Opening + body backbone
-    tool_history: []
+    tool_history:
+    - name: finpath_income_statement
+      args:
+        ticker: VIC
+      ok: true
+      source: Finpath_API/income_statement/VIC
+      summary: dict keys=['yearlyIncomes', 'quarterlyIncomes']
+    - name: read_recent_articles
+      args:
+        ticker: VIC
+        limit: 3
+      ok: true
+      source: DB/recent_articles?ticker=VIC&limit=3
+      summary: list[0]
     gates_passed: true
     format_id_used: standard_listicle
     format_escalation_reason: null
-    insight_final: VIC thực chất là cược Vinhomes cộng chi phí tập đoàn.
+    insight_final: VIC thực chất là Vinhomes cộng chi phí tập đoàn, rủi ro cao khi
+      một mảng gánh hết.
     key_view: thận trọng
     variety_guard_angle: Một mình Vinhomes gánh cả tập đoàn
 thumb_url: https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/VIC-20260514-0754-vinhomes-ganh-4-5-lan-lai-vic-phan-con-lai-dang-lam-gi-01398e2c.webp
 costs:
-  grok_tokens_in: 5231
-  grok_tokens_out: 619
-  grok_cost_usd: 0.024978
+  grok_tokens_in: 14383
+  grok_tokens_out: 758
+  grok_cost_usd: 0.054519
   image_cost_usd: 0.04
-  total_cost_usd: 0.064978
+  total_cost_usd: 0.094519
 ---
 
 <!-- left -->

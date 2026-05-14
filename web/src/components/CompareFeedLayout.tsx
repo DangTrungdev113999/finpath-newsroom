@@ -6,7 +6,6 @@ import { RightColumn } from './RightColumn';
 import { CommentSection } from './CommentSection';
 import { TTSButton } from './TTSButton';
 import { ModelToggle, type ArticleModel } from './ModelToggle';
-import { MissingModelNotice } from './MissingModelNotice';
 import { formatCrawledAt } from '../lib/format';
 import { useModelPreference } from '../lib/useModelPreference';
 
@@ -40,13 +39,26 @@ export function CompareFeedLayout({
   const [localModel, setLocalModel] = useState<ArticleModel>(globalPref.model);
   const model = modelScope === 'local' ? localModel : globalPref.model;
   const setModel = modelScope === 'local' ? setLocalModel : globalPref.setModel;
-  const showGemini = model === 'gemini' && geminiAvailable;
-  const showGrok = model === 'grok' && grokAvailable;
-  // NO silent fallback: when the user picked a side that didn't run for this
-  // article, render an editorial "missing" notice instead of Claude's text.
-  const isMissing =
-    (model === 'gemini' && !geminiAvailable) ||
-    (model === 'grok' && !grokAvailable);
+  // Silent fallback chain — when the user has Gemini globally selected but
+  // this article only has Grok / Claude, render the available side instead
+  // of a missing-notice. Order: user preference → other AI side → Claude
+  // default. `effectiveModel` is what actually drives the byline + body.
+  const effectiveModel: ArticleModel =
+    model === 'gemini'
+      ? geminiAvailable
+        ? 'gemini'
+        : grokAvailable
+          ? 'grok'
+          : 'claude'
+      : model === 'grok'
+        ? grokAvailable
+          ? 'grok'
+          : geminiAvailable
+            ? 'gemini'
+            : 'claude'
+        : 'claude';
+  const showGrok = effectiveModel === 'grok';
+  const showGemini = effectiveModel === 'gemini';
   const displayTitle = showGrok
     ? meta.grok!.title
     : showGemini
@@ -79,11 +91,7 @@ export function CompareFeedLayout({
   return (
     <article className="max-w-7xl mx-auto px-4 py-6">
       <header className={showRight ? '' : 'max-w-3xl mx-auto'}>
-        {isMissing ? (
-          <MissingModelNotice slot="article-title" model={model} />
-        ) : (
-          <h1 className="leading-tight">{displayTitle}</h1>
-        )}
+        <h1 className="leading-tight">{displayTitle}</h1>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4">
           <p className="!m-0 min-w-0 text-sm italic text-fg-3 sm:flex-1">
             {formatCrawledAt(meta.crawled_at)}
@@ -106,7 +114,7 @@ export function CompareFeedLayout({
               claudeAvailable={claudeAvailable}
               labelMode="hover"
             />
-            {!isMissing && <TTSButton text={displayBody} />}
+            <TTSButton text={displayBody} />
           </div>
         </div>
       </header>
@@ -115,7 +123,7 @@ export function CompareFeedLayout({
           the body. In FULL mode (showRight=true) the image is no longer
           rendered here — it moves INTO the left grid column below so it
           shares width with the article body, never spans the right column. */}
-      {!showRight && meta.thumb_url && !isMissing && (
+      {!showRight && meta.thumb_url && (
         <figure className="mt-4 mb-2 max-w-3xl mx-auto aspect-video overflow-hidden rounded-lg border border-fg-4/30 bg-fg-4/10">
           <img
             src={meta.thumb_url}
@@ -128,26 +136,7 @@ export function CompareFeedLayout({
 
       <hr className={`my-5 border-fg-4/40 ${showRight ? '' : 'max-w-3xl mx-auto'}`} />
 
-      {isMissing ? (
-        showRight ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-            <MissingModelNotice
-              slot="article-body"
-              model={model}
-              ticker={meta.ticker}
-            />
-            <RightColumn meta={meta} />
-          </div>
-        ) : (
-          <div className="max-w-3xl mx-auto">
-            <MissingModelNotice
-              slot="article-body"
-              model={model}
-              ticker={meta.ticker}
-            />
-          </div>
-        )
-      ) : showRight ? (
+      {showRight ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
           <div>
             {/* Full-mode hero image — constrained to the left column width
