@@ -42,64 +42,40 @@ Bài fail 1/8 gate → tự reject + rewrite, KHÔNG persist:
 5. **stance_consistency** (V5.0) — Master tone matches brief.stance_directive.direction. Layer 1 keyword ratio + Layer 2 Skeptic `stance_drift` angle.
 6. **sentence_density** (V5.0) — ≥80% câu trong body có ≥1 specific element (số / tên riêng / comparative / time marker / mechanism word / action verb). Layer 2 Skeptic `lifeless_writing` angle.
 
-### Per-format (2 — V5.1 PATCH: title_pattern dropped to Plan C Headline agent)
+### Per-format (2)
 7. **word_count** — Per format range: flash_qa 100-150 / standard_qa 200-300 / standard_listicle 250-350 / standard_narrative 250-350.
 8. **body_pattern** — Per format structure: flash_qa paragraph only / standard_qa opening+bullets+closing / standard_listicle opening ngắn+dense bullets / standard_narrative flow paragraphs.
 
 V5.1.2 NEW Gate (separate): **em_dash_density** — max 1 em dash per 100 words (AI-tell signal, anti-clickbait).
 
-### Title pattern (Plan C — Headline agent Step 4.5)
-Title craft moved to Plan C (Headline Craft agent). Master returns body + insight + data_trail only — title generated post-Master by Headline agent.
+### Title pattern (V5.1.8 — Master self-craft)
+Title craft sống trong 10 master sector prompts (`.claude/agents/newsroom-master-*.md` Title craft block). Same V1.9 rules Gemini Writer + Grok Writer dùng. Master output JSON includes `title` field directly. No mechanical post-validate. No dedicated agent.
 
 Heading hợp lệ DUY NHẤT trong body Master: KHÔNG có heading. Skeptic append `## Góc nhìn ngược` riêng (không tính vào gates Master). KHÔNG dùng "Cần để ý" / "Key takeaway" / "Tóm lại" / "Tin chính" / "Điểm cốt lõi".
 
-## Headline Craft V1.5-lite (Step 4.5 — title agent dedicated)
+## V5.1.8 Master self-title + Opening rules (2026-05-14 — retires Headline Craft agent)
 
-Title craft tách dedicated agent vì sếp chê title. V5.1.2 PATCH: Master KHÔNG còn enforce title gate. V1.1: em dash `—` BANNED. V1.5-lite (2026-05-13 PM) drop word-bonus rubric (Pattern A pile-on) + add Hán-Việt/abbreviation hard criteria.
+Headline Craft agent + skill folder + `lib/headline_scorer.py` + 3 test files đã DELETE. Master 10 sector prompts embed shared Title craft + Cấm tuyệt đối + Opening rules block — copy pattern từ `prompts/gemini_writer.md` (proven Gemini+Grok parallel writers). Single source-of-truth = title section trong gemini_writer.md.
 
-### 8 hard criteria (V1.5-lite — flat keys)
+### Title craft (≤16 từ, có ticker) — embedded trong 10 master prompts
 
-1. **ticker_present** — 139 mã Finpath universe + group refs (Big4, tư nhân)
-2. **word_count_le_16** — V1.3 relaxed từ 12 (clarity > conciseness)
-3. **no_em_dash** (V1.1) — `—` U+2014 BANNED. Hyphen `-` + en dash `–` OK.
-4. **not_label_leak** (V1.2) — reject "Question"/"Declarative tension"/"Quote"/"Contrast verb" bare
-5. **not_orphan_number** (V1.3) — số/% MUST có subject trong 4 token; "ngành/nhóm" MUST có specifier
-6. **no_han_viet_formal** (V1.5 NEW) — title không chứa term trong `HAN_VIET_FORMAL_BAN` (độc bản/hội đủ/tái định giá/etc.)
-7. **abbreviation_expanded** (V1.5 NEW) — 3-4 letter upper MUST expand on first OR in NATURALIZED allowlist OR is Finpath ticker
-8. **plain_language** — no English jargon (except NATURALIZED) + no PR clickbait (cú nổ/bí mật/sốc/hot)
+- Clickbait element BẮT BUỘC: paradox / câu hỏi mở / số sốc + stake / metaphor cụ thể / identity framing.
+- Bland fact statement → FAIL.
+- Mẫu craft (4 lối preserved): Question / Declarative tension / Quote / Contrast verb.
+- Em dash `—` BANNED trong title.
+- Hán-Việt formal + báo chí thông cáo verbs + clickbait PR (cú nổ/bí mật/sốc/hot) BANNED.
 
-Plus `has_concrete_number` (info field, not in passed flag).
+### Opening rules (30-60 từ đầu body) — V5.1.8 NEW
 
-### 4 lối giật tít (V1.1 preserved)
+5 elements (≥3/5 required): tên cụ thể / số shock / direct address NĐT / stake explicit / bridge to body.
 
-| Lối | Definition | Khi nào |
-|---|---|---|
-| Question | Title kết bằng `?` | Body có nghịch lý hoặc câu hỏi sắc |
-| Declarative tension | 2 sự kiện đối lập (KHÔNG em dash) | Body 2 fact ngược chiều |
-| Quote | Quote ngắn CEO/CFO + context | Brief có quote ấn tượng |
-| Contrast verb | 2 chủ thể cạnh nhau với verb đối lập | Body so sánh 2 nhóm |
+4 pattern (skeleton, KHÔNG dập khuôn): Q (Hỏi thẳng) / S (Số cú tát + stake) / Q-vs-R (Quote vs Reality) / C (Cảnh cụ thể).
 
-### 6-point scoring V1.5-lite (drop word bonuses)
+5 anti-pattern BAN: "Theo báo cáo" / "Trong bối cảnh" / "Vừa qua" / "Đáng chú ý" / "Công bố/Ghi nhận/Bàn giao/Dự kiến/Thực hiện..."
 
-| Element | Points |
-|---|---|
-| has_concrete_number (number + subject, no orphan) | +2 |
-| Open question ending `?` | +1 |
-| Paradox pattern (X mà Y / thật ra / kỳ thực) | +1 |
-| Extra concise (≤10 từ) | +1 |
-| Has ticker | +1 |
+### Workflow (V5.1.8)
 
-DROPPED V1.2-V1.4 word bonuses (Pattern A pile-on cause): dramatic_verb +2, concrete_question_subject +1, self_explanatory +1, tension_word +1, is_bao_chi keyword check.
-
-### Benchmark V1.5-lite
-
-> **"STB sa thải 2.700 nhân viên, VPB tuyển 362. Bank nào đúng?"** — 10 từ, score 5/6 (Lối: Question/Declarative tension)
-
-### Workflow
-
-Master writes body + placeholder title → Headline agent (Sonnet, Step 4.5) picks 1 lối → generate 3 candidates cùng lối → score 8 hard criteria + 6-point rubric → pick best → UPDATE generated_news.title.
-
-Validation V1.5-lite: `final_title` MUST pass `check_hard_criteria()` (8 flat keys + `passed` flag) ELSE ValueError + halt pipeline.
+Master writes body + final title trong cùng JSON output. `public_slug` computed via `slugify.slugify_hook(title)` ngay Step 4 persist. KHÔNG retry, KHÔNG mechanical validate (giống Gemini/Grok parallel writers). 3-model toggle web cho user audit voice + clickbait quality side-by-side.
 
 Skeptic ⏸ PAUSED 2026-05-12 — `weak_title` angle deferred.
 
@@ -243,7 +219,7 @@ Lý do: nhiều Notion DB Bank trước đây cũng được fill bằng web sea
 - **V5.0 verdict line** — Closing 3 yếu tố mandatory: hướng + khung TG + action holder. Không "Cần theo dõi" chung chung.
 - **V5.0 format_id sticky** — Master nhận format từ Format Director (step 3.5). Chỉ escalate one-shot flash_qa → standard_qa khi data depth justifies.
 - **V5.0 contrarian-OK** — Stance KHÔNG cần khớp mood ngày. Mã đỏ vẫn có thể bullish, mã xanh có thể bearish — khi data justify.
-- **V5.1 title delegate** — Master KHÔNG còn enforce title gate (moved to Step 4.5 Headline). Master returns body + placeholder title; Headline overrides via UPDATE generated_news. 5 hard criteria + 4 lối + 8-point rubric.
+- **V5.1.8 Master self-title** — Master tự craft final title trong cùng Step 4 output. Title craft block embed trong 10 master prompts (mirror Gemini/Grok). No Headline agent, no mechanical post-validate. Opening rules (30-60 từ, 5 elements + 4 patterns + 5 ban).
 - **V1.1 em dash ban** — Em dash `—` (U+2014) BANNED trong title (AI-tell signal). Body em_dash_density ≤ 1 per 100 words.
 - **V5.1.6 intra-batch thesis dedup (2026-05-14)** — Trong 1 batch /tin, 2+ brief về cùng ticker MUST có **dominant_category KHÁC NHAU** (dominant = category xuất hiện nhiều nhất trong `deep_question_options[]`, tie-break = options[0]). Enforcement 3 lớp: (a) Story Editor Pass 4 preventive prompt — agent tự filter; (b) **Format Director step 3.5 Python deterministic backstop** — `lib.intra_batch_dedup.dedup_briefs_in_batch` set `master_decision='reject_dup_thesis'` cho brief weak hơn (less options / less data_trail_preview / less key_metric_count); (c) Pipeline Step 4 orchestrator filter — skip rows có `master_decision='reject_dup_thesis'` để KHÔNG spawn Master. Root cause fix cho MSN×2 + PLX×1 dup audit 2026-05-13.
 - **V1.9 hook clickbait element (2026-05-14)** — Title MUST chứa ≥1 yếu tố tạo curiosity gap TỪ bài: paradox "X nhưng Y" / câu hỏi mở / số sốc + stake / metaphor cụ thể / identity framing. Bland fact statement ("MSN lãi Q1 1.974 tỷ") → reject. Vẫn cấm vulgar PR clickbait (cú nổ / bí mật / sốc / hot / chấn động). Áp Headline Craft V1.9, Gemini Writer prompt, và Grok Writer prompt.
@@ -283,7 +259,7 @@ Skeptic Pass 1 form FRESH impression (đọc body ONLY, KHÔNG xem insight) → 
 | `lifeless_writing` (V5.0) | Body có ≥2 fluff sentence — Layer 2 Gate 6 sentence_density |
 | `verdict_weak` (V5.0) | Verdict pass regex nhưng mâu thuẫn nội tại — Layer 2 Gate 4 verdict_line |
 | `stance_drift` (V5.0) | Stance subtle drift even when keyword ratio passes — Layer 2 Gate 5 stance_consistency |
-| `weak_title` (V5.1 PATCH) | Title clickbait / không match body / fail Headline hard criteria — Layer 2 Plan C Headline agent |
+| `weak_title` (V5.1.8 — deferred) | Title weak relative to body — Skeptic paused, Master self-validates via embedded Title craft block instead |
 
 3 critique gần nhất KHÔNG dùng cùng angle 3 lần liên tiếp.
 

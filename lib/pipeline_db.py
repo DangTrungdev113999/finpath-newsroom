@@ -55,25 +55,16 @@ _STEP_3_5_REQUIRED: dict[str, type | tuple] = {
     "format_picks": list,
 }
 
-# V5.1 — Headline Craft step (Plan C — newsroom-headline-craft agent).
-# `hard_criteria_pass` is V1.1 nested dict structure — payload schema enforces
-# shape only; fail-loud check on `final_title` against check_hard_criteria
-# happens in validate_pipeline_step (V5.1+ gate) so weak titles cannot persist.
-_STEP_4_5_REQUIRED: dict[str, type | tuple] = {
-    **_OBSERVABILITY_REQUIRED,
-    "final_title": str,
-    "final_loi": str,
-    "picked_score": int,
-    "candidates": list,
-    "hard_criteria_pass": dict,
-}
+# V5.1.8 (2026-05-14): Headline Craft step (Plan C) REMOVED. Master self-crafts
+# title in step_4_master (10 sector prompts embed Title craft + Opening rules
+# block). No mechanical post-validate — accept Master output (same model as
+# Gemini Writer / Grok Writer self-titling).
 
 # Non-empty constraint per step (baseline — V5.0 dynamically adds `model`).
 _NON_EMPTY_FIELDS: dict[str, set[str]] = {
     "step_4_master": {"chosen_pick_reason", "data_trail"},
     "step_5_skeptic": {"angle", "verdict", "skeptic_data_trail"},
     "step_3_5_format_director": {"format_picks"},
-    "step_4_5_headline_craft": {"final_title", "final_loi"},
 }
 
 
@@ -111,17 +102,12 @@ def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str =
     }
     if is_v5_plus:
         required_map["step_3_5_format_director"] = _STEP_3_5_REQUIRED
-    if is_v5_1_plus:
-        required_map["step_4_5_headline_craft"] = _STEP_4_5_REQUIRED
+    # V5.1.8 (2026-05-14): step_4_5_headline_craft removed — Master self-titles.
 
     non_empty_fields = dict(_NON_EMPTY_FIELDS)
     if is_v5_plus:
         for step in ("step_4_master", "step_5_skeptic", "step_3_5_format_director"):
             non_empty_fields[step] = non_empty_fields.get(step, set()) | {"model"}
-    if is_v5_1_plus:
-        non_empty_fields["step_4_5_headline_craft"] = (
-            non_empty_fields.get("step_4_5_headline_craft", set()) | {"model"}
-        )
 
     required = required_map.get(step_key)
     if not required:
@@ -177,34 +163,6 @@ def validate_pipeline_step(step_key: str, payload: dict, pipeline_version: str =
             f"V5.0+ requires observability (model + duration_ms). "
             f"MUST dispatch via Task tool to enforce schema."
         )
-
-    # V1.6 — step_4_5_headline_craft fail-loud: final_title MUST pass 7 hard
-    # criteria (ticker_present + word_count_le_16 + no_em_dash + not_label_leak
-    # + no_han_viet_formal + abbreviation_expanded + plain_language).
-    # `not_orphan_number` + `vague_action_verbs` are soft hints — logged but
-    # do NOT halt. User feedback "không thích dập khuôn" — agent self-checks
-    # via craft + thesis anchor, soft hints inform without forcing rewrite.
-    if step_key == "step_4_5_headline_craft" and is_v5_1_plus:
-        from lib.headline_scorer import check_hard_criteria
-        title = payload.get("final_title", "")
-        if title:  # basic non-empty already enforced above; defensive
-            hc = check_hard_criteria(title)
-            if not hc.get("passed", False):
-                failed_keys: list[str] = []
-                # V1.6 — flat 7 hard keys (no nested dicts)
-                v1_6_hard_keys = [
-                    "ticker_present", "word_count_le_16", "no_em_dash",
-                    "not_label_leak", "no_han_viet_formal",
-                    "abbreviation_expanded", "plain_language",
-                ]
-                for key in v1_6_hard_keys:
-                    if not hc.get(key):
-                        failed_keys.append(key)
-                raise ValueError(
-                    f"pipeline_log[step_4_5_headline_craft].final_title fails V1.6 hard criteria: "
-                    f"{failed_keys} — title={title!r}. Headline agent emitted weak title; "
-                    f"MUST regenerate (max 2 retry) before persist."
-                )
 
 
 # V5.1.3 (F-5) — crawl_log schema validation after Editor V1 routes a row.
@@ -402,7 +360,8 @@ class PipelineDB:
             return
         cur = self.conn.execute("PRAGMA table_info(generated_news)")
         existing = {row["name"] for row in cur.fetchall()}
-        # V1.1 Headline Craft (Plan C C-6) — final crafted title from Step 4.5
+        # headline_final: legacy V1.1 column (Headline Craft retired V5.1.8).
+        # Kept for backward compat with pre-V5.1.8 rows; new rows write to `title` only.
         # V5.1.3 sector fields — denormalized from crawl_log for downstream consumers
         for col in (
             "headline_final",

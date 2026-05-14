@@ -50,7 +50,6 @@ Returns JSON on stdout:
 | 3 Story Editor | `newsroom-story-editor` | opus | 3.0 | 600s |
 | 3.5 Format Director | `newsroom-format-director` | sonnet | 0.8 | 180s |
 | 4 Master sector | `newsroom-master-<route>` | opus | 4.0 | 900s |
-| 4.5 Headline Craft | `newsroom-headline-craft` | sonnet | 1.0 | 300s |
 | 5 Skeptic (⏸ paused) | `newsroom-skeptic` | opus | 2.0 | 600s |
 | 9 Telegram | `newsroom-telegram-publisher` | haiku | 0.3 | 120s |
 

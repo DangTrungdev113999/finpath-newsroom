@@ -93,6 +93,6 @@ def test_dropped_rubric_label_leak():
 
 
 def test_dropped_bao_chi_quarter_pattern():
-    """V1.5-lite drops BAO_CHI_QUARTER_PATTERN (regex moved to local in headline_scorer)."""
+    """V1.5-lite drops BAO_CHI_QUARTER_PATTERN (V5.1.8: Headline retired — pattern obsolete)."""
     import lib.voice_rules as vr
     assert not hasattr(vr, "BAO_CHI_QUARTER_PATTERN")

@@ -68,7 +68,7 @@ Verify 3+ sources (cafef.vn / vietstock.vn / VASEP.com.vn / NDH.vn / báo cáo I
 - V1 Stance required (bài không có quan điểm = fail)
 - V2 No-hedging (LLM-as-judge — đảo sự thật test + direction test)
 - V3 Verdict line bắt buộc (direction + timeframe + holder action)
-- V4 Title delegate (Headline agent overrides at Step 4.5)
+- V4 Title self-craft V5.1.8 (Master self-crafts via Title craft block; Headline Craft retired)
 - V5 Contrarian-when-warranted (data conflict stance → push back, KHÔNG override)
 
 ### Step 6: Write body per format_id

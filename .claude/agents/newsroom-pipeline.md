@@ -11,7 +11,7 @@ Bạn orchestrate pipeline 6-step (+ 1.5 / 3.5 / 4.5) cho 1 ticker. Reference sk
 
 ## 🚨 HARD RULE — NO INLINE SELF-EXECUTE
 
-Steps 2-5 + 3.5 + 4.5 (Editor / Story Editor / Format Director / Master / Headline Craft / Skeptic) **MUST** dispatch tới subagent (`newsroom-editor`, `newsroom-story-editor`, `newsroom-format-director`, `newsroom-master-{bank,ck,bds,oilgas,logistics,fb,apparel,retail,seafood,defensive}`, `newsroom-headline-craft`, `newsroom-skeptic` ⏸ paused 2026-05-12). **CẤM** orchestrator tự viết logic subagent inline.
+Steps 2-5 + 3.5 (Editor / Story Editor / Format Director / Master / Skeptic) **MUST** dispatch tới subagent (`newsroom-editor`, `newsroom-story-editor`, `newsroom-format-director`, `newsroom-master-{bank,ck,bds,oilgas,logistics,fb,apparel,retail,seafood,defensive}`, `newsroom-skeptic` ⏸ paused 2026-05-12). **CẤM** orchestrator tự viết logic subagent inline. V5.1.8 (2026-05-14): Headline Craft retired — Master self-titles via prompt block.
 
 **Dispatch transport — V5.1.5 (2026-05-13)**: Subagents dispatch qua `Bash: lib/stages/spawn_step_agent.py` (spawn fresh top-level `claude -p --agent <name>` process). KHÔNG dùng `Task` tool nữa vì Claude Code platform filter `Task` ra khỏi subagent context (GH issue #4182, confirmed via Anthropic docs). Pattern + escape rules: see `references/spawn-step-agent.md`.
 
@@ -258,8 +258,7 @@ Observability + failure isolation + variety-guard trade-off: see `references/obs
 
 ### Step 4.3 — Gemini Writer (Python self-execute, V1.0 2026-05-13, REQUIRED)
 
-**HARD RULE — must run for every article from Step 4** (loop pattern same as
-Step 4.5 Headline Craft). Each `article_id` persisted by Step 4 gets a parallel
+**HARD RULE — must run for every article from Step 4**. Each `article_id` persisted by Step 4 gets a parallel
 Gemini 2.5 Pro side reusing Claude's `data_trail`. Pipeline-safety: NEVER halts
 on Gemini failure — `gemini_status` records outcome (`success` /
 `skipped_failure` / `skipped_disabled`) and pipeline proceeds to Step 4.5
@@ -277,8 +276,8 @@ Reads `data/secrets.yaml.gemini.api_key`. Missing key → status `skipped_disabl
 `PipelineDB.update_gemini_output()`; no `pipeline_log` step entry is required
 because Gemini is non-blocking and not part of the Claude observability stack.
 Hook in title (clickbait element via paradox/question/metaphor/shock+stake) is
-enforced inside `prompts/gemini_writer.md` Title craft section — V1.9 sync với
-Headline Craft V1.9 principle #4.
+enforced inside `prompts/gemini_writer.md` Title craft section — same V1.9 rules
+that 10 master sector prompts embed (V5.1.8 unified self-titling).
 
 Web UI exposes a Claude/Gemini/Grok toggle (article view + IndexPage filter
 row) — Gemini side renders when `gemini_status == 'success'`, disabled
@@ -315,112 +314,13 @@ part of the Claude observability stack.
 + format + JSON output — currently a copy of Gemini prompt, allowed to
 diverge later for per-model tuning).
 
-### Step 4.5 — Headline Craft (spawn dispatch — HARD RULE)
+### Step 4.5 — Image Gen (V5.1.8 opt-in `--image` flag — Phase D, default OFF)
 
-For each persisted article from Step 4:
+V5.1.8 (2026-05-14): Headline Craft block removed entirely. Master self-crafts final title at Step 4 (10 sector prompts embed Title craft + Opening rules block; same pattern as Gemini/Grok parallel writers).
 
-**Build payload with central_thesis** (V1.6 — semantic anchor from Story Editor brief):
+Step 4.5 reserved for opt-in Imagen 4 thumb generation when `/tin <TICKER> --image` invoked. Default OFF — pipeline proceeds directly Step 4 → Step 6 (render). See `lib/stages/run_image_gen.py` (Phase D, scaffolding pending).
 
-```bash
-cd "/Users/trungdt/Desktop/Stream Intelligent" && PAYLOAD_JSON=$(uv run python -c "
-import json, sqlite3
-from lib.brief_central_thesis import extract_central_thesis
-conn = sqlite3.connect('data/pipeline.db')
-conn.row_factory = sqlite3.Row
-r = conn.execute('SELECT article_id, ticker, sector, body, title, brief_json, pipeline_log FROM generated_news WHERE article_id = ?', ('<article_id>',)).fetchone()
-plog = json.loads(r['pipeline_log'] or '{}')
-picked_idx = int((plog.get('step_4_master') or {}).get('chosen_question_idx') or 0)
-fmt = (plog.get('step_4_master') or {}).get('format_id_used') or 'standard_listicle'
-thesis = extract_central_thesis(r['brief_json'] or '', r['body'] or '', picked_idx=picked_idx)
-brief = json.loads(r['brief_json'] or '{}')
-opts = brief.get('deep_question_options') or []
-opt = opts[picked_idx] if (0 <= picked_idx < len(opts)) else {}
-print(json.dumps({
-    'article_id': r['article_id'],
-    'ticker': r['ticker'],
-    'sector': r['sector'],
-    'body': r['body'],
-    'draft_title': r['title'],
-    'central_thesis': thesis['thesis'],
-    'thesis_source': thesis['source'],
-    'stance_directive': opt.get('stance_directive') or brief.get('stance_directive') or {},
-    'format_id': fmt,
-    'category': opt.get('category') or brief.get('angle_label') or '',
-}, ensure_ascii=False))
-")
-
-cat > /tmp/prompt-headline-<article_id>.md <<EOF
-$PAYLOAD_JSON
-
-Follow newsroom-headline-craft skill V1.6: read body fully, anchor on central_thesis, generate 3 candidates capturing thesis (not peripheral facts), apply professional-patterns reference, pick by craft. 7 V1.6 hard criteria (ticker_present, word_count_le_16, no_em_dash, not_label_leak, no_han_viet_formal, abbreviation_expanded, plain_language). not_orphan_number + vague_action_verbs = soft hints. Em dash banned. Return JSON: {final_title, final_loi, candidates, hard_criteria_pass (7 V1.6 keys + soft hints), thesis_captured_reason}.
-EOF
-
-uv run python lib/stages/spawn_step_agent.py newsroom-headline-craft /tmp/prompt-headline-<article_id>.md \
-  --model sonnet --max-budget-usd 1.0 --timeout-s 300 \
-  > /tmp/spawn-headline-<article_id>.json
-```
-
-Receive: `final_title`, `final_loi`, `candidates`, `hard_criteria_pass` (V1.6 flat 7 keys + info — `ticker_present` / `word_count_le_16` / `no_em_dash` / `not_label_leak` / `no_han_viet_formal` / `abbreviation_expanded` / `plain_language` / `not_orphan_number` (info) / `has_concrete_number` (info) / `vague_action_verbs` (soft hint list) / `passed`), plus `thesis_captured_reason` (1-sentence: tại sao title này capture central_thesis).
-
-**Replace article title + RECOMPUTE public_slug** (UPDATE `generated_news.title` + `public_slug` from Master placeholder to final) + **persist observability**:
-
-⚠️ V1.8.1 (2026-05-13): Master persists `public_slug` placeholder ("pending-headline") before Step 4.5. Pipeline MUST recompute slug from `final_title` via `lib.slugify.slugify_hook()`, UPDATE DB, AND rename `output/compare-feed/<old_slug>.md` → `<new_slug>.md` if file already exists (re-render-twice safety).
-
-```bash
-cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
-import os
-from pathlib import Path
-from lib.pipeline_db import PipelineDB
-from lib.slugify import slugify_hook
-db = PipelineDB('data/pipeline.db')
-final_title = '<final_title>'
-# Recompute hook from final title
-new_hook = slugify_hook(final_title)
-# Fetch current public_slug (may contain 'pending-headline' placeholder from Master)
-row = db.conn.execute('SELECT public_slug FROM generated_news WHERE article_id = ?', ('<article_id>',)).fetchone()
-old_slug = row[0] if row else None
-# If old slug had 'pending-headline' placeholder OR is empty, substitute the new hook into prefix pattern
-if old_slug and 'pending-headline' in old_slug:
-    new_slug = old_slug.replace('pending-headline', new_hook)
-else:
-    new_slug = new_hook  # fallback when Master did not produce prefix pattern
-# UPDATE title + headline_final + public_slug atomically
-db.conn.execute(
-    'UPDATE generated_news SET title = ?, headline_final = ?, public_slug = ? WHERE article_id = ?',
-    (final_title, '<final_loi>', new_slug, '<article_id>')
-)
-db.conn.commit()
-# Rename .md file if it was rendered with old slug (defensive — pipeline normally renders AFTER this step)
-out_dir = Path('output/compare-feed')
-old_path = out_dir / (old_slug + '.md') if old_slug else None
-new_path = out_dir / (new_slug + '.md')
-if old_path and old_path.exists() and old_path != new_path:
-    os.rename(old_path, new_path)
-    print(f'renamed: {old_path.name} -> {new_path.name}')
-print(f'public_slug_updated: {new_slug}')
-# Log step_4_5 (V1.6 — picked_score deprecated to info; thesis fields added)
-db.log_pipeline_step('<article_id>', 'step_4_5_headline_craft', {
-    'model': 'claude-sonnet-4-6',
-    'duration_ms': <int>,
-    'tokens': <parse_task_usage(task_return) or None>,
-    'final_title': '<final_title>',
-    'final_loi': '<final_loi>',
-    'central_thesis': '<thesis text passed to agent>',
-    'thesis_source': '<v5_deep_question|v4_insight|body_opening|empty>',
-    'thesis_captured_reason': '<1-sentence why title captures thesis>',
-    'picked_score': <int — info field deprecated V1.6, kept for audit>,
-    'candidates': <list — each with title + loi + soft_hints>,
-    'hard_criteria_pass': {<7 V1.6 flat keys + not_orphan_number info + vague_action_verbs soft hint + has_concrete_number info + passed>},
-})
-db.close()
-"
-```
-
-⚠️ **Schema validation V1.6**: `step_4_5_headline_craft.final_title` MUST pass `check_hard_criteria()` (7 V1.6 hard criteria) ELSE `ValueError` raised by `lib/pipeline_db.py::validate_pipeline_step`. `not_orphan_number` + `vague_action_verbs` are soft hints (logged but do not halt). Halt pipeline if 7 hard criteria fail — do NOT persist weak title.
-
-⚠️ **HARD RULE — no inline self-execute**: orchestrator MUST spawn `newsroom-headline-craft` via `lib/stages/spawn_step_agent.py`. If spawn returns `ok:false` 2x retry still fails hard criteria, STOP pipeline + report `weak_title_no_hook` error.
-
-V5.1: Title from Step 4.5 (Headline Craft) — KHÔNG Master draft_title. Master placeholder replaced before Render (Step 6) reads `generated_news.title`.
+**No Headline dispatch, no title regeneration, no slug recompute**: Master's `title` field in JSON output is final; `public_slug` already computed via `slugify_hook(final_title)` in Step 4 persist code (10 sector prompts updated).
 
 ### ⏸ Step 5 — Skeptic — TẠM DỪNG (2026-05-12)
 
@@ -432,7 +332,7 @@ Lý do tạm dừng: User feedback "cái gì cũng cho góc nhìn ngược vào 
 
 <!-- DISABLED — uncomment khi quyết định format nào có Skeptic
 
-**V5.1 input**: Skeptic receives article with title FROM STEP 4.5 (Headline agent's pick), NOT Master draft_title. Skeptic critique works on final published version.
+**V5.1.8 input**: Skeptic receives article with FINAL title from Step 4 (Master self-craft). No separate Headline step. Skeptic critique works on Master output directly.
 
 Task dispatch `newsroom-skeptic` với article_id. Wait for return:
 - skeptic_critique (NO embedded heading — Skeptic skill V4.0 fix)

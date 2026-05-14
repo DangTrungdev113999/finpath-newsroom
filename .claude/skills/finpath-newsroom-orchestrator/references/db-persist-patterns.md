@@ -42,17 +42,11 @@ brief → Step 4 (Master) → insert_generated_news + update_crawl_row → log_p
 2. Verify `accepted_hypothesis == True` — skip if false (no article persisted by Master)
 3. Persist `step_4_master` payload via `log_pipeline_step`
 
-## UPDATE title pattern (reserved for Step 4.5 Plan C)
+## Title persistence (V5.1.8 — Master self-titles)
 
-When `newsroom-headline-craft` lands (Plan C), orchestrator will dispatch post-Master to refine title. Pattern (TBD):
-
-```python
-# After Headline Craft Task returns
-db.update_generated_news(article_id, title=refined_title, headline_meta=meta_dict)
-db.log_pipeline_step(article_id, "step_4_5_headline_craft", payload)
-```
-
-Implementation pending — see `references/step-4-5-headline-craft.md`.
+Master prompt's JSON output contains `title` field (final, not placeholder).
+The `newsroom-master-{sector}` skill writes title + public_slug directly during
+Step 4 persist. No post-Master title refinement step exists.
 
 ## Batch-level persist after Step 4
 

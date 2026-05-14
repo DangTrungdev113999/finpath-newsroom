@@ -297,14 +297,9 @@ Task tool call (from MAIN):
   prompt: "Write article for brief={brief_json}, row_id={row_id}. master_route={master_route}. APPLY HOT INTENT V1.3: open body với today's move ({dcp}% giá, {dvp}% KL) + catalyst, KHÔNG generic fundamental intro. Cite số cụ thể của TODAY (giá +X%, volume +Y%, NN mua/bán Z tỷ phiên nay). Old data (Q1/quarterly) chỉ dùng làm CONTEXT supporting today's narrative — KHÔNG lead với LNTT Q1 / ROE / NPL."
 ```
 
-### Per-ticker Step 4.5 — Headline Craft (Task → newsroom-headline-craft)
+### Per-ticker Step 4.5 — Image Gen (V5.1.8 — opt-in `--image` flag, Imagen 4)
 
-```
-Task tool call (from MAIN):
-  description: "Headline craft {article_id}"
-  subagent_type: newsroom-headline-craft
-  prompt: "Generate title for article_id={article_id} following V1.1 rules: 5 hard criteria + 4 lối + 8-point rubric. Em dash banned. Hot context: title may reference today's move ({dcp}%, {dvp}%) if angle is catalyst-driven."
-```
+Skip when `/tin-hot` invoked without `--image` flag (default OFF). When flag set, dispatch `lib.stages.run_image_gen` per article. See newsroom-pipeline Step 4.5 for detail.
 
 ### Per-ticker Step 5 — Skeptic PAUSED
 

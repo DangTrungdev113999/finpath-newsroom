@@ -67,7 +67,7 @@ HAN_VIET_FORMAL_BAN = {
 
 
 # V1.6 — Vague action verbs flagged in titles (soft hint, not hard reject).
-# Consumer: lib.headline_scorer.detect_vague_action_verb. Agent uses as
+# Consumer (V5.1.8): 10 master sector prompt Title craft block — agent self-check during title craft.
 # self-check during candidate generation. User feedback:
 # "FPT mẹ nguy 2.330 tỷ" / "khoản 282 tỷ che gì" / "PVS ăn 44%"
 # Reader can't tell WHAT happened — verb mơ hồ. Resolve by following with

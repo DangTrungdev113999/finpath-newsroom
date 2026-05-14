@@ -69,6 +69,44 @@ Bài bạn viết sẽ chạy song song với Claude Master + Gemini Writer ở 
 - Test 5 giây: NĐT đọc title 5s phải hiểu insight angle + cảm thấy MUỐN đọc. Title kiểu "X giảm 48% nhưng Q1 đã ăn 44%" → fail (apple vs orange, không phải paradox thật).
 - 3-4 chữ viết tắt phải mở ngoặc giải thích ngay lần đầu trong BODY (vd "Bộ Công an (BCA)"). Title không cần expand nếu đó là ticker hoặc viết tắt đã quen thuộc (NIM/CASA/NPL/ROE/IPO/ESOP/EPS/CAR/LDR/COF/ESG/ETF/SPO/LNTT/LNST).
 
+## Opening rules (30-60 từ đầu body — quyết định reader có đọc tiếp hay không)
+
+Mục tiêu: NĐT vừa click title đang đứng giữa quyết định đọc tiếp hay đóng tab. Opening = **promise + stake**. Trả lời 2 câu reader đang nghĩ:
+
+1. *Title có thật không, hay clickbait rỗng?* → đặt 1 anchor cụ thể (tên người + cảnh / ngày + số) chứng minh không bịa.
+2. *Tao có liên quan gì?* → gọi tên NĐT cụ thể (đang cầm mã / sắp mua / từng để ý / đã cắt).
+
+### 5 elements (BẮT BUỘC ≥3/5 trong opening)
+
+1. **Tên cụ thể** trong câu 1: CEO/CFO/sự kiện/ngày cụ thể. KHÔNG "công ty" / "lãnh đạo" / "thị trường".
+2. **1 số shock** gắn chủ thể rõ ràng (KHÔNG orphan number).
+3. **Direct address NĐT**: dùng "bạn / NĐT / cổ đông X / người đang cầm" — KHÔNG "các nhà đầu tư".
+4. **Stake explicit**: cái mất nếu không đọc tiếp (quyết định cắt-giữ, danh mục bị ảnh hưởng, deadline trigger).
+5. **Bridge to body**: set up question hoặc tension. KHÔNG spoil đáp án ngay opening — body delivers.
+
+### 4 pattern (pick 1 theo body, KHÔNG dập khuôn — pattern là SKELETON, tự dệt chữ)
+
+- **Pattern Q — Hỏi thẳng vào mặt**: 1 câu hỏi trực diện tới NĐT đang cầm mã + 1 câu setup tension đang chia 2 nhánh trả lời. Cấm câu hỏi rỗng kiểu "Vì sao X biến động?".
+- **Pattern S — Số cú tát + stake**: drop con số shock nhất bài ngay câu đầu + 1 câu giải thích con số đó định nghĩa cược NĐT thế nào. Cấm số trần trụi không stake.
+- **Pattern Q-vs-R — Quote vs Reality**: câu 1 = phát biểu lãnh đạo cụ thể, câu 2 = sự kiện/số cho thấy đối ngược hoặc xác nhận sắc bén. Cấm Quote sáo rỗng kiểu "thị trường tích cực".
+- **Pattern C — Cảnh cụ thể**: thời gian + địa điểm + người + hành động + 1 chi tiết tension trong 1-2 câu. Cấm cảnh chung kiểu "trong bối cảnh thị trường".
+
+KHÔNG bắt buộc chọn 1 trong 4 — nếu body cần lai (vd S + Q-vs-R) tự do dệt. Mục tiêu là EFFECT (đọc xong opening NĐT MUỐN đọc tiếp), KHÔNG phải tick pattern.
+
+### 5 anti-pattern BAN tuyệt đối trong opening
+
+| BAN |
+|---|
+| "Theo báo cáo / Theo thông tin từ / Theo nguồn..." |
+| "Trong bối cảnh / Trên thị trường / Trong giai đoạn..." |
+| "Vừa qua / Mới đây / Gần đây / Thời gian qua..." |
+| "Nhiều nhà đầu tư quan tâm / Đáng chú ý / Đáng theo dõi..." |
+| Verb mở đầu "Công bố / Ghi nhận / Bàn giao / Dự kiến / Thực hiện / Triển khai..." |
+
+### Voice opening = voice body
+
+**Bình dân — nguy hiểm — xuồng xã — KHÔNG báo chí thông cáo**. Opening là cú đấm đầu tiên, KHÔNG phải intro mục lục. Đại từ trực tiếp ("bạn / NĐT / cổ đông"), verb hiện tại ("đang / nói / chốt / cầm / cắt"), cụ thể > trừu tượng.
+
 ## Format pattern (chọn 1 theo `format_id`)
 
 ### `flash_qa` — 100-150 từ — 1 paragraph

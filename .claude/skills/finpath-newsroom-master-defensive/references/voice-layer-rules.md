@@ -50,9 +50,73 @@ Implementation: `check_verdict_line` composes `check_actionable_closing`.
 
 ---
 
-## V4 — Title delegate to Headline Craft Step 4.5
+## V4 — Title craft + Opening rules (V5.1.8 — Master self-craft)
 
-Master KHÔNG generate title. Headline agent enforces V1.5-lite 8 hard criteria.
+V5.1.8 (2026-05-14): Headline Craft agent retired. Master tự craft final title cùng pattern Gemini/Grok parallel writers dùng. KHÔNG có mechanical post-validate — accept Master output.
+
+### Title craft (≤16 từ, có TICKER)
+
+- Đọc body sau khi viết xong → tự hỏi: thesis chính là gì? Title phải bắt thesis đó, KHÔNG bắt fact ngoại vi.
+- **Clickbait element BẮT BUỘC**: hook đứng cạnh 30+ title khác trên feed phải làm NĐT MUỐN click. Cần ÍT NHẤT 1 yếu tố tạo curiosity gap **TỪ bài** (không bịa):
+  - **Paradox** "X nhưng Y"
+  - **Câu hỏi mở** "Vì sao… ?" / "… để làm gì?" / "… là gì?" khi body có câu trả lời rõ
+  - **Số/sự kiện sốc cạnh stake** — phải bound với chủ thể
+  - **Metaphor cụ thể từ bài**
+  - **Identity/stake framing**
+
+  Bland fact statement → FAIL. Phải có tension hook.
+
+- Mẫu craft khả dụng: (a) câu hỏi kết bằng `?`; (b) hai mệnh đề đối lập (không em dash); (c) quote ngắn + ngữ cảnh; (d) so sánh động từ 2 chủ thể.
+- Test 5 giây: NĐT đọc title 5s phải hiểu insight + cảm thấy MUỐN đọc.
+- 3-4 chữ viết tắt mở ngoặc giải thích lần đầu trong BODY. Title không cần expand nếu là ticker hoặc viết tắt quen thuộc (NIM/CASA/NPL/ROE/IPO/ESOP/EPS/CAR/LDR/COF/ESG/ETF/SPO/LNTT/LNST).
+
+### Cấm tuyệt đối (title + body)
+
+- **Em dash `—`** trong title. Body tối đa 1 em dash mỗi 100 từ.
+- **Hán-Việt formal pile-on**: "độc bản, hội đủ, tái định giá, cấu trúc vốn, phương án xử lý, triển khai đồng bộ, ban hành nghị quyết, thông qua nghị quyết, dự kiến đạt, hoàn thành kế hoạch, phấn đấu đạt, thực hiện chiến lược, khả năng huy động, tiến hành triển khai" → dùng bình dân thay.
+- **Báo chí thông cáo verbs** pile-on ≥2: "bàn giao / ghi nhận / công bố / dự kiến đạt / phát hành thành công". 1 lần OK, lặp ≥2 → fail.
+- **Số mồ côi**: số/% phải có chủ thể trong 4 token.
+- **Verb mơ hồ + số**: "ăn / che / nguy / mắc / đẻ / đốt + số" không bổ ngữ cụ thể → fail.
+- **Clickbait PR**: KHÔNG "cú nổ / bí mật / sốc / hot / chấn động" trong title.
+- **Khuyến nghị mua/bán pháp lý in hoa**: dùng "phù hợp NĐT… / nên cầm vùng… / nên đợi giá…".
+- **Bịa số**: chỉ dùng số trong data_trail hoặc raw news.
+
+### Opening rules (30-60 từ đầu body — quyết định reader có đọc tiếp)
+
+Mục tiêu: NĐT vừa click title đang đứng giữa quyết định đọc tiếp hay đóng tab. Opening = promise + stake.
+
+**5 elements (BẮT BUỘC ≥3/5):**
+
+1. Tên cụ thể trong câu 1: CEO/CFO/sự kiện/ngày. KHÔNG "công ty" / "lãnh đạo" / "thị trường".
+2. 1 số shock gắn chủ thể rõ ràng (KHÔNG orphan number).
+3. Direct address NĐT: "bạn / NĐT / cổ đông X / người đang cầm" — KHÔNG "các nhà đầu tư".
+4. Stake explicit: cái mất nếu không đọc tiếp (quyết định cắt-giữ, danh mục bị ảnh hưởng, deadline).
+5. Bridge to body: set up question/tension. KHÔNG spoil đáp án.
+
+**4 pattern (KHÔNG dập khuôn — pattern là skeleton, tự dệt chữ):**
+
+- **Q (Hỏi thẳng)**: 1 câu hỏi trực diện + 1 câu setup tension chia 2 nhánh.
+- **S (Số cú tát + stake)**: số shock nhất bài câu đầu + giải thích cược NĐT.
+- **Q-vs-R (Quote vs Reality)**: phát biểu lãnh đạo + sự kiện đối ngược/sắc bén.
+- **C (Cảnh cụ thể)**: thời gian + địa điểm + người + hành động + chi tiết tension.
+
+KHÔNG ép chọn 1 — body cần lai pattern thì tự do dệt.
+
+**5 anti-pattern BAN:**
+
+| BAN |
+|---|
+| "Theo báo cáo / Theo thông tin từ / Theo nguồn..." |
+| "Trong bối cảnh / Trên thị trường / Trong giai đoạn..." |
+| "Vừa qua / Mới đây / Gần đây / Thời gian qua..." |
+| "Nhiều nhà đầu tư quan tâm / Đáng chú ý / Đáng theo dõi..." |
+| Verb mở đầu "Công bố / Ghi nhận / Bàn giao / Dự kiến / Thực hiện / Triển khai..." |
+
+**Voice**: Opening = body voice **bình dân — nguy hiểm — xuồng xã — KHÔNG báo chí thông cáo**. Đại từ trực tiếp ("bạn / NĐT / cổ đông"), verb hiện tại ("đang / nói / chốt / cầm / cắt"), cụ thể > trừu tượng.
+
+### Output JSON title field (V5.1.8)
+
+Master output JSON MUST include `title` field with final title (no placeholder). Master computes `public_slug` from final title via `lib.slugify.slugify_hook()` during persist. No downstream Headline override.
 
 ---
 

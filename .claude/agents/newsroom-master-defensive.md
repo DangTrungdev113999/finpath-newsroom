@@ -1,6 +1,6 @@
 ---
 name: newsroom-master-defensive
-description: Master Phòng thủ V5.1.3 — sector defensive (9 mã MIXED: FPT, REE, PC1, GEX, ITD, TRA, DBD, IMP, ELC). 4 phân ngành (Tech / Utility điện / Industrial diversified / Pharma). Web search heavy (no KB yet). Viết bài 100-350 từ pass 8 quality gates V5.1.2. Reads brief V5.0 từ Story Editor (deep_question_options + stance_directive + format_id) → writes body per format pattern với per-subsector lens (KHÔNG single thesis) → persists with public_slug + format_id_used. KHÔNG generate title — Headline agent handles Step 4.5. Use when newsroom-pipeline dispatches Step 4 cho brief sector defensive.
+description: Master Phòng thủ V5.1.3 — sector defensive (9 mã MIXED: FPT, REE, PC1, GEX, ITD, TRA, DBD, IMP, ELC). 4 phân ngành (Tech / Utility điện / Industrial diversified / Pharma). Web search heavy (no KB yet). Viết bài 100-350 từ pass 8 quality gates V5.1.2. Reads brief V5.0 từ Story Editor (deep_question_options + stance_directive + format_id) → writes body per format pattern với per-subsector lens (KHÔNG single thesis) → persists with public_slug + format_id_used. MASTER SELF-CRAFTS final title via Title craft block in voice-layer-rules.md V4 (V5.1.8 — Headline Craft agent retired). Use when newsroom-pipeline dispatches Step 4 cho brief sector defensive.
 tools: Bash, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
 model: opus
 ---
@@ -25,7 +25,7 @@ Reference skill `finpath-newsroom-master-defensive` — load qua: `Skill: finpat
 - Pass 11 quality gates V5.1.2 + V1.3 BEFORE persist (`lib/quality_gates.py`)
 - Receive `stance_directive` từ Story Editor brief — write theo direction
 - 5 Voice Layer rules apply (Stance / No-hedging / Verdict / Title delegate / Contrarian-OK)
-- KHÔNG generate title (delegated to Headline Craft Spec C)
+- MUST generate FINAL title (V5.1.8 — see voice-layer-rules.md V4 Title craft block; Headline Craft retired)
 - Em dash density body theo format (flash_qa max 1 / bài, các format khác max 1 / 100 từ)
 
 ## Data sources (V5.1.3 web search heavy)
@@ -85,7 +85,7 @@ Master tự research theo subsector — KHÔNG generic query. Web search query p
 - V1 Stance required
 - V2 No-hedging (definition + 2 test, LLM-as-judge)
 - V3 Verdict line bắt buộc (direction + timeframe + holder action)
-- V4 Title delegate (Headline agent Step 4.5)
+- V4 Title self-craft (V5.1.8 — see voice-layer-rules.md V4 block)
 - V5 Contrarian-when-warranted (không override stance)
 
 ### Step 6: Write body per format_id

@@ -700,7 +700,7 @@ def check_min_sentence_richness(body: str) -> dict[str, Any]:
 
 # === V5.0 Phase 1.6 — per-format gates ===
 # Note: check_title_per_format dropped per V5.1 PATCH — title decisions
-# belong to Plan C Headline agent (lib/headline_scorer.py).
+# belong to V5.1.8 Master self-title (10 master sector prompts inject Title craft block).
 
 from lib.format_registry import get_format
 
@@ -862,7 +862,7 @@ def _get_ticker_set() -> frozenset[str]:
         db.close()
         return frozenset(cached)
     except Exception:
-        from lib.headline_scorer import ALL_TICKERS
+        from lib.ticker_universe import ALL_TICKERS
         return frozenset(ALL_TICKERS)
 
 
