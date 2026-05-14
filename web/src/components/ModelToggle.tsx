@@ -42,7 +42,7 @@ export function ModelToggle({
     <div
       role="radiogroup"
       aria-label="Chọn model viết bài"
-      className="inline-flex h-7 items-center gap-0.5 rounded-pill border border-fg-3/55 bg-bg-2 px-0.5"
+      className="group/mtg inline-flex h-7 items-center gap-0.5 rounded-pill border border-fg-3/55 bg-bg-2 px-0.5"
     >
       <ToggleButton
         model="claude"
@@ -136,13 +136,14 @@ function ToggleButton({
         'group/mt inline-flex h-6 items-center justify-center rounded-full',
         'transition-[width,gap,padding,background,box-shadow,color] duration-med ease-out-quart',
         'focus-visible:outline-none focus-visible:ring-2',
-        // Mobile is always icon-only. On ≥sm + hover/focus the button expands
-        // to reveal the brand label — discoverability without layout noise.
+        // Mobile is always icon-only. On ≥sm hovering OR keyboard-focusing
+        // anywhere in the toggle group expands BOTH buttons in unison and
+        // reveals both brand labels — discoverability without layout jitter.
         withLabel
           ? cn(
               'w-6',
-              'sm:hover:w-auto sm:hover:gap-1.5 sm:hover:px-2.5',
-              'sm:focus-visible:w-auto sm:focus-visible:gap-1.5 sm:focus-visible:px-2.5',
+              'sm:group-hover/mtg:w-auto sm:group-hover/mtg:gap-1.5 sm:group-hover/mtg:px-2.5',
+              'sm:group-focus-within/mtg:w-auto sm:group-focus-within/mtg:gap-1.5 sm:group-focus-within/mtg:px-2.5',
               'sm:font-sans sm:text-[12px] sm:font-medium',
             )
           : 'w-6',
@@ -154,7 +155,7 @@ function ToggleButton({
     >
       {logo}
       {withLabel && (
-        <span className="hidden sm:group-hover/mt:inline sm:group-focus-visible/mt:inline">
+        <span className="hidden sm:group-hover/mtg:inline sm:group-focus-within/mtg:inline">
           {label}
         </span>
       )}
