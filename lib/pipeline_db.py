@@ -398,6 +398,20 @@ class PipelineDB:
                 self.conn.execute(
                     f"ALTER TABLE generated_news ADD COLUMN {col} {col_type}"
                 )
+        # V5.1.8 Image generation (Step 4.5, opt-in --image flag).
+        # NULL when --image not passed OR Imagen failed (status records why).
+        for col, col_type in (
+            ("thumb_url", "TEXT"),
+            ("thumb_prompt", "TEXT"),
+            ("thumb_model", "TEXT"),
+            ("thumb_generated_at", "TIMESTAMP"),
+            ("thumb_status", "TEXT"),
+            ("thumb_error", "TEXT"),
+        ):
+            if col not in existing:
+                self.conn.execute(
+                    f"ALTER TABLE generated_news ADD COLUMN {col} {col_type}"
+                )
         # V5.1.8 Cost tracking — per-model token counts + USD cost. NULL when
         # provider SDK didn't surface usage metadata (skipped_disabled rows,
         # or older runs pre-V5.1.8). REAL handles fractional cents.
@@ -629,6 +643,46 @@ class PipelineDB:
             updates["grok_tokens_out"] = tokens_out
         if cost_usd is not None:
             updates["grok_cost_usd"] = cost_usd
+        self.update_generated_news(article_id, updates)
+
+    _THUMB_STATUS_VALUES = {"success", "skipped_failure", "skipped_disabled"}
+
+    def update_thumb_output(
+        self,
+        *,
+        article_id: str,
+        status: str,
+        thumb_url: str | None = None,
+        thumb_prompt: str | None = None,
+        model: str | None = None,
+        generated_at: str | None = None,
+        error: str | None = None,
+        cost_usd: float | None = None,
+    ) -> None:
+        """V5.1.8 Step 4.5 Image Gen column writer.
+
+        status MUST be one of {"success", "skipped_failure", "skipped_disabled"}.
+        Mirrors update_gemini_output / update_grok_output shape — pipeline-safe
+        graceful degrade. image_cost_usd is also persisted into the aggregate
+        cost column for the Chi phí panel.
+        """
+        if status not in self._THUMB_STATUS_VALUES:
+            raise ValueError(
+                f"thumb_status must be one of {sorted(self._THUMB_STATUS_VALUES)}, got {status!r}"
+            )
+        updates: dict[str, Any] = {"thumb_status": status}
+        if thumb_url is not None:
+            updates["thumb_url"] = thumb_url
+        if thumb_prompt is not None:
+            updates["thumb_prompt"] = thumb_prompt
+        if model is not None:
+            updates["thumb_model"] = model
+        if generated_at is not None:
+            updates["thumb_generated_at"] = generated_at
+        if error is not None:
+            updates["thumb_error"] = error
+        if cost_usd is not None:
+            updates["image_cost_usd"] = cost_usd
         self.update_generated_news(article_id, updates)
 
     def update_cost_breakdown(

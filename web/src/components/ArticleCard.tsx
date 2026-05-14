@@ -17,13 +17,25 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
   return (
     <Link
       to={`/article/${article.id}`}
-      className="group relative flex flex-col rounded-xl border border-fg-4/40 bg-bg-1 p-5 no-underline transition-all duration-med ease-out-quart hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35"
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-fg-4/40 bg-bg-1 no-underline transition-all duration-med ease-out-quart hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35"
     >
       <span
         aria-hidden
         className="pointer-events-none absolute inset-x-5 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-brand via-brand/60 to-transparent transition-transform duration-med ease-out-quart group-hover:scale-x-100"
       />
 
+      {article.thumb_url && (
+        <div className="relative aspect-video w-full overflow-hidden border-b border-fg-4/30 bg-fg-4/10">
+          <img
+            src={article.thumb_url}
+            alt=""
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-slow ease-out-quart group-hover:scale-[1.03]"
+          />
+        </div>
+      )}
+
+      <div className="flex flex-1 flex-col p-5">
       <div className="mb-5 flex items-center justify-between gap-3">
         <span className="rounded-md bg-fg-0 px-2.5 py-1 font-sans text-[12px] font-bold tracking-[0.02em] text-bg-1">
           {article.ticker}
@@ -65,6 +77,7 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
         >
           →
         </span>
+      </div>
       </div>
     </Link>
   );

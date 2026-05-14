@@ -9,6 +9,7 @@ dependencies = [
     "python-frontmatter>=1.1",
     "google-genai>=1.0",
     "openai>=1.50",
+    "pillow>=12.2.0",
 ]
 
 [dependency-groups]

@@ -1,0 +1,22 @@
+# V5.1.8 sector → drama motif mapping for Imagen 4 thumb prompts.
+# Used by lib/stages/run_image_gen.py to translate Master article's sector
+# into a visual anchor that gives the thumb sector-specific tone without
+# leaking text/logos.
+#
+# Each motif is 1 line of English description (Imagen 4 prompts in English
+# produce stronger drama than Vietnamese — model trained mostly on EN data).
+# Lines are concatenated INTO a larger prompt template by run_image_gen.py.
+#
+# Add new sector → add new key. Missing sector falls back to `default`.
+
+bank: "Modern Vietnamese skyline at night with bank towers + neon vault, cinematic chiaroscuro"
+ck: "Hyper-modern trading floor neon ticker tape, dim cinematic lighting"
+bds: "Construction crane silhouette against stormy Saigon skyline, dramatic backlit"
+oilgas: "Offshore drilling rig at dusk, golden hour with crashing waves, cinematic scale"
+logistics: "Container port at night with stacked containers, drone aerial wide shot, moody blue"
+fb: "Vietnamese factory floor with stainless steel tanks + assembly line, dramatic side-lit"
+apparel: "Garment factory bay with sewing machines under hard industrial lights, depth of field"
+retail: "Empty modern Vietnamese mall corridor at closing time, dim track lighting"
+seafood: "Vietnamese fishing fleet at dawn pulling nets, cold dramatic blue light"
+defensive: "Server data center corridor with rows of dark racks + cool blue glow, cinematic"
+default: "Vietnamese cityscape at twilight, contrast-rich cinematic lighting, dramatic"

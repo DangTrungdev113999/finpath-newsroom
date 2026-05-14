@@ -140,6 +140,10 @@ export interface ArticleMeta {
   grok?: GrokArticle;
   // V5.1.8 — aggregate cost breakdown across Claude/Gemini/Grok/Image
   costs?: CostBreakdown;
+  // V5.1.8 — Imagen 4 hero thumbnail URL (1024×576 WebP). Present only when
+  // `/tin --image` was used AND Imagen succeeded. Web hero renders this
+  // image above the title when present.
+  thumb_url?: string;
 }
 
 export interface GeminiArticle {
@@ -220,6 +224,10 @@ export interface ArticleSummary {
   /** V5.1.8 — total AI cost USD per article (Claude + Gemini + Grok + image
    *  combined). Surfaced from frontmatter / DB; null when no usage recorded. */
   total_cost_usd?: number;
+  /** V5.1.8 — Imagen 4 hero thumb URL (1024×576 WebP). Only present when
+   *  /tin --image was used AND Imagen 4 succeeded. ArticleCard renders 16:9
+   *  preview above the title when set. */
+  thumb_url?: string;
 }
 
 export interface Manifest {

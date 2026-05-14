@@ -316,11 +316,35 @@ part of the Claude observability stack.
 + format + JSON output — currently a copy of Gemini prompt, allowed to
 diverge later for per-model tuning).
 
-### Step 4.5 — Image Gen (V5.1.8 opt-in `--image` flag — Phase D, default OFF)
+### Step 4.5 — Image Gen (V5.1.8 — Imagen 4, opt-in `--image` flag, default OFF)
 
-V5.1.8 (2026-05-14): Headline Craft block removed entirely. Master self-crafts final title at Step 4 (10 sector prompts embed Title craft + Opening rules block; same pattern as Gemini/Grok parallel writers).
+V5.1.8 (2026-05-14): Headline Craft retired. Master self-crafts final title at Step 4 (10 sector prompts embed Title craft + Opening rules block; same pattern as Gemini/Grok parallel writers).
 
-Step 4.5 reserved for opt-in Imagen 4 thumb generation when `/tin <TICKER> --image` invoked. Default OFF — pipeline proceeds directly Step 4 → Step 6 (render). See `lib/stages/run_image_gen.py` (Phase D, scaffolding pending).
+Step 4.5 generates a 1024×576 WebP hero thumbnail per article via Imagen 4 when `/tin <TICKER> --image` is invoked. Default OFF: when `enable_image` is false, the step writes `thumb_status='skipped_disabled'` and proceeds.
+
+**Cost**: $0.04/article (Imagen 4 flat). Aggregated into `image_cost_usd` + `total_cost_usd` columns (V5.1.8 Phase C).
+
+For EACH `<article_id>` returned by Step 4 (run AFTER Step 4.3 + 4.4 so all 3 parallel writers have completed):
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -m lib.stages.run_image_gen \
+  --article-id <article_id> \
+  $( [ "$ENABLE_IMAGE" = "true" ] && echo "--image" )
+```
+
+The script:
+1. Loads article from DB (title, body, sector, public_slug)
+2. Resolves sector motif from `data/sector_thumb_motif.yaml`
+3. Substitutes into `prompts/image_prompt_template.md` (`{{sector_motif}}` + `{{thumb_concept}}`)
+4. Calls Imagen 4 via google-genai SDK (key reused from `secrets.gemini.api_key`)
+5. Converts PNG → WebP 1024×576 (Pillow center-crop + LANCZOS resize, quality 80)
+6. Saves to `output/thumbs/<public_slug>.webp`
+7. Persists `thumb_url`, `thumb_prompt`, `image_cost_usd` via `PipelineDB.update_thumb_output()`
+
+**Pipeline-safety**: script ALWAYS exits 0. Status values:
+- `success` — webp written + DB updated
+- `skipped_disabled` — `--image` flag not set OR `secrets.gemini.api_key` missing (no API call, no cost)
+- `skipped_failure` — Imagen API failed or WebP conversion error (`thumb_error` captured)
 
 **No Headline dispatch, no title regeneration, no slug recompute**: Master's `title` field in JSON output is final; `public_slug` already computed via `slugify_hook(final_title)` in Step 4 persist code (10 sector prompts updated).
 

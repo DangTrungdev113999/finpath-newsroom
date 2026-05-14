@@ -255,6 +255,11 @@ def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict
     if grok_block is not None:
         fm["grok"] = grok_block
 
+    # V5.1.8 — hero thumb URL when Imagen 4 succeeded (opt-in --image flag).
+    thumb_url = article.get("thumb_url")
+    if isinstance(thumb_url, str) and thumb_url:
+        fm["thumb_url"] = thumb_url
+
     costs_block = _build_costs_block(article)
     if costs_block is not None:
         fm["costs"] = costs_block
@@ -415,7 +420,7 @@ def rebuild_manifest_from_db(db, output_dir: Path) -> dict:
                gn.word_count, gn.pipeline_log, gn.brief_json,
                gn.gemini_title, gn.gemini_status,
                gn.grok_title, gn.grok_status,
-               gn.total_cost_usd,
+               gn.total_cost_usd, gn.thumb_url, gn.thumb_status,
                cl.crawled_at
         FROM generated_news gn
         JOIN crawl_log cl ON cl.row_id = gn.row_id
@@ -464,6 +469,9 @@ def rebuild_manifest_from_db(db, output_dir: Path) -> dict:
         # V5.1.8 — surface total cost when present (helps IndexPage show $ per card later)
         if row["total_cost_usd"] is not None:
             entry["total_cost_usd"] = float(row["total_cost_usd"])
+        # V5.1.8 — surface thumb_url when Imagen 4 succeeded; ArticleCard hero image
+        if row["thumb_status"] == "success" and row["thumb_url"]:
+            entry["thumb_url"] = row["thumb_url"]
         articles.append(entry)
 
     # Preserve legacy entries (hand-crafted .md files with no DB row) so

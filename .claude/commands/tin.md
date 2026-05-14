@@ -1,10 +1,20 @@
 ---
-description: Viết bài tin chuyên sâu về 1 mã cổ phiếu Việt Nam (71 mã: Bank/CK/BĐS/Oil-Gas)
-argument-hint: <TICKER>
+description: Viết bài tin chuyên sâu về 1 mã cổ phiếu Việt Nam (~139 mã universe Finpath, 10 sector)
+argument-hint: <TICKER> [--image]
 allowed-tools: Bash, Task, Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, mcp__tavily__tavily_search
 ---
 
-Trigger pipeline 6-step Newsroom V4.0 cho ticker **$ARGUMENTS**.
+Trigger pipeline Newsroom V5.1.8 cho ticker **$ARGUMENTS**.
+
+**V5.1.8 opt-in flags** (parse `$ARGUMENTS` token-by-token):
+- `--image` → enable Imagen 4 thumb generation tại Step 4.5 (~$0.04/article extra cost).
+  Mặc định OFF — pipeline KHÔNG gen image trừ khi flag được set explicit.
+
+Example invocation:
+- `/tin VCB` → pipeline thường, no image
+- `/tin VCB --image` → pipeline + Step 4.5 Imagen 4 thumb
+
+Orchestrator (newsroom-pipeline) receives `enable_image` boolean derived from flag presence.
 
 FULL_UNIVERSE 71 mã (4 sector):
 - **Bank** (27): HOSE 16 + HNX 4 + UPCOM 7 (see routing.BANK_UNIVERSE)
