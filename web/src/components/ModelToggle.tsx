@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from 'react';
+import { useId, type CSSProperties, type ReactNode } from 'react';
 import { cn } from '../shared/lib/cn';
 
 export type ArticleModel = 'claude' | 'gemini' | 'grok';
@@ -140,16 +140,28 @@ export function ModelToggle({
   );
 }
 
-// Brand-locked active styles — do NOT inherit from theme tokens.
-// Claude: Anthropic clay #D97757. Gemini: Google sparkle gradient blue→violet→red.
-// Grok: xAI matte black (logo on x.ai uses pure black).
-const ACTIVE_STYLES: Record<ArticleModel, string> = {
-  claude:
-    'bg-[#D97757] shadow-[0_1px_8px_-2px_rgba(217,119,87,0.55)] focus-visible:ring-[#D97757]/40',
-  gemini:
-    'bg-gradient-to-br from-[#4285F4] via-[#9B72CB] to-[#D96570] shadow-[0_1px_8px_-2px_rgba(155,114,203,0.6)] focus-visible:ring-[#9B72CB]/45',
-  grok:
-    'bg-[#0B0B0B] shadow-[0_1px_8px_-2px_rgba(0,0,0,0.6)] focus-visible:ring-fg-0/40',
+// Brand-locked active styles — moved to inline style so brand fills are
+// guaranteed to render regardless of Tailwind JIT scan or content path
+// configuration. Pair with a small Tailwind class for shared ring/text/shadow
+// utilities. Each brand also gets a high-contrast white inner ring so the
+// active button reads as "ticket-punched" against any theme.
+const ACTIVE_INLINE: Record<ArticleModel, CSSProperties> = {
+  claude: {
+    background: '#D97757',
+    boxShadow:
+      'inset 0 0 0 1px rgba(255, 255, 255, 0.28), 0 2px 10px -2px rgba(217, 119, 87, 0.7)',
+  },
+  gemini: {
+    background:
+      'linear-gradient(135deg, #4285F4 0%, #9B72CB 50%, #D96570 100%)',
+    boxShadow:
+      'inset 0 0 0 1px rgba(255, 255, 255, 0.3), 0 2px 12px -2px rgba(155, 114, 203, 0.75)',
+  },
+  grok: {
+    background: '#0B0B0B',
+    boxShadow:
+      'inset 0 0 0 1px rgba(255, 255, 255, 0.22), 0 2px 10px -2px rgba(0, 0, 0, 0.75)',
+  },
 };
 
 function ToggleButton({
@@ -185,10 +197,11 @@ function ToggleButton({
       aria-disabled={disabled || undefined}
       title={title}
       onClick={onClick}
+      style={active ? ACTIVE_INLINE[model] : undefined}
       className={cn(
         'group/mt inline-flex h-6 items-center justify-center rounded-full',
         'transition-[width,gap,padding,background,box-shadow,color] duration-med ease-out-quart',
-        'focus-visible:outline-none focus-visible:ring-2',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg-0/40',
         showLabelOnDesktop
           ? persistentLabel
             ? 'w-6 sm:w-auto sm:gap-1.5 sm:px-2.5 sm:font-sans sm:text-[12px] sm:font-medium'
@@ -200,8 +213,8 @@ function ToggleButton({
               )
           : 'w-6',
         active
-          ? cn(ACTIVE_STYLES[model], showLabelOnDesktop && 'sm:text-white')
-          : 'text-fg-1 hover:bg-bg-3/60 focus-visible:ring-fg-3/40',
+          ? 'text-white font-semibold'
+          : 'text-fg-1 hover:bg-bg-3/60',
         disabled && 'cursor-not-allowed opacity-40 hover:bg-transparent',
       )}
     >

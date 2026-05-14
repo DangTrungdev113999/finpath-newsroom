@@ -46,14 +46,28 @@ def secrets_with_tavily(tmp_path: Path) -> Path:
 
 
 def test_finpath_overview_success(mock_db):
-    """When FinpathAPI returns dict, tool wraps with source + ok=True."""
-    tools = research_tools.build_research_tools(db=mock_db, secrets_path=Path("/nonexistent"))
+    """V5.1.9.5: tool trims to top-50 by market cap (no ticker arg) OR to
+    single ticker when arg is provided. Source string reflects which mode."""
     with patch("lib.llm.research_tools.FinpathAPI") as FakeApi:
-        FakeApi.return_value.get_overview.return_value = {"stocks": [{"c": "VCB"}]}
-        tools2 = research_tools.build_research_tools(db=mock_db, secrets_path=Path("/nonexistent"))
-        result = tools2.dispatch["finpath_overview"]()
+        FakeApi.return_value.get_overview.return_value = {"stocks": [{"c": "VCB", "mc": 100}, {"c": "VIC", "mc": 200}]}
+        tools = research_tools.build_research_tools(db=mock_db, secrets_path=Path("/nonexistent"))
+        # No ticker → top 50 (here just 2 stocks, sorted by market cap desc)
+        result = tools.dispatch["finpath_overview"]()
     assert result["ok"] is True
-    assert result["source"] == "Finpath_API/overview"
+    assert result["source"] == "Finpath_API/overview/top50"
+    assert result["data"]["stocks"][0]["c"] == "VIC"  # higher mc
+    assert result["data"]["total_market_count"] == 2
+
+
+def test_finpath_overview_ticker_filter(mock_db):
+    """When ticker arg passed, only that one stock returns."""
+    with patch("lib.llm.research_tools.FinpathAPI") as FakeApi:
+        FakeApi.return_value.get_overview.return_value = {"stocks": [{"c": "VCB", "mc": 100}, {"c": "VIC", "mc": 200}]}
+        tools = research_tools.build_research_tools(db=mock_db, secrets_path=Path("/nonexistent"))
+        result = tools.dispatch["finpath_overview"](ticker="VCB")
+    assert result["ok"] is True
+    assert result["source"] == "Finpath_API/overview/VCB"
+    assert len(result["data"]["stocks"]) == 1
     assert result["data"]["stocks"][0]["c"] == "VCB"
 
 

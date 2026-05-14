@@ -213,6 +213,143 @@ master_data_trail: []
 skeptic_data_trail: []
 raw_article_url: https://vneconomy.vn/mot-cong-ty-chung-khoan-ha-du-bao-tang-truong-vn-index-do-rui-ro-ben-ngoai.htm
 format_director: null
+gemini:
+  title: 'VNDirect Tự Cắt Đỉnh VN-Index: Tay Trong Thấy Rủi Ro Gì Khi NĐT Đang Hưng
+    Phấn?'
+  body: 'Giữa lúc VN-Index vừa lập đỉnh lịch sử mới trên 1.900 điểm, chính VNDirect
+    lại dội một gáo nước lạnh khi hạ dự báo chỉ số. Nếu bạn đang cầm cổ phiếu VND,
+    hành động "nói ngược" của công ty môi giới này là một tín hiệu cảnh báo sớm không
+    thể bỏ qua về những gì họ thấy trước.
+
+
+    - **Cú cắt gần 140 điểm không báo trước**: VNDirect đã hạ mục tiêu VN-Index cuối
+    năm 2026 từ mức lạc quan **2.100 điểm xuống còn 1.967 điểm**. Đáng nói, hành động
+    này diễn ra ngay giữa tháng 5, thời điểm thị trường đang ở vùng đỉnh hưng phấn,
+    thay vì chờ đợi một cú điều chỉnh rõ ràng. Đây là một động thái **chủ động và
+    bất thường**.
+
+
+    - **Nghịch lý vĩ mô trong nước vẫn tốt**: Cú cắt ngọn của VNDirect càng trở nên
+    khó hiểu khi các tổ chức quốc tế lại đang nhìn Việt Nam rất tích cực. Quỹ Tiền
+    tệ Quốc tế (IMF) vừa nâng dự báo GDP 2026 lên **7,1%** và Moody''s cũng nâng triển
+    vọng tín nhiệm quốc gia. Câu hỏi là: **VNDirect đang thấy rủi ro ở đâu** mà các
+    tổ chức này chưa nhấn mạnh?
+
+
+    - **"Rủi ro bên ngoài" là cái cớ hay mối lo thật?**: Lý do mơ hồ "rủi ro bất định
+    từ bên ngoài" có thể ám chỉ những thứ như **áp lực thuế quan mới** hoặc **chính
+    sách tiền tệ khó lường từ Mỹ**. Khi một công ty chứng khoán lo ngại về điều này,
+    họ đang lo cho chính "nồi cơm" của mình: danh mục tự doanh và doanh thu môi giới.
+    Thị trường chung xấu đi, **lợi nhuận của VND khó có thể đứng ngoài cuộc**.
+
+
+    - **Hành động nói lên tất cả**: Quan trọng hơn lời nói, việc một công ty chứng
+    khoán tự hạ kỳ vọng cho thấy họ đang chuẩn bị cho một kịch bản **thị trường tăng
+    chậm lại**, thậm chí là đi ngang trong các quý tới. Lợi nhuận từ mảng môi giới
+    và đặc biệt là tự doanh, vốn là động lực tăng trưởng chính, có thể sẽ **không
+    còn bùng nổ như các quý trước**.
+
+
+    Với tín hiệu đi trước từ chính ban lãnh đạo, nhà đầu tư đang nắm giữ VND nên thận
+    trọng. Đây chưa phải lúc để gia tăng tỷ trọng. Cân nhắc chốt lời một phần để quản
+    trị rủi ro nếu cổ phiếu tiến đến các vùng kháng cự mạnh. Việc mua mới chỉ nên
+    được xem xét khi các "rủi ro bên ngoài" được làm rõ hoặc khi giá cổ phiếu chiết
+    khấu về một mức an toàn hơn.'
+  word_count: 298
+  model: gemini-2.5-pro
+  generated_at: '2026-05-14T08:31:20.997336+00:00'
+  tokens_in: 6665
+  tokens_out: 1718
+  cost_usd: 0.016921
+  step_log:
+    model: gemini-2.5-pro
+    duration_ms: 78010
+    tokens:
+      prompt_tokens: 6665
+      completion_tokens: 1718
+    chosen_question_idx: 0
+    chosen_pick_reason: 'Câu hỏi ''why_now'' (vì sao là thời điểm này?) là góc khai
+      thác mạnh nhất và trực diện nhất. Nó tạo ra một nghịch lý rõ ràng: thị trường
+      đang thăng hoa nhưng chính người trong cuộc lại bi quan. Điều này ngay lập tức
+      thu hút sự chú ý của nhà đầu tư đang cầm cổ phiếu VND và buộc họ phải suy nghĩ
+      lại về vị thế của mình.'
+    skip_reasons:
+      '1': Câu hỏi về 'cơ chế ẩn' (hidden_mechanism) quá kỹ thuật và cần các số liệu
+        cụ thể về định giá P/E mục tiêu và tăng trưởng EPS mà VNDirect không công
+        bố. Nếu không có dữ liệu từ tool, rất khó để phân tích sâu mà không suy diễn.
+      '2': Câu hỏi về 'tín hiệu sớm' (early_signal) đòi hỏi phải xác minh được xu
+        hướng của toàn ngành chứng khoán (bao nhiêu công ty khác cũng hạ dự báo).
+        Việc này cần tool web_search hoạt động ổn định để tìm bằng chứng, nếu không
+        sẽ làm giảm độ tin cậy của bài viết.
+    data_trail:
+    - source: Finpath_API/income_statement/VND
+      fetched: 'Tool execution failed with error: isinstance() arg 2 must be a type,
+        a tuple of types, or a union'
+      purpose: Lấy số liệu lãi/lỗ quý gần nhất của VND để đánh giá sức khỏe nội tại.
+      supports_argument: N/A due to tool failure. Argument was adapted to use context
+        from prompt.
+    - source: 'WebSearch: external risks vietnam stock market 2026 tariff pressure'
+      fetched: 'Tool execution failed with error: isinstance() arg 2 must be a type,
+        a tuple of types, or a union'
+      purpose: Tìm hiểu cụ thể các 'rủi ro bên ngoài' đang được thảo luận.
+      supports_argument: N/A due to tool failure. Argument used plausible examples
+        like 'thuế quan' mentioned in other deep questions.
+    - source: Finpath_API/overview/VND
+      fetched: 'Tool execution failed with error: isinstance() arg 2 must be a type,
+        a tuple of types, or a union'
+      purpose: Lấy giá và vốn hóa thị trường hiện tại của VND.
+      supports_argument: N/A due to tool failure.
+    - source: Finpath_API/read_recent_articles/VND
+      fetched: 'Tool execution failed with error: isinstance() arg 2 must be a type,
+        a tuple of types, or a union'
+      purpose: Kiểm tra các góc nhìn đã được khai thác gần đây để đảm bảo bài viết
+        mới mẻ.
+      supports_argument: N/A due to tool failure.
+    - source: Raw news from https://vneconomy.vn/mot-cong-ty-chung-khoan-ha-du-bao-tang-truong-vn-index-do-rui-ro-ben-ngoai.htm
+      fetched: VNDirect lowers VN-Index forecast to 1,967 from 2,100 due to external
+        risks.
+      purpose: Nguồn tin chính, cung cấp sự kiện cốt lõi cho bài viết.
+      supports_argument: Toàn bộ bài viết
+    - source: Deep Question Option 0 from Prompt
+      fetched: Narrative_setup and key_evidence provided details on the 140pt cut,
+        1900 index level, IMF GDP 7.1%, and Moody's upgrade.
+      purpose: Nguồn dữ liệu thay thế khi các tool API thất bại, cung cấp các con
+        số và bối cảnh cụ thể.
+      supports_argument: Toàn bộ bài viết
+    tool_history:
+    - name: finpath_income_statement
+      args:
+        ticker: VND
+      ok: true
+      source: null
+      summary: 'error: isinstance() arg 2 must be a type, a tuple of types, or a union'
+    - name: web_search
+      args:
+        query: external risks vietnam stock market 2026 tariff pressure
+      ok: true
+      source: null
+      summary: 'error: isinstance() arg 2 must be a type, a tuple of types, or a union'
+    - name: finpath_overview
+      args:
+        ticker: VND
+      ok: true
+      source: null
+      summary: 'error: isinstance() arg 2 must be a type, a tuple of types, or a union'
+    - name: read_recent_articles
+      args:
+        ticker: VND
+      ok: true
+      source: null
+      summary: 'error: isinstance() arg 2 must be a type, a tuple of types, or a union'
+    gates_passed: true
+    format_id_used: standard_qa
+    format_escalation_reason: null
+    insight_final: Hành động hạ dự báo của VNDirect ngay tại đỉnh thị trường là tín
+      hiệu quản trị rủi ro nội bộ, cho thấy họ dự phòng lợi nhuận từ tự doanh và môi
+      giới sẽ chậm lại.
+    key_view: thận trọng
+    variety_guard_angle: Tự cắt kỳ vọng — chính người môi giới nhìn thị trường yếu
+      đi
 grok:
   title: VND tự cắt 140 điểm VN-Index giữa lúc thị trường lập đỉnh mới?
   body: 'Giữa tháng 5/2026 khi VN-Index vừa vượt 1.900 điểm lập đỉnh lịch sử, VNDirect
@@ -294,11 +431,14 @@ grok:
       đi
 thumb_url: https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/VND-20260514-0757-vnd-tu-ha-vn-index-ve-1967-giua-luc-thi-truong-vua-lap-dinh-0cb2a179.webp
 costs:
+  gemini_tokens_in: 6665
+  gemini_tokens_out: 1718
+  gemini_cost_usd: 0.016921
   grok_tokens_in: 15030
   grok_tokens_out: 882
   grok_cost_usd: 0.05832
   image_cost_usd: 0.04
-  total_cost_usd: 0.09832
+  total_cost_usd: 0.115241
 ---
 
 <!-- left -->

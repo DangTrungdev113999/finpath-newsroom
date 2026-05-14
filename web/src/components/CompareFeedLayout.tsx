@@ -40,23 +40,32 @@ export function CompareFeedLayout({
   const model = modelScope === 'local' ? localModel : globalPref.model;
   const setModel = modelScope === 'local' ? setLocalModel : globalPref.setModel;
   // Silent fallback chain — when the user has Gemini globally selected but
-  // this article only has Grok / Claude, render the available side instead
-  // of a missing-notice. Order: user preference → other AI side → Claude
-  // default. `effectiveModel` is what actually drives the byline + body.
+  // this article only has Grok / primary, render the available side instead
+  // of a missing-notice. Order: user preference → other AI side → primary
+  // writer (whose body is in leftMarkdown — `claude` for legacy articles,
+  // otherwise whatever V5.1.9+ render set). `effectiveModel` is what
+  // actually drives the byline + body AND the toggle's active button.
+  const primaryWriter: ArticleModel = meta.primary_writer ?? 'claude';
   const effectiveModel: ArticleModel =
     model === 'gemini'
       ? geminiAvailable
         ? 'gemini'
         : grokAvailable
           ? 'grok'
-          : 'claude'
+          : primaryWriter
       : model === 'grok'
         ? grokAvailable
           ? 'grok'
           : geminiAvailable
             ? 'gemini'
-            : 'claude'
-        : 'claude';
+            : primaryWriter
+        : claudeAvailable
+          ? 'claude'
+          : geminiAvailable
+            ? 'gemini'
+            : grokAvailable
+              ? 'grok'
+              : primaryWriter;
   const showGrok = effectiveModel === 'grok';
   const showGemini = effectiveModel === 'gemini';
   const displayTitle = showGrok
@@ -106,8 +115,13 @@ export function CompareFeedLayout({
             </span>
           </p>
           <div className="flex items-center gap-3">
+            {/* selected=effectiveModel so the active button always matches
+                what's actually rendering (not the user's stale preference
+                when this article doesn't have that side). onChange still
+                writes to preference — clicking a different model updates the
+                global default and re-renders with the new effective pick. */}
             <ModelToggle
-              selected={model}
+              selected={effectiveModel}
               onChange={setModel}
               geminiAvailable={geminiAvailable}
               grokAvailable={grokAvailable}

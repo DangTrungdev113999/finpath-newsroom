@@ -104,14 +104,27 @@ def build_research_tools(
     kb = KBLoader(kb_root)
     web_key = tavily_api_key or _load_tavily_key(secrets_path)
 
-    def finpath_overview() -> dict:
-        """Get a snapshot of all listed Vietnamese stocks (price, market cap, volume).
-        No arguments. Returns the latest market overview. Use to verify a ticker exists
-        or to grab today's market cap / current price before quoting a number.
+    def finpath_overview(ticker: str | None = None) -> dict:
+        """Get today's market snapshot for ONE ticker (or top-50 by market cap if no ticker).
+        Use to grab today's price + market cap + volume before quoting.
+        Returns trimmed payload (one ticker row OR top 50) to keep tool context small.
+        `ticker`: optional 3-letter ticker. When set, returns just that stock's row.
         """
         try:
             data = api.get_overview()
-            return {"ok": True, "source": "Finpath_API/overview", "data": data}
+            stocks = data.get("stocks", []) if isinstance(data, dict) else []
+            if ticker:
+                wanted = ticker.strip().upper()
+                hit = next((s for s in stocks if (s.get("c") or "").upper() == wanted), None)
+                trimmed = [hit] if hit else []
+            else:
+                # Top 50 by market cap — enough for LLM to scan competitors / peer set
+                trimmed = sorted(stocks, key=lambda s: s.get("mc") or 0, reverse=True)[:50]
+            return {
+                "ok": True,
+                "source": f"Finpath_API/overview" + (f"/{ticker}" if ticker else "/top50"),
+                "data": {"stocks": trimmed, "total_market_count": len(stocks)},
+            }
         except Exception as exc:  # noqa: BLE001 — network/parse errors all surface the same
             return {"ok": False, "error": str(exc), "source": "Finpath_API/overview"}
 
@@ -275,8 +288,12 @@ def build_research_tools(
             "type": "function",
             "function": {
                 "name": "finpath_overview",
-                "description": "Get a snapshot of all listed Vietnamese stocks (price, market cap, volume).",
-                "parameters": {"type": "object", "properties": {}, "required": []},
+                "description": "Today's market snapshot for ONE ticker (or top-50 if no ticker). Returns trimmed payload.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {"ticker": {"type": "string", "description": "Optional 3-letter ticker"}},
+                    "required": [],
+                },
             },
         },
         {

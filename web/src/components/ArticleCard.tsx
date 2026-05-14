@@ -97,34 +97,16 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
             viewport, otherwise renders a shimmer placeholder so the card
             height stays stable between visible / loading states. */}
         {opening === null ? (
-          <div className="mb-4 space-y-1.5">
+          <div className="space-y-1.5">
             <div className="h-[13px] w-full rounded bg-bg-3/70 animate-pulse" />
             <div className="h-[13px] w-[94%] rounded bg-bg-3/70 animate-pulse" />
             <div className="h-[13px] w-[68%] rounded bg-bg-3/70 animate-pulse" />
           </div>
         ) : opening ? (
-          <p className="mb-4 line-clamp-3 text-[13px] leading-[1.55] text-fg-2">
+          <p className="m-0 line-clamp-3 text-[13px] leading-[1.55] text-fg-2">
             {opening}
           </p>
         ) : null}
-
-        <div className="mt-auto flex items-center justify-between border-t border-fg-4/30 pt-3">
-          {/* Word count — number emphasized, unit demoted to caption */}
-          <span className="inline-flex items-baseline gap-1 font-mono tabular-nums">
-            <span className="text-[12.5px] font-bold text-fg-1">
-              {article.word_count}
-            </span>
-            <span className="text-[9.5px] font-medium uppercase tracking-[0.14em] text-fg-3">
-              từ
-            </span>
-          </span>
-          <span
-            aria-hidden
-            className="font-mono text-[12px] text-fg-3 transition-all duration-med ease-out-quart group-hover:translate-x-0.5 group-hover:text-brand"
-          >
-            →
-          </span>
-        </div>
       </div>
     </Link>
   );
