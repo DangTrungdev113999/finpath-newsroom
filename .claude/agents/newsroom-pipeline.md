@@ -392,6 +392,16 @@ db.log_pipeline_step(article_id, "step_5_skeptic", payload_skeptic)
 
 After ALL briefs done, proceed to Step 6 (Render) → Step 7 (Git publish) → Step 8 (Pages wait) → Step 9 (Telegram batch).
 
+### Step 5.9 — Aggregate AI costs (V5.1.8 — RUN BEFORE Render)
+
+After Master + Gemini Writer + Grok Writer + Image Gen done, sum per-model costs into `total_cost_usd` so frontmatter `costs:` block + manifest entry surface the final number:
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -m lib.stages.aggregate_costs --batch-id <BATCH_ID>
+```
+
+This script extracts Claude Master usage from `pipeline_log.step_4_master.tokens` (dict shape from spawn_step_agent), prices it via `lib/llm/pricing.py`, then sums claude + gemini + grok + image into `total_cost_usd`. Idempotent — re-running on same batch is a no-op. NULL-safe: missing component contributes 0; all-NULL keeps `total_cost_usd = NULL`.
+
 ### Step 6 — Render (Python self-execute, multi-article)
 
 ```bash
@@ -430,21 +440,58 @@ print(json.dumps(result))
 
 `ok=True` → Step 9 normally. `error=='timeout'` → Step 9 with fallback footer warning to publisher. `error.startswith('deploy failed')` → FAIL pipeline. See `references/failure-recovery.md`.
 
-### Step 9 — Per-article Telegram push
+### Step 9 — Per-article Telegram push (V5.1.8 — Gemini+Grok only, no Claude)
 
-For each article in batch, spawn `newsroom-telegram-publisher`. T14b idempotency unchanged. If Step 8 returned `fallback == 'push_telegram_anyway'`, pass `channel_footer_warning="⚠️ Đang deploy, link có thể chưa work trong 30s"`.
+For each article in batch, spawn `newsroom-telegram-publisher`. Idempotency: skip nếu `telegram_pushed_at` đã set.
+
+**V5.1.8 input shape** (parallel writers + cost summary, NO Claude title/body):
 
 ```bash
-cat > /tmp/prompt-telegram-<article_id>.md <<'EOF'
-Publish article_id=<id>, title=<title>, public_slug=<slug>. T14b idempotency check. channel_footer_warning=<warning_or_null>. Follow newsroom-telegram-publisher skill V4.0. Return JSON: {message_id, telegram_pushed_at, idempotent_skip}.
+# Pre-build payload from DB — load gemini/grok title+body + cost
+cd "/Users/trungdt/Desktop/Stream Intelligent" && PAYLOAD=$(uv run python -c "
+import json
+from lib.pipeline_db import PipelineDB
+db = PipelineDB('data/pipeline.db')
+r = db.conn.execute(
+    'SELECT public_slug, gemini_title, gemini_body, gemini_status, grok_title, grok_body, grok_status, '
+    'total_cost_usd, pipeline_log FROM generated_news WHERE article_id = ?',
+    ('<article_id>',)
+).fetchone()
+db.close()
+log = json.loads(r['pipeline_log']) if r['pipeline_log'] else {}
+m_dur = (log.get('step_4_master') or {}).get('duration_ms', 0) or 0
+g_dur = (log.get('step_4_3_gemini') or {}).get('duration_ms', 0) or 0
+gk_dur = (log.get('step_4_4_grok') or {}).get('duration_ms', 0) or 0
+print(json.dumps({
+    'article_id': '<article_id>',
+    'public_slug': r['public_slug'],
+    'gemini_title': r['gemini_title'] if r['gemini_status'] == 'success' else None,
+    'gemini_body': r['gemini_body'] if r['gemini_status'] == 'success' else None,
+    'grok_title': r['grok_title'] if r['grok_status'] == 'success' else None,
+    'grok_body': r['grok_body'] if r['grok_status'] == 'success' else None,
+    'total_cost_usd': r['total_cost_usd'],
+    'total_duration_ms': (m_dur + g_dur + gk_dur) or None,
+}, ensure_ascii=False))
+")
+
+# Skip dispatch nếu cả gemini_title và grok_title đều null
+if [ "$(echo "$PAYLOAD" | uv run python -c 'import sys,json; d=json.load(sys.stdin); print("skip" if not d["gemini_title"] and not d["grok_title"] else "go")')" = "skip" ]; then
+    echo "skipped_no_parallel_writers — both Gemini and Grok failed"
+else
+    cat > /tmp/prompt-telegram-<article_id>.md <<EOF
+Publish article using V5.1.8 publish_article_v5 method. Payload:
+$PAYLOAD
+
+Follow newsroom-telegram-publisher V5.1.8 spec: 2-title channel post + 3 thread replies (Gemini body / Grok body / CTA web link). Skip Claude entirely. Idempotency check via telegram_pushed_at.
 EOF
 
-uv run python lib/stages/spawn_step_agent.py newsroom-telegram-publisher /tmp/prompt-telegram-<article_id>.md \
-  --model haiku --max-budget-usd 0.3 --timeout-s 120 \
-  > /tmp/spawn-telegram-<article_id>.json
+    uv run python lib/stages/spawn_step_agent.py newsroom-telegram-publisher /tmp/prompt-telegram-<article_id>.md \
+      --model haiku --max-budget-usd 0.3 --timeout-s 120 \
+      > /tmp/spawn-telegram-<article_id>.json
+fi
 ```
 
-NOTE: key renamed `step_7_telegram` → `step_9_telegram` (Phase H1) to avoid collision with new `step_7_git_publish`. Telegram agent auto-persists `generated_news.telegram_pushed_at`. Pipeline KHÔNG block on fail (graceful degrade).
+NOTE: key renamed `step_7_telegram` → `step_9_telegram` (Phase H1) to avoid collision with new `step_7_git_publish`. Publisher auto-persists `generated_news.telegram_pushed_at` on success. Pipeline KHÔNG block on fail (graceful degrade — `status='failed'`/`'skipped_no_parallel_writers'` both leave article unpushed but pipeline continues).
 
 ---
 
