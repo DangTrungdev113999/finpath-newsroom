@@ -1,57 +1,72 @@
 ---
 name: newsroom-telegram-publisher
-description: Telegram publisher V4.0 Phase G T14b — sau khi 1 article hoàn tất Skeptic critique, post title-only tới channel + auto-forward to linked discussion group + reply trong thread với full Master body. Idempotent (skip nếu telegram_pushed_at đã set). Use when newsroom-pipeline dispatches Step 7 per article. Graceful degrade khi secrets.yaml missing hoặc linked_group_chat_id không config.
+description: Telegram publisher V5.1.8 — sau khi 1 article hoàn tất Master + Gemini Writer + Grok Writer, post 2-title channel message (Gemini + Grok, KHÔNG Claude) + auto-forward to linked discussion group + reply 3 messages trong thread (Gemini body / Grok body / CTA web link). Idempotent (skip nếu telegram_pushed_at đã set). Skip toàn bộ nếu cả Gemini và Grok đều fail (status='skipped_no_parallel_writers'). Use when newsroom-pipeline dispatches Step 7 per article. Graceful degrade khi secrets.yaml missing hoặc linked_group_chat_id không config.
 tools: Bash, Read
 model: sonnet
 ---
 
-# Telegram Publisher Agent V4.0 Phase G T14b
+# Telegram Publisher Agent V5.1.8 (2026-05-14)
 
-Two-stage publish: **channel title** + **thread body** trong linked discussion group.
+Two-stage publish: **2-title channel post** (Gemini + Grok side-by-side, KHÔNG Claude) + **3-message thread** (Gemini body, Grok body, CTA web link).
 
 ## Why two-stage
 
-User feedback: channel feed phải clean (chỉ title), nhưng click "Leave a comment" mở thread → reader đọc full bài + comment trong context. Telegram's channel + linked discussion group feature support pattern này: bot post channel → Telegram auto-forward to linked group → bot reply trong thread.
+User feedback: channel feed phải clean (chỉ 2 dòng title cạnh nhau cho user so sánh), nhưng click "Leave a comment" mở thread → reader đọc cả 2 bản Gemini + Grok + link ra web (3 model toggle). Telegram's channel + linked discussion group feature support pattern này: bot post channel → Telegram auto-forward to linked group → bot reply 3 messages trong thread.
+
+V5.1.8 change vs V4.0: KHÔNG còn push Claude title/body. Master title chỉ hiển thị trên web (3-model toggle); Telegram channel feed dùng Gemini + Grok title (parallel writers, voice typically khác Claude).
 
 ## Input
 
 ```json
 {
   "article_id": "<uuid>",
-  "title": "<article title>",
-  "body": "<Master body markdown 200-400 từ>",
-  "public_slug": "<URL slug>"
+  "gemini_title": "<gemini_title or null>",
+  "grok_title": "<grok_title or null>",
+  "gemini_body": "<gemini body markdown 200-400 từ or null>",
+  "grok_body": "<grok body markdown or null>",
+  "public_slug": "<URL slug>",
+  "total_cost_usd": <float or null>,
+  "total_duration_ms": <int or null>
 }
 ```
 
+If BOTH `gemini_title` and `grok_title` are null/empty → orchestrator should NOT spawn this agent (status='skipped_no_parallel_writers' auto-derived).
+
 ## Workflow
 
-### Step 0 — Compute metadata for channel post (T14b 3-line format)
+### Step 0 — Load parallel writer fields + cost from DB
 
-Pull duration + tokens from `pipeline_log` để channel post hiển thị "thời gian viết bài + token count":
+V5.1.8: read gemini_title/body + grok_title/body + total_cost_usd from generated_news directly. Total duration aggregates Master + Gemini + Grok step_*.duration_ms entries from pipeline_log.
 
 ```bash
 cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
 import json
 from lib.pipeline_db import PipelineDB
 db = PipelineDB('data/pipeline.db')
-cur = db.conn.execute('SELECT pipeline_log FROM generated_news WHERE article_id = ?', ('<ARTICLE_ID>',))
+cur = db.conn.execute(
+    'SELECT gemini_title, gemini_body, gemini_status, grok_title, grok_body, grok_status, '
+    'total_cost_usd, pipeline_log FROM generated_news WHERE article_id = ?',
+    ('<ARTICLE_ID>',)
+)
 row = cur.fetchone()
 db.close()
 log = json.loads(row['pipeline_log']) if row['pipeline_log'] else {}
-m = log.get('step_4_master', {})
-s = log.get('step_5_skeptic', {})
-m_dur = m.get('duration_ms', 0) or 0
-s_dur = s.get('duration_ms', 0) or 0
-total_dur = m_dur + s_dur
-m_tok = m.get('tokens')
-s_tok = s.get('tokens')
-total_tok = (m_tok or 0) + (s_tok or 0) if (m_tok is not None or s_tok is not None) else None
-print(json.dumps({'write_duration_ms': total_dur if total_dur > 0 else None, 'tokens': total_tok}))
+m_dur = (log.get('step_4_master') or {}).get('duration_ms', 0) or 0
+g_dur = (log.get('step_4_3_gemini') or {}).get('duration_ms', 0) or 0
+gk_dur = (log.get('step_4_4_grok') or {}).get('duration_ms', 0) or 0
+total_dur = m_dur + g_dur + gk_dur
+print(json.dumps({
+    'gemini_title': row['gemini_title'] if row['gemini_status'] == 'success' else None,
+    'gemini_body': row['gemini_body'] if row['gemini_status'] == 'success' else None,
+    'grok_title': row['grok_title'] if row['grok_status'] == 'success' else None,
+    'grok_body': row['grok_body'] if row['grok_status'] == 'success' else None,
+    'total_cost_usd': row['total_cost_usd'],
+    'total_duration_ms': total_dur if total_dur > 0 else None,
+}, ensure_ascii=False))
 "
 ```
 
-Capture stdout JSON → `metadata`. tokens=null OK (Phase G T10 known: `<usage>` parse from Task return chưa work — publisher hiển thị `🪙 —` placeholder).
+Capture stdout JSON → `payload`. If both `gemini_title` and `grok_title` are None → skip Step 1+ → return `{"status": "skipped_no_parallel_writers", "telegram_pushed_at": null}` (do NOT persist).
 
 ### Step 1 — Idempotency check
 
@@ -71,13 +86,16 @@ If output `ALREADY_PUSHED` → return:
 {"status": "already_pushed", "telegram_message_id": null, "error": null}
 ```
 
-### Step 2 — Load secrets + publish two-stage
+### Step 2 — Load secrets + publish V5.1.8 (Gemini + Grok parallel)
 
-Use heredoc temp file for body (avoid shell quoting hell vì body có thể chứa quote, newline, dấu `*`):
+Write both bodies to temp files (avoid shell quoting hell):
 
 ```bash
-cd "/Users/trungdt/Desktop/Stream Intelligent" && cat > /tmp/tg-body.txt <<'BODYEOF'
-<paste full Master body markdown here>
+cd "/Users/trungdt/Desktop/Stream Intelligent" && cat > /tmp/tg-gemini-body.txt <<'BODYEOF'
+<gemini body markdown OR empty string nếu null>
+BODYEOF
+cat > /tmp/tg-grok-body.txt <<'BODYEOF'
+<grok body markdown OR empty string nếu null>
 BODYEOF
 
 uv run python -c "
@@ -86,20 +104,19 @@ from lib.telegram_publisher import load_telegram_config
 
 publisher = load_telegram_config()
 if publisher is None:
-    print(json.dumps({'status': 'skipped_no_secrets', 'telegram_message_id': None, 'error': 'data/secrets.yaml missing or incomplete'}))
+    print(json.dumps({'status': 'skipped_no_secrets', 'error': 'data/secrets.yaml missing'}))
 else:
-    body = open('/tmp/tg-body.txt', encoding='utf-8').read()
-    if publisher.linked_group_chat_id:
-        result = publisher.publish_article_with_thread_body(
-            title='<TITLE>',
-            body=body,
-            public_slug='<PUBLIC_SLUG>',
-            write_duration_ms=<METADATA.write_duration_ms or None>,
-            tokens=<METADATA.tokens or None>,
-        )
-    else:
-        # Fallback legacy nếu không config linked_group
-        result = publisher.publish_article('<TITLE>', '<PUBLIC_SLUG>')
+    g_body = open('/tmp/tg-gemini-body.txt', encoding='utf-8').read().strip() or None
+    gk_body = open('/tmp/tg-grok-body.txt', encoding='utf-8').read().strip() or None
+    result = publisher.publish_article_v5(
+        gemini_title=<payload.gemini_title or None>,
+        grok_title=<payload.grok_title or None>,
+        gemini_body=g_body,
+        grok_body=gk_body,
+        public_slug='<PUBLIC_SLUG>',
+        total_duration_ms=<payload.total_duration_ms or None>,
+        total_cost_usd=<payload.total_cost_usd or None>,
+    )
     print(json.dumps(result, ensure_ascii=False))
 "
 ```
@@ -137,38 +154,32 @@ Return `result` JSON tới caller (orchestrator).
 }
 ```
 
-## Channel post format (3 lines — always)
+## Channel post format V5.1.8
 
 ```
-<b>{title}</b>
-[blank line cho thoáng]
+<b>Gemini:</b> {gemini_title}        ← omitted if gemini fail
+<b>grok:</b> {grok_title}             ← omitted if grok fail
+[blank line]
 🕐 {posted_at:%d/%m/%Y %H:%M:%S}
-⏱️ Thời gian viết bài: {duration|chưa đo}[ · 🪙 {tokens}]
+⏱️ Viết: {duration|chưa đo} · 💰 ${cost:.4f}
 ```
 
-**Line 3 ALWAYS present** for visual consistency across feed:
-- Duration null → fallback "chưa đo"
-- Tokens null → tokens chunk omitted (no `· 🪙 —` placeholder)
-- Examples:
-  - Both: `⏱️ Thời gian viết bài: 1m 37s · 🪙 12.500`
-  - Duration only: `⏱️ Thời gian viết bài: 1m 37s`
-  - Tokens only: `⏱️ Thời gian viết bài: chưa đo · 🪙 8.500`
-  - Neither: `⏱️ Thời gian viết bài: chưa đo`
+Both titles present → 2 dòng title. Chỉ 1 side success → 1 dòng. Cả 2 fail → status='skipped_no_parallel_writers'. Cost chunk omitted khi total_cost_usd null/0.
 
-KHÔNG hiển thị `"—"` placeholder anywhere.
+## Thread message format V5.1.8 (3 replies)
 
-## Thread message format (2 replies)
+**Reply 1 — Gemini body** (skipped if `gemini_body` None):
+- Header: `<b>📰 Bài Gemini</b>` + blank line + body
+- Body markdown auto-converted (`**bold**` → `<b>`; `- item` → `• item`; `## Heading` → `<b>Heading</b>`)
 
-**Reply 1 — body**:
-- Master body Markdown auto-converted to Telegram HTML
-- `**bold**` → `<b>bold</b>`
-- `- item` → `• item`
-- `## Heading` → `<b>Heading</b>`
+**Reply 2 — Grok body** (skipped if `grok_body` None):
+- Header: `<b>📰 Bài Grok</b>` + blank line + body
+- Same markdown→HTML conversion
 
-**Reply 2 — link**:
+**Reply 3 — CTA web link** (always sent if thread thread_message_id detected):
 ```
-📚 Đọc đầy đủ <b>phản biện</b>, <b>nguồn tra cứu</b>, <b>pipeline log</b>:
-{base_url}/article/{public_slug}
+📚 Đọc đầy đủ <b>3 bản</b> (Claude / Gemini / Grok), <b>ảnh hero</b>, <b>nguồn tra cứu</b>, <b>pipeline log</b>:
+<a href="{base_url}/article/{public_slug}">{base_url}/article/{public_slug}</a>
 ```
 
 Status semantics:

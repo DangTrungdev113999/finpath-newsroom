@@ -54,6 +54,55 @@ def _format_tokens(n: int | None) -> str | None:
     return f"{n:,}".replace(",", ".")
 
 
+def _format_cost(cost_usd: float | None) -> str | None:
+    """Format USD cost → '$0.0247'. None/0 → None (caller skips field)."""
+    if cost_usd is None or cost_usd <= 0:
+        return None
+    return f"${cost_usd:.4f}"
+
+
+def _build_channel_text_v5(
+    *,
+    gemini_title: str | None,
+    grok_title: str | None,
+    posted_at: datetime,
+    duration_ms: int | None,
+    cost_usd: float | None,
+    escape_fn,
+) -> str:
+    """V5.1.8 channel post — 1 line per available parallel writer + meta.
+
+    Format:
+        <b>Gemini:</b> {gemini_title}    # only if gemini_title present
+        <b>grok:</b> {grok_title}        # only if grok_title present
+        [blank line]
+        🕐 {posted_at}
+        ⏱️ Viết: {duration} · 💰 {cost}
+
+    At least one of gemini_title / grok_title MUST be present — caller
+    enforces this via 'skipped_no_parallel_writers' branch.
+    """
+    title_lines: list[str] = []
+    if gemini_title:
+        title_lines.append(f"<b>Gemini:</b> {escape_fn(gemini_title)}")
+    if grok_title:
+        title_lines.append(f"<b>grok:</b> {escape_fn(grok_title)}")
+
+    duration_str = _format_duration(duration_ms) or "chưa đo"
+    cost_str = _format_cost(cost_usd)
+    meta_parts = [f"⏱️ Viết: {duration_str}"]
+    if cost_str:
+        meta_parts.append(f"💰 {cost_str}")
+
+    lines = [
+        *title_lines,
+        "",
+        f"🕐 {posted_at.strftime('%d/%m/%Y %H:%M:%S')}",
+        " · ".join(meta_parts),
+    ]
+    return "\n".join(lines)
+
+
 def _build_channel_text(title: str, posted_at: datetime, duration_ms: int | None,
                        tokens: int | None, escape_fn) -> str:
     """Build channel post — always 3 lines for visual consistency.
@@ -306,6 +355,194 @@ class TelegramPublisher:
             "thread_message_id": thread_msg_id,
             "body_message_id": body_msg_id,
             "link_message_id": link_msg_id,
+        }
+
+    def publish_article_v5(
+        self,
+        *,
+        gemini_title: str | None,
+        grok_title: str | None,
+        gemini_body: str | None,
+        grok_body: str | None,
+        public_slug: str,
+        posted_at: datetime | None = None,
+        total_duration_ms: int | None = None,
+        total_cost_usd: float | None = None,
+        max_poll_attempts: int = 8,
+        poll_interval_sec: float = 2.0,
+    ) -> dict:
+        """V5.1.8 — Push parallel-writer titles only (Claude side excluded).
+
+        Channel post lines (1 per available side):
+            <b>Gemini:</b> {gemini_title}
+            <b>grok:</b> {grok_title}
+
+        Thread replies (3 messages):
+            1. <b>📰 Bài Gemini</b> + body (skipped if gemini_body missing)
+            2. <b>📰 Bài Grok</b> + body (skipped if grok_body missing)
+            3. CTA: 📚 Đọc đầy đủ + nguồn + comments: {url}
+
+        Skip rules:
+            - Both titles missing → status='skipped_no_parallel_writers'
+              (no API call, no telegram_pushed_at set; orchestrator may retry
+              next pipeline run if Gemini/Grok succeed later).
+            - Only one title present → 1-line channel post + 1 body reply + CTA.
+            - linked_group_chat_id is None → fall back to legacy publish_article
+              with the available title (no thread).
+
+        Returns same shape as publish_article_with_thread_body plus
+        'gemini_body_message_id' + 'grok_body_message_id' (both nullable).
+        """
+        if not gemini_title and not grok_title:
+            return {
+                "status": "skipped_no_parallel_writers",
+                "telegram_message_id": None,
+                "thread_message_id": None,
+                "gemini_body_message_id": None,
+                "grok_body_message_id": None,
+                "link_message_id": None,
+                "error": "both gemini_title and grok_title missing — no parallel writers succeeded",
+            }
+
+        if self.linked_group_chat_id is None:
+            # No linked discussion group → degrade to single channel message
+            # with the better-available title.
+            fallback_title = gemini_title or grok_title or ""
+            legacy = self.publish_article(fallback_title, public_slug)
+            legacy["thread_message_id"] = None
+            legacy["gemini_body_message_id"] = None
+            legacy["grok_body_message_id"] = None
+            legacy["link_message_id"] = None
+            return legacy
+
+        if posted_at is None:
+            posted_at = datetime.now(VN_TZ)
+
+        with _LOCK_PATH.open("a") as lockfile:
+            fcntl.flock(lockfile.fileno(), fcntl.LOCK_EX)
+            try:
+                return self._publish_v5_locked(
+                    gemini_title=gemini_title,
+                    grok_title=grok_title,
+                    gemini_body=gemini_body,
+                    grok_body=grok_body,
+                    public_slug=public_slug,
+                    posted_at=posted_at,
+                    total_duration_ms=total_duration_ms,
+                    total_cost_usd=total_cost_usd,
+                    max_poll_attempts=max_poll_attempts,
+                    poll_interval_sec=poll_interval_sec,
+                )
+            finally:
+                fcntl.flock(lockfile.fileno(), fcntl.LOCK_UN)
+
+    def _publish_v5_locked(
+        self,
+        *,
+        gemini_title: str | None,
+        grok_title: str | None,
+        gemini_body: str | None,
+        grok_body: str | None,
+        public_slug: str,
+        posted_at: datetime,
+        total_duration_ms: int | None,
+        total_cost_usd: float | None,
+        max_poll_attempts: int,
+        poll_interval_sec: float,
+    ) -> dict:
+        offset = self._drain_offset()
+        channel_text = _build_channel_text_v5(
+            gemini_title=gemini_title,
+            grok_title=grok_title,
+            posted_at=posted_at,
+            duration_ms=total_duration_ms,
+            cost_usd=total_cost_usd,
+            escape_fn=self._escape_html,
+        )
+        ch_result = self._api("sendMessage", {
+            "chat_id": self.chat_id,
+            "text": channel_text,
+            "parse_mode": "HTML",
+        })
+        if not ch_result.get("ok"):
+            return {
+                "status": "failed",
+                "telegram_message_id": None,
+                "thread_message_id": None,
+                "gemini_body_message_id": None,
+                "grok_body_message_id": None,
+                "link_message_id": None,
+                "error": ch_result.get("description", "Channel post failed"),
+            }
+        ch_msg_id = ch_result["result"]["message_id"]
+
+        thread_msg_id = self._wait_for_auto_forward(
+            channel_msg_id=ch_msg_id,
+            offset=offset,
+            max_attempts=max_poll_attempts,
+            interval_sec=poll_interval_sec,
+        )
+        if thread_msg_id is None:
+            return {
+                "status": "pushed_no_thread",
+                "telegram_message_id": ch_msg_id,
+                "thread_message_id": None,
+                "gemini_body_message_id": None,
+                "grok_body_message_id": None,
+                "link_message_id": None,
+                "error": "auto-forward not detected within poll window — thread replies skipped",
+            }
+
+        # Reply 1 — Gemini body (skip if not provided)
+        gemini_body_msg_id: int | None = None
+        if gemini_body:
+            text = "<b>📰 Bài Gemini</b>\n\n" + _md_to_telegram_html(gemini_body)
+            r = self._api("sendMessage", {
+                "chat_id": self.linked_group_chat_id,
+                "text": text,
+                "parse_mode": "HTML",
+                "reply_to_message_id": thread_msg_id,
+            })
+            if r.get("ok"):
+                gemini_body_msg_id = r["result"]["message_id"]
+
+        # Reply 2 — Grok body (skip if not provided)
+        grok_body_msg_id: int | None = None
+        if grok_body:
+            text = "<b>📰 Bài Grok</b>\n\n" + _md_to_telegram_html(grok_body)
+            r = self._api("sendMessage", {
+                "chat_id": self.linked_group_chat_id,
+                "text": text,
+                "parse_mode": "HTML",
+                "reply_to_message_id": thread_msg_id,
+            })
+            if r.get("ok"):
+                grok_body_msg_id = r["result"]["message_id"]
+
+        # Reply 3 — CTA web link (always sent)
+        article_url = f"{self.base_url}/article/{public_slug}"
+        link_text = (
+            "📚 Đọc đầy đủ <b>3 bản</b> (Claude / Gemini / Grok), <b>ảnh hero</b>, "
+            "<b>nguồn tra cứu</b>, <b>pipeline log</b>:\n"
+            f'<a href="{article_url}">{article_url}</a>'
+        )
+        link_result = self._api("sendMessage", {
+            "chat_id": self.linked_group_chat_id,
+            "text": link_text,
+            "parse_mode": "HTML",
+            "reply_to_message_id": thread_msg_id,
+            "disable_web_page_preview": "false",
+        })
+        link_msg_id = link_result["result"]["message_id"] if link_result.get("ok") else None
+
+        return {
+            "status": "pushed",
+            "telegram_message_id": ch_msg_id,
+            "thread_message_id": thread_msg_id,
+            "gemini_body_message_id": gemini_body_msg_id,
+            "grok_body_message_id": grok_body_msg_id,
+            "link_message_id": link_msg_id,
+            "error": None,
         }
 
     def _drain_offset(self) -> int:

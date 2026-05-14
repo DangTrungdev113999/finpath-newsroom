@@ -405,3 +405,87 @@ def test_build_channel_text_escapes_title():
     text = _build_channel_text("A & B <bad>", FIXED_TIME, None, None,
                                lambda s: s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
     assert "<b>A &amp; B &lt;bad&gt;</b>" in text
+
+
+# === V5.1.8 publish_article_v5 — Gemini+Grok only, no Claude push ===========
+
+
+from lib.telegram_publisher import _build_channel_text_v5, _format_cost  # noqa: E402
+
+
+def test_format_cost_renders_dollar_4_decimals():
+    assert _format_cost(0.0247) == "$0.0247"
+    assert _format_cost(1.2345) == "$1.2345"
+    assert _format_cost(None) is None
+    assert _format_cost(0) is None
+    assert _format_cost(-0.01) is None
+
+
+def test_build_channel_text_v5_both_titles():
+    text = _build_channel_text_v5(
+        gemini_title="Chủ tịch VHM vạch ranh giới: ai sống?",
+        grok_title="VHM chọn lọc 2026: tiêu chí loại ai",
+        posted_at=FIXED_TIME,
+        duration_ms=97000,
+        cost_usd=0.0247,
+        escape_fn=ESCAPE_NOOP,
+    )
+    assert "<b>Gemini:</b> Chủ tịch VHM vạch ranh giới: ai sống?" in text
+    assert "<b>grok:</b> VHM chọn lọc 2026: tiêu chí loại ai" in text
+    assert "💰 $0.0247" in text
+    assert "⏱️ Viết: 1m 37s" in text
+
+
+def test_build_channel_text_v5_gemini_only():
+    """Only Gemini side present → single title line."""
+    text = _build_channel_text_v5(
+        gemini_title="G title",
+        grok_title=None,
+        posted_at=FIXED_TIME,
+        duration_ms=None,
+        cost_usd=None,
+        escape_fn=ESCAPE_NOOP,
+    )
+    assert "<b>Gemini:</b> G title" in text
+    assert "<b>grok:</b>" not in text
+
+
+def test_publish_v5_skipped_when_both_titles_missing():
+    p = TelegramPublisher("t", "c", "http://x", linked_group_chat_id="g-1")
+    result = p.publish_article_v5(
+        gemini_title=None,
+        grok_title=None,
+        gemini_body=None,
+        grok_body=None,
+        public_slug="slug",
+    )
+    assert result["status"] == "skipped_no_parallel_writers"
+    assert result["telegram_message_id"] is None
+    assert "no parallel writers succeeded" in result["error"]
+
+
+def test_publish_v5_no_linked_group_falls_back_to_legacy_single():
+    """Without linked_group_chat_id, V5 method posts a single legacy-style
+    channel message using whichever title is available."""
+    p = TelegramPublisher("t", "c", "http://x")  # linked_group_chat_id=None
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = json.dumps({
+        "ok": True, "result": {"message_id": 99},
+    }).encode("utf-8")
+    mock_resp.__enter__ = lambda self: self
+    mock_resp.__exit__ = lambda *args: None
+
+    with patch("lib.telegram_publisher.urllib.request.urlopen", return_value=mock_resp):
+        result = p.publish_article_v5(
+            gemini_title="G",
+            grok_title=None,
+            gemini_body="body G",
+            grok_body=None,
+            public_slug="vhm-slug",
+        )
+    assert result["status"] == "pushed"
+    assert result["telegram_message_id"] == 99
+    # Legacy fallback fields added
+    assert result["thread_message_id"] is None
+    assert result["gemini_body_message_id"] is None
+    assert result["grok_body_message_id"] is None
