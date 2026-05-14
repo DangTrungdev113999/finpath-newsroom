@@ -134,11 +134,17 @@ function ToggleButton({
       onClick={onClick}
       className={cn(
         'group/mt inline-flex h-6 items-center justify-center rounded-full',
-        'transition-[background,box-shadow,color] duration-med ease-out-quart',
+        'transition-[width,gap,padding,background,box-shadow,color] duration-med ease-out-quart',
         'focus-visible:outline-none focus-visible:ring-2',
-        // Mobile is icon-only regardless; labels appear at ≥sm when withLabel.
+        // Mobile is always icon-only. On ≥sm + hover/focus the button expands
+        // to reveal the brand label — discoverability without layout noise.
         withLabel
-          ? 'w-6 sm:w-auto sm:gap-1.5 sm:px-2.5 sm:font-sans sm:text-[12px] sm:font-medium'
+          ? cn(
+              'w-6',
+              'sm:hover:w-auto sm:hover:gap-1.5 sm:hover:px-2.5',
+              'sm:focus-visible:w-auto sm:focus-visible:gap-1.5 sm:focus-visible:px-2.5',
+              'sm:font-sans sm:text-[12px] sm:font-medium',
+            )
           : 'w-6',
         active
           ? cn(ACTIVE_STYLES[model], withLabel && 'sm:text-white')
@@ -147,7 +153,11 @@ function ToggleButton({
       )}
     >
       {logo}
-      {withLabel && <span className="hidden sm:inline">{label}</span>}
+      {withLabel && (
+        <span className="hidden sm:group-hover/mt:inline sm:group-focus-visible/mt:inline">
+          {label}
+        </span>
+      )}
     </button>
   );
 }
