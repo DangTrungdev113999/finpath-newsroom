@@ -27,6 +27,15 @@ export function CompareFeedLayout({
   const { meta, leftMarkdown } = article;
   const geminiAvailable = !!(meta.gemini?.title && meta.gemini?.body);
   const grokAvailable = !!(meta.grok?.title && meta.grok?.body);
+  // V5.1.9 — Claude side is only available on legacy articles where the
+  // primary `title`/`body` fields came from Claude Master (not from a
+  // promoted-to-primary Gemini/Grok output). Heuristic: when both parallel
+  // sides are present AND the primary title equals one of them, no Claude.
+  // Simpler: read meta.left_meta.author — Master sets a sector-specific
+  // author string; if author starts with "Gemini" or "Grok" then primary
+  // is a parallel writer, no Claude side exists.
+  const authorPrefix = (meta.left_meta?.author || '').toLowerCase();
+  const claudeAvailable = !authorPrefix.startsWith('gemini') && !authorPrefix.startsWith('grok');
 
   // Always read the global hook so 'local' mode can seed its useState from
   // the current global value on mount (without subscribing further).
@@ -97,6 +106,7 @@ export function CompareFeedLayout({
               onChange={setModel}
               geminiAvailable={geminiAvailable}
               grokAvailable={grokAvailable}
+              claudeAvailable={claudeAvailable}
               labelMode="hover"
             />
             {!isMissing && <TTSButton text={displayBody} />}

@@ -10,7 +10,7 @@ import { ModelToggle } from '../components/ModelToggle';
 import { ArticleCardSkeleton } from '../components/skeletons/ArticleCardSkeleton';
 import { useModelPreference } from '../lib/useModelPreference';
 
-const INITIAL_SKELETON_COUNT = 6;
+const INITIAL_SKELETON_COUNT = 8;
 const PAGE_SIZE = 12; // bài mỗi lần load thêm
 
 export function IndexPage() {
@@ -114,6 +114,7 @@ export function IndexPage() {
               onChange={setModel}
               geminiAvailable={geminiAvailable}
               grokAvailable={grokAvailable}
+              claudeAvailable={false}
               labelMode="always"
             />
           </>

@@ -19,6 +19,10 @@ interface ModelToggleProps {
   onChange: (model: ArticleModel) => void;
   geminiAvailable: boolean;
   grokAvailable: boolean;
+  /** V5.1.9 — when false (default) the Claude button is hidden entirely so
+   *  the segmented control collapses to 2-way (Gemini + Grok). Set true on
+   *  articles that have a claude_body (legacy V5.1.8 + earlier). */
+  claudeAvailable?: boolean;
   labelMode?: ModelToggleLabelMode;
 }
 
@@ -36,9 +40,11 @@ export function ModelToggle({
   onChange,
   geminiAvailable,
   grokAvailable,
+  claudeAvailable = false,
   labelMode = 'never',
 }: ModelToggleProps) {
   const handleClaudeClick = () => {
+    if (!claudeAvailable) return;
     if (selected !== 'claude') onChange('claude');
   };
   const handleGeminiClick = () => {
@@ -60,25 +66,27 @@ export function ModelToggle({
       aria-label="Chọn model viết bài"
       className="group/mtg inline-flex h-7 items-center gap-0.5 rounded-pill border border-fg-3/55 bg-bg-2 px-0.5"
     >
-      <ToggleButton
-        model="claude"
-        active={claudeActive}
-        onClick={handleClaudeClick}
-        disabled={false}
-        ariaLabel="Bài Claude"
-        title="Bài Claude"
-        labelMode={labelMode}
-        label="Claude"
-        logo={
-          <ClaudeMark
-            className={cn(
-              'h-3.5 w-3.5 shrink-0 transition-transform duration-fast ease-out-quart',
-              'group-hover/mt:scale-110',
-              claudeActive ? 'text-white' : 'text-[#D97757]',
-            )}
-          />
-        }
-      />
+      {claudeAvailable && (
+        <ToggleButton
+          model="claude"
+          active={claudeActive}
+          onClick={handleClaudeClick}
+          disabled={false}
+          ariaLabel="Bài Claude"
+          title="Bài Claude"
+          labelMode={labelMode}
+          label="Claude"
+          logo={
+            <ClaudeMark
+              className={cn(
+                'h-3.5 w-3.5 shrink-0 transition-transform duration-fast ease-out-quart',
+                'group-hover/mt:scale-110',
+                claudeActive ? 'text-white' : 'text-[#D97757]',
+              )}
+            />
+          }
+        />
+      )}
       <ToggleButton
         model="gemini"
         active={geminiActive}

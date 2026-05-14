@@ -176,7 +176,21 @@ Helper reads brief_json from crawl_log rows where `story_editor_decision IN ('ac
 
 Observability: payload requires `format_picks` (non-empty list), `candidates_considered_per_option`, `variety_check`. Orchestrator merges into pipeline_log retroactively after Step 4 Master persists article_ids (model='python', tokens=null).
 
-### Step 4 — Master sector (spawn dispatch, OUTER LOOP per brief)
+### Step 4 — Master sector (V5.1.9: DEFAULT DISABLED, flag `MASTER_ENABLED=true` to re-enable)
+
+V5.1.9 (2026-05-14): Claude Master is **commented out by default**. Pipeline now creates a placeholder generated_news row per brief (Step 4.0 below), then Step 4.3 Gemini Master + Step 4.4 Grok Master both run free-style with tool access (replaces dual writer pattern). Master Claude code path preserved for re-enable.
+
+```bash
+MASTER_ENABLED=${MASTER_ENABLED:-false}   # Step 0 default. Set to "true" to spawn Claude Master.
+```
+
+When `MASTER_ENABLED=false` (default): SKIP entire Step 4 block below. Go straight to Step 4.0.
+
+When `MASTER_ENABLED=true`: run the legacy Master dispatch (block below preserved).
+
+---
+
+#### Legacy Master dispatch (only when MASTER_ENABLED=true)
 
 **OUTER LOOP per brief**. For each brief in story_editor output.
 
@@ -258,63 +272,98 @@ print('observability_merged: model=' + obs['model'] + ' dur_ms=' + str(obs['dura
 
 Observability + failure isolation + variety-guard trade-off: see `references/observability-emit.md` + `references/failure-recovery.md`.
 
-### Step 4.3 — Gemini Writer (Python self-execute, V1.0 2026-05-13, REQUIRED)
+### Step 4.0 — Placeholder row insert (V5.1.9 — when MASTER_ENABLED=false)
 
-**HARD RULE — must run for every article from Step 4**. Each `article_id` persisted by Step 4 gets a parallel
-Gemini 2.5 Pro side reusing Claude's `data_trail`. Pipeline-safety: NEVER halts
-on Gemini failure — `gemini_status` records outcome (`success` /
-`skipped_failure` / `skipped_disabled`) and pipeline proceeds to Step 4.5
-unchanged. Avg latency ~30s/article, cost ~$0.005/article (free tier 50 RPD).
-
-For EACH `<article_id>` returned by Step 4:
+When Claude Master is disabled, the pipeline still needs a `generated_news`
+row per surviving brief so Step 4.3 + 4.4 have a target to UPDATE. This step
+inserts a placeholder row per (row_id, format_pick_option_idx):
 
 ```bash
-cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -m lib.stages.run_gemini_writer \
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -c "
+import json, sqlite3, uuid
+from datetime import datetime, timezone
+conn = sqlite3.connect('data/pipeline.db')
+conn.row_factory = sqlite3.Row
+rows = conn.execute(
+    'SELECT row_id, ticker, sector_name, brief_json FROM crawl_log '
+    'WHERE funnel_batch_id = ? AND story_editor_decision IN (\"accept\",\"write_brief\") '
+    'AND brief_json IS NOT NULL '
+    'AND (master_decision IS NULL OR master_decision NOT IN (\"reject_dup_thesis\"))',
+    ('<BATCH_ID>',)
+).fetchall()
+stamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M')
+new_article_ids = []
+for r in rows:
+    aid = str(uuid.uuid4())
+    ticker = r['ticker']
+    placeholder_title = f'{ticker}-pending-master'
+    placeholder_slug = f'{ticker}-{stamp}-pending-master'
+    conn.execute(
+        'INSERT INTO generated_news (article_id, row_id, ticker, sector, title, body, '
+        'accepted_hypothesis, status, public_slug, pipeline_version) '
+        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        (aid, r['row_id'], ticker, r['sector_name'], placeholder_title, '',
+         1, 'draft', placeholder_slug, 'V5.1.9')
+    )
+    new_article_ids.append(aid)
+conn.commit()
+conn.close()
+print(json.dumps({'article_ids': new_article_ids}))
+" > /tmp/placeholder-rows-<BATCH_ID>.json
+```
+
+Capture `article_ids` array. Steps 4.3 + 4.4 iterate each.
+
+### Step 4.3 — Gemini Master (V5.1.9 free-style with tool access)
+
+**HARD RULE — must run for every article_id from Step 4.0**. Gemini 2.5 Pro
+now has 8 research tools (Finpath API + KB + Tavily web_search + recent
+articles). SDK handles automatic function calling loop (max 8 remote calls).
+Pipeline-safety: NEVER halts on Gemini failure — `gemini_status` records
+outcome (`success` / `skipped_failure` / `skipped_disabled`).
+
+Avg latency ~30-60s/article (multi-turn). Cost ~$0.05-0.10/article.
+
+For EACH `<article_id>`:
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -m lib.stages.run_gemini_master \
   --article-id <article_id>
 ```
 
-Reads `data/secrets.yaml.gemini.api_key`. Missing key → status `skipped_disabled`
-(no API call, no cost). The script writes columns directly via
-`PipelineDB.update_gemini_output()`; no `pipeline_log` step entry is required
-because Gemini is non-blocking and not part of the Claude observability stack.
-Hook in title (clickbait element via paradox/question/metaphor/shock+stake) is
-enforced inside `prompts/gemini_writer.md` Title craft section — same V1.9 rules
-that 10 master sector prompts embed (V5.1.8 unified self-titling).
+Behavior:
+- First writer to succeed claims **primary slot**: also fills `title` /
+  `body` / `word_count` / `insight_final` / `key_view` /
+  `variety_guard_angle` + recomputes `public_slug` from final title.
+- Per-side observability stored in `gemini_step_log` (JSON: data_trail +
+  chosen_question_idx + skip_reasons + tokens + duration). Render reads
+  this as the equivalent of legacy `pipeline_log.step_4_master`.
 
-Web UI exposes a Claude/Gemini/Grok toggle (article view + IndexPage filter
-row) — Gemini side renders when `gemini_status == 'success'`, disabled
-otherwise. See `prompts/gemini_writer.md` for the prompt contract (voice
-principles + 4 format pattern + JSON output schema + clickbait title rules).
+Hook in title (clickbait element) + voice + ban rules embedded in
+`prompts/gemini_master.md`. Output JSON schema documented there.
 
-### Step 4.4 — Grok Writer (Python self-execute, V1.0 2026-05-14, REQUIRED)
+### Step 4.4 — Grok Master (V5.1.9 free-style with tool access)
 
-**HARD RULE — must run for every article from Step 4** (loop pattern same as
-Step 4.3 Gemini Writer). Each `article_id` persisted by Step 4 also gets a
-parallel xAI Grok side reusing Claude's `data_trail`. Pipeline-safety: NEVER
-halts on Grok failure — `grok_status` records outcome (`success` /
-`skipped_failure` / `skipped_disabled`) and pipeline proceeds to Step 4.5
-unchanged. Avg latency ~16s/article on default model `grok-4.3` (cost
-~$0.005-0.01).
+**HARD RULE — must run for every article_id from Step 4.0** (loop pattern same as
+Step 4.3 Gemini Master). Grok 4.3 runs manual tool-call loop (xAI API doesn't
+have native automatic function calling; we loop in Python, max 8 turns).
+Pipeline-safety: NEVER halts on Grok failure — `grok_status` records outcome.
 
-For EACH `<article_id>` returned by Step 4 (parallel-safe with Step 4.3 — both
-sequential after Step 4):
+Avg latency ~30-90s/article (multi-turn loop). Cost ~$0.10-0.20/article.
+
+For EACH `<article_id>`:
 
 ```bash
-cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -m lib.stages.run_grok_writer \
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -m lib.stages.run_grok_master \
   --article-id <article_id>
 ```
 
-Reads `data/secrets.yaml.grok.api_key` (xAI key from console.x.ai). Reads
-`data/secrets.yaml.grok.model` override (default `grok-4.3`). Missing
-key → status `skipped_disabled` (no API call, no cost). The script writes
-columns directly via `PipelineDB.update_grok_output()`; no `pipeline_log`
-step entry is required because Grok (like Gemini) is non-blocking and not
-part of the Claude observability stack.
+Behavior identical to Gemini Master (Step 4.3): if Gemini hasn't claimed
+primary slot, Grok will (title/body/slug recomputed from grok output). Per-
+side observability in `grok_step_log` JSON.
 
-3-model toggle on web (Claude / Gemini / Grok): Grok side renders when
-`grok_status == 'success'`. See `prompts/grok_writer.md` (voice principles
-+ format + JSON output — currently a copy of Gemini prompt, allowed to
-diverge later for per-model tuning).
+Web UI 2-way toggle (V5.1.9 — Claude side hidden when claude_body absent):
+Gemini default, Grok alt. See `prompts/grok_master.md`.
 
 ### Step 4.5 — Image Gen (V5.1.8 — Imagen 4, opt-in `--image` flag, default OFF)
 

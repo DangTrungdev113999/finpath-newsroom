@@ -22,10 +22,12 @@ import {
   DEFAULT_PUTER_VOICE_ID,
   PUTER_VIETNAMESE_VOICES,
   isPuterReady,
+  isPuterSignedIn,
   synthesizePuter,
   waitForPuter,
   type PuterVoice,
 } from '../lib/puterTTS';
+import { LoginPromptDialog } from './LoginPromptDialog';
 
 const RATE_PRESETS: { value: number; label: string }[] = [
   { value: 0.9, label: '0.9×' },
@@ -95,6 +97,7 @@ export function TTSButton({
   });
   const [puterReady, setPuterReady] = useState(isPuterReady());
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [authPromptOpen, setAuthPromptOpen] = useState(false);
 
   const queueRef = useRef<string[]>([]);
   const indexRef = useRef(0);
@@ -234,6 +237,13 @@ export function TTSButton({
     if (state === 'playing') return pause();
     if (state === 'paused') return resume();
     if (state === 'loading') return;
+    // Auth gate — when Puter SDK is loaded but no session yet, surface our
+    // editorial sign-in invitation BEFORE the SDK fires its own popup. After
+    // the user authenticates we resume into start() automatically.
+    if (isPuterReady() && !isPuterSignedIn()) {
+      setAuthPromptOpen(true);
+      return;
+    }
     start();
   };
 
@@ -248,6 +258,15 @@ export function TTSButton({
 
   return (
     <div className="inline-flex items-center gap-1">
+      <LoginPromptDialog
+        open={authPromptOpen}
+        onOpenChange={setAuthPromptOpen}
+        onAuthenticated={() => {
+          // User just signed in via Puter popup — start playback immediately
+          // (same click path as the original handleClick → start() flow).
+          start();
+        }}
+      />
       <button
         type="button"
         onClick={handleClick}

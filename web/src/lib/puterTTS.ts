@@ -147,3 +147,33 @@ export function waitForPuter(timeoutMs = 5000): Promise<boolean> {
     }, 100);
   });
 }
+
+/** True if Puter SDK is loaded AND the visitor has a Puter session. */
+export function isPuterSignedIn(): boolean {
+  try {
+    return !!window.puter?.auth?.isSignedIn?.();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Trigger Puter's first-party sign-in popup. MUST be called inside a user
+ * gesture (click) or the popup will be blocked. Returns true when the
+ * resulting session is authenticated, false on cancel/error.
+ *
+ * `attempt_temp_user_creation` lets Puter create a throwaway anonymous
+ * account on the fly so the user never sees a credential form — they just
+ * approve a confirmation popup and they're in. This is the friendliest UX
+ * for "I just want to listen to one article" use cases.
+ */
+export async function signInPuter(): Promise<boolean> {
+  const auth = window.puter?.auth;
+  if (!auth?.signIn) return false;
+  try {
+    await auth.signIn({ attempt_temp_user_creation: true });
+    return !!auth.isSignedIn?.();
+  } catch {
+    return false;
+  }
+}

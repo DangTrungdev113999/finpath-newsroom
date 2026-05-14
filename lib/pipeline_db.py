@@ -412,6 +412,21 @@ class PipelineDB:
                 self.conn.execute(
                     f"ALTER TABLE generated_news ADD COLUMN {col} {col_type}"
                 )
+        # V5.1.9 Master metadata for Gemini + Grok (they now do Master work
+        # directly — Claude Master commented out behind MASTER_ENABLED flag).
+        # Each side stores its own brief snapshot + step_4 payload as JSON TEXT
+        # so render_compare_feed + UI can show per-model data_trail without
+        # parsing the shared pipeline_log column.
+        for col, col_type in (
+            ("gemini_brief_json", "TEXT"),
+            ("gemini_step_log", "TEXT"),
+            ("grok_brief_json", "TEXT"),
+            ("grok_step_log", "TEXT"),
+        ):
+            if col not in existing:
+                self.conn.execute(
+                    f"ALTER TABLE generated_news ADD COLUMN {col} {col_type}"
+                )
         # V5.1.8 Cost tracking — per-model token counts + USD cost. NULL when
         # provider SDK didn't surface usage metadata (skipped_disabled rows,
         # or older runs pre-V5.1.8). REAL handles fractional cents.
@@ -561,6 +576,8 @@ class PipelineDB:
         tokens_in: int | None = None,
         tokens_out: int | None = None,
         cost_usd: float | None = None,
+        brief_json: str | None = None,
+        step_log: str | None = None,
     ) -> None:
         """Step 4.3 Gemini Writer column writer.
 
@@ -596,6 +613,10 @@ class PipelineDB:
             updates["gemini_tokens_out"] = tokens_out
         if cost_usd is not None:
             updates["gemini_cost_usd"] = cost_usd
+        if brief_json is not None:
+            updates["gemini_brief_json"] = brief_json
+        if step_log is not None:
+            updates["gemini_step_log"] = step_log
         self.update_generated_news(article_id, updates)
 
     _GROK_STATUS_VALUES = {"success", "skipped_failure", "skipped_disabled"}
@@ -614,6 +635,8 @@ class PipelineDB:
         tokens_in: int | None = None,
         tokens_out: int | None = None,
         cost_usd: float | None = None,
+        brief_json: str | None = None,
+        step_log: str | None = None,
     ) -> None:
         """Step 4.4 Grok Writer column writer. Mirrors update_gemini_output.
 
@@ -643,6 +666,10 @@ class PipelineDB:
             updates["grok_tokens_out"] = tokens_out
         if cost_usd is not None:
             updates["grok_cost_usd"] = cost_usd
+        if brief_json is not None:
+            updates["grok_brief_json"] = brief_json
+        if step_log is not None:
+            updates["grok_step_log"] = step_log
         self.update_generated_news(article_id, updates)
 
     _THUMB_STATUS_VALUES = {"success", "skipped_failure", "skipped_disabled"}

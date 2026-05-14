@@ -1,19 +1,18 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { ArticleSummary } from '../types';
-import { formatCrawledAt } from '../lib/format';
+import type { Article, ArticleSummary } from '../types';
+import { loadArticle } from '../lib/articleLoader';
+import { extractOpening } from '../lib/extractOpening';
 import { useModelPreference } from '../lib/useModelPreference';
 import { MissingModelNotice } from './MissingModelNotice';
 import { TickerHero } from './TickerHero';
 import { cn } from '../shared/lib/cn';
 
 export function ArticleCard({ article }: { article: ArticleSummary }) {
-  const stamp = formatCrawledAt(article.crawled_at);
-  const [datePart, timePart] = stamp.split(' '); // "11/05/2026" + "16:55"
   const { model } = useModelPreference();
 
-  // NO silent fallback to Claude — when the selected side has no title we
-  // surface the gap so the reader knows which model actually wrote (or didn't
-  // write) what they are looking at.
+  // NO silent fallback to Claude — see MissingModelNotice for editorial copy
+  // when the selected side has no title for this article.
   const grokMissing = model === 'grok' && !article.grok_title;
   const geminiMissing = model === 'gemini' && !article.gemini_title;
   const isMissing = grokMissing || geminiMissing;
@@ -25,8 +24,46 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
         ? article.gemini_title
         : article.title;
 
+  // Lazy-load full article body when the card scrolls into view so we can
+  // surface a 3-line opening preview under the title. Skipped entirely for
+  // missing-side cards (we have no body to preview anyway). The fetched
+  // Article is cached in component state — subsequent model toggles
+  // re-extract from cache without another network round-trip.
+  const cardRef = useRef<HTMLAnchorElement>(null);
+  const [full, setFull] = useState<Article | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    if (isMissing || full || failed) return;
+    const el = cardRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          loadArticle(article.id)
+            .then(setFull)
+            .catch(() => setFailed(true));
+        }
+      },
+      { rootMargin: '300px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [article.id, isMissing, full, failed]);
+
+  const opening = useMemo(() => {
+    if (!full) return null;
+    const grokBody = full.meta?.grok?.body;
+    const geminiBody = full.meta?.gemini?.body;
+    if (model === 'grok' && grokBody) return extractOpening(grokBody);
+    if (model === 'gemini' && geminiBody) return extractOpening(geminiBody);
+    return extractOpening(full.leftMarkdown ?? '');
+  }, [full, model]);
+
   return (
     <Link
+      ref={cardRef}
       to={`/article/${article.id}`}
       className={cn(
         'group relative flex flex-col overflow-hidden rounded-xl border bg-bg-1 no-underline transition-all duration-med ease-out-quart focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/35',
@@ -61,50 +98,43 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
         </div>
       ) : (
         <div className={cn(isMissing && 'opacity-55 saturate-[0.6]')}>
-          <TickerHero ticker={article.ticker} sector={article.sector} />
+          <TickerHero
+            ticker={article.ticker}
+            sector={article.sector}
+            crawledAt={article.crawled_at}
+          />
         </div>
       )}
 
       <div className="flex flex-1 flex-col p-5">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <span
-            className={cn(
-              'rounded-md px-2.5 py-1 font-sans text-[12px] font-bold tracking-[0.02em]',
-              isMissing
-                ? 'bg-fg-3 text-bg-1'
-                : 'bg-fg-0 text-bg-1',
-            )}
-          >
-            {article.ticker}
-          </span>
-          {/* Byline timestamp — editorial "date · time" split, mono semibold */}
-          <time
-            dateTime={article.crawled_at}
-            className="inline-flex items-baseline gap-1.5 font-mono tabular-nums"
-          >
-            <span className="text-[11px] font-semibold tracking-[0.02em] text-fg-1">
-              {datePart}
-            </span>
-            <span aria-hidden className="text-fg-4">
-              ·
-            </span>
-            <span className="text-[10.5px] tracking-[0.02em] text-fg-2">
-              {timePart}
-            </span>
-          </time>
-        </div>
-
         {isMissing ? (
           <MissingModelNotice slot="card-title" model={model} />
         ) : (
-          <h3 className="mt-0 mb-5 flex-1 text-[15px] font-semibold leading-snug tracking-tight text-fg-0 transition-colors duration-med ease-out-quart group-hover:text-brand">
-            {displayTitle}
-          </h3>
+          <>
+            <h3 className="mt-0 mb-3 flex-1 text-[15px] font-semibold leading-snug tracking-tight text-fg-0 transition-colors duration-med ease-out-quart group-hover:text-brand">
+              {displayTitle}
+            </h3>
+
+            {/* 3-line opening preview — lazy-loaded after the card enters
+                viewport, otherwise renders a shimmer placeholder so the card
+                height stays stable between visible / loading states. */}
+            {opening === null ? (
+              <div className="mb-4 space-y-1.5">
+                <div className="h-[13px] w-full rounded bg-bg-3/70 animate-pulse" />
+                <div className="h-[13px] w-[94%] rounded bg-bg-3/70 animate-pulse" />
+                <div className="h-[13px] w-[68%] rounded bg-bg-3/70 animate-pulse" />
+              </div>
+            ) : opening ? (
+              <p className="mb-4 line-clamp-3 text-[13px] leading-[1.55] text-fg-2">
+                {opening}
+              </p>
+            ) : null}
+          </>
         )}
 
         <div
           className={cn(
-            'flex items-center justify-between border-t pt-3',
+            'mt-auto flex items-center justify-between border-t pt-3',
             isMissing ? 'border-fg-4/20' : 'border-fg-4/30',
           )}
         >
