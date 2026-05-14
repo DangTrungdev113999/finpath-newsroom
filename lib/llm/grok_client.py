@@ -18,7 +18,7 @@ from typing import Any, Callable
 
 import yaml
 
-DEFAULT_MODEL = "grok-4-latest"
+DEFAULT_MODEL = "grok-4-fast-non-reasoning"
 XAI_BASE_URL = "https://api.x.ai/v1"
 _PLACEHOLDER_TOKENS = ("REPLACE_", "your-", "fixme")
 
@@ -62,7 +62,11 @@ def load_model(secrets_path: Path = Path("data/secrets.yaml")) -> str:
 def _default_factory(api_key: str, base_url: str):
     from openai import OpenAI  # type: ignore[import-not-found]
 
-    return OpenAI(api_key=api_key, base_url=base_url)
+    # max_retries=0 disables openai SDK's built-in retry loop so our own
+    # retry-once-on-exception loop in generate_article() owns the policy.
+    # Without this, an SDK timeout can balloon into ~5min total wait
+    # (SDK 2 retries × 60s × our 2 attempts).
+    return OpenAI(api_key=api_key, base_url=base_url, max_retries=0)
 
 
 def _attempt(
