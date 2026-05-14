@@ -240,12 +240,16 @@ print('observability_merged: model=' + obs['model'] + ' dur_ms=' + str(obs['dura
 
 Observability + failure isolation + variety-guard trade-off: see `references/observability-emit.md` + `references/failure-recovery.md`.
 
-### Step 4.3 — Gemini Writer (Python self-execute, V1.0 2026-05-13)
+### Step 4.3 — Gemini Writer (Python self-execute, V1.0 2026-05-13, REQUIRED)
 
-For EACH persisted article from Step 4, generate a parallel Gemini 2.5 Pro side
-that reuses Claude's `data_trail`. Pipeline-safety: NEVER halts on Gemini
-failure — `gemini_status` records outcome (`success` / `skipped_failure` /
-`skipped_disabled`) and pipeline proceeds to Step 4.5 unchanged.
+**HARD RULE — must run for every article from Step 4** (loop pattern same as
+Step 4.5 Headline Craft). Each `article_id` persisted by Step 4 gets a parallel
+Gemini 2.5 Pro side reusing Claude's `data_trail`. Pipeline-safety: NEVER halts
+on Gemini failure — `gemini_status` records outcome (`success` /
+`skipped_failure` / `skipped_disabled`) and pipeline proceeds to Step 4.5
+unchanged. Avg latency ~30s/article, cost ~$0.005/article (free tier 50 RPD).
+
+For EACH `<article_id>` returned by Step 4:
 
 ```bash
 cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -m lib.stages.run_gemini_writer \
@@ -256,10 +260,14 @@ Reads `data/secrets.yaml.gemini.api_key`. Missing key → status `skipped_disabl
 (no API call, no cost). The script writes columns directly via
 `PipelineDB.update_gemini_output()`; no `pipeline_log` step entry is required
 because Gemini is non-blocking and not part of the Claude observability stack.
+Hook in title (clickbait element via paradox/question/metaphor/shock+stake) is
+enforced inside `prompts/gemini_writer.md` Title craft section — V1.9 sync với
+Headline Craft V1.9 principle #4.
 
-Web UI exposes a Claude/Gemini toggle on each article view — disabled when
-`gemini_status != 'success'`. See `prompts/gemini_writer.md` for the prompt
-contract (voice principles + 4 format pattern + JSON output schema).
+Web UI exposes a Claude/Gemini toggle (article view + IndexPage filter row) —
+Gemini side renders when `gemini_status == 'success'`, disabled otherwise. See
+`prompts/gemini_writer.md` for the prompt contract (voice principles + 4 format
+pattern + JSON output schema + clickbait title rules).
 
 ### Step 4.5 — Headline Craft (spawn dispatch — HARD RULE)
 

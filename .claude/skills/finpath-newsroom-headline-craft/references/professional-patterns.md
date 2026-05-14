@@ -2,13 +2,24 @@
 
 > KHÔNG phải template. KHÔNG phải checklist. Là **7 ví dụ chuẩn** của chuyên gia in-house đọc bài và giật tít — đọc để cảm nhận quality bar, sau đó CRAFT theo bài cụ thể.
 
-## 3 nguyên tắc craft (principles, không phải rules)
+## 4 nguyên tắc craft (principles, không phải rules)
 
 1. **Đọc body như analyst** — không grep số/verb. Đọc xong tự hỏi: "NĐT cầm mã này đang cược điều gì? Lo gì? Nên nhìn gì?" Title trả lời câu đó.
 
 2. **Zoom-out > zoom-in** — Đừng chộp local detail mạnh nhất. Tìm strategic stake / asset to / decision lớn nhất bài bàn về.
 
 3. **Reader bình dân test** — Title đứng độc lập, NĐT thường (không phải Petroleum analyst) đọc 5s có hiểu cược/rủi ro không? Nếu cần biết "Lô B là gì" / "FOX là gì" / proprietary ref → REPHRASE hoặc gloss inline.
+
+4. **Clickbait element bắt buộc (V1.9)** — Hook đứng cạnh 49 title khác trên feed phải làm NĐT MUỐN click, không phải lướt qua. Cần ÍT NHẤT 1 trong các yếu tố tạo "curiosity gap" sau, **TỪ bài** (không bịa):
+   - **Paradox/nghịch lý**: "X nhưng Y" với 2 fact ngược chiều trong bài (vd #4 "lợi nhuận tăng NHƯNG nguy cơ mất chuẩn")
+   - **Câu hỏi mở**: "Vì sao… ?" / "… để làm gì?" / "… là gì?" khi body có câu trả lời rõ (vd #1, #2b, #6, #7)
+   - **Số/sự kiện gây sốc đứng cạnh stake**: "16.000 tỷ", "50% thị phần", "8 di sản" — bound với chủ thể + stake để không orphan (vd #1, #6)
+   - **Metaphor cụ thể từ bài**: "núi tiền mặt", "mỏ dữ liệu", "canh bạc Lô B" — KHÔNG forced, chỉ khi body có scaleable asset
+   - **Identity/stake framing**: "đầu tiên Việt Nam", "thị trường vẫn không tin", "không thể kiếm thêm tiền" — cảm xúc NĐT chịu được vì có data backing
+
+   Bland fact statement ("MSN lãi Q1 1.974 tỷ" / "PVS Q1 tăng trưởng tốt") → FAIL clickbait test. Phải có tension hoặc curiosity hook.
+
+   **Vẫn KHÔNG dùng vulgar PR clickbait** (cú nổ / bí mật / sốc / hot / chấn động / tột đỉnh). Khác biệt: clickbait tốt = curiosity từ FACT/PARADOX trong bài; clickbait PR = exaggeration từ hyperbole rỗng.
 
 Mọi quyết định craft (metaphor / question / declarative / brand name / number-or-not) đều TỪ bài, không từ template.
 
@@ -29,12 +40,7 @@ Mọi quyết định craft (metaphor / question / declarative / brand name / nu
 
 ## Observation về 7 expert examples (cảm nhận, không phải rule)
 
-- Đôi khi có số (16.000 tỷ / 50% / 82%), đôi khi 0 số — tùy bài cần gì
-- Đôi khi có metaphor (núi tiền / mỏ dữ liệu / canh bạc), đôi khi prose thuần — tùy có scaleable asset
-- Đôi khi ticker (PVS), đôi khi full brand (Petrolimex / PV GAS / Vietcombank) — tùy brand mạnh hay không
-- Đôi khi question, đôi khi declarative — tùy có tension visible hay paradox
-- Câu nào cũng đủ subject + impact, không cụt
-- Reader bình dân test pass: KHÔNG có ref opaque (trừ trường hợp #1 "Lô B – Ô Môn" — chấp nhận vì bài về dự án đó là thesis chính)
+7/7 PASS clickbait test (đặt cạnh "MSN lãi Q1 1.974 tỷ" trên feed → NĐT click 7 example trước). Mỗi example chọn riêng yếu tố craft theo bài (số/metaphor/question/ticker/full brand) — KHÔNG có pattern chung. Câu nào cũng đủ subject + impact, không opaque ref (ngoại lệ #1 "Lô B – Ô Môn" vì là thesis chính).
 
 ## Safety net (objective rejects, NOT craft constraints)
 
