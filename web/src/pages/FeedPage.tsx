@@ -222,7 +222,11 @@ export function FeedPage() {
                 fallback={<CompareFeedSkeleton showRight={showRight} />}
               >
                 {article ? (
-                  <CompareFeedLayout article={article} showRight={showRight} />
+                  <CompareFeedLayout
+                    article={article}
+                    showRight={showRight}
+                    modelScope="local"
+                  />
                 ) : null}
               </Skeleton>
             </div>

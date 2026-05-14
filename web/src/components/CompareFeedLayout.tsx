@@ -1,24 +1,38 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Article } from '../types';
 import { LeftColumn } from './LeftColumn';
 import { RightColumn } from './RightColumn';
 import { CommentSection } from './CommentSection';
 import { TTSButton } from './TTSButton';
-import { ModelToggle } from './ModelToggle';
+import { ModelToggle, type ArticleModel } from './ModelToggle';
 import { formatCrawledAt } from '../lib/format';
 import { useModelPreference } from '../lib/useModelPreference';
 
 export function CompareFeedLayout({
   article,
   showRight = true,
+  modelScope = 'global',
 }: {
   article: Article;
   showRight?: boolean;
+  /** 'global' (default) — Model toggle reads/writes the app-wide preference
+   *  via useModelPreference (article cards + ArticlePage stay in sync).
+   *  'local'  — each layout instance owns its own state, seeded from the
+   *  current global preference on mount. Used by FeedPage so toggling on one
+   *  article does not change every other article in the feed. */
+  modelScope?: 'global' | 'local';
 }) {
   const { meta, leftMarkdown } = article;
   const geminiAvailable = !!(meta.gemini?.title && meta.gemini?.body);
   const grokAvailable = !!(meta.grok?.title && meta.grok?.body);
-  const { model, setModel } = useModelPreference();
+
+  // Always read the global hook so 'local' mode can seed its useState from
+  // the current global value on mount (without subscribing further).
+  const globalPref = useModelPreference();
+  const [localModel, setLocalModel] = useState<ArticleModel>(globalPref.model);
+  const model = modelScope === 'local' ? localModel : globalPref.model;
+  const setModel = modelScope === 'local' ? setLocalModel : globalPref.setModel;
   const showGemini = model === 'gemini' && geminiAvailable;
   const showGrok = model === 'grok' && grokAvailable;
   const displayTitle = showGrok
