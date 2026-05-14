@@ -8,7 +8,11 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
   const [datePart, timePart] = stamp.split(' '); // "11/05/2026" + "16:55"
   const { model } = useModelPreference();
   const displayTitle =
-    model === 'gemini' && article.gemini_title ? article.gemini_title : article.title;
+    model === 'grok' && article.grok_title
+      ? article.grok_title
+      : model === 'gemini' && article.gemini_title
+        ? article.gemini_title
+        : article.title;
 
   return (
     <Link

@@ -1,42 +1,58 @@
 import { useId, type ReactNode } from 'react';
 import { cn } from '../shared/lib/cn';
 
-export type ArticleModel = 'claude' | 'gemini';
+export type ArticleModel = 'claude' | 'gemini' | 'grok';
+
+/**
+ * Label visibility mode (responsive — mobile is always icon-only):
+ *   'never'  → icon-only at every viewport.
+ *   'hover'  → icon-only by default at ≥sm; labels expand on group
+ *              hover/keyboard-focus. Use on tight surfaces like the article
+ *              header where the toggle sits next to other controls.
+ *   'always' → labels persistently visible at ≥sm. Use on roomy surfaces
+ *              like the IndexPage filter row.
+ */
+export type ModelToggleLabelMode = 'never' | 'hover' | 'always';
 
 interface ModelToggleProps {
   selected: ArticleModel;
   onChange: (model: ArticleModel) => void;
   geminiAvailable: boolean;
-  /** When true, render text label next to each logo (use on roomy surfaces
-   *  like IndexPage filter row). Default false — icon-only, compact for the
-   *  article header next to TTSButton. */
-  withLabel?: boolean;
+  grokAvailable: boolean;
+  labelMode?: ModelToggleLabelMode;
 }
 
 /**
- * Segmented 2-button toggle to switch the LeftColumn article view between
- * Claude (default) and Gemini (Step 4.3 parallel writer). Each button carries
+ * Segmented 3-button toggle to switch the article view between
+ * Claude (master), Gemini (Step 4.3), and Grok (Step 4.4). Each button carries
  * a recognizable brand mark — 8-spoke burst for Anthropic / 4-point pinched
- * sparkle for Google Gemini — so the toggle reads at a glance even before the
- * text label is parsed. Gemini button is muted + click-blocked when no
- * successful Gemini side exists (gemini_status != 'success' in DB).
+ * sparkle for Google Gemini / stylized X for xAI Grok — so the toggle reads
+ * at a glance even before the text label is parsed. Gemini and Grok buttons
+ * are independently muted + click-blocked when their respective parallel
+ * side did not succeed for this article.
  */
 export function ModelToggle({
   selected,
   onChange,
   geminiAvailable,
-  withLabel = false,
+  grokAvailable,
+  labelMode = 'never',
 }: ModelToggleProps) {
+  const handleClaudeClick = () => {
+    if (selected !== 'claude') onChange('claude');
+  };
   const handleGeminiClick = () => {
     if (!geminiAvailable) return;
     if (selected !== 'gemini') onChange('gemini');
   };
-  const handleClaudeClick = () => {
-    if (selected !== 'claude') onChange('claude');
+  const handleGrokClick = () => {
+    if (!grokAvailable) return;
+    if (selected !== 'grok') onChange('grok');
   };
 
   const claudeActive = selected === 'claude';
   const geminiActive = selected === 'gemini';
+  const grokActive = selected === 'grok';
 
   return (
     <div
@@ -51,7 +67,7 @@ export function ModelToggle({
         disabled={false}
         ariaLabel="Bài Claude"
         title="Bài Claude"
-        withLabel={withLabel}
+        labelMode={labelMode}
         label="Claude"
         logo={
           <ClaudeMark
@@ -76,7 +92,7 @@ export function ModelToggle({
             ? 'Bài Gemini'
             : 'Bài Gemini không khả dụng (Step 4.3 skipped — kiểm tra gemini_status trong DB)'
         }
-        withLabel={withLabel}
+        labelMode={labelMode}
         label="Gemini"
         logo={
           <GeminiMark
@@ -89,17 +105,43 @@ export function ModelToggle({
           />
         }
       />
+      <ToggleButton
+        model="grok"
+        active={grokActive}
+        onClick={handleGrokClick}
+        disabled={!grokAvailable}
+        ariaLabel={grokAvailable ? 'Bài Grok' : 'Bài Grok không khả dụng'}
+        title={
+          grokAvailable
+            ? 'Bài Grok'
+            : 'Bài Grok không khả dụng (Step 4.4 skipped — kiểm tra grok_status trong DB)'
+        }
+        labelMode={labelMode}
+        label="Grok"
+        logo={
+          <GrokMark
+            className={cn(
+              'h-3.5 w-3.5 shrink-0 transition-transform duration-fast ease-out-quart',
+              'group-hover/mt:scale-110',
+              grokActive ? 'text-white' : 'text-fg-0',
+            )}
+          />
+        }
+      />
     </div>
   );
 }
 
 // Brand-locked active styles — do NOT inherit from theme tokens.
 // Claude: Anthropic clay #D97757. Gemini: Google sparkle gradient blue→violet→red.
+// Grok: xAI matte black (logo on x.ai uses pure black).
 const ACTIVE_STYLES: Record<ArticleModel, string> = {
   claude:
     'bg-[#D97757] shadow-[0_1px_8px_-2px_rgba(217,119,87,0.55)] focus-visible:ring-[#D97757]/40',
   gemini:
     'bg-gradient-to-br from-[#4285F4] via-[#9B72CB] to-[#D96570] shadow-[0_1px_8px_-2px_rgba(155,114,203,0.6)] focus-visible:ring-[#9B72CB]/45',
+  grok:
+    'bg-[#0B0B0B] shadow-[0_1px_8px_-2px_rgba(0,0,0,0.6)] focus-visible:ring-fg-0/40',
 };
 
 function ToggleButton({
@@ -110,7 +152,7 @@ function ToggleButton({
   ariaLabel,
   title,
   logo,
-  withLabel,
+  labelMode,
   label,
 }: {
   model: ArticleModel;
@@ -120,9 +162,12 @@ function ToggleButton({
   ariaLabel: string;
   title: string;
   logo: ReactNode;
-  withLabel: boolean;
+  labelMode: ModelToggleLabelMode;
   label: string;
 }) {
+  const showLabelOnDesktop = labelMode !== 'never';
+  const persistentLabel = labelMode === 'always';
+
   return (
     <button
       type="button"
@@ -136,26 +181,31 @@ function ToggleButton({
         'group/mt inline-flex h-6 items-center justify-center rounded-full',
         'transition-[width,gap,padding,background,box-shadow,color] duration-med ease-out-quart',
         'focus-visible:outline-none focus-visible:ring-2',
-        // Mobile is always icon-only. On ≥sm hovering OR keyboard-focusing
-        // anywhere in the toggle group expands BOTH buttons in unison and
-        // reveals both brand labels — discoverability without layout jitter.
-        withLabel
-          ? cn(
-              'w-6',
-              'sm:group-hover/mtg:w-auto sm:group-hover/mtg:gap-1.5 sm:group-hover/mtg:px-2.5',
-              'sm:group-focus-within/mtg:w-auto sm:group-focus-within/mtg:gap-1.5 sm:group-focus-within/mtg:px-2.5',
-              'sm:font-sans sm:text-[12px] sm:font-medium',
-            )
+        showLabelOnDesktop
+          ? persistentLabel
+            ? 'w-6 sm:w-auto sm:gap-1.5 sm:px-2.5 sm:font-sans sm:text-[12px] sm:font-medium'
+            : cn(
+                'w-6',
+                'sm:group-hover/mtg:w-auto sm:group-hover/mtg:gap-1.5 sm:group-hover/mtg:px-2.5',
+                'sm:group-focus-within/mtg:w-auto sm:group-focus-within/mtg:gap-1.5 sm:group-focus-within/mtg:px-2.5',
+                'sm:font-sans sm:text-[12px] sm:font-medium',
+              )
           : 'w-6',
         active
-          ? cn(ACTIVE_STYLES[model], withLabel && 'sm:text-white')
+          ? cn(ACTIVE_STYLES[model], showLabelOnDesktop && 'sm:text-white')
           : 'text-fg-1 hover:bg-bg-3/60 focus-visible:ring-fg-3/40',
         disabled && 'cursor-not-allowed opacity-40 hover:bg-transparent',
       )}
     >
       {logo}
-      {withLabel && (
-        <span className="hidden sm:group-hover/mtg:inline sm:group-focus-within/mtg:inline">
+      {showLabelOnDesktop && (
+        <span
+          className={cn(
+            persistentLabel
+              ? 'hidden sm:inline'
+              : 'hidden sm:group-hover/mtg:inline sm:group-focus-within/mtg:inline',
+          )}
+        >
           {label}
         </span>
       )}
@@ -209,6 +259,27 @@ function GeminiMark({
         d="M12 0 C12 6 14 10 24 12 C14 14 12 18 12 24 C12 18 10 14 0 12 C10 10 12 6 12 0 Z"
         fill={monochrome ? 'currentColor' : `url(#${gradId})`}
       />
+    </svg>
+  );
+}
+
+/**
+ * xAI Grok mark — stylized X built from two thick diagonal strokes (matches
+ * the x.ai brand logo). Uses currentColor so active state can render white
+ * inside the matte-black pill while inactive state inherits text-fg-0.
+ */
+function GrokMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden className={className}>
+      <g
+        stroke="currentColor"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+        fill="none"
+      >
+        <line x1="4" y1="4" x2="20" y2="20" />
+        <line x1="20" y1="4" x2="4" y2="20" />
+      </g>
     </svg>
   );
 }

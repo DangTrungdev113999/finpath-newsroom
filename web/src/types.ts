@@ -136,9 +136,19 @@ export interface ArticleMeta {
   format_director?: FormatDirectorData | null;
   // Step 4.3 — Gemini Writer parallel side; absent when status != 'success'
   gemini?: GeminiArticle;
+  // Step 4.4 — Grok Writer parallel side; absent when status != 'success'
+  grok?: GrokArticle;
 }
 
 export interface GeminiArticle {
+  title: string;
+  body: string;
+  word_count?: number;
+  model?: string;
+  generated_at?: string;
+}
+
+export interface GrokArticle {
   title: string;
   body: string;
   word_count?: number;
@@ -176,6 +186,10 @@ export interface ArticleSummary {
    *  AND a non-empty title was persisted). Drives the "show Gemini title" mode on
    *  ArticleCard when the global ModelToggle is set to Gemini. */
   gemini_title?: string;
+  /** Step 4.4 — Grok Writer parallel title (set only when grok_status='success'
+   *  AND a non-empty title was persisted). Same purpose as gemini_title for the
+   *  'grok' mode of ArticleCard. */
+  grok_title?: string;
 }
 
 export interface Manifest {

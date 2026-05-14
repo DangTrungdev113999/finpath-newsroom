@@ -27,6 +27,10 @@ export function IndexPage() {
     () => articles.some((a) => !!a.gemini_title),
     [articles],
   );
+  const grokAvailable = useMemo(
+    () => articles.some((a) => !!a.grok_title),
+    [articles],
+  );
 
   useEffect(() => {
     loadManifest()
@@ -109,7 +113,8 @@ export function IndexPage() {
               selected={model}
               onChange={setModel}
               geminiAvailable={geminiAvailable}
-              withLabel
+              grokAvailable={grokAvailable}
+              labelMode="always"
             />
           </>
         )}

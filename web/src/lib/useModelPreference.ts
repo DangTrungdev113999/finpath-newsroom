@@ -9,7 +9,9 @@ const DEFAULT_MODEL: ArticleModel = 'gemini';
 function readStoredModel(): ArticleModel {
   if (typeof window === 'undefined') return DEFAULT_MODEL;
   const raw = window.localStorage.getItem(STORAGE_KEY);
-  return raw === 'claude' || raw === 'gemini' ? raw : DEFAULT_MODEL;
+  return raw === 'claude' || raw === 'gemini' || raw === 'grok'
+    ? raw
+    : DEFAULT_MODEL;
 }
 
 /**

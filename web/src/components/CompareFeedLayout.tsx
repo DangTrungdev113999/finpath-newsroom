@@ -17,19 +17,38 @@ export function CompareFeedLayout({
 }) {
   const { meta, leftMarkdown } = article;
   const geminiAvailable = !!(meta.gemini?.title && meta.gemini?.body);
+  const grokAvailable = !!(meta.grok?.title && meta.grok?.body);
   const { model, setModel } = useModelPreference();
   const showGemini = model === 'gemini' && geminiAvailable;
-  const displayTitle = showGemini ? meta.gemini!.title : meta.title;
-  const displayBody = showGemini ? meta.gemini!.body : leftMarkdown;
-  const displayLeftMeta = showGemini
+  const showGrok = model === 'grok' && grokAvailable;
+  const displayTitle = showGrok
+    ? meta.grok!.title
+    : showGemini
+      ? meta.gemini!.title
+      : meta.title;
+  const displayBody = showGrok
+    ? meta.grok!.body
+    : showGemini
+      ? meta.gemini!.body
+      : leftMarkdown;
+  const displayLeftMeta = showGrok
     ? {
         ...meta.left_meta,
-        author: meta.gemini?.model ? `Gemini · ${meta.gemini.model}` : 'Gemini',
-        word_count: meta.gemini?.word_count ?? meta.left_meta.word_count,
-        // Skeptic critique is Claude-side only — clear verdict marker in Gemini view
+        author: meta.grok?.model ? `Grok · ${meta.grok.model}` : 'Grok',
+        word_count: meta.grok?.word_count ?? meta.left_meta.word_count,
+        // Skeptic critique is Claude-side only — clear verdict marker in Grok view
         skeptic_verdict: '',
       }
-    : meta.left_meta;
+    : showGemini
+      ? {
+          ...meta.left_meta,
+          author: meta.gemini?.model
+            ? `Gemini · ${meta.gemini.model}`
+            : 'Gemini',
+          word_count: meta.gemini?.word_count ?? meta.left_meta.word_count,
+          skeptic_verdict: '',
+        }
+      : meta.left_meta;
 
   return (
     <article className="max-w-7xl mx-auto px-4 py-6">
@@ -55,7 +74,8 @@ export function CompareFeedLayout({
               selected={model}
               onChange={setModel}
               geminiAvailable={geminiAvailable}
-              withLabel
+              grokAvailable={grokAvailable}
+              labelMode="hover"
             />
             <TTSButton text={displayBody} />
           </div>
