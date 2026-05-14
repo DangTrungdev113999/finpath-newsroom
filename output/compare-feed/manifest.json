@@ -43,6 +43,20 @@
       "thumb_url": "https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/VIC-20260514-0754-vic-tach-vinfast-chi-21-ngay-sau-loi-lai-ndt-quay-lai-hay-76632114.webp"
     },
     {
+      "id": "VND-20260514-0757-vnd-tu-ha-vn-index-ve-1967-giua-luc-thi-truong-vua-lap-dinh-0cb2a179",
+      "ticker": "VND",
+      "sector": "Chứng khoán",
+      "title": "VND tự hạ VN-Index về 1967 giữa lúc thị trường vừa lập đỉnh",
+      "crawled_at": "2026-05-14T07:37:20.797546+00:00",
+      "key_view": "thận trọng",
+      "word_count": 248,
+      "category": null,
+      "format_id": "standard_listicle",
+      "grok_title": "VND tự hạ VN-Index về 1967 giữa lúc thị trường vừa lập đỉnh",
+      "total_cost_usd": 0.069724,
+      "thumb_url": "https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/VND-20260514-0757-vnd-tu-ha-vn-index-ve-1967-giua-luc-thi-truong-vua-lap-dinh-0cb2a179.webp"
+    },
+    {
       "id": "SHB-20260514-1212-shb-lai-4-656-ty-q1-nho-phi-dich-vu-bien-lai-vay-rot-con-2",
       "ticker": "SHB",
       "sector": "Bank",

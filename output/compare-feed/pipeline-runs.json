@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-05-14T07:57:05.391352+00:00",
+  "built_at": "2026-05-14T08:00:49.071937+00:00",
   "sessions": [
     {
       "session_id": "8d233d3b-ea23-48c1-bc31-0d658b3f771a",
@@ -87,8 +87,8 @@
       "started_at": "2026-05-14T07:37:20.796429+00:00",
       "ended_at": "2026-05-14T07:37:20.798282+00:00",
       "fetched_total": 8,
-      "chosen_total": 0,
-      "rejected_total": 8,
+      "chosen_total": 1,
+      "rejected_total": 7,
       "batches": [
         {
           "funnel_batch_id": "VND-20260514-0737",
@@ -98,10 +98,17 @@
           "hot_nhom": null,
           "hot_rank": null,
           "fetched_count": 8,
-          "chosen_count": 0,
-          "rejected_count": 8,
+          "chosen_count": 1,
+          "rejected_count": 7,
           "funnel_detail": {
-            "picked": [],
+            "picked": [
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/mot-cong-ty-chung-khoan-ha-du-bao-tang-truong-vn-index-do-rui-ro-ben-ngoai.htm",
+                "published": null,
+                "reason": "OK — accepted_hypothesis: true. Title: VND tự hạ VN-Index về 1967 giữa lúc thị trường vừa lập đỉnh"
+              }
+            ],
             "rejected": [
               {
                 "source": "Thương hiệu & Công luận",
@@ -134,14 +141,6 @@
                 "reject_agent": "story_editor",
                 "reject_label": "dup_event: Cùng story hạ dự phóng VN-Index với 8cd552dc, primary đã pick VnEconomy vì có chi tiết hơn.",
                 "reason": "dup_event: Cùng story hạ dự phóng VN-Index với 8cd552dc, primary đã pick VnEconomy vì có chi tiết hơn."
-              },
-              {
-                "source": "VnEconomy",
-                "url": "https://vneconomy.vn/mot-cong-ty-chung-khoan-ha-du-bao-tang-truong-vn-index-do-rui-ro-ben-ngoai.htm",
-                "published": null,
-                "reject_agent": "master",
-                "reject_label": "accepted_hypothesis_false",
-                "reason": "Master rejected — no article persisted"
               },
               {
                 "source": "Báo mới",
