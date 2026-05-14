@@ -114,8 +114,45 @@ Raw.
     expect(article.meta.gemini?.model).toBe('gemini-2.5-pro');
   });
 
-  it('leaves gemini undefined when absent (legacy article)', () => {
+  it('parses grok block when present in frontmatter', () => {
+    const withGrok = `---
+title: T
+ticker: ACB
+sector: Bank
+sector_icon: 🏦
+crawled_at: 2026-05-14T10:00:00+07:00
+funnel_batch_id: ACB-x
+left_meta: { author: x, word_count: 1, key_view: lạc quan, skeptic_verdict: pass, pipeline_version: V5.0 }
+insight: ""
+right_source: { name: s, url: u, published: 2026-05-14, raw_title: r }
+crawl_funnel: { picked: [], rejected: [], total_candidates: 0 }
+grok:
+  title: "Grok ACB hỏi xoáy đáp xoay"
+  body: "Body **bold** và bullet."
+  word_count: 270
+  model: grok-4-fast-non-reasoning
+  generated_at: 2026-05-14T10:01:23+00:00
+---
+
+<!-- left -->
+
+Claude body.
+
+<!-- right -->
+
+Raw.
+`;
+    const article = parseArticle('id', withGrok);
+    expect(article.meta.grok).toBeDefined();
+    expect(article.meta.grok?.title).toBe('Grok ACB hỏi xoáy đáp xoay');
+    expect(article.meta.grok?.body).toBe('Body **bold** và bullet.');
+    expect(article.meta.grok?.word_count).toBe(270);
+    expect(article.meta.grok?.model).toBe('grok-4-fast-non-reasoning');
+  });
+
+  it('leaves gemini + grok undefined when absent (legacy article)', () => {
     const article = parseArticle('id', SAMPLE);
     expect(article.meta.gemini).toBeUndefined();
+    expect(article.meta.grok).toBeUndefined();
   });
 });
