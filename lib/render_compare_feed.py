@@ -156,20 +156,31 @@ def _build_gemini_block(article: dict) -> dict | None:
     Defensive: requires status='success' AND title AND body all present (avoids
     emitting a half-broken block when only some fields were persisted).
     """
-    if article.get("gemini_status") != "success":
+    return _build_parallel_writer_block(article, prefix="gemini")
+
+
+def _build_grok_block(article: dict) -> dict | None:
+    """Step 4.4 — return frontmatter block when Grok side succeeded, else None.
+    Same defensive guards as `_build_gemini_block`.
+    """
+    return _build_parallel_writer_block(article, prefix="grok")
+
+
+def _build_parallel_writer_block(article: dict, *, prefix: str) -> dict | None:
+    if article.get(f"{prefix}_status") != "success":
         return None
-    title = article.get("gemini_title")
-    body = article.get("gemini_body")
+    title = article.get(f"{prefix}_title")
+    body = article.get(f"{prefix}_body")
     if not isinstance(title, str) or not isinstance(body, str) or not title or not body:
         return None
     block: dict = {"title": title, "body": body}
-    word_count = article.get("gemini_word_count")
+    word_count = article.get(f"{prefix}_word_count")
     if isinstance(word_count, int):
         block["word_count"] = word_count
-    model = article.get("gemini_model")
+    model = article.get(f"{prefix}_model")
     if isinstance(model, str) and model:
         block["model"] = model
-    generated_at = article.get("gemini_generated_at")
+    generated_at = article.get(f"{prefix}_generated_at")
     if isinstance(generated_at, str) and generated_at:
         block["generated_at"] = generated_at
     return block
@@ -206,6 +217,10 @@ def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict
     gemini_block = _build_gemini_block(article)
     if gemini_block is not None:
         fm["gemini"] = gemini_block
+
+    grok_block = _build_grok_block(article)
+    if grok_block is not None:
+        fm["grok"] = grok_block
 
     fm_yaml = yaml.safe_dump(fm, allow_unicode=True, sort_keys=False).strip()
     body = (article.get("body") or "").strip()
@@ -362,6 +377,7 @@ def rebuild_manifest_from_db(db, output_dir: Path) -> dict:
         SELECT gn.public_slug, gn.ticker, gn.sector, gn.title, gn.key_view,
                gn.word_count, gn.pipeline_log, gn.brief_json,
                gn.gemini_title, gn.gemini_status,
+               gn.grok_title, gn.grok_status,
                cl.crawled_at
         FROM generated_news gn
         JOIN crawl_log cl ON cl.row_id = gn.row_id
@@ -401,10 +417,12 @@ def rebuild_manifest_from_db(db, output_dir: Path) -> dict:
             "category": chosen_category,
             "format_id": format_id,
         }
-        # Surface Gemini title only when Step 4.3 actually succeeded — keeps
-        # the manifest entry slim for the common no-Gemini case.
+        # Surface Gemini/Grok title only when Step 4.3/4.4 actually succeeded —
+        # keeps the manifest entry slim for the common no-parallel case.
         if row["gemini_status"] == "success" and row["gemini_title"]:
             entry["gemini_title"] = row["gemini_title"]
+        if row["grok_status"] == "success" and row["grok_title"]:
+            entry["grok_title"] = row["grok_title"]
         articles.append(entry)
 
     # Preserve legacy entries (hand-crafted .md files with no DB row) so
