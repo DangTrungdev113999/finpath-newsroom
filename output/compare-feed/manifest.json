@@ -1,6 +1,21 @@
 {
   "articles": [
     {
+      "id": "SHB-20260514-1212-shb-lai-4-656-ty-q1-nho-phi-dich-vu-bien-lai-vay-rot-con-2",
+      "ticker": "SHB",
+      "sector": "Bank",
+      "title": "SHB lãi 4.656 tỷ Q1 nhờ phí dịch vụ, biên lãi vay rớt còn 2,67%",
+      "crawled_at": "2026-05-14T04:48:00.320623+00:00",
+      "key_view": "thận trọng",
+      "word_count": 289,
+      "category": null,
+      "format_id": "standard_qa",
+      "gemini_title": "SHB lãi kỷ lục 4.656 tỷ, vậy sao biên lãi vay lại rớt thảm?",
+      "grok_title": "SHB lãi 4656 tỷ quý I nhưng NIM rớt sâu, ai kéo lãi?",
+      "total_cost_usd": 15.21607,
+      "thumb_url": "https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/SHB-20260514-1212-shb-lai-4-656-ty-q1-nho-phi-dich-vu-bien-lai-vay-rot-con-2.webp"
+    },
+    {
       "id": "VHM-20260513-0925-vhm-noi-phuc-hoi-co-chon-loc-bat-dong-san-tu-nay-khong-phai",
       "ticker": "VHM",
       "sector": "BĐS",

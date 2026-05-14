@@ -1,6 +1,113 @@
 {
-  "built_at": "2026-05-14T02:56:33.526799+00:00",
+  "built_at": "2026-05-14T05:24:05.442030+00:00",
   "sessions": [
+    {
+      "session_id": "4CCCC815-00BA-4B3D-8A65-0BE4AF9044C4",
+      "trigger_type": "tin",
+      "trigger_args": "SHB",
+      "started_at": "2026-05-14T04:48:00.318195+00:00",
+      "ended_at": "2026-05-14T04:48:00.321838+00:00",
+      "fetched_total": 10,
+      "chosen_total": 1,
+      "rejected_total": 9,
+      "batches": [
+        {
+          "funnel_batch_id": "SHB-20260514-0448",
+          "ticker": "SHB",
+          "sector_code": null,
+          "sector_name": "Bank vừa và nhỏ",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 10,
+          "chosen_count": 1,
+          "rejected_count": 9,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "SHB Corporate",
+                "url": "https://www.shb.com.vn/shb-lai-truoc-thue-4-656-ty-dong-quy-i-thu-nhap-dich-vu-tang-manh-tiep-tuc-tang-cuong-nen-tang-von/",
+                "published": null,
+                "reason": "OK — accepted_hypothesis: true. Title: SHB lãi 4.656 tỷ Q1 nhờ phí dịch vụ, biên lãi vay rớt còn 2,67%"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/shb-lai-truoc-thue-4656-ty-quy-i-thu-nhap-dich-vu-tang-manh-188260512154156319.chn",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: cafef bản tóm tắt — trùng cluster Q1 4.656 ty với winner shb.com.vn (252c5201)",
+                "reason": "dup_event: cafef bản tóm tắt — trùng cluster Q1 4.656 ty với winner shb.com.vn (252c5201)"
+              },
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/05/shb-lai-truoc-thue-4656-ty-dong-quy-1-thu-nhap-dich-vu-tang-manh-tiep-tuc-tang-cuong-nen-tang-von-737-1441220.htm",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: vietstock — trùng cluster Q1 4.656 ty",
+                "reason": "dup_event: vietstock — trùng cluster Q1 4.656 ty"
+              },
+              {
+                "source": "Báo Nhân Dân",
+                "url": "https://nhandan.vn/shb-lai-truoc-thue-4656-ty-dong-quy-i-tiep-tuc-tang-cuong-nen-tang-von-post961597.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: nhandan — trùng cluster Q1 4.656 ty",
+                "reason": "dup_event: nhandan — trùng cluster Q1 4.656 ty"
+              },
+              {
+                "source": "Nhịp Sống Nhà Đất",
+                "url": "https://nhipsongnhadat.vn/mxh/shb-lai-truoc-thue-4-656-ty-quy-1-thu-nhap-dich-vu-tang-manh.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: nhipsongnhadat — trùng cluster Q1 4.656 ty",
+                "reason": "dup_event: nhipsongnhadat — trùng cluster Q1 4.656 ty"
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/viet-nam-sap-co-them-ngan-hang-can-moc-tai-san-3-trieu-ty-shb-va-hdbank-chuan-bi-cham-cot-moc-moi-188260513165904867.chn",
+                "published": null,
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Doanh nghiệp Cuộc sống",
+                "url": "https://doanhnghiepcuocsong.vn/shb-hop-tac-chien-luoc-voi-huawei-but-pha-cong-nghe-kien-tao-ngan-hang-tuong-lai-a258477.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "low_data_foundation: bài hợp tác Huawei body rỗng + tone PR công nghệ thuần, chưa có số cụ thể (đầu tư, lộ trình, KPI) để đào sâu.",
+                "reason": "low_data_foundation: bài hợp tác Huawei body rỗng + tone PR công nghệ thuần, chưa có số cụ thể (đầu tư, lộ trình, KPI) để đào sâu."
+              },
+              {
+                "source": "Thương Gia Online",
+                "url": "https://thuonggiaonline.vn/shb-lai-truoc-thue-4656-ty-dong-quy-1-thu-nhap-dich-vu-tang-manh-tiep-tuc-tang-cuong-nen-tang-von-post570114.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: thuonggiaonline — trùng cluster Q1 4.656 ty",
+                "reason": "dup_event: thuonggiaonline — trùng cluster Q1 4.656 ty"
+              },
+              {
+                "source": "Doanh nghiệp Hội nhập",
+                "url": "https://doanhnghiephoinhap.vn/shb-lai-4656-ty-quy-1-dich-vu-tang-truong-but-pha-manh-me-135324.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: doanhnghiephoinhap — trùng cluster Q1 4.656 ty",
+                "reason": "dup_event: doanhnghiephoinhap — trùng cluster Q1 4.656 ty"
+              },
+              {
+                "source": "VietnamNet",
+                "url": "https://vietnamnet.vn/quy-i-2026-ngan-hang-shb-bao-lai-truoc-thue-4-656-ty-dong-2515004.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: vietnamnet — trùng cluster Q1 4.656 ty",
+                "reason": "dup_event: vietnamnet — trùng cluster Q1 4.656 ty"
+              }
+            ]
+          }
+        }
+      ]
+    },
     {
       "session_id": "39782809-a007-46ac-b651-676679d32e00",
       "trigger_type": "tin",
