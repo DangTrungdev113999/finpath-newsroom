@@ -125,12 +125,20 @@ def _build_prompt(
     template_path: Path,
     motif: str,
     thumb_concept: str,
+    ticker: str,
 ) -> str:
+    """Substitute {{sector_motif}} / {{thumb_concept}} / {{ticker}} placeholders.
+
+    `ticker` is rendered into the image as the single textual element per
+    V5.1.8.1 prompt template — Imagen 4 typically holds 3-4 letter all-caps
+    legibly even though general text rendering is hit-or-miss.
+    """
     template = template_path.read_text(encoding="utf-8")
     return (
         template
         .replace("{{sector_motif}}", motif)
         .replace("{{thumb_concept}}", thumb_concept)
+        .replace("{{ticker}}", (ticker or "").strip().upper())
     )
 
 
@@ -216,7 +224,8 @@ def run_image_gen(
     sector_key = _resolve_sector_key(article.get("sector") or "")
     motif = motifs.get(sector_key) or motifs.get("default") or ""
     thumb_concept = _extract_thumb_concept(article.get("title") or "", article.get("body") or "")
-    prompt = _build_prompt(prompt_path, motif, thumb_concept)
+    ticker = article.get("ticker") or ""
+    prompt = _build_prompt(prompt_path, motif, thumb_concept, ticker)
 
     api_key = imagen_client.load_api_key(secrets_path)
     result = imagen_client.generate_thumb(
