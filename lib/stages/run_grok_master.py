@@ -162,7 +162,15 @@ def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], paylo
         "variety_guard_angle": payload.get("variety_guard_angle"),
         "public_slug": new_slug,
         "primary_writer": writer,
+        "status": "published",
+        "published_at": datetime.now(timezone.utc).isoformat(),
     })
+    row_id = article.get("row_id")
+    if row_id:
+        db.update_crawl_row(row_id, {
+            "master_decision": "write_article",
+            "master_note": f"primary_writer={writer} (V5.1.9 free-style)",
+        })
     return new_slug
 
 
@@ -219,6 +227,14 @@ def run_grok_master(
     payload = result.get("payload") or {}
     step_log = _build_step_log(result, result["duration_ms"])
 
+    failure_step_log = {
+        "model": result.get("model"),
+        "duration_ms": result.get("duration_ms"),
+        "tokens": result.get("usage") or {},
+        "tool_history": result.get("tool_history") or [],
+        "error": result.get("error"),
+        "skipped_reason": status if not result["ok"] else None,
+    }
     db.update_grok_output(
         article_id=article_id,
         status=status,
@@ -237,7 +253,7 @@ def run_grok_master(
             "skip_reasons": payload.get("skip_reasons"),
             "format_id_used": payload.get("format_id_used"),
         }, ensure_ascii=False) if result["ok"] else None,
-        step_log=json.dumps(step_log, ensure_ascii=False) if result["ok"] else None,
+        step_log=json.dumps(step_log if result["ok"] else failure_step_log, ensure_ascii=False),
     )
 
     if result["ok"]:

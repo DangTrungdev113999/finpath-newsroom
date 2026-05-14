@@ -108,6 +108,59 @@ def _extract_tool_history(response: Any) -> list[dict[str, Any]]:
     return out
 
 
+def _extract_json_object(text: str) -> dict | None:
+    """Extract the first balanced {...} JSON object from free-form text.
+
+    Handles:
+      - Pure JSON: `{"title": ...}` → parse directly.
+      - Code fence: ` ```json\n{...}\n``` ` → strip fence then parse.
+      - Prose prelude: `Đây là bài viết: {...}` → seek first '{' and balance.
+
+    Returns parsed dict or None on failure. Defensive against arbitrarily
+    nested objects/arrays as long as brace counting holds (no unescaped
+    braces inside strings — true for LLM JSON output in practice).
+    """
+    if not isinstance(text, str) or not text.strip():
+        return None
+    # Try direct parse first
+    try:
+        obj = json.loads(text)
+        return obj if isinstance(obj, dict) else None
+    except json.JSONDecodeError:
+        pass
+    # Find first '{' and walk to its matching '}' (string-aware)
+    start = text.find("{")
+    if start < 0:
+        return None
+    depth = 0
+    in_str = False
+    escape = False
+    for i in range(start, len(text)):
+        ch = text[i]
+        if in_str:
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == '"':
+                in_str = False
+        else:
+            if ch == '"':
+                in_str = True
+            elif ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    candidate = text[start : i + 1]
+                    try:
+                        obj = json.loads(candidate)
+                        return obj if isinstance(obj, dict) else None
+                    except json.JSONDecodeError:
+                        return None
+    return None
+
+
 def _summarize_tool_data(data: Any, max_len: int = 200) -> str:
     """Short string summary of a tool response payload for log emission."""
     if data is None:
@@ -132,13 +185,16 @@ def _attempt(
     Returns (text, usage, tool_history)."""
     from google.genai import types  # type: ignore[import-not-found]
 
+    # V5.1.9.3 (2026-05-14): google-genai SDK rejects response_mime_type +
+    # response_schema combined with tools= (HTTP 400 "Function calling with
+    # a response mime type: 'application/json' is unsupported"). When tools
+    # are enabled we MUST omit the structured output config and parse JSON
+    # from the free-form text response instead. Prompt asks for JSON-only.
     config = types.GenerateContentConfig(
         tools=tools.callables,
         automatic_function_calling=types.AutomaticFunctionCallingConfig(
             maximum_remote_calls=MAX_REMOTE_CALLS,
         ),
-        response_mime_type="application/json",
-        response_schema=_output_schema(),
         http_options=types.HttpOptions(timeout=timeout_s * 1000),
     )
     response = client.models.generate_content(
@@ -212,9 +268,11 @@ def generate_article(
 
     base["usage"] = usage
     base["tool_history"] = tool_history
-    try:
-        payload = json.loads(raw_text)
-    except json.JSONDecodeError:
+    # V5.1.9.3: without response_mime_type the LLM may wrap JSON in
+    # ```json fences or prepend "Đây là bài viết:" prose. Extract the first
+    # balanced { ... } block before parsing.
+    payload = _extract_json_object(raw_text)
+    if payload is None:
         base["error"] = "parse_error"
         base["duration_ms"] = int((time.monotonic() - started) * 1000)
         return base

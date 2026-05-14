@@ -171,7 +171,23 @@ def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], paylo
         "variety_guard_angle": payload.get("variety_guard_angle"),
         "public_slug": new_slug,
         "primary_writer": writer,
+        # V5.1.9.3: status='published' so cards/feed pages that filter on
+        # status surface the article. Pre-V5.1.9 Master skill set this; the
+        # writer orchestrators didn't.
+        "status": "published",
+        "published_at": datetime.now(timezone.utc).isoformat(),
     })
+    # V5.1.9.3: render_compare_feed.py filters anchors by
+    # crawl_log.master_decision='write_article'. Step 4.0 placeholder leaves
+    # this NULL; without the update, render returns no anchors + pipeline
+    # halts. Set it when the first writer claims primary so render finds
+    # the article.
+    row_id = article.get("row_id")
+    if row_id:
+        db.update_crawl_row(row_id, {
+            "master_decision": "write_article",
+            "master_note": f"primary_writer={writer} (V5.1.9 free-style)",
+        })
     return new_slug
 
 
@@ -228,6 +244,18 @@ def run_gemini_master(
     payload = result.get("payload") or {}
     step_log = _build_step_log(result, result["duration_ms"])
 
+    # V5.1.9.3: persist step_log even on failure so observability surfaces
+    # the error + any partial data (e.g. tool_history filled before final
+    # JSON parse failed). On disabled/missing-key path step_log captures
+    # the skip reason for audit.
+    failure_step_log = {
+        "model": result.get("model"),
+        "duration_ms": result.get("duration_ms"),
+        "tokens": result.get("usage") or {},
+        "tool_history": result.get("tool_history") or [],
+        "error": result.get("error"),
+        "skipped_reason": status if not result["ok"] else None,
+    }
     db.update_gemini_output(
         article_id=article_id,
         status=status,
@@ -246,7 +274,7 @@ def run_gemini_master(
             "skip_reasons": payload.get("skip_reasons"),
             "format_id_used": payload.get("format_id_used"),
         }, ensure_ascii=False) if result["ok"] else None,
-        step_log=json.dumps(step_log, ensure_ascii=False) if result["ok"] else None,
+        step_log=json.dumps(step_log if result["ok"] else failure_step_log, ensure_ascii=False),
     )
 
     if result["ok"]:
