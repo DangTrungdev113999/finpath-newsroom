@@ -7,8 +7,56 @@ import {
   DialogTitle,
   DialogDescription,
 } from '../shared/ui/dialog';
+import { EqualizerBars } from './EqualizerBars';
 import { signInPuter } from '../lib/puterTTS';
 import { cn } from '../shared/lib/cn';
+
+/**
+ * Hero waveform — 32-bar simulated voice envelope rendered as an
+ * inline JSX block. Heights are hand-picked to look like a typed
+ * Vietnamese phrase (vowels peaks / consonants valleys / pauses near zero),
+ * not random noise. Animation borrows the project-wide `eqBar` keyframe
+ * (tokens.css) so the wave shares timing language with the small chip
+ * indicator in the press-pass header. Mask-gradient fades both edges so
+ * the wave reads as "passing through" rather than "starting / ending here".
+ */
+const WAVE_HEIGHTS = [
+  28, 42, 60, 78, 92, 70, 48, 32, 50, 72, 90, 85, 65, 40, 26, 35,
+  55, 80, 95, 88, 72, 50, 34, 26, 38, 62, 84, 90, 76, 56, 38, 28,
+];
+const WAVE_DURATIONS = [
+  920, 880, 1010, 940, 870, 1020, 950, 890, 1000, 910, 870, 980, 940,
+  1000, 920, 880, 960, 900, 1010, 950, 890, 970, 930, 1000, 920, 880,
+  960, 940, 990, 920, 870, 1010,
+];
+
+function HeroWaveform() {
+  return (
+    <div
+      aria-hidden
+      className="mt-4 flex h-9 items-end gap-[3px]"
+      style={{
+        maskImage:
+          'linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%)',
+        WebkitMaskImage:
+          'linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%)',
+      }}
+    >
+      {WAVE_HEIGHTS.map((h, i) => (
+        <span
+          key={i}
+          className="flex-1 rounded-[1px]"
+          style={{
+            height: `${h}%`,
+            backgroundColor: '#6b1a1a',
+            transformOrigin: 'bottom',
+            animation: `eqBar ${WAVE_DURATIONS[i]}ms ${i * 55}ms ease-in-out infinite`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 interface Props {
   open: boolean;
@@ -70,18 +118,14 @@ export function LoginPromptDialog({ open, onOpenChange, onAuthenticated }: Props
         </svg>
 
         <div className="relative px-6 pb-5 pt-7">
-          {/* press-pass header chip */}
-          <div className="mb-4 inline-flex items-center gap-2 rounded-sm border border-[#3a2618]/45 bg-[#ede1c2] px-2.5 py-1">
-            <span aria-hidden className="flex items-end gap-[2px]">
-              {[3, 6, 4, 8, 5].map((h, i) => (
-                <span
-                  key={i}
-                  style={{ height: `${h * 1.5}px`, width: '2px' }}
-                  className="bg-[#3a2618]"
-                />
-              ))}
-            </span>
-            <span className="font-mono text-[9.5px] font-bold uppercase tracking-[0.28em] text-[#3a2618]">
+          {/* press-pass header chip — live equalizer signals "audio category"
+              even before the headline is read. Color piggybacks on
+              EqualizerBars' currentColor mode so the bars inherit sepia ink. */}
+          <div
+            className="mb-3 inline-flex items-center gap-2 rounded-sm border border-[#3a2618]/45 bg-[#ede1c2] px-2.5 py-1 text-[#3a2618]"
+          >
+            <EqualizerBars active size="sm" color="current" />
+            <span className="font-mono text-[9.5px] font-bold uppercase tracking-[0.28em]">
               Audio · Press-pass
             </span>
           </div>
@@ -93,7 +137,13 @@ export function LoginPromptDialog({ open, onOpenChange, onAuthenticated }: Props
             <em className="not-italic text-[#6b1a1a]">mở giọng đọc miễn phí.</em>
           </DialogTitle>
 
-          <DialogDescription className="!mt-3 !font-sans !text-[13px] !leading-relaxed !text-[#3a2618]">
+          {/* Hero voice envelope — a "preview snippet" that animates the
+              whole time the dialog is open, doubling as the proof-of-concept
+              ("đây là cái bạn sắp nghe"). Mask edges fade so it reads as
+              passing-through wave rather than docked block. */}
+          <HeroWaveform />
+
+          <DialogDescription className="!mt-4 !font-sans !text-[13px] !leading-relaxed !text-[#3a2618]">
             Giọng tiếng Việt do Puter cung cấp — nền tảng AI bên thứ 3, hoàn
             toàn miễn phí, không cần thẻ. Một cửa sổ đăng nhập mở ra, xong
             việc thì quay về đây — bài tin vẫn nguyên vị trí.

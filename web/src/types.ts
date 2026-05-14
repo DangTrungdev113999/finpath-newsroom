@@ -144,6 +144,11 @@ export interface ArticleMeta {
   // `/tin --image` was used AND Imagen succeeded. Web hero renders this
   // image above the title when present.
   thumb_url?: string;
+  // V5.1.9 — which writer claimed the primary slot for this article.
+  // 'claude' for legacy / MASTER_ENABLED=true runs; 'gemini' or 'grok' when
+  // free-style Master flow promoted a parallel side to primary. Web uses
+  // this to decide whether to show the Claude option in the model toggle.
+  primary_writer?: 'claude' | 'gemini' | 'grok';
 }
 
 export interface GeminiArticle {

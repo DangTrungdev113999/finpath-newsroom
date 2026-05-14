@@ -228,6 +228,23 @@ def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict
     sector = article.get("sector", "Bank")
     sector_icon = {"Bank": "🏦", "CK": "📈", "BĐS": "🏠"}.get(sector, "📰")
 
+    # V5.1.9 — detect which writer promoted to primary by matching body to
+    # gemini_body / grok_body. When body matches, set author + primary_writer
+    # so web can collapse the toggle to 2-way (Claude side hidden).
+    primary_writer = "claude"  # legacy default — Claude Master sector authors
+    author = _author_for_sector(sector)
+    body_str = article.get("body") or ""
+    gemini_body = article.get("gemini_body") or ""
+    grok_body = article.get("grok_body") or ""
+    if body_str and body_str == gemini_body and gemini_body:
+        primary_writer = "gemini"
+        gm = article.get("gemini_model") or "gemini-2.5-pro"
+        author = f"Gemini · {gm}"
+    elif body_str and body_str == grok_body and grok_body:
+        primary_writer = "grok"
+        gm = article.get("grok_model") or "grok-4.3"
+        author = f"Grok · {gm}"
+
     fm = {
         "title": article["title"],
         "ticker": article["ticker"],
@@ -235,8 +252,9 @@ def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict
         "sector_icon": sector_icon,
         "crawled_at": anchor_row["crawled_at"],
         "funnel_batch_id": anchor_row["funnel_batch_id"],
+        "primary_writer": primary_writer,
         "left_meta": {
-            "author": _author_for_sector(sector),
+            "author": author,
             "word_count": article.get("word_count", 0),
             "key_view": article.get("key_view", "trung lập"),
             "skeptic_verdict": article.get("skeptic_verdict", "pass"),
@@ -426,6 +444,8 @@ def rebuild_manifest_from_db(db, output_dir: Path) -> dict:
         JOIN crawl_log cl ON cl.row_id = gn.row_id
         WHERE gn.accepted_hypothesis = 1
           AND gn.public_slug IS NOT NULL
+          AND (gn.title IS NULL OR gn.title NOT LIKE '%pending-master%')
+          AND (gn.body IS NULL OR LENGTH(TRIM(gn.body)) > 0)
         ORDER BY cl.crawled_at DESC
         """
     )
@@ -703,6 +723,15 @@ def render_for_funnel_batch(db_path: Path, funnel_batch_id: str, output_dir: Pat
             continue
         for art_row in art_rows:
             article = dict(art_row)
+            # V5.1.9 — skip placeholder rows where neither parallel writer
+            # promoted to primary (both Gemini AND Grok failed). Step 4.0
+            # left title='<TICKER>-pending-master' + empty body; rendering
+            # this would contaminate the feed. Telegram V5.1.8 already
+            # skips publishing these via status='skipped_no_parallel_writers'.
+            title_now = (article.get("title") or "")
+            body_now = (article.get("body") or "").strip()
+            if "pending-master" in title_now.lower() or not body_now:
+                continue
             public_slug = article.get("public_slug") or f"{anchor['ticker']}-{anchor['row_id']}-{article['article_id'][:8]}"
             md_content = render_article_md_v4(article, anchor, rows)
             out_path = output_dir / f"{public_slug}.md"
