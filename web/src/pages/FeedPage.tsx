@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Skeleton } from 'boneyard-js/react';
 import { CompareFeedLayout } from '../components/CompareFeedLayout';
+import { BackToListLink } from '../components/BackToListLink';
 import { loadManifest, loadArticle } from '../lib/articleLoader';
 import type { Article, ArticleSummary } from '../types';
 import { SymbolFilter, useSymbolFilter } from '../components/SymbolFilter';
@@ -203,6 +204,10 @@ export function FeedPage() {
             onNext={listener.next}
           />
           <ViewToggle showRight={showRight} onChange={setShowRight} />
+          <BackToListLink
+            label="Về danh sách"
+            ariaLabel="Quay về trang danh sách bài viết"
+          />
         </div>
       </div>
 
