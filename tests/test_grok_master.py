@@ -143,3 +143,49 @@ def test_missing_api_key_returns_error():
     )
     assert result["ok"] is False
     assert result["error"] == "missing_api_key"
+
+
+def test_tool_history_captured_with_real_dispatch():
+    """V5.1.9.1 — tool_history records the SDK-side ground truth of each
+    tool invocation (name + args + ok + source + summary). Verifies the
+    loop actually dispatches through ResearchTools and persists the trail.
+    """
+    tool_call = MagicMock()
+    tool_call.id = "call_1"
+    tool_call.function.name = "read_recent_articles"
+    tool_call.function.arguments = '{"ticker": "VCB", "limit": 2}'
+
+    final = {
+        "title": "VCB CASA paradox",
+        "body": "Body",
+        "word_count": 100,
+        "chosen_question_idx": 0,
+        "data_trail": [],
+    }
+    factory, _ = _mock_factory([
+        _make_resp(None, tool_calls=[tool_call], prompt_tokens=1000, completion_tokens=50),
+        _make_resp(json.dumps(final), prompt_tokens=1200, completion_tokens=200),
+    ])
+
+    # Build tools with a mock db so read_recent_articles returns something.
+    mock_db = MagicMock()
+    mock_db.recent_generated_news.return_value = [
+        {"title": "Old VCB article", "variety_guard_angle": "paradox",
+         "insight_final": "...", "published_at": "2026-05-10"},
+    ]
+    tools = research_tools.build_research_tools(
+        db=mock_db, secrets_path=Path("/nonexistent"),
+    )
+
+    result = grok_master.generate_article(
+        prompt="x", tools=tools, api_key="k", _client_factory=factory,
+    )
+    assert result["ok"] is True
+    history = result["tool_history"]
+    assert len(history) == 1
+    assert history[0]["name"] == "read_recent_articles"
+    assert history[0]["args"] == {"ticker": "VCB", "limit": 2}
+    assert history[0]["ok"] is True
+    assert "DB/recent_articles" in (history[0]["source"] or "")
+    # Tool got dispatched against the mock db
+    mock_db.recent_generated_news.assert_called_once_with("VCB", limit=2)

@@ -193,6 +193,14 @@ def _build_parallel_writer_block(article: dict, *, prefix: str) -> dict | None:
         block["tokens_out"] = tokens_out
     if isinstance(cost_usd, (int, float)):
         block["cost_usd"] = float(cost_usd)
+    # V5.1.9 step_log — per-writer observability (data_trail from LLM self-
+    # report + tool_history from SDK ground truth + chosen_question + tokens).
+    step_log_raw = article.get(f"{prefix}_step_log")
+    if isinstance(step_log_raw, str) and step_log_raw.strip():
+        try:
+            block["step_log"] = json.loads(step_log_raw)
+        except (json.JSONDecodeError, TypeError):
+            pass
     return block
 
 

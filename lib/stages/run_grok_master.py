@@ -119,6 +119,7 @@ def _build_step_log(result: dict[str, Any], duration_ms: int) -> dict[str, Any]:
         "chosen_pick_reason": payload.get("chosen_pick_reason"),
         "skip_reasons": payload.get("skip_reasons"),
         "data_trail": payload.get("data_trail") or [],
+        "tool_history": result.get("tool_history") or [],
         "gates_passed": payload.get("gates_passed"),
         "format_id_used": payload.get("format_id_used"),
         "format_escalation_reason": payload.get("format_escalation_reason"),

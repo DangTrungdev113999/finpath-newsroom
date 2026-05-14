@@ -44,6 +44,19 @@ def _exec_tool(tools: ResearchTools, fn_name: str, fn_args: dict) -> dict:
         return {"ok": False, "error": str(exc)}
 
 
+def _summarize_tool_data(data: Any, max_len: int = 200) -> str:
+    """Short string summary of a tool response payload for log emission."""
+    if data is None:
+        return "(no data)"
+    if isinstance(data, list):
+        return f"list[{len(data)}]" + (f" first={list(data)[0]}"[:max_len] if data else "")
+    if isinstance(data, dict):
+        keys = list(data.keys())[:6]
+        return f"dict keys={keys}"
+    s = str(data)
+    return s[:max_len] + ("…" if len(s) > max_len else "")
+
+
 def generate_article(
     prompt: str,
     *,
@@ -67,6 +80,7 @@ def generate_article(
         "payload": None,
         "model": model,
         "usage": {},
+        "tool_history": [],
         "duration_ms": 0,
         "error": None,
     }
@@ -87,6 +101,7 @@ def generate_article(
     total_in = 0
     total_out = 0
     final_content: str | None = None
+    tool_history: list[dict[str, Any]] = []
 
     for turn in range(max_turns):
         try:
@@ -139,6 +154,19 @@ def generate_article(
             except json.JSONDecodeError:
                 fn_args = {}
             result = _exec_tool(tools, fn_name, fn_args)
+            # V5.1.9.1 — capture SDK-side ground-truth tool log (mirrors
+            # gemini_master._extract_tool_history shape).
+            history_entry: dict[str, Any] = {
+                "name": fn_name,
+                "args": fn_args,
+                "ok": bool(result.get("ok", True)),
+                "source": result.get("source"),
+            }
+            if "error" in result:
+                history_entry["summary"] = f"error: {result['error']}"
+            else:
+                history_entry["summary"] = _summarize_tool_data(result.get("data"))
+            tool_history.append(history_entry)
             messages.append({
                 "role": "tool",
                 "tool_call_id": tc.id,
@@ -152,6 +180,7 @@ def generate_article(
         return base
 
     base["usage"] = {"prompt_tokens": total_in, "completion_tokens": total_out}
+    base["tool_history"] = tool_history
 
     if final_content is None:
         base["error"] = base["error"] or "no_final_content"

@@ -109,7 +109,12 @@ def _substitute(template: str, variables: dict[str, str]) -> str:
 def _build_step_log(result: dict[str, Any], duration_ms: int) -> dict[str, Any]:
     """Build observability payload mirroring legacy step_4_master shape so
     render + UI code paths can read pipeline_log['step_4_3_gemini_master']
-    same way they read step_4_master."""
+    same way they read step_4_master.
+
+    V5.1.9.1: include `tool_history` — SDK ground truth of which tools were
+    actually invoked with what args + result summary. Distinct from
+    `data_trail` which is the LLM's own self-narrative.
+    """
     payload = result.get("payload") or {}
     return {
         "model": result.get("model"),
@@ -119,6 +124,7 @@ def _build_step_log(result: dict[str, Any], duration_ms: int) -> dict[str, Any]:
         "chosen_pick_reason": payload.get("chosen_pick_reason"),
         "skip_reasons": payload.get("skip_reasons"),
         "data_trail": payload.get("data_trail") or [],
+        "tool_history": result.get("tool_history") or [],
         "gates_passed": payload.get("gates_passed"),
         "format_id_used": payload.get("format_id_used"),
         "format_escalation_reason": payload.get("format_escalation_reason"),

@@ -69,14 +69,67 @@ def _output_schema() -> dict:
     }
 
 
+def _extract_tool_history(response: Any) -> list[dict[str, Any]]:
+    """Parse `response.automatic_function_calling_history` (genai SDK ground
+    truth — what tools the LLM actually invoked + what payload came back) into
+    a serializable list of {name, args, ok, source, summary} dicts.
+
+    Each Content in history alternates role='model' (carrying function_calls)
+    and role='user' (carrying function_responses). We pair them by order so
+    the timeline reads sequentially.
+    """
+    history = getattr(response, "automatic_function_calling_history", None) or []
+    out: list[dict[str, Any]] = []
+    pending_calls: list[dict[str, Any]] = []
+    for content in history:
+        parts = getattr(content, "parts", None) or []
+        role = getattr(content, "role", "")
+        for part in parts:
+            fc = getattr(part, "function_call", None)
+            fr = getattr(part, "function_response", None)
+            if fc is not None and role == "model":
+                pending_calls.append({
+                    "name": getattr(fc, "name", None),
+                    "args": dict(getattr(fc, "args", None) or {}),
+                })
+            elif fr is not None and role == "user":
+                resp = getattr(fr, "response", None) or {}
+                # Tool callables return {"ok", "source", "data" or "error"}
+                entry = pending_calls.pop(0) if pending_calls else {"name": getattr(fr, "name", None), "args": {}}
+                entry["ok"] = bool(resp.get("ok", True))
+                entry["source"] = resp.get("source")
+                # Trim heavy 'data' payload for log size; keep error message intact.
+                if "error" in resp:
+                    entry["summary"] = f"error: {resp['error']}"
+                else:
+                    data = resp.get("data")
+                    entry["summary"] = _summarize_tool_data(data)
+                out.append(entry)
+    return out
+
+
+def _summarize_tool_data(data: Any, max_len: int = 200) -> str:
+    """Short string summary of a tool response payload for log emission."""
+    if data is None:
+        return "(no data)"
+    if isinstance(data, list):
+        return f"list[{len(data)}]" + (f" first={list(data)[0]}"[:max_len] if data else "")
+    if isinstance(data, dict):
+        keys = list(data.keys())[:6]
+        return f"dict keys={keys}"
+    s = str(data)
+    return s[:max_len] + ("…" if len(s) > max_len else "")
+
+
 def _attempt(
     client: Any,
     prompt: str,
     tools: ResearchTools,
     model: str,
     timeout_s: int,
-) -> tuple[str, dict[str, int]]:
-    """Single Gemini call with automatic function calling. Returns (text, usage)."""
+) -> tuple[str, dict[str, int], list[dict[str, Any]]]:
+    """Single Gemini call with automatic function calling.
+    Returns (text, usage, tool_history)."""
     from google.genai import types  # type: ignore[import-not-found]
 
     config = types.GenerateContentConfig(
@@ -105,7 +158,8 @@ def _attempt(
             usage["prompt_tokens"] = in_tok
         if isinstance(out_tok, int):
             usage["completion_tokens"] = out_tok
-    return text, usage
+    tool_history = _extract_tool_history(response)
+    return text, usage, tool_history
 
 
 def generate_article(
@@ -138,6 +192,7 @@ def generate_article(
         "payload": None,
         "model": model,
         "usage": {},
+        "tool_history": [],
         "duration_ms": 0,
         "error": None,
     }
@@ -149,13 +204,14 @@ def generate_article(
     factory = _client_factory or _default_factory
     try:
         client = factory(api_key)
-        raw_text, usage = _attempt(client, prompt, tools, model, timeout_s)
+        raw_text, usage, tool_history = _attempt(client, prompt, tools, model, timeout_s)
     except Exception as exc:  # noqa: BLE001
         base["error"] = str(exc)
         base["duration_ms"] = int((time.monotonic() - started) * 1000)
         return base
 
     base["usage"] = usage
+    base["tool_history"] = tool_history
     try:
         payload = json.loads(raw_text)
     except json.JSONDecodeError:
