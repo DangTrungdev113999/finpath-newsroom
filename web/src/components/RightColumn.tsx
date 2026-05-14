@@ -5,6 +5,7 @@ import { DataTrail } from './DataTrail';
 import { InsightCallout } from './InsightCallout';
 import { PipelineObservability } from './PipelineObservability';
 import { FormatPickPanel } from './FormatPickPanel';
+import { CostPanel } from './CostPanel';
 import { formatPublishedDate } from '../lib/format';
 
 export function RightColumn({ meta }: { meta: ArticleMeta }) {
@@ -25,38 +26,56 @@ export function RightColumn({ meta }: { meta: ArticleMeta }) {
         Mở metadata + nguồn (7 sections)
       </summary>
       <div className="space-y-6">
-      {/* Section 1: Bài gốc */}
+      {/* V5.1.8 — top-of-column: AI cost (collapsed default).
+       *  Inserted FIRST so user audit chi phí trước khi scroll qua provenance. */}
+      <CostPanel costs={meta.costs} />
+
+      {/* Section 1: Bài gốc — V5.1.8 collapsed by default */}
       <section>
-        <h3 className="section-pill">Bài gốc</h3>
-        <p className="font-semibold">{src.raw_title}</p>
-        <p className="text-sm text-fg-3 italic">
-          Nguồn:{' '}
-          <a href={src.url} target="_blank" rel="noopener noreferrer">
-            {src.name}
-          </a>{' '}
-          · Published {formatPublishedDate(src.published)}
-        </p>
+        <details>
+          <summary className="cursor-pointer list-none">
+            <span className="section-pill">Bài gốc</span>
+          </summary>
+          <div className="mt-2">
+            <p className="font-semibold">{src.raw_title}</p>
+            <p className="text-sm text-fg-3 italic">
+              Nguồn:{' '}
+              <a href={src.url} target="_blank" rel="noopener noreferrer">
+                {src.name}
+              </a>{' '}
+              · Published {formatPublishedDate(src.published)}
+            </p>
+          </div>
+        </details>
       </section>
 
-      {/* Section 2: Vì sao chọn */}
+      {/* Section 2: Vì sao chọn — V5.1.8 collapsed by default */}
       {meta.why_chosen_narrative && (
         <section>
-          <h3 className="section-pill">Vì sao chọn bài này</h3>
-          <p className="leading-relaxed">{meta.why_chosen_narrative}</p>
+          <details>
+            <summary className="cursor-pointer list-none">
+              <span className="section-pill">Vì sao chọn bài này</span>
+            </summary>
+            <p className="mt-2 leading-relaxed">{meta.why_chosen_narrative}</p>
+          </details>
         </section>
       )}
 
       {/* Section 2b: Format chọn — V5.0 Format Director (graceful degrade for legacy) */}
       <FormatPickPanel data={meta.format_director} />
 
-      {/* Section 3: Hướng tiếp cận */}
+      {/* Section 3: Hướng tiếp cận — V5.1.8 collapsed by default */}
       {meta.angle_label && (
         <section>
-          <h3 className="section-pill">Hướng tiếp cận</h3>
-          <p className="leading-relaxed">
-            <strong>{meta.angle_label}</strong>
-            {meta.angle_narrative && <> — {meta.angle_narrative}</>}
-          </p>
+          <details>
+            <summary className="cursor-pointer list-none">
+              <span className="section-pill">Hướng tiếp cận</span>
+            </summary>
+            <p className="mt-2 leading-relaxed">
+              <strong>{meta.angle_label}</strong>
+              {meta.angle_narrative && <> — {meta.angle_narrative}</>}
+            </p>
+          </details>
         </section>
       )}
 

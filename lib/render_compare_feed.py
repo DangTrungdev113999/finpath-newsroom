@@ -183,7 +183,40 @@ def _build_parallel_writer_block(article: dict, *, prefix: str) -> dict | None:
     generated_at = article.get(f"{prefix}_generated_at")
     if isinstance(generated_at, str) and generated_at:
         block["generated_at"] = generated_at
+    # V5.1.8 cost surface (NULL-safe)
+    tokens_in = article.get(f"{prefix}_tokens_in")
+    tokens_out = article.get(f"{prefix}_tokens_out")
+    cost_usd = article.get(f"{prefix}_cost_usd")
+    if isinstance(tokens_in, int):
+        block["tokens_in"] = tokens_in
+    if isinstance(tokens_out, int):
+        block["tokens_out"] = tokens_out
+    if isinstance(cost_usd, (int, float)):
+        block["cost_usd"] = float(cost_usd)
     return block
+
+
+def _build_costs_block(article: dict) -> dict | None:
+    """V5.1.8 — aggregate cost block in frontmatter when any cost data present."""
+    keys = {
+        "claude_tokens_in": "claude_tokens_in",
+        "claude_tokens_out": "claude_tokens_out",
+        "claude_cost_usd": "claude_cost_usd",
+        "gemini_tokens_in": "gemini_tokens_in",
+        "gemini_tokens_out": "gemini_tokens_out",
+        "gemini_cost_usd": "gemini_cost_usd",
+        "grok_tokens_in": "grok_tokens_in",
+        "grok_tokens_out": "grok_tokens_out",
+        "grok_cost_usd": "grok_cost_usd",
+        "image_cost_usd": "image_cost_usd",
+        "total_cost_usd": "total_cost_usd",
+    }
+    block: dict = {}
+    for src, dst in keys.items():
+        val = article.get(src)
+        if isinstance(val, (int, float)):
+            block[dst] = float(val) if "cost_usd" in dst else int(val)
+    return block or None
 
 
 def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict]) -> str:
@@ -221,6 +254,10 @@ def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict
     grok_block = _build_grok_block(article)
     if grok_block is not None:
         fm["grok"] = grok_block
+
+    costs_block = _build_costs_block(article)
+    if costs_block is not None:
+        fm["costs"] = costs_block
 
     fm_yaml = yaml.safe_dump(fm, allow_unicode=True, sort_keys=False).strip()
     body = (article.get("body") or "").strip()
@@ -378,6 +415,7 @@ def rebuild_manifest_from_db(db, output_dir: Path) -> dict:
                gn.word_count, gn.pipeline_log, gn.brief_json,
                gn.gemini_title, gn.gemini_status,
                gn.grok_title, gn.grok_status,
+               gn.total_cost_usd,
                cl.crawled_at
         FROM generated_news gn
         JOIN crawl_log cl ON cl.row_id = gn.row_id
@@ -423,6 +461,9 @@ def rebuild_manifest_from_db(db, output_dir: Path) -> dict:
             entry["gemini_title"] = row["gemini_title"]
         if row["grok_status"] == "success" and row["grok_title"]:
             entry["grok_title"] = row["grok_title"]
+        # V5.1.8 — surface total cost when present (helps IndexPage show $ per card later)
+        if row["total_cost_usd"] is not None:
+            entry["total_cost_usd"] = float(row["total_cost_usd"])
         articles.append(entry)
 
     # Preserve legacy entries (hand-crafted .md files with no DB row) so

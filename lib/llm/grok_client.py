@@ -74,8 +74,12 @@ def _attempt(
     prompt: str,
     model: str,
     timeout_s: int,
-) -> str:
-    """Single Grok call. Returns choices[0].message.content or raises."""
+) -> tuple[str, dict[str, int]]:
+    """Single Grok call. Returns (content, usage_dict) or raises.
+
+    usage_dict shape: {"prompt_tokens": int, "completion_tokens": int}.
+    Empty dict if response.usage missing.
+    """
     response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
@@ -89,7 +93,16 @@ def _attempt(
     content = getattr(message, "content", None) if message is not None else None
     if not isinstance(content, str):
         raise RuntimeError(f"unexpected message.content type: {type(content)!r}")
-    return content
+    usage: dict[str, int] = {}
+    usage_obj = getattr(response, "usage", None)
+    if usage_obj is not None:
+        in_tok = getattr(usage_obj, "prompt_tokens", None)
+        out_tok = getattr(usage_obj, "completion_tokens", None)
+        if isinstance(in_tok, int):
+            usage["prompt_tokens"] = in_tok
+        if isinstance(out_tok, int):
+            usage["completion_tokens"] = out_tok
+    return content, usage
 
 
 def generate_article(
@@ -111,6 +124,7 @@ def generate_article(
           "model": str,
           "error": str | None,
           "duration_ms": int,
+          "usage": {"prompt_tokens": int, "completion_tokens": int} | {},
         }
     """
     started = time.monotonic()
@@ -122,6 +136,7 @@ def generate_article(
         "model": model,
         "error": None,
         "duration_ms": 0,
+        "usage": {},
     }
 
     if not api_key:
@@ -132,17 +147,19 @@ def generate_article(
     factory = _client_factory or _default_factory
     last_exc: Exception | None = None
     raw_text: str | None = None
+    usage: dict[str, int] = {}
 
     for attempt in range(2):  # try, retry once
         try:
             client = factory(api_key, XAI_BASE_URL)
-            raw_text = _attempt(client, prompt, model, timeout_s)
+            raw_text, usage = _attempt(client, prompt, model, timeout_s)
             last_exc = None
             break
         except Exception as exc:  # noqa: BLE001 — all SDK + transport errors handled the same
             last_exc = exc
 
     base["duration_ms"] = int((time.monotonic() - started) * 1000)
+    base["usage"] = usage
 
     if last_exc is not None or raw_text is None:
         base["error"] = str(last_exc) if last_exc else "no_response_text"

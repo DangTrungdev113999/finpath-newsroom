@@ -186,6 +186,16 @@ def run_gemini_writer(
     else:
         status = "skipped_failure"
 
+    # V5.1.8: extract usage + compute cost when SDK surfaced token counts.
+    from lib.llm import pricing as _pricing
+
+    usage = result.get("usage") or {}
+    tokens_in = usage.get("prompt_tokens") if isinstance(usage, dict) else None
+    tokens_out = usage.get("completion_tokens") if isinstance(usage, dict) else None
+    cost_usd: float | None = None
+    if isinstance(tokens_in, int) and isinstance(tokens_out, int):
+        cost_usd = _pricing.compute_cost(result["model"], tokens_in, tokens_out)
+
     db.update_gemini_output(
         article_id=article_id,
         status=status,
@@ -195,6 +205,9 @@ def run_gemini_writer(
         model=result["model"],
         generated_at=datetime.now(timezone.utc).isoformat() if result["ok"] else None,
         error=result["error"] if not result["ok"] else None,
+        tokens_in=tokens_in if result["ok"] else None,
+        tokens_out=tokens_out if result["ok"] else None,
+        cost_usd=cost_usd if result["ok"] else None,
     )
     return result
 

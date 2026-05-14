@@ -138,6 +138,8 @@ export interface ArticleMeta {
   gemini?: GeminiArticle;
   // Step 4.4 — Grok Writer parallel side; absent when status != 'success'
   grok?: GrokArticle;
+  // V5.1.8 — aggregate cost breakdown across Claude/Gemini/Grok/Image
+  costs?: CostBreakdown;
 }
 
 export interface GeminiArticle {
@@ -146,6 +148,11 @@ export interface GeminiArticle {
   word_count?: number;
   model?: string;
   generated_at?: string;
+  /** V5.1.8 — token counts from genai SDK usage_metadata, USD cost from
+   *  lib/llm/pricing.py. Absent on legacy rows or when SDK omitted usage. */
+  tokens_in?: number;
+  tokens_out?: number;
+  cost_usd?: number;
 }
 
 export interface GrokArticle {
@@ -154,6 +161,26 @@ export interface GrokArticle {
   word_count?: number;
   model?: string;
   generated_at?: string;
+  tokens_in?: number;
+  tokens_out?: number;
+  cost_usd?: number;
+}
+
+/** V5.1.8 — per-article cost breakdown surfaced in frontmatter `costs:` block.
+ *  Each field may be missing when that side didn't run (skipped_disabled) or
+ *  the SDK didn't expose token counts. UI must handle partial dictionaries. */
+export interface CostBreakdown {
+  claude_tokens_in?: number;
+  claude_tokens_out?: number;
+  claude_cost_usd?: number;
+  gemini_tokens_in?: number;
+  gemini_tokens_out?: number;
+  gemini_cost_usd?: number;
+  grok_tokens_in?: number;
+  grok_tokens_out?: number;
+  grok_cost_usd?: number;
+  image_cost_usd?: number;
+  total_cost_usd?: number;
 }
 
 export interface Article {
@@ -190,6 +217,9 @@ export interface ArticleSummary {
    *  AND a non-empty title was persisted). Same purpose as gemini_title for the
    *  'grok' mode of ArticleCard. */
   grok_title?: string;
+  /** V5.1.8 — total AI cost USD per article (Claude + Gemini + Grok + image
+   *  combined). Surfaced from frontmatter / DB; null when no usage recorded. */
+  total_cost_usd?: number;
 }
 
 export interface Manifest {

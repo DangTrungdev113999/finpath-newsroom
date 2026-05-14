@@ -398,6 +398,26 @@ class PipelineDB:
                 self.conn.execute(
                     f"ALTER TABLE generated_news ADD COLUMN {col} {col_type}"
                 )
+        # V5.1.8 Cost tracking — per-model token counts + USD cost. NULL when
+        # provider SDK didn't surface usage metadata (skipped_disabled rows,
+        # or older runs pre-V5.1.8). REAL handles fractional cents.
+        for col, col_type in (
+            ("claude_tokens_in", "INTEGER"),
+            ("claude_tokens_out", "INTEGER"),
+            ("claude_cost_usd", "REAL"),
+            ("gemini_tokens_in", "INTEGER"),
+            ("gemini_tokens_out", "INTEGER"),
+            ("gemini_cost_usd", "REAL"),
+            ("grok_tokens_in", "INTEGER"),
+            ("grok_tokens_out", "INTEGER"),
+            ("grok_cost_usd", "REAL"),
+            ("image_cost_usd", "REAL"),
+            ("total_cost_usd", "REAL"),
+        ):
+            if col not in existing:
+                self.conn.execute(
+                    f"ALTER TABLE generated_news ADD COLUMN {col} {col_type}"
+                )
         self.conn.commit()
 
     def init_schema(self, schema_path: str | Path) -> None:
@@ -524,6 +544,9 @@ class PipelineDB:
         model: str | None = None,
         generated_at: str | None = None,
         error: str | None = None,
+        tokens_in: int | None = None,
+        tokens_out: int | None = None,
+        cost_usd: float | None = None,
     ) -> None:
         """Step 4.3 Gemini Writer column writer.
 
@@ -531,6 +554,10 @@ class PipelineDB:
         On failure status, callers typically pass only `status` + `error`; on
         success they pass everything except `error`. NULL columns stay NULL —
         only provided fields are updated.
+
+        V5.1.8: token counts + cost_usd persisted alongside content fields when
+        Gemini SDK surfaced usage_metadata. NULL when skipped_disabled (no API
+        call) or when SDK didn't return usage.
         """
         if status not in self._GEMINI_STATUS_VALUES:
             raise ValueError(
@@ -549,6 +576,12 @@ class PipelineDB:
             updates["gemini_generated_at"] = generated_at
         if error is not None:
             updates["gemini_error"] = error
+        if tokens_in is not None:
+            updates["gemini_tokens_in"] = tokens_in
+        if tokens_out is not None:
+            updates["gemini_tokens_out"] = tokens_out
+        if cost_usd is not None:
+            updates["gemini_cost_usd"] = cost_usd
         self.update_generated_news(article_id, updates)
 
     _GROK_STATUS_VALUES = {"success", "skipped_failure", "skipped_disabled"}
@@ -564,8 +597,15 @@ class PipelineDB:
         model: str | None = None,
         generated_at: str | None = None,
         error: str | None = None,
+        tokens_in: int | None = None,
+        tokens_out: int | None = None,
+        cost_usd: float | None = None,
     ) -> None:
-        """Step 4.4 Grok Writer column writer. Mirrors update_gemini_output."""
+        """Step 4.4 Grok Writer column writer. Mirrors update_gemini_output.
+
+        V5.1.8: token counts + cost_usd persisted from OpenAI-compat
+        `response.usage.prompt_tokens` / `completion_tokens` when present.
+        """
         if status not in self._GROK_STATUS_VALUES:
             raise ValueError(
                 f"grok_status must be one of {sorted(self._GROK_STATUS_VALUES)}, got {status!r}"
@@ -583,7 +623,42 @@ class PipelineDB:
             updates["grok_generated_at"] = generated_at
         if error is not None:
             updates["grok_error"] = error
+        if tokens_in is not None:
+            updates["grok_tokens_in"] = tokens_in
+        if tokens_out is not None:
+            updates["grok_tokens_out"] = tokens_out
+        if cost_usd is not None:
+            updates["grok_cost_usd"] = cost_usd
         self.update_generated_news(article_id, updates)
+
+    def update_cost_breakdown(
+        self,
+        article_id: str,
+        *,
+        claude_tokens_in: int | None = None,
+        claude_tokens_out: int | None = None,
+        claude_cost_usd: float | None = None,
+        image_cost_usd: float | None = None,
+        total_cost_usd: float | None = None,
+    ) -> None:
+        """V5.1.8: explicit cost-only writer for Claude Master + image generation
+        side. Gemini + Grok costs go through their respective update_*_output
+        methods. Use this AFTER Master persist to add Claude's usage from
+        spawn_step_agent return + total_cost_usd aggregate.
+        """
+        updates: dict[str, Any] = {}
+        if claude_tokens_in is not None:
+            updates["claude_tokens_in"] = claude_tokens_in
+        if claude_tokens_out is not None:
+            updates["claude_tokens_out"] = claude_tokens_out
+        if claude_cost_usd is not None:
+            updates["claude_cost_usd"] = claude_cost_usd
+        if image_cost_usd is not None:
+            updates["image_cost_usd"] = image_cost_usd
+        if total_cost_usd is not None:
+            updates["total_cost_usd"] = total_cost_usd
+        if updates:
+            self.update_generated_news(article_id, updates)
 
     def log_pipeline_step(self, article_id: str, step_key: str, payload: dict) -> None:
         """Shallow-MERGE payload into pipeline_log[step_key]. Existing keys
