@@ -231,7 +231,7 @@ def _main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--model",
         default=None,
-        help="Override Grok model ID (default reads secrets.grok.model → grok-4-latest)",
+        help="Override Grok model ID (default reads secrets.grok.model → grok-4.3)",
     )
     args = parser.parse_args(argv)
 

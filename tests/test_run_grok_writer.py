@@ -193,7 +193,7 @@ def test_run_writes_success_columns(db, secrets_with_key, prompt_template) -> No
     assert row["grok_title"] == "Grok title cho ACB"
     assert "ăn lãi" in row["grok_body"]
     assert row["grok_word_count"] == 250
-    assert row["grok_model"] == "grok-4-fast-non-reasoning"
+    assert row["grok_model"] == "grok-4.3"
     assert row["grok_error"] is None
 
     sent_prompt = captured["calls"][0]["messages"][0]["content"]

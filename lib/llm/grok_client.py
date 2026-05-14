@@ -18,7 +18,7 @@ from typing import Any, Callable
 
 import yaml
 
-DEFAULT_MODEL = "grok-4-fast-non-reasoning"
+DEFAULT_MODEL = "grok-4.3"
 XAI_BASE_URL = "https://api.x.ai/v1"
 _PLACEHOLDER_TOKENS = ("REPLACE_", "your-", "fixme")
 

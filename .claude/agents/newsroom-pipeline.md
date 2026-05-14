@@ -292,8 +292,8 @@ Step 4.3 Gemini Writer). Each `article_id` persisted by Step 4 also gets a
 parallel xAI Grok side reusing Claude's `data_trail`. Pipeline-safety: NEVER
 halts on Grok failure — `grok_status` records outcome (`success` /
 `skipped_failure` / `skipped_disabled`) and pipeline proceeds to Step 4.5
-unchanged. Avg latency ~25-35s/article (mirrors Gemini), cost ~$0.005/article
-on grok-4-latest.
+unchanged. Avg latency ~16s/article on default model `grok-4.3` (cost
+~$0.005-0.01).
 
 For EACH `<article_id>` returned by Step 4 (parallel-safe with Step 4.3 — both
 sequential after Step 4):
@@ -304,7 +304,7 @@ cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -m lib.stages.ru
 ```
 
 Reads `data/secrets.yaml.grok.api_key` (xAI key from console.x.ai). Reads
-`data/secrets.yaml.grok.model` override (default `grok-4-latest`). Missing
+`data/secrets.yaml.grok.model` override (default `grok-4.3`). Missing
 key → status `skipped_disabled` (no API call, no cost). The script writes
 columns directly via `PipelineDB.update_grok_output()`; no `pipeline_log`
 step entry is required because Grok (like Gemini) is non-blocking and not
