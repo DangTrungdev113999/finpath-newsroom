@@ -1,6 +1,177 @@
 {
-  "built_at": "2026-05-14T05:24:05.442030+00:00",
+  "built_at": "2026-05-14T07:57:05.391352+00:00",
   "sessions": [
+    {
+      "session_id": "8d233d3b-ea23-48c1-bc31-0d658b3f771a",
+      "trigger_type": "tin",
+      "trigger_args": "VIC",
+      "started_at": "2026-05-14T07:39:16.718122+00:00",
+      "ended_at": "2026-05-14T07:39:16.720591+00:00",
+      "fetched_total": 7,
+      "chosen_total": 3,
+      "rejected_total": 4,
+      "batches": [
+        {
+          "funnel_batch_id": "VIC-20260514-0739",
+          "ticker": "VIC",
+          "sector_code": null,
+          "sector_name": "BDS VIC3",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 7,
+          "chosen_count": 3,
+          "rejected_count": 4,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/vingroup-cua-ty-phu-pham-nhat-vuong-bao-lai-quy-1-2026-tang-150-188260428133209786.chn",
+                "published": null,
+                "reason": "OK — accepted_hypothesis: true. Title: Vinhomes gánh 4.5 lần lãi VIC, phần còn lại đang làm gì?"
+              },
+              {
+                "source": "DNSE",
+                "url": "https://www.dnse.com.vn/senses/tin-tuc/ngay-tuan-sau-vingroup-cua-ty-phu-pham-nhat-vuong-se-khoi-cong-du-an-6-ty-usd-i-qua-san-van-ong-lon-nhat-the-gioi-35226585",
+                "published": null,
+                "reason": "OK — accepted_hypothesis: true. Title: VIC dẫn đầu quốc lộ 1A: lợi thế kép khu đô thị Olympic ra sao?"
+              },
+              {
+                "source": "Báo Đầu tư",
+                "url": "https://baodautu.vn/chung-khoan-phien-135-co-phieu-nhom-vingroup-bien-dong-manh-keo-giam-vn-index-d595005.html",
+                "published": null,
+                "reason": "OK — accepted_hypothesis: true. Title: VIC tách VinFast chỉ 21 ngày sau lời lãi – NĐT quay lại hay chờ"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "Báo Pháp Luật",
+                "url": "https://baophapluat.vn/vingroup-vic-loi-nhuan-quy-i-2026-tang-150-doanh-thu-vuot-104-000-ty-dong.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Cùng câu chuyện báo cáo quý đầu 2026 như bài CafeF (ce88293b) nhưng số liệu mỏng hơn — CafeF có thêm lợi nhuận quy đổi Vinhomes 25.600 tỷ là gốc dữ liệu mạnh hơn.",
+                "reason": "dup_event: Cùng câu chuyện báo cáo quý đầu 2026 như bài CafeF (ce88293b) nhưng số liệu mỏng hơn — CafeF có thêm lợi nhuận quy đổi Vinhomes 25.600 tỷ là gốc dữ liệu mạnh hơn."
+              },
+              {
+                "source": "CafeLand",
+                "url": "https://cafeland.vn/tin-tuc/vingroup-bat-ngo-nang-muc-tieu-loi-nhuan-2026-them-10000-ty-tiet-lo-vinfast-da-co-lai-tai-thi-truong-viet-nam-150830.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Nội dung ĐHCĐ 22/4 (kế hoạch 35.000 tỷ, VinFast lãi Việt Nam, Vinhomes 60.000 tỷ) đã được hấp thụ làm bối cảnh cho brief 1 và brief 2 — không đứng riêng đủ insight.",
+                "reason": "dup_event: Nội dung ĐHCĐ 22/4 (kế hoạch 35.000 tỷ, VinFast lãi Việt Nam, Vinhomes 60.000 tỷ) đã được hấp thụ làm bối cảnh cho brief 1 và brief 2 — không đứng riêng đủ insight."
+              },
+              {
+                "source": "VietnamBiz",
+                "url": "https://vietnambiz.vn/vic-tang-tran-trong-ngay-vingroup-hop-co-dong-lap-dinh-von-hoa-moi-2026422141028531.htm",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Diễn biến giá VIC tăng trần và đỉnh vốn hoá 1,6 triệu tỷ đồng là phản ứng thị trường với ĐHCĐ 22/4 — không đứng riêng được vì không có insight ngoài giá.",
+                "reason": "sub_event_attached: Diễn biến giá VIC tăng trần và đỉnh vốn hoá 1,6 triệu tỷ đồng là phản ứng thị trường với ĐHCĐ 22/4 — không đứng riêng được vì không có insight ngoài giá."
+              },
+              {
+                "source": "DNSE",
+                "url": "https://www.dnse.com.vn/senses/tin-tuc/vingroup-gop-von-thanh-lap-cong-ty-con-nghien-cuu-thiet-bi-y-te-thong-minh-35227075",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: VinSurgical vốn điều lệ 300 tỷ đồng là mở rộng hệ sinh thái y tế quy mô rất nhỏ so tổng tài sản tập đoàn 1,18 triệu tỷ — không đủ trọng số để đứng riêng một bài.",
+                "reason": "sub_event_attached: VinSurgical vốn điều lệ 300 tỷ đồng là mở rộng hệ sinh thái y tế quy mô rất nhỏ so tổng tài sản tập đoàn 1,18 triệu tỷ — không đủ trọng số để đứng riêng một bài."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "session_id": "53FF7E93-0B67-490A-AE5D-F337F11A3B7F",
+      "trigger_type": "tin",
+      "trigger_args": "VND",
+      "started_at": "2026-05-14T07:37:20.796429+00:00",
+      "ended_at": "2026-05-14T07:37:20.798282+00:00",
+      "fetched_total": 8,
+      "chosen_total": 0,
+      "rejected_total": 8,
+      "batches": [
+        {
+          "funnel_batch_id": "VND-20260514-0737",
+          "ticker": "VND",
+          "sector_code": null,
+          "sector_name": "Chứng khoán",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 8,
+          "chosen_count": 0,
+          "rejected_count": 8,
+          "funnel_detail": {
+            "picked": [],
+            "rejected": [
+              {
+                "source": "Thương hiệu & Công luận",
+                "url": "https://thuonghieucongluan.com.vn/quy-i-2026-vndirect-tang-truong-loi-nhuan-hon-40-nho-moi-gioi-khoi-sac-a314984.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_angle_recent: Q1/2026 môi giới khởi sắc — cùng angle với bài đăng 2 ngày trước.",
+                "reason": "dup_angle_recent: Q1/2026 môi giới khởi sắc — cùng angle với bài đăng 2 ngày trước."
+              },
+              {
+                "source": "Người Quan sát",
+                "url": "https://nguoiquansat.vn/10-ctck-nam-62-thi-phan-margin-ke-cang-room-nguoi-san-von-trong-cuoc-choi-moi-289847.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_angle_recent: Position margin VND so với top 10 CTCK đã được khai thác trong bài 2 ngày trước (VND giảm ký quỹ vs SSI/TCBS mở rộng).",
+                "reason": "dup_angle_recent: Position margin VND so với top 10 CTCK đã được khai thác trong bài 2 ngày trước (VND giảm ký quỹ vs SSI/TCBS mở rộng)."
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/dong-von-ty-usd-chuc-cho-do-bo-viet-nam-cong-ty-chung-khoan-buoc-vao-cuoc-dua-moi-188260510213652315.chn",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: VND chỉ là 1 trong nhiều CTCK đề cập, chủ thể chính là dòng vốn tỷ USD và cuộc đua chung ngành.",
+                "reason": "sub_event_attached: VND chỉ là 1 trong nhiều CTCK đề cập, chủ thể chính là dòng vốn tỷ USD và cuộc đua chung ngành."
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/them-cong-ty-chung-khoan-ha-du-phong-vn-index-nam-2026-188260512213008592.chn",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_event: Cùng story hạ dự phóng VN-Index với 8cd552dc, primary đã pick VnEconomy vì có chi tiết hơn.",
+                "reason": "dup_event: Cùng story hạ dự phóng VN-Index với 8cd552dc, primary đã pick VnEconomy vì có chi tiết hơn."
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/mot-cong-ty-chung-khoan-ha-du-bao-tang-truong-vn-index-do-rui-ro-ben-ngoai.htm",
+                "published": null,
+                "reject_agent": "master",
+                "reject_label": "accepted_hypothesis_false",
+                "reason": "Master rejected — no article persisted"
+              },
+              {
+                "source": "Báo mới",
+                "url": "https://baomoi.com/vndirect-quy-1-2026-ban-linh-vuot-song-va-cu-hich-tang-truong-42-5-c54994848.epi",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "low_insight_potential: Tiêu đề Bản lĩnh vượt sóng và cú hích tăng trưởng — bài PR-style không có insight worth.",
+                "reason": "low_insight_potential: Tiêu đề Bản lĩnh vượt sóng và cú hích tăng trưởng — bài PR-style không có insight worth."
+              },
+              {
+                "source": "Người Quan sát",
+                "url": "https://nguoiquansat.vn/vndirect-bao-lai-quy-i-2026-tang-hon-40-mang-moi-gioi-hoi-phuc-manh-287477.html",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_angle_recent: Cùng nội dung Q1/2026 môi giới hồi phục — angle đã khai thác bài đăng 2 ngày trước.",
+                "reason": "dup_angle_recent: Cùng nội dung Q1/2026 môi giới hồi phục — angle đã khai thác bài đăng 2 ngày trước."
+              },
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/04/lai-rong-vndirect-tang-43-trong-quy-1-737-1431451.htm",
+                "published": null,
+                "reject_agent": "story_editor",
+                "reject_label": "dup_angle_recent: Q1/2026 BCTC paradox môi giới vs ký quỹ đã viết 2 ngày trước (bài: VND hy sinh ký quỹ đổi phí 73%).",
+                "reason": "dup_angle_recent: Q1/2026 BCTC paradox môi giới vs ký quỹ đã viết 2 ngày trước (bài: VND hy sinh ký quỹ đổi phí 73%)."
+              }
+            ]
+          }
+        }
+      ]
+    },
     {
       "session_id": "4CCCC815-00BA-4B3D-8A65-0BE4AF9044C4",
       "trigger_type": "tin",

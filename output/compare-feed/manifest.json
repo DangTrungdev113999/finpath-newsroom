@@ -1,6 +1,48 @@
 {
   "articles": [
     {
+      "id": "VIC-20260514-0754-vinhomes-ganh-4-5-lan-lai-vic-phan-con-lai-dang-lam-gi-01398e2c",
+      "ticker": "VIC",
+      "sector": "BDS VIC3",
+      "title": "Vinhomes gánh 4.5 lần lãi VIC, phần còn lại đang làm gì?",
+      "crawled_at": "2026-05-14T07:39:16.719812+00:00",
+      "key_view": "thận trọng",
+      "word_count": 278,
+      "category": null,
+      "format_id": "standard_listicle",
+      "grok_title": "Vinhomes gánh 4.5 lần lãi VIC, phần còn lại đang làm gì?",
+      "total_cost_usd": 0.064978,
+      "thumb_url": "https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/VIC-20260514-0754-vinhomes-ganh-4-5-lan-lai-vic-phan-con-lai-dang-lam-gi-01398e2c.webp"
+    },
+    {
+      "id": "VIC-20260514-0754-vic-dan-dau-quoc-lo-1a-loi-the-kep-khu-do-thi-olympic-ra-sao-af19c074",
+      "ticker": "VIC",
+      "sector": "BDS VIC3",
+      "title": "VIC dẫn đầu quốc lộ 1A: lợi thế kép khu đô thị Olympic ra sao?",
+      "crawled_at": "2026-05-14T07:39:16.719515+00:00",
+      "key_view": "lạc quan",
+      "word_count": 278,
+      "category": null,
+      "format_id": "standard_listicle",
+      "grok_title": "VIC dẫn đầu quốc lộ 1A: lợi thế kép khu đô thị Olympic ra sao?",
+      "total_cost_usd": 0.066769,
+      "thumb_url": "https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/VIC-20260514-0754-vic-dan-dau-quoc-lo-1a-loi-the-kep-khu-do-thi-olympic-ra-sao-af19c074.webp"
+    },
+    {
+      "id": "VIC-20260514-0754-vic-tach-vinfast-chi-21-ngay-sau-loi-lai-ndt-quay-lai-hay-76632114",
+      "ticker": "VIC",
+      "sector": "BDS VIC3",
+      "title": "VIC tách VinFast chỉ 21 ngày sau lời lãi – NĐT quay lại hay chờ",
+      "crawled_at": "2026-05-14T07:39:16.718122+00:00",
+      "key_view": "thận trọng",
+      "word_count": 248,
+      "category": null,
+      "format_id": "standard_listicle",
+      "grok_title": "VIC tách VinFast chỉ 21 ngày sau lời lãi – NĐT quay lại hay chờ",
+      "total_cost_usd": 0.065179,
+      "thumb_url": "https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/VIC-20260514-0754-vic-tach-vinfast-chi-21-ngay-sau-loi-lai-ndt-quay-lai-hay-76632114.webp"
+    },
+    {
       "id": "SHB-20260514-1212-shb-lai-4-656-ty-q1-nho-phi-dich-vu-bien-lai-vay-rot-con-2",
       "ticker": "SHB",
       "sector": "Bank",
