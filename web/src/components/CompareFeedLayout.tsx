@@ -6,6 +6,7 @@ import { RightColumn } from './RightColumn';
 import { CommentSection } from './CommentSection';
 import { TTSButton } from './TTSButton';
 import { ModelToggle, type ArticleModel } from './ModelToggle';
+import { MissingModelNotice } from './MissingModelNotice';
 import { formatCrawledAt } from '../lib/format';
 import { useModelPreference } from '../lib/useModelPreference';
 
@@ -35,6 +36,11 @@ export function CompareFeedLayout({
   const setModel = modelScope === 'local' ? setLocalModel : globalPref.setModel;
   const showGemini = model === 'gemini' && geminiAvailable;
   const showGrok = model === 'grok' && grokAvailable;
+  // NO silent fallback: when the user picked a side that didn't run for this
+  // article, render an editorial "missing" notice instead of Claude's text.
+  const isMissing =
+    (model === 'gemini' && !geminiAvailable) ||
+    (model === 'grok' && !grokAvailable);
   const displayTitle = showGrok
     ? meta.grok!.title
     : showGemini
@@ -67,7 +73,11 @@ export function CompareFeedLayout({
   return (
     <article className="max-w-7xl mx-auto px-4 py-6">
       <header className={showRight ? '' : 'max-w-3xl mx-auto'}>
-        <h1 className="leading-tight">{displayTitle}</h1>
+        {isMissing ? (
+          <MissingModelNotice slot="article-title" model={model} />
+        ) : (
+          <h1 className="leading-tight">{displayTitle}</h1>
+        )}
         <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4">
           <p className="!m-0 min-w-0 text-sm italic text-fg-3 sm:flex-1">
             {formatCrawledAt(meta.crawled_at)}
@@ -89,14 +99,51 @@ export function CompareFeedLayout({
               grokAvailable={grokAvailable}
               labelMode="hover"
             />
-            <TTSButton text={displayBody} />
+            {!isMissing && <TTSButton text={displayBody} />}
           </div>
         </div>
       </header>
 
+      {/* V5.1.8 — Imagen 4 hero thumb (1024×576). Renders only when
+          /tin --image was used AND Imagen succeeded. Falls back to nothing
+          (no broken layout) on older articles. */}
+      {meta.thumb_url && (
+        <figure
+          className={`mt-4 mb-2 overflow-hidden rounded-lg border border-fg-4/30 bg-fg-4/10 aspect-video ${
+            showRight ? '' : 'max-w-3xl mx-auto'
+          }`}
+        >
+          <img
+            src={meta.thumb_url}
+            alt=""
+            loading="lazy"
+            className="h-full w-full object-cover"
+          />
+        </figure>
+      )}
+
       <hr className={`my-5 border-fg-4/40 ${showRight ? '' : 'max-w-3xl mx-auto'}`} />
 
-      {showRight ? (
+      {isMissing ? (
+        showRight ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+            <MissingModelNotice
+              slot="article-body"
+              model={model}
+              ticker={meta.ticker}
+            />
+            <RightColumn meta={meta} />
+          </div>
+        ) : (
+          <div className="max-w-3xl mx-auto">
+            <MissingModelNotice
+              slot="article-body"
+              model={model}
+              ticker={meta.ticker}
+            />
+          </div>
+        )
+      ) : showRight ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
           <LeftColumn meta={displayLeftMeta} body={displayBody} />
           <RightColumn meta={meta} />

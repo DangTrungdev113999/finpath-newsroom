@@ -218,7 +218,7 @@ function ToggleButton({
  * 0° / 45° / 90° / 135°. Uses currentColor so the active state inherits the
  * pill's text color (brand-fg) and inactive can be tinted via Tailwind text-*.
  */
-function ClaudeMark({ className }: { className?: string }) {
+export function ClaudeMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden className={className}>
       <g fill="currentColor">
@@ -236,7 +236,7 @@ function ClaudeMark({ className }: { className?: string }) {
  * blue → violet → red gradient; active switches to monochrome currentColor so
  * the gradient does not clash with the warm brand-orange pill background.
  */
-function GeminiMark({
+export function GeminiMark({
   className,
   monochrome = false,
 }: {
@@ -269,7 +269,7 @@ function GeminiMark({
  * Stroke uses currentColor so active state renders white inside the matte
  * black pill while inactive inherits text-fg-0.
  */
-function GrokMark({ className }: { className?: string }) {
+export function GrokMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden className={className}>
       <g
