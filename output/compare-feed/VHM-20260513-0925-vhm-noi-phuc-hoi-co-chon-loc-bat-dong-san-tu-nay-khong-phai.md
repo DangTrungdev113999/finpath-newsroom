@@ -265,6 +265,33 @@ gemini:
   word_count: 221
   model: gemini-2.5-pro
   generated_at: '2026-05-13T10:53:55.180295+00:00'
+grok:
+  title: 'VHM chọn lọc sống sót 2026: tiêu chí nào loại ai'
+  body: 'Chủ tịch Phạm Thiếu Hoa nói BĐS 2026 phục hồi chọn lọc, dịch chuyển xanh
+    bền vững. Câu hỏi thực tế là ông dùng tiêu chí gì để phân biệt nhóm thắng và nhóm
+    chậm, vì không phải ai cũng hưởng lợi từ gói lãi suất 0-6% kéo dài 5 năm.
+
+
+    - **Tiêu chí thực tế, xanh và pháp lý sạch** là bộ lọc chính: dự án phải có tiến
+    độ thật, cam kết xanh và sổ sách rõ ràng, khiến VHM với doanh số bán trước Q1
+    đạt 81.700 tỷ (+133%) vượt xa NVL chỉ 3.587 tỷ.
+
+
+    - **Doanh thu Q1/2026 của VHM** chạm 65.114 tỷ (+315%) trong khi KDH chỉ 1.820
+    tỷ và DXG tăng 58,7% cho thấy phân hóa rõ rệt, không phải toàn ngành đều hưởng
+    sóng.
+
+
+    - **Giá hiện tại** VHM 152.500đ so với NVL 16.700đ và DXG 15.950đ phản ánh thị
+    trường đang định giá khác nhau giữa những công ty đáp ứng tiêu chí và những cái
+    còn yếu.
+
+
+    NĐT nên giữ VHM đến hết quý 3 nếu doanh số bán mới tiếp tục tăng trên 30% so cùng
+    kỳ, cắt nếu giá rơi dưới 140.000đ mà không có tin phát hành trái phiếu mới.'
+  word_count: 248
+  model: grok-4.3
+  generated_at: '2026-05-14T02:56:24.271452+00:00'
 ---
 
 <!-- left -->

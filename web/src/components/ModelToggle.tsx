@@ -264,21 +264,23 @@ function GeminiMark({
 }
 
 /**
- * xAI Grok mark — stylized X built from two thick diagonal strokes (matches
- * the x.ai brand logo). Uses currentColor so active state can render white
- * inside the matte-black pill while inactive state inherits text-fg-0.
+ * xAI Grok mark — slashed circle (Ø-glyph): a circle outline cut by a
+ * diagonal stroke that extends past the bottom-left as a comet-like tail.
+ * Stroke uses currentColor so active state renders white inside the matte
+ * black pill while inactive inherits text-fg-0.
  */
 function GrokMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden className={className}>
       <g
         stroke="currentColor"
-        strokeWidth="3.2"
-        strokeLinecap="round"
+        strokeWidth="2"
         fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       >
-        <line x1="4" y1="4" x2="20" y2="20" />
-        <line x1="20" y1="4" x2="4" y2="20" />
+        <circle cx="12" cy="12" r="8" />
+        <path d="M19 5 L3 21" />
       </g>
     </svg>
   );

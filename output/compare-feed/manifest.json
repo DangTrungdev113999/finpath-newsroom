@@ -10,7 +10,8 @@
       "word_count": 292,
       "category": null,
       "format_id": "standard_qa",
-      "gemini_title": "Chủ tịch VHM vạch ranh giới BĐS 2026: Ai sống, ai ngáp?"
+      "gemini_title": "Chủ tịch VHM vạch ranh giới BĐS 2026: Ai sống, ai ngáp?",
+      "grok_title": "VHM chọn lọc sống sót 2026: tiêu chí nào loại ai"
     },
     {
       "id": "vhm-20260513-vhm-lan-dau-ban-ngoai-ha-noi-cuoc-300-000-ty-vao-ba-vung-moi",
@@ -130,7 +131,8 @@
       "word_count": 266,
       "category": null,
       "format_id": "standard_listicle",
-      "gemini_title": "MSN: Doanh thu cửa hàng cũ WinCommerce 14% - dấu hiệu bỏ xa toàn ngành bán lẻ?"
+      "gemini_title": "MSN: Doanh thu cửa hàng cũ WinCommerce 14% - dấu hiệu bỏ xa toàn ngành bán lẻ?",
+      "grok_title": "MSN: SSSG 14% tháng 4 gấp đôi ngành, chu kỳ bán lẻ 2026 bùng nổ?"
     },
     {
       "id": "msn-nang-dich-vi-sao-danny-le-nang-ke-hoach-msn-len-12-000-ty-ngay-quy-1",
@@ -142,7 +144,8 @@
       "word_count": 253,
       "category": null,
       "format_id": "standard_qa",
-      "gemini_title": "MSN: Vì sao CEO Danny Le nâng kế hoạch lãi 2026 ngay sau quý 1?"
+      "gemini_title": "MSN: Vì sao CEO Danny Le nâng kế hoạch lãi 2026 ngay sau quý 1?",
+      "grok_title": "MSN nâng lãi 2026 gấp rưỡi, sao Danny Le vội thế?"
     },
     {
       "id": "STB-20260513-1200-q1-nganh-bank-phan-hoa-stb-tong-2-700-vpb-tcb-lpb-nhoi-them",
@@ -154,7 +157,8 @@
       "word_count": 256,
       "category": null,
       "format_id": "standard_listicle",
-      "gemini_title": "STB cắt 85% nhân sự toàn ngành ngân hàng: Tái cơ cấu hay báo động đỏ?"
+      "gemini_title": "STB cắt 85% nhân sự toàn ngành ngân hàng: Tái cơ cấu hay báo động đỏ?",
+      "grok_title": "STB xén 85% lao động ngành Q1, sao VPB lại tuyển thêm?"
     },
     {
       "id": "STB-20260513-1900-stb-ruoc-ca-e-kip-lpbank-loi-nhuan-rot-q1-co-phai-gia-mua",
@@ -166,7 +170,8 @@
       "word_count": 292,
       "category": "hidden_mechanism",
       "format_id": "standard_narrative",
-      "gemini_title": "STB 'nhập khẩu' bộ sậu LPBank: Canh bạc sao chép mô hình thành công?"
+      "gemini_title": "STB 'nhập khẩu' bộ sậu LPBank: Canh bạc sao chép mô hình thành công?",
+      "grok_title": "STB rước 3 sếp từ LPBank, sao chọn đúng lúc ROE tụt dốc?"
     },
     {
       "id": "vhm-co-tuc-60pct-11000-ty-trai-phieu-co-che-tai-chinh-co-chu-dich",
@@ -178,7 +183,8 @@
       "word_count": 180,
       "category": null,
       "format_id": "standard_narrative",
-      "gemini_title": "VHM đặt cược 60.000 tỷ lợi nhuận: Tiền từ dự án hay đi vay?"
+      "gemini_title": "VHM đặt cược 60.000 tỷ lợi nhuận: Tiền từ dự án hay đi vay?",
+      "grok_title": "VHM nhắm 60.000 tỷ lợi nhuận kỷ lục, tiền cổ tức 60% từ đâu?"
     },
     {
       "id": "vhm-gap-3-lan-vietcombank-q1-2026-co-che-phan-hoa-bds",
@@ -190,7 +196,8 @@
       "word_count": 211,
       "category": null,
       "format_id": "standard_listicle",
-      "gemini_title": "VHM lãi 25.625 tỷ: tiền từ đâu khi cả ngành bất động sản còn đói?"
+      "gemini_title": "VHM lãi 25.625 tỷ: tiền từ đâu khi cả ngành bất động sản còn đói?",
+      "grok_title": "VHM lãi gấp 3 VCB nhưng BĐS khác lỗ sấp mặt, tại sao?"
     },
     {
       "id": "HPG-20260512-1540-hpg-cuoc-thep-ray-duong-sat-cao-toc-q2-2027-moi-giao-hang",
@@ -202,7 +209,8 @@
       "word_count": 294,
       "category": "why_now",
       "format_id": "standard_qa",
-      "gemini_title": "HPG xây nhà máy thép ray 700.000 tấn: Đón sóng lớn hay ván bài quá sớm?"
+      "gemini_title": "HPG xây nhà máy thép ray 700.000 tấn: Đón sóng lớn hay ván bài quá sớm?",
+      "grok_title": "HPG đầu tư nhà máy thép ray 2026 để làm gì giữa đường sắt cao tốc còn lửng lơ?"
     },
     {
       "id": "HPG-20260512-1540-hpg-lai-gap-2-7-lan-nhung-42-phan-tram-tu-bat-dong-san",
@@ -214,7 +222,8 @@
       "word_count": 297,
       "category": "paradox",
       "format_id": "standard_qa",
-      "gemini_title": "HPG lãi 9.000 tỷ: Cú hích bất động sản hay thép thật sự hồi sinh?"
+      "gemini_title": "HPG lãi 9.000 tỷ: Cú hích bất động sản hay thép thật sự hồi sinh?",
+      "grok_title": "HPG lãi gấp 2,7 lần nhưng thép chỉ góp 57% - Bất động sản cứu cánh?"
     },
     {
       "id": "DXG-20260512-2311-dxg-doanh-thu-tang-46-phan-co-dong-me-giam-216-q1-2026",
@@ -226,7 +235,8 @@
       "word_count": 336,
       "category": null,
       "format_id": "standard_narrative",
-      "gemini_title": "DXG thành Bluemarq: Lãi môi giới khủng có gánh nổi khối nợ 4.800 tỷ?"
+      "gemini_title": "DXG thành Bluemarq: Lãi môi giới khủng có gánh nổi khối nợ 4.800 tỷ?",
+      "grok_title": "DXG đổi tên Bluemarq, tiền mặt sụt 1.600 tỷ sao vẫn lãi gấp đôi?"
     },
     {
       "id": "DXG-20260512-2311-dxg-bluemarq-group-4-tru-cot-rebrand-co-so-tai-chinh",
@@ -238,7 +248,8 @@
       "word_count": 298,
       "category": null,
       "format_id": "standard_listicle",
-      "gemini_title": "DXG thành Bluemarq: Đổi tên hay đổi vận khi lõi kinh doanh thay đổi?"
+      "gemini_title": "DXG thành Bluemarq: Đổi tên hay đổi vận khi lõi kinh doanh thay đổi?",
+      "grok_title": "DXG đổi tên Bluemarq để làm gì khi nợ 4800 tỷ vẫn treo?"
     },
     {
       "id": "vnd-20260512-1540-vnd-hy-sinh-ky-quy-doi-phi-73-mo-hinh-nao-thang",
@@ -250,7 +261,8 @@
       "word_count": 281,
       "category": "paradox",
       "format_id": "standard_qa",
-      "gemini_title": "VND báo lãi lớn nhưng co lại mảng margin 8%. Thận trọng hay mất thị phần?"
+      "gemini_title": "VND báo lãi lớn nhưng co lại mảng margin 8%. Thận trọng hay mất thị phần?",
+      "grok_title": "VND lãi tăng 43% nhưng thu hẹp margin 8%, thận trọng hay tái cơ cấu?"
     },
     {
       "id": "VIX-20260512-2235-vix-hy-sinh-1-000-ty-cho-vixex-nam-nang-",
@@ -262,7 +274,8 @@
       "word_count": 234,
       "category": "why_now",
       "format_id": "standard_qa",
-      "gemini_title": "VIX đặt cược 1.000 tỷ vào crypto, có phải bỏ lỡ sóng nâng hạng 2026?"
+      "gemini_title": "VIX đặt cược 1.000 tỷ vào crypto, có phải bỏ lỡ sóng nâng hạng 2026?",
+      "grok_title": "VIX đổ 1.000 tỷ vào VIXEX giữa lúc tự doanh lỗ nặng, tính toán gì đây?"
     },
     {
       "id": "VIX-20260512-2235-vix-hy-sinh-loi-nhuan-q1-de-tang-von-60",
@@ -274,7 +287,8 @@
       "word_count": 297,
       "category": "paradox",
       "format_id": "standard_qa",
-      "gemini_title": "VIX bơm 11.000 tỷ vốn mới để rồi tự doanh lỗ và mảng margin đi lùi?"
+      "gemini_title": "VIX bơm 11.000 tỷ vốn mới để rồi tự doanh lỗ và mảng margin đi lùi?",
+      "grok_title": "VIX huy động 11.026 tỷ, tự doanh vẫn lỗ 82 tỷ để làm gì?"
     },
     {
       "id": "ssi-20260512-1535-ssi-quy-1-tang-46-ke-hoach-nam-chi-15-ban-lanh-dao-dang-u",
@@ -286,7 +300,8 @@
       "word_count": 242,
       "category": "hidden_mechanism",
       "format_id": "standard_qa",
-      "gemini_title": "SSI lãi đậm Q1, sao cả năm 2026 chỉ đặt mục tiêu tăng 21%?"
+      "gemini_title": "SSI lãi đậm Q1, sao cả năm 2026 chỉ đặt mục tiêu tăng 21%?",
+      "grok_title": "SSI Q1 tăng 46% sao kế hoạch cả năm 2026 chỉ nhích 21%?"
     },
     {
       "id": "ssi-20260512-1535-ssi-esop-chu-tich-huong-loi-18-ty-cong-ty-thu-100-ty-ai-thuc",
@@ -298,7 +313,8 @@
       "word_count": 258,
       "category": "paradox",
       "format_id": "standard_qa",
-      "gemini_title": "SSI thưởng sếp ESOP giá 10.000đ, cổ đông được gì khi thị giá 28.000đ?"
+      "gemini_title": "SSI thưởng sếp ESOP giá 10.000đ, cổ đông được gì khi thị giá 28.000đ?",
+      "grok_title": "SSI bán ESOP 10k/cp khi giá 28k: Lợi cho Hưng hay cổ đông nhỏ?"
     },
     {
       "id": "STB-20260512-1512-stb-hy-sinh-loi-nhuan-quy-1-de-doi-lay-dieu-gi",
@@ -310,7 +326,8 @@
       "word_count": 284,
       "category": "paradox",
       "format_id": "standard_qa",
-      "gemini_title": "STB hy sinh lợi nhuận Quý 1, nhà đầu tư lại hò reo?"
+      "gemini_title": "STB hy sinh lợi nhuận Quý 1, nhà đầu tư lại hò reo?",
+      "grok_title": "STB lợi nhuận Q1 sụt 42,7% sao giá cổ phiếu vọt +6,37%?"
     },
     {
       "id": "bsr-danh-doi-ke-hoach-thap-58-de-doi-lay-dieu-gi",
@@ -322,7 +339,8 @@
       "word_count": 286,
       "category": "paradox",
       "format_id": "standard_qa",
-      "gemini_title": "BSR: Lãi Q1 gấp 4 lần kế hoạch năm, ban lãnh đạo thận trọng hay có ẩn ý?"
+      "gemini_title": "BSR: Lãi Q1 gấp 4 lần kế hoạch năm, ban lãnh đạo thận trọng hay có ẩn ý?",
+      "grok_title": "BSR lập kế hoạch lợi nhuận 2026 thấp lè, Q1 đã vượt 4 lần?"
     },
     {
       "id": "q1-2026-vhm-lai-25-600-ty-vi-sao-du-tu-tin-nang-them-10-000",
