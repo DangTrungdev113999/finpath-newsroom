@@ -4,11 +4,13 @@ import type { Article } from '../types';
 import { loadArticle } from '../lib/articleLoader';
 import { CompareFeedLayout } from '../components/CompareFeedLayout';
 import { BackToListLink } from '../components/BackToListLink';
+import { ViewToggle } from '../components/ViewToggle';
 
 export function ArticlePage() {
   const { id } = useParams<{ id: string }>();
   const [article, setArticle] = useState<Article | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showRight, setShowRight] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -21,8 +23,9 @@ export function ArticlePage() {
 
   return (
     <div>
-      <nav className="max-w-7xl mx-auto px-4 pt-4">
+      <nav className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 px-4 pt-4">
         <BackToListLink />
+        <ViewToggle showRight={showRight} onChange={setShowRight} />
       </nav>
       {error && (
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -34,7 +37,7 @@ export function ArticlePage() {
       {!article && !error && (
         <p className="max-w-7xl mx-auto px-4 py-6 text-fg-3">Loading…</p>
       )}
-      {article && <CompareFeedLayout article={article} />}
+      {article && <CompareFeedLayout article={article} showRight={showRight} />}
     </div>
   );
 }
