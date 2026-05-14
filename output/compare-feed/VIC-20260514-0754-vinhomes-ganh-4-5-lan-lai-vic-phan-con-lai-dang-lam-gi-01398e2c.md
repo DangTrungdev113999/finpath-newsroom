@@ -189,6 +189,128 @@ master_data_trail: []
 skeptic_data_trail: []
 raw_article_url: https://cafef.vn/vingroup-cua-ty-phu-pham-nhat-vuong-bao-lai-quy-1-2026-tang-150-188260428133209786.chn
 format_director: null
+gemini:
+  title: 'VIC lãi 5.611 tỷ: Một mình Vinhomes gánh lỗ cho cả tập đoàn?'
+  body: 'Vingroup của tỷ phú Phạm Nhật Vượng báo lãi **5.611 tỷ đồng** quý 1, nhưng
+    con số này đang che đi một câu chuyện lớn: riêng Vinhomes đã đóng góp lợi nhuận
+    quy đổi tới **25.600 tỷ**. Với cổ phiếu VIC đang ở vùng vốn hoá lịch sử **1,6
+    triệu tỷ đồng**, người cầm cổ phiếu phải hỏi thẳng: phần còn lại của tập đoàn
+    đang ''đốt'' tiền của ai?
+
+
+    - **Bài toán trừ đơn giản**: Lợi nhuận quy đổi của Vinhomes **gấp 4,5 lần** cả
+    tập đoàn mẹ. Điều này không có nghĩa là kế toán sai, mà nó chỉ ra các mảng kinh
+    doanh còn lại, bao gồm cả VinFast, đang **âm nặng vào lợi nhuận** hoặc lãi không
+    đáng kể, bào mòn phần lãi khổng lồ từ mảng bất động sản.
+
+
+    - **VinFast vẫn trong giai đoạn ''đốt tiền''**: Dù **bàn giao hơn 53.000 ô tô
+    điện** và **143.000 xe máy điện** là những con số ấn tượng, mảng xe điện toàn
+    cầu vẫn chưa thể tự nuôi sống mình. Chi phí đầu tư khổng lồ và cuộc chiến giá
+    khốc liệt khiến VinFast gần như chắc chắn là **gánh nặng chính** kéo lùi lợi nhuận
+    hợp nhất của VIC.
+
+
+    - **Phần còn lại chỉ để ''làm màu''**: Các mảng khác như Vinpearl dù có cải thiện
+    với **tỷ lệ lấp đầy 65%** cũng chỉ như muối bỏ bể. Quy mô của du lịch nghỉ dưỡng
+    và các mảng khác là **quá nhỏ** để có thể tạo ra khác biệt, khi đặt cạnh các khoản
+    lỗ tiềm tàng từ mảng công nghiệp-công nghệ.
+
+
+    - **Rủi ro tập trung vào một cửa**: Kế hoạch lãi **35.000 tỷ năm 2026** của Vingroup
+    trông vô cùng khiêm tốn so với kế hoạch **60.000 tỷ** của riêng Vinhomes. Điều
+    này biến cổ phiếu VIC thành một ván cược gần như toàn bộ vào thị trường bất động
+    sản, nhưng lại phải ''cõng'' thêm chi phí và rủi ro từ các mảng kinh doanh khác.
+
+
+    Ở vùng giá hiện tại, mua VIC là bạn đang trả tiền cho Vinhomes và đồng thời tài
+    trợ cho các cuộc phiêu lưu khác. Nhà đầu tư nên thận trọng và chờ đợi tín hiệu
+    rõ ràng rằng các mảng ngoài bất động sản bắt đầu **tự tạo ra dòng tiền dương**,
+    thay vì chỉ trông chờ vào ''máy in tiền'' Vinhomes.'
+  word_count: 300
+  model: gemini-2.5-pro
+  generated_at: '2026-05-14T08:38:35.996851+00:00'
+  tokens_in: 6438
+  tokens_out: 1536
+  cost_usd: 0.015728
+  step_log:
+    model: gemini-2.5-pro
+    duration_ms: 52454
+    tokens:
+      prompt_tokens: 6438
+      completion_tokens: 1536
+    chosen_question_idx: 2
+    chosen_pick_reason: 'Câu hỏi này đi thẳng vào rủi ro cốt lõi mà nhà đầu tư VIC
+      phải đối mặt: sự phụ thuộc quá lớn vào lợi nhuận từ Vinhomes. Nó phù hợp với
+      giọng văn cảnh báo, ''nguy hiểm'' và buộc nhà đầu tư phải ra quyết định.'
+    skip_reasons:
+      '0': Câu hỏi này tập trung vào sự chênh lệch số liệu, có phần kỹ thuật. Mặc
+        dù đúng, nó không trực diện bằng việc phân tích rủi ro đầu tư.
+      '1': Câu này quá tập trung vào cơ chế kế toán, có thể không hấp dẫn với nhà
+        đầu tư cá nhân muốn có góc nhìn nhanh và thực chiến.
+    data_trail:
+    - source: Finpath_API/overview/VIC
+      fetched: Tool call failed with error.
+      purpose: Lấy vốn hoá thị trường và giá cổ phiếu hiện tại để xác nhận bối cảnh
+        'đỉnh lịch sử'.
+      supports_argument: Opening + Body
+    - source: Finpath_API/income_statement/VIC
+      fetched: Tool call failed with error.
+      purpose: Kiểm tra cơ cấu lợi nhuận hợp nhất và các quý trước.
+      supports_argument: Body
+    - source: 'KB/search: ''Vingroup Vinfast lợi nhuận'''
+      fetched: Tool call failed with error.
+      purpose: Tìm kiếm các phân tích có sẵn về khả năng sinh lời của VinFast.
+      supports_argument: Bullet 2
+    - source: Finpath_API/read_recent_articles/VIC
+      fetched: Tool call failed with error.
+      purpose: Kiểm tra các góc nhìn đã được khai thác gần đây để tránh trùng lặp.
+      supports_argument: N/A
+    - source: Raw news from https://cafef.vn/vingroup-cua-ty-phu-pham-nhat-vuong-bao-lai-quy-1-2026-tang-150-188260428133209786.chn
+      fetched: Lãi sau thuế VIC 5.611 tỷ, doanh thu 104.352 tỷ. Lợi nhuận quy đổi
+        Vinhomes 25.600 tỷ. VinFast bàn giao 53.684 ô tô, 143.136 xe máy điện. Vinpearl
+        lấp đầy 65%.
+      purpose: Nguồn số liệu chính cho bài viết do các tool API bị lỗi.
+      supports_argument: Toàn bộ bài viết
+    - source: 'Deep question brief option #2'
+      fetched: Kế hoạch lãi tập đoàn 2026 = 35.000 tỷ, kế hoạch lãi Vinhomes 2026
+        = 60.000 tỷ, vốn hoá VIC 1,6 triệu tỷ đồng.
+      purpose: Lấy các số liệu kế hoạch và bối cảnh vốn hoá không có trong tin gốc.
+      supports_argument: Bullet 4 + Opening
+    tool_history:
+    - name: finpath_overview
+      args:
+        ticker: VIC
+      ok: true
+      source: null
+      summary: 'error: isinstance() arg 2 must be a type, a tuple of types, or a union'
+    - name: finpath_income_statement
+      args:
+        ticker: VIC
+      ok: true
+      source: null
+      summary: 'error: isinstance() arg 2 must be a type, a tuple of types, or a union'
+    - name: kb_search
+      args:
+        sector: BDS VIC3
+        query: Vingroup Vinfast lợi nhuận
+      ok: true
+      source: null
+      summary: 'error: isinstance() arg 2 must be a type, a tuple of types, or a union'
+    - name: read_recent_articles
+      args:
+        ticker: VIC
+      ok: true
+      source: null
+      summary: 'error: isinstance() arg 2 must be a type, a tuple of types, or a union'
+    gates_passed: true
+    format_id_used: standard_listicle
+    format_escalation_reason: null
+    insight_final: Lợi nhuận Vingroup hoàn toàn phụ thuộc vào Vinhomes, trong khi
+      các mảng còn lại, đặc biệt là VinFast, có thể đang thua lỗ nặng và bào mòn thành
+      quả.
+    key_view: thận trọng
+    variety_guard_angle: Một mình Vinhomes gánh cả tập đoàn
 grok:
   title: Vinhomes gánh 4,5 lần lãi VIC, rủi ro tập trung năm 2026?
   body: 'Bạn đang cầm VIC ở đỉnh vốn hóa 1,6 triệu tỷ, cần biết Vinhomes đang che
@@ -264,11 +386,14 @@ grok:
     variety_guard_angle: Một mình Vinhomes gánh cả tập đoàn
 thumb_url: https://dangtrungdev113999.github.io/finpath-newsroom/thumbs/VIC-20260514-0754-vinhomes-ganh-4-5-lan-lai-vic-phan-con-lai-dang-lam-gi-01398e2c.webp
 costs:
+  gemini_tokens_in: 6438
+  gemini_tokens_out: 1536
+  gemini_cost_usd: 0.015728
   grok_tokens_in: 14383
   grok_tokens_out: 758
   grok_cost_usd: 0.054519
   image_cost_usd: 0.04
-  total_cost_usd: 0.094519
+  total_cost_usd: 0.110247
 ---
 
 <!-- left -->
