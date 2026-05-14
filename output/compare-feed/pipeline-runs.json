@@ -1,6 +1,101 @@
 {
-  "built_at": "2026-05-14T08:38:49.365048+00:00",
+  "built_at": "2026-05-14T10:07:42.901927+00:00",
   "sessions": [
+    {
+      "session_id": "CB36A845-9AEB-4724-9141-F4176A9C7011",
+      "trigger_type": "tin",
+      "trigger_args": "VPB",
+      "started_at": "2026-05-14T09:46:28.547218+00:00",
+      "ended_at": "2026-05-14T09:46:28.547218+00:00",
+      "fetched_total": 9,
+      "chosen_total": 3,
+      "rejected_total": 6,
+      "batches": [
+        {
+          "funnel_batch_id": "VPB-20260514-0945",
+          "ticker": "VPB",
+          "sector_code": null,
+          "sector_name": "Bank tư nhân top",
+          "hot_nhom": null,
+          "hot_rank": null,
+          "fetched_count": 9,
+          "chosen_count": 3,
+          "rejected_count": 6,
+          "funnel_detail": {
+            "picked": [
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/mot-ngan-hang-tang-truong-tin-dung-gap-hon-3-lan-muc-chung-toan-nganh.htm",
+                "published": "2026-04-22",
+                "reason": "OK — accepted_hypothesis: true. Title: VPB Vừa Đạp Ga Tín Dụng Vừa Giữ Vô Lăng Biên Lãi: Bí Mật Nằm Ở Đâu?"
+              },
+              {
+                "source": "vietnambiz.vn",
+                "url": "https://vietnambiz.vn/dau-an-huy-dong-cua-vpbank-quy-i-but-toc-giua-giai-doan-thi-truong-nhieu-thach-thuc-20265710329405.htm",
+                "published": "2026-05-07",
+                "reason": "OK — accepted_hypothesis: true. Title: VPB Gom Vốn Gấp 27 Lần Ngành, Sóng Tín Dụng Lớn Sắp Tới?"
+              },
+              {
+                "source": "baochinhphu.vn",
+                "url": "https://baochinhphu.vn/dai-hoi-co-dong-vpbank-2026-thong-qua-tang-von-dat-muc-tieu-tang-truong-cao-102260422200017198.htm",
+                "published": "2026-04-22",
+                "reason": "OK — accepted_hypothesis: true. Title: Vì sao VPB không bung sức ngay mà đợi đến 2026 để vào 4 thị trường mới?"
+              }
+            ],
+            "rejected": [
+              {
+                "source": "Vietstock",
+                "url": "https://vietstock.vn/2026/05/vpbank-tro-thanh-ngan-hang-tu-nhan-khong-von-nha-nuoc-dau-tien-vuot-1-trieu-ty-dong-tin-dung-757-1441854.htm",
+                "published": "2026-05-01",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Cùng sự kiện 1 triệu tỷ tín dụng quý 1, đã chọn fbaad20b làm trục có dữ liệu biên lãi vay đầy đủ hơn.",
+                "reason": "sub_event_attached: Cùng sự kiện 1 triệu tỷ tín dụng quý 1, đã chọn fbaad20b làm trục có dữ liệu biên lãi vay đầy đủ hơn."
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/dhcd-vpbank-ke-hoach-loi-nhuan-2026-tren-41300-ty-dong-tang-von-dieu-le-len-cao-nhat-he-thong-ngan-hang-188260422140909744.chn",
+                "published": "2026-04-22",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Sub-event của đại hội cổ đông 2026 đã chọn 469173cf làm trục với chi tiết bốn lĩnh vực mở rộng đầy đủ.",
+                "reason": "sub_event_attached: Sub-event của đại hội cổ đông 2026 đã chọn 469173cf làm trục với chi tiết bốn lĩnh vực mở rộng đầy đủ."
+              },
+              {
+                "source": "baochinhphu.vn",
+                "url": "https://baochinhphu.vn/vpbank-vuot-moc-1-trieu-ty-dong-tin-dung-trong-quy-i-2026-102260417144906691.htm",
+                "published": "2026-04-17",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Bản tin tóm tắt quý 1 trùng sự kiện với fbaad20b, ít chi tiết biên lãi vay hơn.",
+                "reason": "sub_event_attached: Bản tin tóm tắt quý 1 trùng sự kiện với fbaad20b, ít chi tiết biên lãi vay hơn."
+              },
+              {
+                "source": "VnEconomy",
+                "url": "https://vneconomy.vn/vpbank-tang-von-dieu-le-len-106200-ty-dong-trong-nam-2026.htm",
+                "published": "2026-04-22",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Tin tăng vốn điều lệ là sub-event của đại hội cổ đông đã chọn 469173cf.",
+                "reason": "sub_event_attached: Tin tăng vốn điều lệ là sub-event của đại hội cổ đông đã chọn 469173cf."
+              },
+              {
+                "source": "CafeF",
+                "url": "https://cafef.vn/vpbank-duy-tri-tang-truong-manh-me-trong-quy-i-2026-quy-mo-tin-dung-vuot-1-trieu-ty-dong-188260417165038237.chn",
+                "published": "2026-04-17",
+                "reject_agent": "story_editor",
+                "reject_label": "sub_event_attached: Bản tin quý 1 trùng góc với fbaad20b nhưng kém chi tiết biên lãi vay.",
+                "reason": "sub_event_attached: Bản tin quý 1 trùng góc với fbaad20b nhưng kém chi tiết biên lãi vay."
+              },
+              {
+                "source": "nguoiduatin.vn",
+                "url": "https://www.nguoiduatin.vn/tin-dung-vpbank-vuot-1-trieu-ty-dong-trong-quy-i-2026-loi-nhuan-tang-58-204260417152835982.htm",
+                "published": "2026-04-17",
+                "reject_agent": "story_editor",
+                "reject_label": "dup_angle_recent: Số liệu GPBank 400 tỷ và FE Credit đã được cover trong bài gần nhất GPBank vừa được cứu, FE Credit vừa ổn định.",
+                "reason": "dup_angle_recent: Số liệu GPBank 400 tỷ và FE Credit đã được cover trong bài gần nhất GPBank vừa được cứu, FE Credit vừa ổn định."
+              }
+            ]
+          }
+        }
+      ]
+    },
     {
       "session_id": "8d233d3b-ea23-48c1-bc31-0d658b3f771a",
       "trigger_type": "tin",

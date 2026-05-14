@@ -1,6 +1,48 @@
 {
   "articles": [
     {
+      "id": "VPB-20260514-1004-vpb-vua-dap-ga-tin-dung-vua-giu-vo-lang-bien-lai-bi-mat-nam",
+      "ticker": "VPB",
+      "sector": "bank",
+      "title": "VPB Vừa Đạp Ga Tín Dụng Vừa Giữ Vô Lăng Biên Lãi: Bí Mật Nằm Ở Đâu?",
+      "crawled_at": "2026-05-14T09:46:28.547218+00:00",
+      "key_view": "lạc quan",
+      "word_count": 300,
+      "category": null,
+      "format_id": "standard_listicle",
+      "gemini_title": "VPB Vừa Đạp Ga Tín Dụng Vừa Giữ Vô Lăng Biên Lãi: Bí Mật Nằm Ở Đâu?",
+      "grok_title": "VPB tăng tín dụng gấp 3 lần ngành NIM vẫn cao nhất hệ thống?",
+      "total_cost_usd": 0.043591
+    },
+    {
+      "id": "VPB-20260514-1005-vpb-gom-von-gap-27-lan-nganh-song-tin-dung-lon-sap-toi",
+      "ticker": "VPB",
+      "sector": "bank",
+      "title": "VPB Gom Vốn Gấp 27 Lần Ngành, Sóng Tín Dụng Lớn Sắp Tới?",
+      "crawled_at": "2026-05-14T09:46:28.547218+00:00",
+      "key_view": "lạc quan",
+      "word_count": 300,
+      "category": null,
+      "format_id": "standard_listicle",
+      "gemini_title": "VPB Gom Vốn Gấp 27 Lần Ngành, Sóng Tín Dụng Lớn Sắp Tới?",
+      "grok_title": "VPB huy động tăng 11,8% còn ngành chỉ 0,44% — dấu hiệu sớm cho tín dụng 2026",
+      "total_cost_usd": 0.080417
+    },
+    {
+      "id": "VPB-20260514-1006-vi-sao-vpb-khong-bung-suc-ngay-ma-doi-den-2026-de-vao-4-thi",
+      "ticker": "VPB",
+      "sector": "bank",
+      "title": "Vì sao VPB không bung sức ngay mà đợi đến 2026 để vào 4 thị trường mới?",
+      "crawled_at": "2026-05-14T09:46:28.547218+00:00",
+      "key_view": "lạc quan",
+      "word_count": 298,
+      "category": null,
+      "format_id": "standard_listicle",
+      "gemini_title": "Vì sao VPB không bung sức ngay mà đợi đến 2026 để vào 4 thị trường mới?",
+      "grok_title": "VPB nhắm 2026 vì vốn 106 nghìn tỷ và Sumitomo đã sẵn?",
+      "total_cost_usd": 0.081267
+    },
+    {
       "id": "VIC-20260514-0754-vinhomes-ganh-4-5-lan-lai-vic-phan-con-lai-dang-lam-gi-01398e2c",
       "ticker": "VIC",
       "sector": "BDS VIC3",
