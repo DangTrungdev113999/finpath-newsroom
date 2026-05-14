@@ -41,6 +41,17 @@ jobs:
           cp -r output/compare-feed web/public/articles
           ls web/public/articles | head
 
+      - name: Copy V5.1.8 Imagen thumbs into public folder
+        run: |
+          rm -rf web/public/thumbs
+          if [ -d output/thumbs ]; then
+            cp -r output/thumbs web/public/thumbs
+            echo "Copied $(ls web/public/thumbs 2>/dev/null | wc -l) thumbs"
+          else
+            mkdir -p web/public/thumbs
+            echo "No output/thumbs/ directory — no images to copy"
+          fi
+
       - name: Build Vite production
         working-directory: web
         env:
