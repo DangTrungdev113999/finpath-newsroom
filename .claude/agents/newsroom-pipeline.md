@@ -280,10 +280,40 @@ Hook in title (clickbait element via paradox/question/metaphor/shock+stake) is
 enforced inside `prompts/gemini_writer.md` Title craft section — V1.9 sync với
 Headline Craft V1.9 principle #4.
 
-Web UI exposes a Claude/Gemini toggle (article view + IndexPage filter row) —
-Gemini side renders when `gemini_status == 'success'`, disabled otherwise. See
-`prompts/gemini_writer.md` for the prompt contract (voice principles + 4 format
-pattern + JSON output schema + clickbait title rules).
+Web UI exposes a Claude/Gemini/Grok toggle (article view + IndexPage filter
+row) — Gemini side renders when `gemini_status == 'success'`, disabled
+otherwise. See `prompts/gemini_writer.md` for the prompt contract (voice
+principles + 4 format pattern + JSON output schema + clickbait title rules).
+
+### Step 4.4 — Grok Writer (Python self-execute, V1.0 2026-05-14, REQUIRED)
+
+**HARD RULE — must run for every article from Step 4** (loop pattern same as
+Step 4.3 Gemini Writer). Each `article_id` persisted by Step 4 also gets a
+parallel xAI Grok side reusing Claude's `data_trail`. Pipeline-safety: NEVER
+halts on Grok failure — `grok_status` records outcome (`success` /
+`skipped_failure` / `skipped_disabled`) and pipeline proceeds to Step 4.5
+unchanged. Avg latency ~25-35s/article (mirrors Gemini), cost ~$0.005/article
+on grok-4-latest.
+
+For EACH `<article_id>` returned by Step 4 (parallel-safe with Step 4.3 — both
+sequential after Step 4):
+
+```bash
+cd "/Users/trungdt/Desktop/Stream Intelligent" && uv run python -m lib.stages.run_grok_writer \
+  --article-id <article_id>
+```
+
+Reads `data/secrets.yaml.grok.api_key` (xAI key from console.x.ai). Reads
+`data/secrets.yaml.grok.model` override (default `grok-4-latest`). Missing
+key → status `skipped_disabled` (no API call, no cost). The script writes
+columns directly via `PipelineDB.update_grok_output()`; no `pipeline_log`
+step entry is required because Grok (like Gemini) is non-blocking and not
+part of the Claude observability stack.
+
+3-model toggle on web (Claude / Gemini / Grok): Grok side renders when
+`grok_status == 'success'`. See `prompts/grok_writer.md` (voice principles
++ format + JSON output — currently a copy of Gemini prompt, allowed to
+diverge later for per-model tuning).
 
 ### Step 4.5 — Headline Craft (spawn dispatch — HARD RULE)
 
