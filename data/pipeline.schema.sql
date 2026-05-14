@@ -67,6 +67,14 @@ CREATE TABLE IF NOT EXISTS generated_news (
   gemini_generated_at TIMESTAMP NULL,
   gemini_status       TEXT,
   gemini_error        TEXT,
+  -- Step 4.4 Grok Writer (xAI, parallel to Gemini): same status enum
+  grok_title          TEXT,
+  grok_body           TEXT,
+  grok_word_count     INTEGER,
+  grok_model          TEXT,
+  grok_generated_at   TIMESTAMP NULL,
+  grok_status         TEXT,
+  grok_error          TEXT,
   FOREIGN KEY (row_id) REFERENCES crawl_log(row_id)
 );
 

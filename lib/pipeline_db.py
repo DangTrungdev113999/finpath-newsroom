@@ -425,6 +425,20 @@ class PipelineDB:
                 self.conn.execute(
                     f"ALTER TABLE generated_news ADD COLUMN {col} {col_type}"
                 )
+        # Step 4.4 Grok Writer parallel column set (mirrors Gemini exactly).
+        for col, col_type in (
+            ("grok_title", "TEXT"),
+            ("grok_body", "TEXT"),
+            ("grok_word_count", "INTEGER"),
+            ("grok_model", "TEXT"),
+            ("grok_generated_at", "TIMESTAMP"),
+            ("grok_status", "TEXT"),
+            ("grok_error", "TEXT"),
+        ):
+            if col not in existing:
+                self.conn.execute(
+                    f"ALTER TABLE generated_news ADD COLUMN {col} {col_type}"
+                )
         self.conn.commit()
 
     def init_schema(self, schema_path: str | Path) -> None:
@@ -576,6 +590,40 @@ class PipelineDB:
             updates["gemini_generated_at"] = generated_at
         if error is not None:
             updates["gemini_error"] = error
+        self.update_generated_news(article_id, updates)
+
+    _GROK_STATUS_VALUES = {"success", "skipped_failure", "skipped_disabled"}
+
+    def update_grok_output(
+        self,
+        *,
+        article_id: str,
+        status: str,
+        title: str | None = None,
+        body: str | None = None,
+        word_count: int | None = None,
+        model: str | None = None,
+        generated_at: str | None = None,
+        error: str | None = None,
+    ) -> None:
+        """Step 4.4 Grok Writer column writer. Mirrors update_gemini_output."""
+        if status not in self._GROK_STATUS_VALUES:
+            raise ValueError(
+                f"grok_status must be one of {sorted(self._GROK_STATUS_VALUES)}, got {status!r}"
+            )
+        updates: dict[str, Any] = {"grok_status": status}
+        if title is not None:
+            updates["grok_title"] = title
+        if body is not None:
+            updates["grok_body"] = body
+        if word_count is not None:
+            updates["grok_word_count"] = word_count
+        if model is not None:
+            updates["grok_model"] = model
+        if generated_at is not None:
+            updates["grok_generated_at"] = generated_at
+        if error is not None:
+            updates["grok_error"] = error
         self.update_generated_news(article_id, updates)
 
     def log_pipeline_step(self, article_id: str, step_key: str, payload: dict) -> None:
