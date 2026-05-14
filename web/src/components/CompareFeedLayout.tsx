@@ -67,9 +67,7 @@ export function CompareFeedLayout({
   return (
     <article className="max-w-7xl mx-auto px-4 py-6">
       <header className={showRight ? '' : 'max-w-3xl mx-auto'}>
-        <h1 className="leading-tight">
-          {meta.sector_icon} {displayTitle}
-        </h1>
+        <h1 className="leading-tight">{displayTitle}</h1>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4">
           <p className="!m-0 min-w-0 text-sm italic text-fg-3 sm:flex-1">
             {formatCrawledAt(meta.crawled_at)}
