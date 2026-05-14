@@ -36,6 +36,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from lib.format_picker_logic import pick_format_for_option  # noqa: E402
+from lib.intra_batch_dedup import dedup_briefs_in_batch  # noqa: E402
 from lib.pipeline_db import PipelineDB  # noqa: E402
 
 
@@ -85,6 +86,7 @@ def enrich_batch(
     format_picks: list[dict] = []
     candidates_considered: list[dict] = []
     picks_by_row: dict[str, list[str]] = {}
+    enriched_briefs_by_row: dict[str, dict] = {}
 
     for row in accepted:
         row_id = row["row_id"]
@@ -126,8 +128,40 @@ def enrich_batch(
             )
 
         brief["deep_question_options"] = enriched_options
-        db.update_crawl_row(row_id, {"brief_json": json.dumps(brief, ensure_ascii=False)})
+        # ticker is normalized on the brief itself so the dedup helper can
+        # group by (ticker, dominant_category) without re-querying the DB.
+        brief.setdefault("ticker", ticker)
+        brief.setdefault("row_id", row_id)
+        enriched_briefs_by_row[row_id] = brief
         picks_by_row[row_id] = per_option_picks
+
+    # Intra-batch thesis dedup (2026-05-14): pair-protection for cases where
+    # Story Editor accepted 2+ briefs with the same dominant deep_question
+    # category for the same ticker (root cause of MSN/PLX dup audit 2026-05-13).
+    deduped = dedup_briefs_in_batch(list(enriched_briefs_by_row.values()))
+    dedup_summary = {"keep": 0, "drop_dup_thesis": 0, "dropped_rows": []}
+    for brief in deduped:
+        row_id = brief.get("row_id")
+        decision = brief.get("dedup_decision", "keep")
+        if decision == "drop_dup_thesis":
+            dedup_summary["drop_dup_thesis"] += 1
+            dedup_summary["dropped_rows"].append(row_id)
+            note = (
+                f"Intra-batch dedup: dominant category trùng với brief đang giữ "
+                f"trong cùng batch — Format Director step 3.5 reject."
+            )
+            db.update_crawl_row(
+                row_id,
+                {
+                    "master_decision": "reject_dup_thesis",
+                    "master_note": note,
+                },
+            )
+        else:
+            dedup_summary["keep"] += 1
+        db.update_crawl_row(
+            row_id, {"brief_json": json.dumps(brief, ensure_ascii=False)}
+        )
 
     # Variety check: aggregate across all enriched rows
     unique_tickers = {p["ticker"] for p in format_picks if p.get("ticker")}
@@ -147,6 +181,7 @@ def enrich_batch(
         "format_picks": format_picks,
         "candidates_considered_per_option": candidates_considered,
         "variety_check": variety,
+        "intra_batch_dedup": dedup_summary,
         "format_distribution": dict(counter),
     }
 

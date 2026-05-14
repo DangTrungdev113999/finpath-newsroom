@@ -245,6 +245,8 @@ Lý do: nhiều Notion DB Bank trước đây cũng được fill bằng web sea
 - **V5.0 contrarian-OK** — Stance KHÔNG cần khớp mood ngày. Mã đỏ vẫn có thể bullish, mã xanh có thể bearish — khi data justify.
 - **V5.1 title delegate** — Master KHÔNG còn enforce title gate (moved to Step 4.5 Headline). Master returns body + placeholder title; Headline overrides via UPDATE generated_news. 5 hard criteria + 4 lối + 8-point rubric.
 - **V1.1 em dash ban** — Em dash `—` (U+2014) BANNED trong title (AI-tell signal). Body em_dash_density ≤ 1 per 100 words.
+- **V5.1.6 intra-batch thesis dedup (2026-05-14)** — Trong 1 batch /tin, 2+ brief về cùng ticker MUST có **dominant_category KHÁC NHAU** (dominant = category xuất hiện nhiều nhất trong `deep_question_options[]`, tie-break = options[0]). Enforcement 3 lớp: (a) Story Editor Pass 4 preventive prompt — agent tự filter; (b) **Format Director step 3.5 Python deterministic backstop** — `lib.intra_batch_dedup.dedup_briefs_in_batch` set `master_decision='reject_dup_thesis'` cho brief weak hơn (less options / less data_trail_preview / less key_metric_count); (c) Pipeline Step 4 orchestrator filter — skip rows có `master_decision='reject_dup_thesis'` để KHÔNG spawn Master. Root cause fix cho MSN×2 + PLX×1 dup audit 2026-05-13.
+- **V1.9 hook clickbait element (2026-05-14)** — Title MUST chứa ≥1 yếu tố tạo curiosity gap TỪ bài: paradox "X nhưng Y" / câu hỏi mở / số sốc + stake / metaphor cụ thể / identity framing. Bland fact statement ("MSN lãi Q1 1.974 tỷ") → reject. Vẫn cấm vulgar PR clickbait (cú nổ / bí mật / sốc / hot / chấn động). Áp cả Headline Craft V1.9 lẫn Gemini Writer prompt.
 
 ## 5 deep_question category hợp lệ (Story Editor → Master)
 

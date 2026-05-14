@@ -31,6 +31,19 @@ MUST emit `data_trail` array of {source, fetched, purpose, supports_argument} pe
 
 ### 1. Validate brief V5.0
 
+**Step 1.0 — Dedup short-circuit (2026-05-14, HARD RULE)**:
+
+Đọc `brief.dedup_decision` đầu tiên. Nếu = `'drop_dup_thesis'` → EXIT NGAY, KHÔNG write article. Format Director step 3.5 đã xác định brief này trùng dominant_category với brief khác trong cùng batch. Set:
+
+```python
+master_decision = 'reject_dup_thesis'
+master_note = '<inherit từ brief.dedup_note hoặc note Format Director đã set>'
+```
+
+KHÔNG persist generated_news, KHÔNG return article_id. Pipeline orchestrator (Step 4) cũng filter rows where `master_decision='reject_dup_thesis'` đã set sẵn — nhưng đây là backstop nếu spawn-by-mistake.
+
+**Step 1.1 — Schema validation**:
+
 - ticker in BANK_UNIVERSE (27 mã, see lib/routing.py)
 - brief có `deep_question_options` (array 2-3+)
 - Mỗi option có:

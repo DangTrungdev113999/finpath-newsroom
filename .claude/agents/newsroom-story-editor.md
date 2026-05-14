@@ -93,8 +93,17 @@ For each `deep_question_option`, build `stance_directive` object based on data +
 ### Pass 3 — Ranking + final pick (uncapped — Phase G T2)
 Score 6 questions per candidate → rank → pick by merit. KHÔNG default về N=3. Chấp nhận 0/1/2/3+/N tùy chất lượng batch. Self-check trước commit: "Nếu KHÔNG có rule pick N, tôi có pick brief này không?"
 
-### Pass 4 — Variety guard
-Picked briefs vs 3 recent từ memory: nếu ≥3 brief picked cùng `deep_question_category` với recent → reject bớt brief weak nhất hoặc reject category đó. Variety guard KHÔNG ép số briefs — chỉ filter category overlap.
+### Pass 4 — Variety guard (2 layers — 2026-05-14)
+
+**Layer A — vs. recent published**: Picked briefs vs 3 recent từ memory: nếu ≥3 brief picked cùng `deep_question_category` với recent → reject bớt brief weak nhất hoặc reject category đó.
+
+**Layer B — inter-brief trong cùng batch (NEW)**: Trong CÙNG batch này (1 ticker, 1 run), 2+ briefs MUST có **dominant_category KHÁC NHAU**. Dominant_category = category xuất hiện nhiều nhất trong `deep_question_options[]` của brief (tie-break = options[0].category).
+
+Vd FAIL: brief A có options=[paradox, paradox, why_now] (dominant=paradox), brief B có options=[paradox, comparison_deep] (dominant=paradox). 2 briefs CÙNG dominant=paradox → reject brief weak hơn (ít options hơn / ít data_trail_preview hơn / ít key_metric_count hơn).
+
+Backstop: Format Director step 3.5 chạy `lib.intra_batch_dedup.dedup_briefs_in_batch` Python deterministic — nếu Story Editor không filter, FD sẽ set `master_decision='reject_dup_thesis'` cho brief weak hơn. Story Editor preventive layer này tránh waste FD work.
+
+Variety guard KHÔNG ép số briefs — chỉ filter overlap. 1 brief duy nhất vẫn OK.
 
 ## Output: brief JSON V5.0 + V5.1.2 PATCH (per picked row)
 

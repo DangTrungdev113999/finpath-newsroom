@@ -178,7 +178,23 @@ Observability: payload requires `format_picks` (non-empty list), `candidates_con
 
 ### Step 4 — Master sector (spawn dispatch, OUTER LOOP per brief)
 
-**OUTER LOOP per brief**. For each brief in story_editor output:
+**OUTER LOOP per brief**. For each brief in story_editor output.
+
+**Pre-loop filter (V5.1.6 — 2026-05-14 HARD RULE)**: Skip rows where
+`master_decision` is already set to `reject_dup_thesis`. These rows were
+identified by Format Director step 3.5 (`lib.intra_batch_dedup`) as
+intra-batch thesis duplicates and MUST NOT be spawned (saves cost + prevents
+overlapping content). Filter SQL:
+
+```sql
+SELECT row_id FROM crawl_log
+WHERE funnel_batch_id = '<batch_id>'
+  AND story_editor_decision IN ('accept','write_brief')
+  AND brief_json IS NOT NULL
+  AND (master_decision IS NULL OR master_decision NOT IN ('reject_dup_thesis'));
+```
+
+For surviving rows, proceed with normal spawn dispatch:
 
 Read `master_route` field (set by Editor V1 Step 2 V5.1.3) from crawl_log row → dispatch correct master agent. V5.1.3 covers 10 master routes:
 
