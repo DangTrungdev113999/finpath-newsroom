@@ -66,8 +66,12 @@ def auto_git_publish(batch_id: str, article_count: int) -> dict[str, Any]:
     start = time.time()
     self_heal_actions: list[str] = []
 
-    # 1. git add
-    add = _run("git add output/compare-feed/")
+    # 1. git add — V5.1.8: stage both compare-feed (.md + manifest) AND thumbs
+    # (Imagen 4 webp files). Without staging thumbs, GH Pages deploy 404s every
+    # hero image (workflow copies output/thumbs/ but git never commits the
+    # files there). Use a single `git add` with both paths so a partial failure
+    # on either side aborts the commit cleanly.
+    add = _run("git add output/compare-feed/ output/thumbs/")
     if add.returncode != 0:
         return {
             "ok": False,
