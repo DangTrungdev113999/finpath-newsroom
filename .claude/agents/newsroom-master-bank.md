@@ -31,16 +31,19 @@ MUST emit `data_trail` array of {source, fetched, purpose, supports_argument} pe
 
 ### 1. Validate brief V5.0
 
-**Step 1.0 — Dedup short-circuit (2026-05-14, HARD RULE)**:
+**Step 1.0 — Merge short-circuit + enrichment awareness (V5.1.8, HARD RULE)**:
 
-Đọc `brief.dedup_decision` đầu tiên. Nếu = `'drop_dup_thesis'` → EXIT NGAY, KHÔNG write article. Format Director step 3.5 đã xác định brief này trùng dominant_category với brief khác trong cùng batch. Set:
+Đọc `brief.merge_decision` đầu tiên (V5.1.8) hoặc `brief.dedup_decision` (V5.1.6 backward-compat):
 
-```python
-master_decision = 'reject_dup_thesis'
-master_note = '<inherit từ brief.dedup_note hoặc note Format Director đã set>'
-```
+- `merge_decision = "absorbed_into_<row_id>"` (V5.1.8) **OR** `dedup_decision = "drop_dup_thesis"` (V5.1.6) → EXIT NGAY. Format Director merged brief này vào winner. KHÔNG persist generated_news, KHÔNG return article_id. Set `master_decision='reject_dup_thesis'`. Pipeline orchestrator (Step 4) cũng filter rows này — đây là backstop.
 
-KHÔNG persist generated_news, KHÔNG return article_id. Pipeline orchestrator (Step 4) cũng filter rows where `master_decision='reject_dup_thesis'` đã set sẵn — nhưng đây là backstop nếu spawn-by-mistake.
+- `merge_decision = "merged"` → brief winner enriched. Đọc các field bổ sung:
+  - `merged_from_briefs[]`: danh sách (row_id, angle_label) các brief đã absorb
+  - `merged_key_evidence[]`: union key_evidence từ winner + losers
+  - `deep_question_options[]`: concat winner + loser options (cap 5)
+  - Master tiếp tục Workflow Step 1.1 → 9 bình thường; pick 1 option (Step 6.5) từ pool enriched; viết 1 article cover được thesis của BOTH briefs.
+
+- `merge_decision = "keep"` (singleton) → workflow normal.
 
 **Step 1.1 — Schema validation**:
 

@@ -97,11 +97,11 @@ Score 6 questions per candidate → rank → pick by merit. KHÔNG default về 
 
 **Layer A — vs. recent published**: Picked briefs vs 3 recent từ memory: nếu ≥3 brief picked cùng `deep_question_category` với recent → reject bớt brief weak nhất hoặc reject category đó.
 
-**Layer B — inter-brief trong cùng batch (NEW)**: Trong CÙNG batch này (1 ticker, 1 run), 2+ briefs MUST có **dominant_category KHÁC NHAU**. Dominant_category = category xuất hiện nhiều nhất trong `deep_question_options[]` của brief (tie-break = options[0].category).
+**Layer B — inter-brief trong cùng batch (V5.1.8 MERGE)**: Trong CÙNG batch này (1 ticker, 1 run), 2+ briefs MUST có **dominant_category KHÁC NHAU** nếu Story Editor có thể tách. Dominant_category = category xuất hiện nhiều nhất trong `deep_question_options[]` của brief (tie-break = options[0].category).
 
-Vd FAIL: brief A có options=[paradox, paradox, why_now] (dominant=paradox), brief B có options=[paradox, comparison_deep] (dominant=paradox). 2 briefs CÙNG dominant=paradox → reject brief weak hơn (ít options hơn / ít data_trail_preview hơn / ít key_metric_count hơn).
+Vd: brief A options=[paradox, paradox, why_now] (dominant=paradox), brief B options=[paradox, comparison_deep] (dominant=paradox). 2 briefs CÙNG dominant → preventively filter B nếu thấy overlap content (mất nhiều thông tin); ELSE để FD merge.
 
-Backstop: Format Director step 3.5 chạy `lib.intra_batch_dedup.dedup_briefs_in_batch` Python deterministic — nếu Story Editor không filter, FD sẽ set `master_decision='reject_dup_thesis'` cho brief weak hơn. Story Editor preventive layer này tránh waste FD work.
+Backstop V5.1.8: Format Director step 3.5 chạy `lib.intra_batch_dedup.merge_briefs_in_batch` Python deterministic — KHÔNG drop bài. Winner brief enriched với options + key_evidence của losers (`merged_from_briefs[]`, `merged_key_evidence[]`); losers marked `merge_decision='absorbed_into_<winner_row_id>'` + `master_decision='reject_dup_thesis'` (Master skip). Master winner viết 1 article cover cả 2 thesis. Preventive Story Editor filter vẫn có giá trị: tránh winner brief option pool bloat (FD cap 5 options per merged brief).
 
 Variety guard KHÔNG ép số briefs — chỉ filter overlap. 1 brief duy nhất vẫn OK.
 

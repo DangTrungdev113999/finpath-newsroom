@@ -36,7 +36,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from lib.format_picker_logic import pick_format_for_option  # noqa: E402
-from lib.intra_batch_dedup import dedup_briefs_in_batch  # noqa: E402
+from lib.intra_batch_dedup import merge_briefs_in_batch  # noqa: E402
 from lib.pipeline_db import PipelineDB  # noqa: E402
 
 
@@ -135,20 +135,24 @@ def enrich_batch(
         enriched_briefs_by_row[row_id] = brief
         picks_by_row[row_id] = per_option_picks
 
-    # Intra-batch thesis dedup (2026-05-14): pair-protection for cases where
-    # Story Editor accepted 2+ briefs with the same dominant deep_question
-    # category for the same ticker (root cause of MSN/PLX dup audit 2026-05-13).
-    deduped = dedup_briefs_in_batch(list(enriched_briefs_by_row.values()))
-    dedup_summary = {"keep": 0, "drop_dup_thesis": 0, "dropped_rows": []}
-    for brief in deduped:
+    # Intra-batch thesis MERGE (V5.1.8 — 2026-05-14): when Story Editor produces
+    # 2+ briefs with the same dominant deep_question category for the same
+    # ticker, ENRICH the strongest brief with the others' options + key_evidence
+    # so Master writes 1 article that draws from BOTH sides instead of dropping
+    # data (V5.1.6 behavior).
+    merged = merge_briefs_in_batch(list(enriched_briefs_by_row.values()))
+    merge_summary = {"keep": 0, "merged": 0, "absorbed": 0, "absorbed_rows": []}
+    for brief in merged:
         row_id = brief.get("row_id")
-        decision = brief.get("dedup_decision", "keep")
-        if decision == "drop_dup_thesis":
-            dedup_summary["drop_dup_thesis"] += 1
-            dedup_summary["dropped_rows"].append(row_id)
+        decision = brief.get("merge_decision", "keep")
+        if decision.startswith("absorbed_into_"):
+            winner_id = decision.removeprefix("absorbed_into_")
+            merge_summary["absorbed"] += 1
+            merge_summary["absorbed_rows"].append(row_id)
             note = (
-                f"Intra-batch dedup: dominant category trùng với brief đang giữ "
-                f"trong cùng batch — Format Director step 3.5 reject."
+                f"Intra-batch MERGE V5.1.8: brief absorbed into winner row_id={winner_id} "
+                f"(cùng dominant_category) — Master skip, winner brief đã enrich với "
+                f"options + key_evidence từ brief này."
             )
             db.update_crawl_row(
                 row_id,
@@ -157,8 +161,10 @@ def enrich_batch(
                     "master_note": note,
                 },
             )
+        elif decision == "merged":
+            merge_summary["merged"] += 1
         else:
-            dedup_summary["keep"] += 1
+            merge_summary["keep"] += 1
         db.update_crawl_row(
             row_id, {"brief_json": json.dumps(brief, ensure_ascii=False)}
         )
@@ -181,7 +187,7 @@ def enrich_batch(
         "format_picks": format_picks,
         "candidates_considered_per_option": candidates_considered,
         "variety_check": variety,
-        "intra_batch_dedup": dedup_summary,
+        "intra_batch_merge": merge_summary,
         "format_distribution": dict(counter),
     }
 

@@ -180,11 +180,13 @@ Observability: payload requires `format_picks` (non-empty list), `candidates_con
 
 **OUTER LOOP per brief**. For each brief in story_editor output.
 
-**Pre-loop filter (V5.1.6 — 2026-05-14 HARD RULE)**: Skip rows where
+**Pre-loop filter (V5.1.8 — 2026-05-14 HARD RULE)**: Skip rows where
 `master_decision` is already set to `reject_dup_thesis`. These rows were
-identified by Format Director step 3.5 (`lib.intra_batch_dedup`) as
-intra-batch thesis duplicates and MUST NOT be spawned (saves cost + prevents
-overlapping content). Filter SQL:
+absorbed by Format Director step 3.5 (`lib.intra_batch_dedup.merge_briefs_in_batch`)
+into a winner brief — their content (options, key_evidence) lives inside the
+winner's `brief_json` (`merged_from_briefs`, `merged_key_evidence`). The
+winner brief is dispatched normally; absorbed rows MUST NOT be spawned
+(prevents overlapping content + saves cost). Filter SQL:
 
 ```sql
 SELECT row_id FROM crawl_log
