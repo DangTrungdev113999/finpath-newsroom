@@ -3,6 +3,7 @@ import type { ArticleSummary } from '../types';
 import { formatCrawledAt } from '../lib/format';
 import { useModelPreference } from '../lib/useModelPreference';
 import { MissingModelNotice } from './MissingModelNotice';
+import { TickerHero } from './TickerHero';
 import { cn } from '../shared/lib/cn';
 
 export function ArticleCard({ article }: { article: ArticleSummary }) {
@@ -41,7 +42,7 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
         />
       )}
 
-      {article.thumb_url && (
+      {article.thumb_url ? (
         <div
           className={cn(
             'relative aspect-video w-full overflow-hidden border-b border-fg-4/30 bg-fg-4/10',
@@ -57,6 +58,10 @@ export function ArticleCard({ article }: { article: ArticleSummary }) {
               !isMissing && 'group-hover:scale-[1.03]',
             )}
           />
+        </div>
+      ) : (
+        <div className={cn(isMissing && 'opacity-55 saturate-[0.6]')}>
+          <TickerHero ticker={article.ticker} sector={article.sector} />
         </div>
       )}
 
