@@ -6,6 +6,7 @@ on:
     paths:
       - 'web/**'
       - 'output/compare-feed/**'
+      - 'output/thumbs/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch: {}
 
