@@ -8,7 +8,14 @@
 
 {{sector_motif}}
 
-**Ticker as hero typography**: prominently display the stock ticker **{{ticker}}** as bold 3D sans-serif letters integrated naturally into the scene (engraved on a wall, illuminated as a neon sign, embossed on a metal plaque, or projected as light onto the architecture — pick whichever fits the article's drama). The ticker is the SINGLE textual element and must be legible.
+**Ticker as MASSIVE FOREGROUND HERO**: render the stock ticker **{{ticker}}** as the **dominant visual element** of the composition. The ticker letters MUST:
+- Occupy **25-40% of the image width** (oversized — not a subtle detail).
+- Sit in the **front layer**, sharply focused, integrated into the scene drama (e.g. carved as a giant 3D monument in front, suspended mid-air with depth, or burning as a colossal neon billboard).
+- Be **high-contrast** against the background: bright saturated **cyan / magenta / electric yellow / neon orange** glowing letters when the backdrop is dark cinematic blue, OR jet-black 3D letters when the scene is bright. Pick whichever contrasts hardest.
+- Use **bold extruded 3D sans-serif** typography with rim light, drop shadow, and a glowing aura. Letters should feel solid and weighty, not flat.
+- Be **sharply legible** even at 200px thumbnail size — letterforms clean, no decorative flourishes.
+
+The ticker is the SINGLE textual element. Treat it as the visual anchor of the entire image; the drama scene wraps around / behind / through it.
 
 Style: cinematic, dramatic chiaroscuro, photo-realistic, 16:9.
 Mood: tension, contrast, high stake — anchored to the article-specific scene above.
