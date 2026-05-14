@@ -111,15 +111,12 @@ export function CompareFeedLayout({
         </div>
       </header>
 
-      {/* V5.1.8 — Imagen 4 hero thumb (1024×576). Renders only when
-          /tin --image was used AND Imagen succeeded. Falls back to nothing
-          (no broken layout) on older articles. */}
-      {meta.thumb_url && (
-        <figure
-          className={`mt-4 mb-2 overflow-hidden rounded-lg border border-fg-4/30 bg-fg-4/10 aspect-video ${
-            showRight ? '' : 'max-w-3xl mx-auto'
-          }`}
-        >
+      {/* In FOCUS mode (showRight=false) the hero image sits centered above
+          the body. In FULL mode (showRight=true) the image is no longer
+          rendered here — it moves INTO the left grid column below so it
+          shares width with the article body, never spans the right column. */}
+      {!showRight && meta.thumb_url && !isMissing && (
+        <figure className="mt-4 mb-2 max-w-3xl mx-auto aspect-video overflow-hidden rounded-lg border border-fg-4/30 bg-fg-4/10">
           <img
             src={meta.thumb_url}
             alt=""
@@ -152,7 +149,21 @@ export function CompareFeedLayout({
         )
       ) : showRight ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-          <LeftColumn meta={displayLeftMeta} body={displayBody} />
+          <div>
+            {/* Full-mode hero image — constrained to the left column width
+                so the photograph never bleeds across the metadata pane. */}
+            {meta.thumb_url && (
+              <figure className="mb-5 aspect-video overflow-hidden rounded-lg border border-fg-4/30 bg-fg-4/10">
+                <img
+                  src={meta.thumb_url}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
+              </figure>
+            )}
+            <LeftColumn meta={displayLeftMeta} body={displayBody} />
+          </div>
           <RightColumn meta={meta} />
         </div>
       ) : (

@@ -417,11 +417,17 @@ class PipelineDB:
         # Each side stores its own brief snapshot + step_4 payload as JSON TEXT
         # so render_compare_feed + UI can show per-model data_trail without
         # parsing the shared pipeline_log column.
+        #
+        # `primary_writer` column (V5.1.9.2): explicit flag set by the first
+        # writer to win the promote-to-primary race. Renders + web read this
+        # directly instead of a body-string-match heuristic that breaks on
+        # any whitespace normalization or re-render edit.
         for col, col_type in (
             ("gemini_brief_json", "TEXT"),
             ("gemini_step_log", "TEXT"),
             ("grok_brief_json", "TEXT"),
             ("grok_step_log", "TEXT"),
+            ("primary_writer", "TEXT"),
         ):
             if col not in existing:
                 self.conn.execute(

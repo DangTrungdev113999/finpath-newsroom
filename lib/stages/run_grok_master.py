@@ -129,7 +129,7 @@ def _build_step_log(result: dict[str, Any], duration_ms: int) -> dict[str, Any]:
     }
 
 
-def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], payload: dict[str, Any]) -> str | None:
+def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], payload: dict[str, Any], writer: str) -> str | None:
     """If row's current_title is the placeholder, this writer becomes primary:
     fill title/body/word_count/insight_final/key_view/variety_guard_angle +
     recompute public_slug. Returns new public_slug (or None if not promoted).
@@ -161,6 +161,7 @@ def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], paylo
         "key_view": payload.get("key_view"),
         "variety_guard_angle": payload.get("variety_guard_angle"),
         "public_slug": new_slug,
+        "primary_writer": writer,
     })
     return new_slug
 
@@ -242,7 +243,7 @@ def run_grok_master(
     if result["ok"]:
         # Try to claim primary slot. If already taken (grok finished first), no-op.
         article_refreshed = _load_article_context(db, article_id) or article
-        _promote_to_primary_if_needed(db, article_refreshed, payload)
+        _promote_to_primary_if_needed(db, article_refreshed, payload, writer="grok")
 
     return {
         "ok": result["ok"],

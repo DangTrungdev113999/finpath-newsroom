@@ -236,20 +236,17 @@ def render_article_md_v4(article: dict, anchor_row: dict, funnel_rows: list[dict
     sector = article.get("sector", "Bank")
     sector_icon = {"Bank": "🏦", "CK": "📈", "BĐS": "🏠"}.get(sector, "📰")
 
-    # V5.1.9 — detect which writer promoted to primary by matching body to
-    # gemini_body / grok_body. When body matches, set author + primary_writer
-    # so web can collapse the toggle to 2-way (Claude side hidden).
-    primary_writer = "claude"  # legacy default — Claude Master sector authors
+    # V5.1.9.2 — primary_writer is now an explicit DB column written by the
+    # writer that wins the promote-to-primary race (see
+    # lib/stages/run_*_master.py::_promote_to_primary_if_needed). Body-
+    # match heuristic retired — fragile against whitespace normalization
+    # and manual DB edits.
+    primary_writer = article.get("primary_writer") or "claude"  # legacy fallback
     author = _author_for_sector(sector)
-    body_str = article.get("body") or ""
-    gemini_body = article.get("gemini_body") or ""
-    grok_body = article.get("grok_body") or ""
-    if body_str and body_str == gemini_body and gemini_body:
-        primary_writer = "gemini"
+    if primary_writer == "gemini":
         gm = article.get("gemini_model") or "gemini-2.5-pro"
         author = f"Gemini · {gm}"
-    elif body_str and body_str == grok_body and grok_body:
-        primary_writer = "grok"
+    elif primary_writer == "grok":
         gm = article.get("grok_model") or "grok-4.3"
         author = f"Grok · {gm}"
 

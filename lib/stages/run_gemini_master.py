@@ -134,10 +134,14 @@ def _build_step_log(result: dict[str, Any], duration_ms: int) -> dict[str, Any]:
     }
 
 
-def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], payload: dict[str, Any]) -> str | None:
+def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], payload: dict[str, Any], writer: str) -> str | None:
     """If row's current_title is the placeholder, this writer becomes primary:
     fill title/body/word_count/insight_final/key_view/variety_guard_angle +
-    recompute public_slug. Returns new public_slug (or None if not promoted).
+    recompute public_slug + set primary_writer flag.
+
+    V5.1.9.2: `primary_writer` is written as an explicit column so the
+    render/web layer doesn't have to body-string-match. `writer` arg is
+    'gemini' or 'grok' from the caller.
     """
     current_title = (article.get("current_title") or "").strip().lower()
     if current_title and PRIMARY_PLACEHOLDER not in current_title:
@@ -166,6 +170,7 @@ def _promote_to_primary_if_needed(db: PipelineDB, article: dict[str, Any], paylo
         "key_view": payload.get("key_view"),
         "variety_guard_angle": payload.get("variety_guard_angle"),
         "public_slug": new_slug,
+        "primary_writer": writer,
     })
     return new_slug
 
@@ -247,7 +252,7 @@ def run_gemini_master(
     if result["ok"]:
         # Try to claim primary slot. If already taken (grok finished first), no-op.
         article_refreshed = _load_article_context(db, article_id) or article
-        _promote_to_primary_if_needed(db, article_refreshed, payload)
+        _promote_to_primary_if_needed(db, article_refreshed, payload, writer="gemini")
 
     return {
         "ok": result["ok"],
